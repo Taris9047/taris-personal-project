@@ -75,4 +75,24 @@ puts monster4.scare_factor
 #  attr_writer :scare_factor, :hiding_place
 #end
 
+# Class Scoped Objects
+# Class local variable
+class Boogeyman
+  MY_BOSS = 'Mr. Boogeyman'
+end
+
+# @@ defines local variable in a method
+class Boogeyman
+  def initialize(name, location)
+    @name = name
+    @location = location
+    
+    @@latest = @name
+    @@location = @location
+    puts "Yes, master?"
+  end
+end
+monster5 = Boogeyman.new("Macabre mac", "Seattle, WA")
+monster6 = Boogeyman.new("Gory Gary", "Reston, WV")
+puts Boogeyman.latest
 
