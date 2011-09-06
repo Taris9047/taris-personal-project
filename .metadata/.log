@@ -1,0 +1,16 @@
+!SESSION 2011-08-10 03:12:43.869 -----------------------------------------------
+eclipse.buildId=I20110613-1736
+java.version=1.6.0_26
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.cpp.product -keyring /Users/Taris/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.cpp.product -keyring /Users/Taris/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2011-08-10 03:12:58.231
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.ui 4 4 2011-08-10 03:13:00.501
+!MESSAGE Referenced part does not exist yet: org.eclipse.jdt.ui.PackageExplorer.
+
+!ENTRY org.eclipse.cdt.core 1 0 2011-08-10 03:13:30.621
+!MESSAGE Indexed 'Hello' (0 sources, 69 headers) in 2.20 sec: 1,754 declarations; 2,098 references; 0 unresolved inclusions; 0 syntax errors; 6 unresolved names (0.16%)
