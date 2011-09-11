@@ -4,7 +4,7 @@
  *  Created on: Aug 10, 2011
  *      Author: Taris
  */
-#include<iostream>
+#include <iostream>
 using namespace std;
 
 int main (void)
