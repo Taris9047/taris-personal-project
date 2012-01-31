@@ -32,4 +32,6 @@ int main(int argc, char **argv)
     runtime = (double)(end-start) / CLOCKS_PER_SEC;
     printf ("runtime is %f\n", runtime);
     mpz_clear(facN);
+
+	return 0;
 }
