@@ -1,0 +1,104 @@
+README File for the Fortran-77 Multiprecision System
+
+Update as of 2002-07-15
+
+The following are included in the mpfun77.gz file:
+
+Name            Description
+
+mpfun.f		MPFUN library file
+testmp.f	Test program for MPFUN
+transmp.f	TRANSMP program
+testran.f	Test program for TRANSMP
+testran.out	Reference output of test program
+tpslq177.f	One-level PSLQ program
+tpslq277.f	Two-level PSLQ program
+tpslq377.f	Three-level PSLQ program
+tpslqm177.f	One-level multi-pair PSLQ program
+tpslqm277.f	Two-level multi-pair PSLQ program
+tpslqm377.f	Three-level multi-pair pslq program
+convip.f	Conversion utility needed for tpslq377.f and tpslqm377.f
+secd77.f	Timing routine for Fortran-77 codes
+mpfun77.tex	Technical paper describing the mpfun77 library.
+mpfun77.ps	PostScript of the above.
+transmp.tex	Technical paper describing the transmp program.
+transmp.ps	PostScript of the above.
+
+Instructions for compiling and running the basic library and test programs
+(on an IBM RS6000 systems; for other systems see below):
+
+Command                           Notes
+
+xlf -O3 -c mpfun.f              There should be no fatal compiler
+                                    diagnostics.
+xlf testmp.f mpfun.o            There should be no fatal compiler
+                                    diagnostics.
+a.out > testmp.out                Check testmp.out to make sure all tests
+                                    passed.
+xlf -qcharlen=2000 -o transmp transmp.f        
+                                  There should be no fatal compiler 
+                                    diagnostics.
+transmp < testran.f > tranout.f   Check the end of tranout.f to make sure
+                                    there are no fatal translator errors.
+xlf tranout.f mpfun.o           There should be no fatal compiler
+                                    diagnostics.
+a.out > tranout.out               This should complete normally.
+
+diff tranout.out testran.out      There should be no differences here.
+
+Notes: On SGI Origin 2000 systems, use f77 with compiler flags "-64
+-O2".  On Cray T3E systems, use f90 with compiler flags "-s default32
+-O3".  On DEC Alpha systems, use f77 with compiler flags "-automatic
+-fast".  On Sun systems, use f77 with compiler flags "-fast -O4".  f90
+compilers, where available, often produces faster code.
+
+Instructions for compiling and running the PSLQ programs:
+
+Each of the pslq program files includes a sample calling program.  At
+the beginning of this program one sets key parameters, as explained in
+the comments.  When attempting to solve an integer relation problem,
+one often does not know what the minimum value of n is that produces a
+relation, so some experimentation is usually required.  Similarly, the
+working precision level often takes some adjustment.  As a rough rule
+of thumb, one must use a precision level somewhat larger than n * d
+digits, where n is the relation vector length and d is the size in
+digits of the largest coefficient.
+
+On an IBM RS6000 systems, the Fortran-77 codes are compiled and
+exectued as follows (this assumes that transmp.f and mpfun.f have
+been compiled):
+
+xlf -c sec77.f
+xlf -o convip convip.f
+
+transmp < tpslq177.f > xx.f
+xlf -O3 xx.f mpfun.o secd.o
+a.out > tpslq177.out
+
+transmp < tpslq277.f > xx.f
+xlf -O3 xx.f mpfun.o secd.o
+a.out > tpslq277.out
+
+transmp < tpslq377.f > xx.f
+convip < xx.f > yy.f
+xlf -O3 yy.f mpfun.o secd.o
+a.out > tpslq377.out
+
+and similarly for the 'm' versions.
+
+Notes: Before compiling secd77.f on IBM RS6000 systems, first insert
+an underscore _ immediately after "etime" in this file.  On Cray T3E
+systems, insert the flag "-s default32" in the f90 compile statement
+(the f90 compiler is used to compile the F-77 codes).
+
+These codes have been tested quite thoroughly, but a few bugs may
+remain.  If you encounter any, please let me know and I will fix them
+as soon as possible.
+
+Contact:
+
+David H. Bailey
+NERSC, Lawrence Berkeley Lab
+Mail Stop 50B-2239
+Berkeley, CA 94720
+Email: dhbailey@lbl.gov
