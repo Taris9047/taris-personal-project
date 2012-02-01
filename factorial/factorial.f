@@ -12,4 +12,4 @@
       write(*,'("Factorial of ",I10," is ",I30)') 
      +   number, res
 
-      end
+      end program FACTORIAL
