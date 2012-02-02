@@ -1,15 +1,19 @@
-      program FACTORIAL
-
-!  definition of variables
-      integer*8 i, res, number
-      parameter( number=50 )
-
+cmp+ precision level 1000
+cmp+ mixed mode fast
+cmp+ output precision 1000
+cmp+ scratch space 5000
+      program factorial
+cmp+ multip integer res
+      integer*8 i, Num
+      Num = 50000
       res = 1
-      do i=2,number             ! this loop calculates the factorial
+c
+      do i=2,Num
          res = res*i
       enddo
-
-      write(*,'("Factorial of ",I10," is ",I30)') 
-     +   number, res
-
-      end program FACTORIAL
+c
+      write(*,'("Factorial of ",I10," has been finished.")') 
+     +   Num
+      write(6, *) res
+      stop
+      end
