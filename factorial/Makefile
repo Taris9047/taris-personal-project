@@ -25,3 +25,7 @@ fact_f77: mpfun77.o factorial-mpfun77.f
 
 clean:
 	rm -rf fact_c fact_f77 mpfun77.o mpfun90.o transmp77 factorial-mpfun77.f
+
+run: fact_f77 fact_c
+	time ./fact_c
+	time ./fact_f77
