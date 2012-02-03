@@ -1,7 +1,7 @@
 cmp+ precision level 250000
 cmp+ mixed mode fast
 cmp+ output precision 200000
-cmp+ scratch space 150000
+cmp+ scratch space 400000
       program factorial
 cmp+ multip integer res
       integer*8 i, Num
