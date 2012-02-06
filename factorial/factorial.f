@@ -1,19 +1,19 @@
-cmp+ precision level 250000
-cmp+ mixed mode fast
-cmp+ output precision 200000
-cmp+ scratch space 400000
-      program factorial
-cmp+ multip integer res
-      integer*8 i, Num
-      Num = 50000
-      res = 1+0
-c
-      do i=2,Num
-         res = res*i
-      enddo
-c
-      write(*,'("Factorial of ",I10," has been finished.")') 
-     +   Num
-c      write(6, *) res
-      stop
-      end
+CMP+ PRECISION LEVEL 250000
+CMP+ MIXED MODE FAST
+CMP+ OUTPUT PRECISION 200000
+CMP+ SCRATCH SPACE 400000
+      PROGRAM FACTORIAL
+CMP+ MULTIP INTEGER RES
+      INTEGER*8 I, NUM
+      NUM = 50000
+      RES = 1+0
+C
+      DO I=2,NUM
+         RES = RES*I
+      ENDDO
+C
+      WRITE(*,'("Factorial of ",I10," has been finished.")') 
+     +   NUM
+C      WRITE(6, *) RES
+      STOP
+      END
