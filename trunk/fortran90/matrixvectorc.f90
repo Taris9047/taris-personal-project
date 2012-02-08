@@ -25,14 +25,16 @@ program MatrixVector
          real, dimension( size ( b ) ) :: c
 
          integer N
-         integer i
+         integer i, j
 
          N = size ( b )
          
          c = 0.0
 
          do i = 1, N
-            c = c + b( i ) * A( :, i )
+            do j = 1, N
+               c( i ) = c( i ) + A( i, j )*B( j )
+            enddo
          enddo
       end function matrixVectorMultiply
 
