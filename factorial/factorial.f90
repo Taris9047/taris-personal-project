@@ -17,6 +17,5 @@ program factorial
 
 !  print *, 'The answer is...'
 !  call mpwrite(6, Res)
-
   
 end program factorial
