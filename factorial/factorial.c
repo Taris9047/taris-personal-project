@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <gmp.h>
-#include <time.h>
+//#include <time.h>
  
 void factorial(mpz_t* f, unsigned int n)
 {
@@ -15,22 +15,20 @@ int main(int argc, char **argv)
 {
     mpz_t facN;
     unsigned int n = 50000;
-    clock_t start, end;
-    double runtime;
+//    clock_t start, end;
+//    double runtime;
  
     mpz_init(facN);
     mpz_set_ui(facN, 1L);
  
-    start = clock();
+    //start = clock();
     factorial(&facN, n);
-    end = clock();
+    //end = clock();
  
-    //printf("fac %u is ", n);
-    //mpz_out_str(stdout, 10, facN);
-    //printf("\n");
+    printf("%u! calculation is finished!!\n", n);
  
-    runtime = (double)(end-start) / CLOCKS_PER_SEC;
-    printf ("runtime is %f\n", runtime);
+    //runtime = (double)(end-start) / CLOCKS_PER_SEC;
+    //printf ("runtime is %f\n", runtime);
     mpz_clear(facN);
 
 	return 0;
