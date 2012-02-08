@@ -1,8 +1,8 @@
 CC=gcc
 FCC=gfortran
 CFLAGS=-O3 -Wall
-FFLAGS=-O3 -Wall
-F90FLAGS=-O3 -Wall -ffree-form
+FFLAGS=-O3 -Wall -ftree-vectorize
+F90FLAGS=-O3 -Wall -ffree-form -ftree-vectorize
 F90INCLUDE=./mpfun/mpfun90/f90/
 
 all:fact_c fact_f77 fact_f90
@@ -45,7 +45,7 @@ clean:
 	rm -rf ./fact_f77 ./transmp77 ./factorial-mpfun77.f
 	rm -rf ./fact_f90
 	rm -rf ./*.o ./*.mod
-	cd ./mpfun/mpfun90/f90/;make clean
+#	cd ./mpfun/mpfun90/f90/;make clean
 
 run: fact_f77 fact_c
 	time ./fact_c
