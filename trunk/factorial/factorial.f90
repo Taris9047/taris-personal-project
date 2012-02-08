@@ -6,7 +6,7 @@ program factorial
   type (mp_integer) Res
   call mpinitx(2500)
   
-  Num = 50000
+  Num = 500
   Res = 1
 
   do i=2, Num
@@ -14,5 +14,9 @@ program factorial
   enddo
 
   print *, 'Calculation for ', Num, '! has been finished!'
+
+!  print *, 'The answer is...'
+!  call mpwrite(6, Res)
+
   
 end program factorial

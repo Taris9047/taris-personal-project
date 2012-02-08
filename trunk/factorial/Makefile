@@ -5,7 +5,6 @@ FFLAGS=-O3 -Wall
 F90FLAGS=-O3 -Wall -ffree-form
 F90INCLUDE=./mpfun/mpfun90/f90/
 
-
 all:fact_c fact_f77 fact_f90
 
 fact_c: factorial.c
