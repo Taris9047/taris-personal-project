@@ -1,12 +1,14 @@
 program factorial
-  use mpmodulex
+  use mpfunmod
+  use mpmodule
   implicit none
 
-  integer i, Num
+  integer i, Num, Prec
   type (mp_integer) Res
-  call mpinitx(2500)
+  parameter (Prec = 25000)
+  call mpinit(Prec)
   
-  Num = 500
+  Num = 5000
   Res = 1
 
   do i=2, Num
@@ -15,7 +17,7 @@ program factorial
 
   print *, 'Calculation for ', Num, '! has been finished!'
 
-!  print *, 'The answer is...'
-!  call mpwrite(6, Res)
-  
+  print *, 'The answer is...'
+  call mpwrite(6, Res)
+  stop
 end program factorial
