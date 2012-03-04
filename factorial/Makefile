@@ -4,8 +4,13 @@ CFLAGS=-O3 -Wall
 FFLAGS=-O3 -Wall -ftree-vectorize
 F90FLAGS=-O3 -Wall -ffree-form -ftree-vectorize
 F90INCLUDE=./mpfun/mpfun90/f90/
+BCDIR=./bc/
 
-all:fact_c fact_f77 fact_f90
+all:fact_c fact_f77 fact_f90 bc.so
+
+bc.so: $(BCDIR)/lbc.c
+	cd $(BCDIR) && make all
+	cp -v $(BCDIR)$@ ./
 
 fact_c: factorial.c
 	$(CC) $(CFLAGS) -o $@ ./factorial.c -lgmp
@@ -34,16 +39,17 @@ mpmodm90.o: $(F90INCLUDE)mpmodm90.f
 mpmodx90.o: $(F90INCLUDE)mpmodx90.f
 	$(FCC) $(F90FLAGS) -c -o $@ $(F90INCLUDE)mpmodx90.f
 
-fact_f90: factorial.f90 \
-	mpfun90.o mpmod90.o mpmodm90.o mpmodx90.o
+fact_f90: factorial.f90 mpfun90.o mpmod90.o mpmodm90.o mpmodx90.o
 	$(FCC) $(F90FLAGS) -o $@ ./factorial.f90 \
 	mpfun90.o mpmod90.o mpmodm90.o mpmodx90.o \
 	-I$(F90INCLUDE)
 
 clean:
+	cd $(BCDIR) && make clean
 	rm -rf ./fact_c 
 	rm -rf ./fact_f77 ./transmp77 ./factorial-mpfun77.f
 	rm -rf ./fact_f90
+	rm -rf ./*.so
 	rm -rf ./*.o ./*.mod
 #	cd ./mpfun/mpfun90/f90/;make clean
 
