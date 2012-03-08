@@ -1,7 +1,7 @@
 # makefile for bc library for Lua
 
 # change these to reflect your Lua installation
-LUA= /usr/local
+LUA= /usr/
 LUAINC= $(LUA)/include
 LUALIB= $(LUA)/lib
 LUABIN= $(LUA)/bin
@@ -17,8 +17,8 @@ CC= gcc
 CFLAGS= $(INCS) $(WARN) -O3 $G
 WARN= -ansi -pedantic -Wall
 INCS= -I$(LUAINC) -I.
-#MAKESO= $(CC) -shared
-MAKESO= env MACOSX_DEPLOYMENT_TARGET=10.7 $(CC) -bundle -undefined dynamic_lookup
+MAKESO= $(CC) -shared
+#MAKESO= env MACOSX_DEPLOYMENT_TARGET=10.7 $(CC) -bundle -undefined dynamic_lookup
 
 MYNAME= bc
 MYLIB= l$(MYNAME)
