@@ -8,9 +8,8 @@ def factorial_dnc(S, E):
 	else:
 		return E * factorial_dnc(S, E-1)
 
-seg_range = 10000
-
-def dnc(n):
+def dnc(N):
+	seg_range = 10000
 	divide_num = N/seg_range
 
 	sys.setrecursionlimit(seg_range+10)
@@ -19,12 +18,13 @@ def dnc(n):
 	for i in range(1, divide_num+1):
 		start = ((i-1)*seg_range)+1
 		end = i+seg_range
-		fact = fact*factorial_dnc(start, end)
+		fact *= factorial_dnc(start, end)
 	return fact
 
-N = 50000
+N = 100000
 startTime = time.clock()
 factorial = dnc(N)
 endTime = time.clock()
 
 print ("Calculation of %d! has been finished in %s seconds"%(N, endTime-startTime))
+print factorial

@@ -20,17 +20,16 @@ def factorial(N):
 
 	for i in range(1,N+1,1):
 		if N == 1:
-			fact = 1
+			return 1
 		else:
-			fact = fact*i
+			fact *= i
 			toolbar_unit = float(N)/toolbar_width
 			if float(i)%toolbar_unit == 0:
 				sys.stdout.write("=")
 				sys.stdout.flush()
 
-	sys.stdout.write("\n")
 	return fact
-
+	sys.stdout.write("\n")
 
 N = 100000
 startTime = time.clock()
