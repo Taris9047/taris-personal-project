@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# Currently, divide and conquer is not working on Python 2.7.3 OS X 
+# due to recursion limit and stack overflow.
+# 
+
 import sys
 import time
 

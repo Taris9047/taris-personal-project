@@ -8,7 +8,6 @@ import time
 print "Loading GMPY2 package..."
 import gmpy2 as gmp
 
-
 def factorial(N):
 	fact = gmp.mpz(1)
 	

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Check PyPy performance.
+#
 import random
 import time
 
