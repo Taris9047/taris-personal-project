@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# Typical factorial script with a touch of progress bar.
+# Non-recursive.
 import sys
 import time
 
