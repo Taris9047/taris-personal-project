@@ -3,7 +3,7 @@
 # such large recursion out of the box. If an extensive recursion limit
 # was enforced, the interpreter emits 'Stack Overflow'
 # 
-# Thus, it is recommended to use 'Stackless Python'
+# Thus, it is recommended to use 'Stackless Python' to run this code...
 #
 import sys
 import time
@@ -14,7 +14,7 @@ def factorial(N):
 	else:
 		return N * factorial(N-1)
 
-N = 100000
+N = 50000
 sys.setrecursionlimit(N+10)
 startTime = time.clock()
 fact = factorial(N)
