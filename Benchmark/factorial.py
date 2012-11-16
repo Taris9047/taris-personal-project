@@ -25,7 +25,7 @@ def factorial(N):
 	return fact
 	sys.stdout.write("\n")
 			
-N = 1000000
+N = 100000
 startTime = time.clock()
 fact = factorial(N)
 endTime = time.clock()

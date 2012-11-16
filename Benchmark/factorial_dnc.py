@@ -31,7 +31,7 @@ def dnc(N, part_len):
 
 	return fact_result
 
-N = 1000000
+N = 100000
 startTime = time.clock()
 fact = dnc(N,10000)
 endTime = time.clock()
