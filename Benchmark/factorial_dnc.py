@@ -1,34 +1,47 @@
 #!/usr/bin/env python
-# Currently, divide and conquer is not working on Python 2.7.3 OS X 
-# due to recursion limit and stack overflow.
+# Sequencial dnc routine implemented due to the stack overflow problem.
+# However, since everything happens by sequence... I'm not even sure
+# this is actually the 'divide and conquer.'
+#
+# However, this code shows dramatical performance increase!!
 # 
 
 import sys
 import time
 
-def factorial_dnc(S, E):
-	if S == E:
-		return S
+def mul_list(RNG):
+	if len(RNG) == 1:
+		return RNG[0]
 	else:
-		return E * factorial_dnc(S, E-1)
+		fact = 1
+		for i in range(len(RNG)):
+			fact *= RNG[i]
+		return fact
 
-def dnc(N):
-	seg_range = 10000
-	divide_num = N/seg_range
+def dnc(N, part_len):
+	# Generating Parts
+	N_list = range(1, N+1, 1)
+	factRNG = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+	N_list = []
 
-	sys.setrecursionlimit(seg_range+10)
+	fact_result = 1
+	for i in range(len(factRNG)):
+		fact_result *= mul_list(factRNG[i])
+		factRNG[i] = []
 
-	fact = 1
-	for i in range(1, divide_num+1):
-		start = ((i-1)*seg_range)+1
-		end = i+seg_range
-		fact *= factorial_dnc(start, end)
-	return fact
+	return fact_result
 
-N = 100000
+N = 1000000
 startTime = time.clock()
-factorial = dnc(N)
+fact = dnc(N,10000)
 endTime = time.clock()
 
 print ("Calculation of %d! has been finished in %s seconds"%(N, endTime-startTime))
-print factorial
+#print fact
+# Print result to file
+#f = open('./factorial_dnc.txt', 'w')
+#f.write(str(fact))
+#f.close()
+#print ("result saved to file!!")
+
+
