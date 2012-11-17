@@ -8,6 +8,9 @@
 
 import sys
 import time
+
+# Loading gmp library
+print "Loading GMPY2 package..."
 import gmpy2 as gmp
 
 def mul_list(RNG):
