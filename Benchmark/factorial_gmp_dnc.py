@@ -22,22 +22,27 @@ def mul_list(RNG):
 			fact *= RNG[i]
 		return fact
 
-def dnc(N, part_len):
-	# Generating Parts
-	N_list = range(1, N+1, 1)
-	factRNG = [N_list[i:i+part_len] for i in range(0, N, part_len)]
-	N_list = []
+def dnc(N, threads):
+	if threads > N:
+		raise ValueError("Threads value %d is larger than computation parameter %d."%(threads,N))
+		exit(-1)
+	else:
+		# Generating Parts
+		part_len = N/threads
+		N_list = range(1, N+1, 1)
+		factRNG = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+		N_list = []
 
-	fact_result = gmp.mpz(1)
-	for i in range(len(factRNG)):
-		fact_result *= mul_list(factRNG[i])
-		factRNG[i] = []
+		fact_result = gmp.mpz(1)
+		for i in range(len(factRNG)):
+			fact_result *= mul_list(factRNG[i])
+			factRNG[i] = []
 
-	return fact_result
+		return fact_result
 
 N = 100000
 startTime = time.clock()
-fact = dnc(N,10000)
+fact = dnc(N,100)
 endTime = time.clock()
 
 print ("Calculation of %d! has been finished in %s seconds"%(N, endTime-startTime))
