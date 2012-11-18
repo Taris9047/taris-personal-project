@@ -42,7 +42,7 @@ fact = dnc(N,100)
 endTime = time.clock()
 
 print ("Calculation of %d! has been finished in %s seconds"%(N, endTime-startTime))
-print fact
+#print fact
 # Print result to file
 #f = open('./factorial_dnc.txt', 'w')
 #f.write(str(fact))
