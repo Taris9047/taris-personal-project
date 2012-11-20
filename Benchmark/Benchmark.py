@@ -13,7 +13,11 @@ import cpuinfo as cpu
 # Saving up information
 operating_system = plf.platform()
 uname = plf.uname()
-System_Info = cpu.cpu_type(uname[0])+'\n'+uname[3]+"\n"
+py_info = 'Python '+\
+		plf.python_version()+' '+\
+		plf.python_compiler()
+System_Info = py_info+'\n'+'CPU Type: '+\
+		cpu.cpu_type(uname[0])+'\n'+uname[3]+"\n"
 
 # Running routines
 #N = [1000, 5000, 10000, 50000, 100000, 500000]
