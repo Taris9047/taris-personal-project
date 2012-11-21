@@ -8,7 +8,7 @@ import factorial_seq as factNs
 import factorial_dnc as factNd
 import utils
 
-if __name__ == "__main__":
+def main():
 	print ("*** T-Bench ver. Abysmal 0001 ***")
 	print ("")
 
@@ -27,3 +27,8 @@ if __name__ == "__main__":
 	print(" ")
 	factNd.factN_dnc_m(N, "DNC_m.txt")
 	print(" ")
+
+	return 0
+
+if __name__ == '__main__':
+	main()
