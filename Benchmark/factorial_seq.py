@@ -6,8 +6,6 @@
 import time
 import factor_lib as flib
 import utils
-import multiprocessing as mp
-
 
 #
 # factN_seq
@@ -34,14 +32,3 @@ def factN_seq(N, savefile=None):
 		return time_diff
 	else:
 		return time_diff, utils.savelist(savefile, list_to_save)
-
-#
-# factN_seq_m
-#
-# Same sequential algorithm with multiprocessing feature.
-#
-def factN_seq_m(N, savefile=None):
-	print "With multiprocessing module..."
-	p = mp.Process(target=factN_seq, args=(N,savefile))
-	p.start()
-	p.join()
