@@ -1,5 +1,6 @@
 # Factorial (normal) library
 #
+import multiprocessing as mp
 
 def factorial(N):
 	fact = 1
@@ -35,12 +36,34 @@ def dnc(N, threads):
 		# Generating Parts
 		part_len = N/threads
 		N_list = range(1, N+1, 1)
-		factRNG = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+		N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
 		N_list = []
 
 		fact_result = 1
-		for i in range(len(factRNG)):
-			fact_result *= mul_list(factRNG[i])
-			factRNG[i] = []
+		for i in range(len(N_seg)):
+			fact_result *= mul_list(N_seg[i])
+			N_seg[i] = []
+
+		return fact_result
+
+def dnc_m(N, threads):
+	if threads > N:
+		raise ValueError("Threads value %d is larger than computation parameter %d."%(threads,N))
+		exit(-1)
+	else:
+		N_seg_pool = []
+		part_len = N/threads
+		N_list = range(1, N+1, 1)
+		N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+		N_list = []
+
+		fact_result = 1
+
+		for i in range(len(N_seg)):
+			N_seg_pool = mp.pool(processes=16)
+			
+			
+			fact_result *= mul_list(N_seg[i])
+			N_seg[i] = []
 
 		return fact_result
