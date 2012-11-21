@@ -1,0 +1,10 @@
+Python 2.7.3 MSC v.1500 32 bit (Intel)
+CPU Type: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
+6.1.7601
+
+N	Elipsed Time
+1000	0.000796
+5000	0.011682
+10000	0.047336
+50000	1.460098
+100000	6.56952
