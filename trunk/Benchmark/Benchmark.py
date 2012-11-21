@@ -4,59 +4,26 @@
 # requires GMPY2 package to run gmp routines
 #
 
-import time
-import sys
-import factor_lib as flib
-import platform as plf
-import cpuinfo as cpu
+import factorial_seq as factNs
+import factorial_dnc as factNd
+import utils
 
-# Saving up information
-operating_system = plf.platform()
-uname = plf.uname()
-py_info = 'Python '+\
-		plf.python_version()+' '+\
-		plf.python_compiler()
-System_Info = py_info+'\n'+'CPU Type: '+\
-		cpu.cpu_type(uname[0])+'\n'+uname[3]+"\n"
+if __name__ == "__main__":
+	print ("*** T-Bench ver. Abysmal 0001 ***")
+	print ("")
 
-# Running routines
-#N = [1000, 5000, 10000, 50000, 100000, 500000]
-N = [1000, 5000, 10000, 50000, 100000]
-print ("Calculation range: ",N)
-time_diff = [None] * len(N)
-factN = []
-factNdnc = []
+	# Running routines
+	N = [1000, 5000, 10000, 50000, 100000]
+	print (utils.sysinfo())
+	print ("Calculation range: ",N)
 
-print (System_Info)
-print ("Calculating Generic Sequential Algorithm...")
-for i in range(len(N)):
-	startTime = time.clock()
-	factN = flib.factorial(N[i])
-	endTime = time.clock()
-	time_diff[i] = endTime-startTime
-	print ("%d!	has been finished in %.6f seconds."%(N[i], time_diff[i]))
+	factNs.factN_seq(N, "Sequential.txt")
+	print (" ")
+	factNd.factN_dnc(N, "DNC.txt")
+	print (" ")
 
-sequential_performance = time_diff
-f = open("Sequential.txt", 'w')
-f.write(System_Info)
-f.write("N\tElipsed Time\n")
-for i in range(len(N)):
-	f.write(str(N[i])+"\t"+str(sequential_performance[i])+"\n")
-f.close()
-
-print (" ")
-print ("Calculating Divide and Conquer Algorithm...")
-for i in range(len(N)):
-	startTime = time.clock()
-	factNdnc = flib.dnc(N[i],N[i]/100)
-	endTime = time.clock()
-	time_diff[i] = endTime-startTime
-	print ("%d!	has been finished in %.6f seconds."%(N[i], time_diff[i]))
-
-dnc_performance = time_diff
-f = open("DNC.txt", 'w')
-f.write(System_Info)
-f.write("N\tElipsed Time\n")
-for i in range(len(N)):
-	f.write(str(N[i])+"\t"+str(dnc_performance[i])+"\n")
-f.close()
+	# Taking Advantage of Multiprocessing module
+	factNs.factN_seq_m(N, "Sequential_m.txt")
+	print(" ")
+	factNd.factN_dnc_m(N, "DNC_m.txt")
+	print(" ")
