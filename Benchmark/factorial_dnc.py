@@ -15,7 +15,7 @@ import utils
 # Also saves the file if filename has been defined as string.
 # Uses Divide and Conquer algorithm... I think.
 #
-def factN_dnc(N, chunks=5000, savefile=None):
+def factN_dnc(N, savefile=None, chunks=5000):
 	print ("Calculating Divide and Conquer Algorithm...")
 	time_diff = [None] * len(N)
 	factN = []
@@ -23,10 +23,11 @@ def factN_dnc(N, chunks=5000, savefile=None):
 
 	for i in range(len(N)):
 		startTime = time.clock()
-		factN = flib.dnc(N[i],N[i]/100)
+		factN, chunks = flib.dnc(N[i],chunks)
 		endTime = time.clock()
 		time_diff[i] = round(endTime-startTime,6)
-		print ("%d!	has been finished in %.6f seconds."%(N[i], time_diff[i]))
+		print ("%d! with %d chunks has been finished in %.6f seconds."%\
+			(N[i], chunks, time_diff[i]))
 
 	list_to_save = utils.arrange_data(N, time_diff)
 
@@ -40,7 +41,7 @@ def factN_dnc(N, chunks=5000, savefile=None):
 #
 # Same DNC algorithm with multiprocessing feature.
 #
-def factN_dnc_m(N, chunks=5000, savefile=None):
+def factN_dnc_m(N, savefile=None, chunks=5000):
 	print ("Calculating Divide and Conquer Algorithm...")
 	print ("With multiprocessing module..")
 	time_diff = [None] * len(N)
@@ -49,10 +50,12 @@ def factN_dnc_m(N, chunks=5000, savefile=None):
 
 	for i in range(len(N)):
 		startTime = time.clock()
-		factN = flib.dnc_m(N[i],N[i]/100)
+		#factN = flib.dnc_m(N[i],N[i]/100)
+		factN, chunks = flib.dnc_m(N[i],chunks)
 		endTime = time.clock()
 		time_diff[i] = round(endTime-startTime,6)
-		print ("%d!	has been finished in %.6f seconds."%(N[i], time_diff[i]))
+		print ("%d! with %d chunks(processes) has been finished in %.6f seconds."%\
+			(N[i], chunks, time_diff[i]))
 
 	list_to_save = utils.arrange_data(N, time_diff)
 
