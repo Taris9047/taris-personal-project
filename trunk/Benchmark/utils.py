@@ -52,7 +52,6 @@ def savelist(savefile, list_data, System_Info='__default__'):
 				f.write(str(list_data[i][j])+"\n")
 			else:
 				f.write(str(list_data[i][j])+"\t")
-	
 	f.close()
 	return savefile
 

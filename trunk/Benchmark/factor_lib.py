@@ -92,13 +92,16 @@ def dnc_m(N, chunks):
 		p = mp.Process(target=dnc_m_worker, args=(N_seg[i], fact_result_q))
 		procs.append(p)
 		p.start()
-		
+	
+	i = 0
+	for p in procs:	
 		print ['***** Iteration', i, ' *****']
 		print ['Segment for ', procs[i], ' is ', N_seg[i] ]
 		print ['Segment Factorial: ', fact_result_q.get()]
 		fact_result *= fact_result_q.get()
 		print ['result: ', fact_result]
 		#print [procs[i], 'Factorial value', fact_result]
+		i += 1
 
 	for p in procs:
 		p.join()
