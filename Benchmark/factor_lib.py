@@ -59,11 +59,11 @@ def dnc_m(N, threads):
 
 		fact_result = 1
 
+		manager = mp.Manager()
+
 		for i in range(len(N_seg)):
-			N_seg_pool = mp.pool(processes=16)
-			
-			
-			fact_result *= mul_list(N_seg[i])
+			N_seg_pool = mp.Pool(processes=16)
+			fact_result *= N_seg_pool.apply_async(mul_list, N_seg[i])
 			N_seg[i] = []
 
 		return fact_result
