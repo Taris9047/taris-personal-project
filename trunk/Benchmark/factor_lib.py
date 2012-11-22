@@ -2,6 +2,10 @@
 #
 import multiprocessing as mp
 
+#
+# Sequential algorithm. 
+# Very prehistoric but working.
+#
 def factorial(N):
 	fact = 1
 
@@ -11,14 +15,23 @@ def factorial(N):
 		else:
 			fact *= i
 
+	print fact
 	return fact
 
+#
+# Recursive algorithm...
+# Doesn't work due to stack limitation.
+#
 def rfactorial(N):
 	if N == 1:
 		return 1
 	else:
 		return N * rfactorial (N-1)
 
+#
+# Also prehistoric sequential calculation.
+# However, it works for segments.
+#
 def mul_list(RNG):
 	if len(RNG) == 1:
 		return RNG[0]
@@ -28,42 +41,65 @@ def mul_list(RNG):
 			fact *= RNG[i]
 		return fact
 
-def dnc(N, threads):
-	if threads > N:
-		raise ValueError("Threads value %d is larger than computation parameter %d."%(threads,N))
-		exit(-1)
-	else:
-		# Generating Parts
-		part_len = N/threads
-		N_list = range(1, N+1, 1)
-		N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
-		N_list = []
+#
+# Main DNC algorithm. Receives N as factorial number.
+#
+def dnc(N, chunks):
+	if chunks > N:
+		print ("Too many divisions requested!!: %d > %d"%(chunks, N))
+		print ("Assuming single segment chunks.")
+		chunks = N
 
-		fact_result = 1
-		for i in range(len(N_seg)):
-			fact_result *= mul_list(N_seg[i])
-			N_seg[i] = []
+	# Generating Parts
+	part_len = N/chunks
+	N_list = range(1, N+1, 1)
+	N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+	N_list = []
 
-		return fact_result
+	fact_result = 1
+	for i in range(len(N_seg)):
+		fact_result *= mul_list(N_seg[i])
+		N_seg[i] = []
 
-def dnc_m(N, threads):
-	if threads > N:
-		raise ValueError("Threads value %d is larger than computation parameter %d."%(threads,N))
-		exit(-1)
-	else:
-		N_seg_pool = []
-		part_len = N/threads
-		N_list = range(1, N+1, 1)
-		N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
-		N_list = []
+	print fact_result
+	return fact_result, chunks
 
-		fact_result = 1
+# Worker function for dnc_m
+# Second input is actually output which was defined by 
+# Queue() datatype.
+def dnc_m_worker(N, fact_result_q):
+		for n in N:
+			fact_result_q.put(mul_list(N))
 
-		manager = mp.Manager()
+#
+# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
+#
+def dnc_m(N, chunks):
+	if chunks > N:
+		print ("Too many divisions requested!!: %d > %d"%(chunks, N))
+		print ("Assuming single segment chunks.")
+		chunks = N
+	
+	part_len = N/chunks
+	N_list = range(1, N+1, 1)
+	N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+	N_list = []
+	print N_seg
+	
+	fact_result = 1
+	fact_result_q = mp.Queue()
+	procs = []
+	for i in range(len(N_seg)):
+		p = mp.Process(target=dnc_m_worker, args=(N_seg[i], fact_result_q))
+		procs.append(p)
+		p.start()
+		
+	for i in range(len(N_seg)):
+		print ['Segment for ', procs[i], ' is ', N_seg[i] ]
+		print ['Segment Factorial: ', fact_result_q.get()]
+		procs[i].join()
+		fact_result *= fact_result_q.get()
+		#print [procs[i], 'Factorial value', fact_result]
 
-		for i in range(len(N_seg)):
-			N_seg_pool = mp.Pool(processes=16)
-			fact_result *= N_seg_pool.apply_async(mul_list, N_seg[i])
-			N_seg[i] = []
-
-		return fact_result
+	print fact_result
+	return fact_result, chunks
