@@ -10,10 +10,11 @@ import utils
 
 def main():
 	print ("*** T-Bench ver. Abysmal 0001 ***")
-	print ("")
+	print (" ")
 
 	# Running routines
 	N = [1000, 5000, 10000, 50000, 100000]
+	#N = [1000, 5000, 10000]
 	print (utils.sysinfo())
 	print ("Calculation range: ",N)
 
@@ -23,10 +24,9 @@ def main():
 	print (" ")
 
 	# Taking Advantage of Multiprocessing module
-	factNs.factN_seq_m(N, "Sequential_m.txt")
-	print(" ")
-	factNd.factN_dnc_m(N, "DNC_m.txt")
-	print(" ")
+	#factNd.factN_dnc_m(N, "DNC_m.txt")
+	#print(" ")
+	# TODO: Needs a real multiprocess routine.
 
 	return 0
 
