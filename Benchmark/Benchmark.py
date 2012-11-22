@@ -13,20 +13,20 @@ def main():
 	print (" ")
 
 	# Running routines
-	#N = [1000, 5000, 10000, 50000, 100000]
+	N = [1000, 5000, 10000, 50000, 100000]
 	#N = [1000, 5000, 10000]
-	N = [5]
+	#N = [5]
 	print (utils.sysinfo())
 	print ("Calculation range: ",N)
 
 	factNs.factN_seq(N, "Sequential.txt")
-	#print (" ")
-	factNd.factN_dnc(N, "DNC.txt", 16)
-	#print (" ")
+	print (" ")
+	factNd.factN_dnc(N, "DNC.txt", 500)
+	print (" ")
 
 	# Taking Advantage of Multiprocessing module.
-	factNd.factN_dnc_m(N, "DNC_m.txt", 3)
-	print(" ")
+	#factNd.factN_dnc_m(N, "DNC_m.txt", 3)
+	#print(" ")
 	# TODO: Needs a real multiprocess routine.
 
 	return 0

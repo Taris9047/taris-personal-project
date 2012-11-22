@@ -28,6 +28,7 @@ def factN_dnc(N, savefile=None, chunks=5000):
 		time_diff[i] = round(endTime-startTime,6)
 		print ("%d! with %d chunks has been finished in %.6f seconds."%\
 			(N[i], chunks, time_diff[i]))
+		N[i] = str(N[i])+'('+str(chunks)+')'
 
 	list_to_save = utils.arrange_data(N, time_diff)
 
