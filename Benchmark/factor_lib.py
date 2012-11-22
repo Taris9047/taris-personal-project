@@ -15,7 +15,7 @@ def factorial(N):
 		else:
 			fact *= i
 
-	print fact
+	#print fact
 	return fact
 
 #
@@ -61,15 +61,14 @@ def dnc(N, chunks):
 		fact_result *= mul_list(N_seg[i])
 		N_seg[i] = []
 
-	print fact_result
+	#print fact_result
 	return fact_result, chunks
 
 # Worker function for dnc_m
 # Second input is actually output which was defined by 
 # Queue() datatype.
 def dnc_m_worker(N, fact_result_q):
-		for n in N:
-			fact_result_q.put(mul_list(N))
+		fact_result_q.put(mul_list(N))
 
 #
 # Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
@@ -94,12 +93,15 @@ def dnc_m(N, chunks):
 		procs.append(p)
 		p.start()
 		
-	for i in range(len(N_seg)):
+		print ['***** Iteration', i, ' *****']
 		print ['Segment for ', procs[i], ' is ', N_seg[i] ]
 		print ['Segment Factorial: ', fact_result_q.get()]
-		procs[i].join()
 		fact_result *= fact_result_q.get()
+		print ['result: ', fact_result]
 		#print [procs[i], 'Factorial value', fact_result]
+
+	for p in procs:
+		p.join()
 
 	print fact_result
 	return fact_result, chunks
