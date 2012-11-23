@@ -17,7 +17,7 @@ import utils
 #
 def factN_dnc(N, savefile=None, chunks=5000):
 	print ("Calculating Divide and Conquer Algorithm...")
-	time_diff = [None] * len(N)
+	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []
 
@@ -25,17 +25,15 @@ def factN_dnc(N, savefile=None, chunks=5000):
 		startTime = time.clock()
 		factN, chunks = flib.dnc(N[i],chunks)
 		endTime = time.clock()
-		time_diff[i] = round(endTime-startTime,6)
+		time_diff = round(endTime-startTime,6)
 		print ("%d! with %d chunks has been finished in %.6f seconds."%\
-			(N[i], chunks, time_diff[i]))
-		N[i] = str(N[i])+'('+str(chunks)+')'
-
-	list_to_save = utils.arrange_data(N, time_diff)
+			(N[i], chunks, time_diff))
+		save_table[i] = str(N[i])+'\t'+str(chunks)+'\t'+str(time_diff)
 
 	if savefile == None:
 		return time_diff
 	else:
-		return time_diff, utils.savelist(savefile, list_to_save)
+		return time_diff, utils.savelist(savefile, save_table)
 
 #
 # factN_dnc_m
@@ -44,23 +42,20 @@ def factN_dnc(N, savefile=None, chunks=5000):
 #
 def factN_dnc_m(N, savefile=None, chunks=5000):
 	print ("Calculating Divide and Conquer Algorithm...")
-	print ("With multiprocessing module..")
-	time_diff = [None] * len(N)
+	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []
 
 	for i in range(len(N)):
 		startTime = time.clock()
-		#factN = flib.dnc_m(N[i],N[i]/100)
 		factN, chunks = flib.dnc_m(N[i],chunks)
 		endTime = time.clock()
-		time_diff[i] = round(endTime-startTime,6)
-		print ("%d! with %d chunks(processes) has been finished in %.6f seconds."%\
-			(N[i], chunks, time_diff[i]))
-
-	list_to_save = utils.arrange_data(N, time_diff)
+		time_diff = round(endTime-startTime,6)
+		print ("%d! with %d chunks has been finished in %.6f seconds."%\
+			(N[i], chunks, time_diff))
+		save_table[i] = str(N[i])+'\t'+str(chunks)+'\t'+str(time_diff)
 
 	if savefile == None:
 		return time_diff
 	else:
-		return time_diff, utils.savelist(savefile, list_to_save)
+		return time_diff, utils.savelist(savefile, save_table)

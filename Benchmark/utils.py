@@ -35,7 +35,7 @@ def sysinfo():
 			str(cpu_type(uname[0]))+'\n'+str(uname[3])+'\n'
 
 # saves everything into file
-def savelist(savefile, list_data, System_Info='__default__'):
+def savelist(savefile, save_table, System_Info='__default__'):
 	# Update System_Info automatically unless manually set.
 	if System_Info == '__default__':
 		System_Info = sysinfo()
@@ -45,19 +45,13 @@ def savelist(savefile, list_data, System_Info='__default__'):
 	f = open(savefile, 'w')
 	f.write(System_Info)
 	f.write('\n')
-	f.write("N\tElipsed Time\n")
-	for i in range(len(list_data)):
-		for j in range(len(list_data[i])):
-			if j == len(list_data[i])-1:
-				f.write(str(list_data[i][j])+"\n")
-			else:
-				f.write(str(list_data[i][j])+"\t")
+	f.write("N\tChunks\tElipsed Time(sec)\n")
+	for i in range(len(save_table)):
+		if i == len(save_table[i])-1:
+			f.write(save_table[i])
+		else:
+			f.write(save_table[i]+"\n")
 	f.close()
+
 	return savefile
 
-# re-arranging data
-def arrange_data(N, time_diff):
-	arranged_list = [None] * len(N)
-	for i in range(len(N)):
-		arranged_list[i] = [ str(N[i]), str(time_diff[i]) ]
-	return arranged_list

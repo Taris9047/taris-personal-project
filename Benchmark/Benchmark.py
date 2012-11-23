@@ -17,7 +17,10 @@ def main():
 	#N = [1000, 5000, 10000]
 	#N = [5]
 	print (utils.sysinfo())
-	print ("Calculation range: ",N)
+	N_str = ''
+	for n in N:
+		N_str += str(n)+', '
+	print ("Calculation range: "+N_str)
 
 	factNs.factN_seq(N, "Sequential.txt")
 	print (" ")
