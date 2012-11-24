@@ -2,14 +2,17 @@
 
 # Contains utility functions
 
-# grabs system information
 import platform as plf
 import os, subprocess, re
 
 # Probing CPU type depending on current OS
 def cpu_type(OS_type):
     if OS_type == 'Windows':
-        return plf.processor()
+    	import _winreg
+    	key = getattr(_winreg, "HKEY_LOCAL_MACHINE")
+    	handle = _winreg.OpenKey(key, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
+    	value, type = _winreg.QueryValueEx(handle, "ProcessorNameString")
+    	return value
     elif OS_type == 'Darwin':
         import os
         os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
@@ -25,6 +28,7 @@ def cpu_type(OS_type):
     	return 'Unknown Processor'
     return ""
 
+# grabs system information
 def sysinfo():
 	#operating_system = plf.platform()
 	uname = plf.uname()
@@ -45,7 +49,7 @@ def savelist(savefile, save_table, System_Info='__default__'):
 	f = open(savefile, 'w')
 	f.write(System_Info)
 	f.write('\n')
-	f.write("N\tChunks\tElipsed Time(sec)\n")
+	f.write("N\tChunks(Processes)\tElipsed Time(sec)\n")
 	for i in range(len(save_table)):
 		if i == len(save_table[i])-1:
 			f.write(save_table[i])

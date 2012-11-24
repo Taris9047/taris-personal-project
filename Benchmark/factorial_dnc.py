@@ -40,20 +40,20 @@ def factN_dnc(N, savefile=None, chunks=5000):
 #
 # Same DNC algorithm with multiprocessing feature.
 #
-def factN_dnc_m(N, savefile=None, chunks=5000):
-	print ("Calculating Divide and Conquer Algorithm...")
+def factN_dnc_m(N, savefile=None, processes=5000):
+	print ("Calculating Divide and Conquer Algorithm with Multiprocess model...")
 	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []
 
 	for i in range(len(N)):
 		startTime = time.clock()
-		factN, chunks = flib.dnc_m(N[i],chunks)
+		factN, chunks = flib.dnc_m(N[i], processes)
 		endTime = time.clock()
 		time_diff = round(endTime-startTime,6)
-		print ("%d! with %d chunks has been finished in %.6f seconds."%\
+		print ("%d! with %d processes has been finished in %.6f seconds."%\
 			(N[i], chunks, time_diff))
-		save_table[i] = str(N[i])+'\t'+str(chunks)+'\t'+str(time_diff)
+		save_table[i] = str(N[i])+'\t'+str(processes)+'\t'+str(time_diff)
 
 	if savefile == None:
 		return time_diff

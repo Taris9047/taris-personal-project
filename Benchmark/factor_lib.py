@@ -42,6 +42,27 @@ def mul_list(RNG):
 		return fact
 
 #
+# Splits a list into designated chunks of even size.
+#
+def split_list(list_N, n_of_chunks):
+	chunk_length = len(list_N)/n_of_chunks
+	list_remains = len(list_N)%n_of_chunks	
+	if list_remains == 0:
+		return [list_N[i:i+chunk_length] \
+			for i in range(0, len(list_N), chunk_length)]
+	else:
+		list_N_seg = []
+		list_N_adj_remain = list_N[:(chunk_length+1)*list_remains]
+		list_N_div = list_N[(chunk_length+1)*list_remains:len(list_N)]
+
+		list_N_seg = [list_N_adj_remain[i:i+(chunk_length+1)] \
+			for i in range(0, len(list_N_adj_remain), chunk_length+1)]\
+			+\
+			[list_N_div[i:i+chunk_length] \
+			for i in range(0, len(list_N_div), chunk_length)]
+
+		return list_N_seg
+#
 # Main DNC algorithm. Receives N as factorial number.
 #
 def dnc(N, chunks):
@@ -51,9 +72,8 @@ def dnc(N, chunks):
 		chunks = N
 
 	# Generating Parts
-	part_len = N/chunks
 	N_list = range(1, N+1, 1)
-	N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+	N_seg = split_list(N_list, chunks)
 	N_list = []
 
 	fact_result = 1
@@ -79,11 +99,10 @@ def dnc_m(N, chunks):
 		print ("Assuming single segment chunks.")
 		chunks = N
 	
-	part_len = N/chunks
 	N_list = range(1, N+1, 1)
-	N_seg = [N_list[i:i+part_len] for i in range(0, N, part_len)]
+	N_seg = split_list(N_list, chunks)
 	N_list = []
-	print N_seg
+	#print N_seg
 	
 	fact_result = 1
 	fact_result_q = mp.Queue()
@@ -93,18 +112,18 @@ def dnc_m(N, chunks):
 		procs.append(p)
 		p.start()
 	
-	i = 0
+	#i = 0
 	for p in procs:	
-		print ['***** Iteration', i, ' *****']
-		print ['Segment for ', procs[i], ' is ', N_seg[i] ]
-		print ['Segment Factorial: ', fact_result_q.get()]
+		#print ['***** Iteration', i, ' *****']
+		#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
+		#print ['Segment Factorial: ', fact_result_q.get()]
 		fact_result *= fact_result_q.get()
-		print ['result: ', fact_result]
+		#print ['result: ', fact_result]
 		#print [procs[i], 'Factorial value', fact_result]
-		i += 1
+		#i += 1
 
 	for p in procs:
 		p.join()
 
-	print fact_result
+	#print fact_result
 	return fact_result, chunks
