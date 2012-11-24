@@ -1,0 +1,11 @@
+Python 2.7.3 MSC v.1500 64 bit (AMD64)
+CPU Type: AMD FX(tm)-8120 Eight-Core Processor           
+6.2.9200
+
+N	Chunks(Processes)	Elipsed Time(sec)
+1000	1	0.000651
+5000	1	0.011375
+10000	1	0.039565
+50000	1	1.041894
+100000	1	4.197165
+500000	1	195.707824
