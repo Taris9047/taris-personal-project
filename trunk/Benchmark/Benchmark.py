@@ -9,13 +9,13 @@ import factorial_dnc as factNd
 import utils
 
 def main():
-	print ("*** T-Bench ver. Abysmal 0002 ***")
+	print ("*** T-Bench ver. Abysmal 0003 ***")
 	print (" ")
 
 	# Running routines
 	N = [1000, 5000, 10000, 50000, 100000]
 	#N = [1000, 5000, 10000]
-	#N = [5]
+	#N = [10030]
 	print (utils.sysinfo())
 	N_str = ''
 	for n in N:
@@ -28,10 +28,9 @@ def main():
 	print (" ")
 
 	# Taking Advantage of Multiprocessing module.
-	#factNd.factN_dnc_m(N, "DNC_m.txt", 3)
-	#print(" ")
-	# TODO: Needs a real multiprocess routine.
-
+	factNd.factN_dnc_m(N, "DNC_m.txt", 16)
+	print(" ")
+	
 	return 0
 
 if __name__ == '__main__':
