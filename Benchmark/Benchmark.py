@@ -9,7 +9,10 @@ import factorial_dnc as factNd
 import utils
 
 def main():
-	print ("*** T-Bench ver. Abysmal 0003 ***")
+	print ("*** T-Bench ver. Abysmal 0003-1 ***")
+	print (" Currently, freezed versions doesn't \n \
+		work with multiprocessing library. Thus, it is \n \
+		currently disabled in binary versions.")
 	print (" ")
 
 	# Running routines
@@ -28,8 +31,8 @@ def main():
 	print (" ")
 
 	# Taking Advantage of Multiprocessing module.
-	factNd.factN_dnc_m(N, "DNC_m.txt", 16)
-	print(" ")
+	#factNd.factN_dnc_m(N, "DNC_m.txt", 16)
+	#print(" ")
 	
 	return 0
 
