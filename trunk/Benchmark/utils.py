@@ -7,26 +7,33 @@ import os, subprocess, re
 
 # Probing CPU type depending on current OS
 def cpu_type(OS_type):
-    if OS_type == 'Windows':
-    	import _winreg
-    	key = getattr(_winreg, "HKEY_LOCAL_MACHINE")
-    	handle = _winreg.OpenKey(key, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
-    	value, type = _winreg.QueryValueEx(handle, "ProcessorNameString")
-    	return value
-    elif OS_type == 'Darwin':
-        import os
-        os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
-        command ="sysctl -n machdep.cpu.brand_string"
-        return subprocess.check_output(command, shell=True).strip()
-    elif OS_type == 'Linux':
-        command = "cat /proc/cpuinfo"
-        all_info = subprocess.check_output(command, shell=True).strip()
-        for line in allInfo.split("\n"):
-            if "model name" in line:
-                return re.sub( ".*model name.*:", "", line,1)
-    else:
-    	return 'Unknown Processor'
-    return ""
+	# Detecting IronPython
+	import sys
+	if '.NET' in sys.version:
+		__IronPython__ = True
+
+	if OS_type == 'Windows' or __IronPython__ == True:
+		import _winreg
+		key = getattr(_winreg, "HKEY_LOCAL_MACHINE")
+		handle = _winreg.OpenKey(key, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
+		value, type = _winreg.QueryValueEx(handle, "ProcessorNameString")
+		return value
+	elif OS_type == 'Darwin':
+		import os
+		os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
+		command ="sysctl -n machdep.cpu.brand_string"
+		return subprocess.check_output(command, shell=True).strip()
+	elif OS_type == 'Linux':
+		command = "cat /proc/cpuinfo"
+		all_info = subprocess.check_output(command, shell=True).strip()
+		for line in allInfo.split("\n"):
+			if "model name" in line:
+				return re.sub( ".*model name.*:", "", line,1)
+	else:
+		unknown_OS_msg = \
+		 '* Current OS Type: '+str(OS_type)+' is detected. Unable to detect CPU type on that platform for now...'
+		return unknown_OS_msg
+	return 0
 
 # grabs system information
 def sysinfo():
