@@ -1,10 +1,11 @@
 Python 2.7.3 MSC v.1500 32 bit (Intel)
-CPU Type: Intel64 Family 6 Model 58 Stepping 9, GenuineIntel
+CPU Type: Intel(R) Core(TM) i5-3210M CPU @ 2.50GHz
 6.1.7601
 
-N	Elipsed Time
-1000	0.000733
-5000	0.013726
-10000	0.065974
-50000	2.298333
-100000	11.52967
+N	Chunks(Processes)	Elipsed Time(sec)
+1000	1	0.000731
+5000	1	0.013793
+10000	1	0.053249
+50000	1	2.26509
+100000	1	11.554878
+500000	1	522.107874
