@@ -11,12 +11,13 @@ import utils
 def main():
 	print ("*** T-Bench ver. Abysmal 0003-1 ***")
 	print (" Currently, freezed versions doesn't \n \
-		work with multiprocessing library. Thus, it is \n \
-		currently disabled in binary versions.")
+	work with multiprocessing library. Thus, it is \n \
+	currently disabled in binary versions.")
 	print (" ")
 
 	# Running routines
-	N = [1000, 5000, 10000, 50000, 100000]
+	#N = [1000, 5000, 10000, 50000, 100000]
+	N = [1000, 5000, 10000, 50000, 100000, 500000]
 	#N = [1000, 5000, 10000]
 	#N = [10030]
 	print (utils.sysinfo())
@@ -31,8 +32,8 @@ def main():
 	print (" ")
 
 	# Taking Advantage of Multiprocessing module.
-	#factNd.factN_dnc_m(N, "DNC_m.txt", 16)
-	#print(" ")
+	factNd.factN_dnc_m(N, "DNC_m.txt", 16)
+	print(" ")
 	
 	return 0
 
