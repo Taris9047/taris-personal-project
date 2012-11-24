@@ -1,6 +1,15 @@
-# Factorial (normal) library
+# Factorial calculation library
 #
-import multiprocessing as mp
+
+# detecting IronPython. For now, it will
+# just prevent running multiprocessing module
+# when IronPython is detected.
+import sys
+if '.NET' in sys.version:
+	__IronPython__ = True
+else:
+	__IronPython__ = False
+	import multiprocessing as mp
 
 #
 # Sequential algorithm. 
@@ -84,46 +93,47 @@ def dnc(N, chunks):
 	#print fact_result
 	return fact_result, chunks
 
-# Worker function for dnc_m
-# Second input is actually output which was defined by 
-# Queue() datatype.
-def dnc_m_worker(N, fact_result_q):
-		fact_result_q.put(mul_list(N))
+if __IronPython__ == False:
+	# Worker function for dnc_m
+	# Second input is actually output which was defined by 
+	# Queue() datatype.
+	def dnc_m_worker(N, fact_result_q):
+			fact_result_q.put(mul_list(N))
 
-#
-# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
-#
-def dnc_m(N, chunks):
-	if chunks > N:
-		print ("Too many divisions requested!!: %d > %d"%(chunks, N))
-		print ("Assuming single segment chunks.")
-		chunks = N
-	
-	N_list = range(1, N+1, 1)
-	N_seg = split_list(N_list, chunks)
-	N_list = []
-	#print N_seg
-	
-	fact_result = 1
-	fact_result_q = mp.Queue()
-	procs = []
-	for i in range(len(N_seg)):
-		p = mp.Process(target=dnc_m_worker, args=(N_seg[i], fact_result_q))
-		procs.append(p)
-		p.start()
-	
-	#i = 0
-	for p in procs:	
-		#print ['***** Iteration', i, ' *****']
-		#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
-		#print ['Segment Factorial: ', fact_result_q.get()]
-		fact_result *= fact_result_q.get()
-		#print ['result: ', fact_result]
-		#print [procs[i], 'Factorial value', fact_result]
-		#i += 1
+	#
+	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
+	#
+	def dnc_m(N, chunks):
+		if chunks > N:
+			print ("Too many divisions requested!!: %d > %d"%(chunks, N))
+			print ("Assuming single segment chunks.")
+			chunks = N
+		
+		N_list = range(1, N+1, 1)
+		N_seg = split_list(N_list, chunks)
+		N_list = []
+		#print N_seg
+		
+		fact_result = 1
+		fact_result_q = mp.Queue()
+		procs = []
+		for i in range(len(N_seg)):
+			p = mp.Process(target=dnc_m_worker, args=(N_seg[i], fact_result_q))
+			procs.append(p)
+			p.start()
+		
+		#i = 0
+		for p in procs:	
+			#print ['***** Iteration', i, ' *****']
+			#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
+			#print ['Segment Factorial: ', fact_result_q.get()]
+			fact_result *= fact_result_q.get()
+			#print ['result: ', fact_result]
+			#print [procs[i], 'Factorial value', fact_result]
+			#i += 1
 
-	for p in procs:
-		p.join()
+		for p in procs:
+			p.join()
 
-	#print fact_result
-	return fact_result, chunks
+		#print fact_result
+		return fact_result, chunks
