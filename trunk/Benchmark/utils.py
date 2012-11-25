@@ -5,12 +5,16 @@
 import platform as plf
 import os, subprocess, re
 
+# Detecting IronPython
+import sys
+if '.NET' in sys.version:
+	__IronPython__ = True
+else:
+	__IronPython__ = False
+
+
 # Probing CPU type depending on current OS
 def cpu_type(OS_type):
-	# Detecting IronPython
-	import sys
-	if '.NET' in sys.version:
-		__IronPython__ = True
 
 	if OS_type == 'Windows' or __IronPython__ == True:
 		import _winreg
@@ -26,7 +30,7 @@ def cpu_type(OS_type):
 	elif OS_type == 'Linux':
 		command = "cat /proc/cpuinfo"
 		all_info = subprocess.check_output(command, shell=True).strip()
-		for line in allInfo.split("\n"):
+		for line in all_info.split("\n"):
 			if "model name" in line:
 				return re.sub( ".*model name.*:", "", line,1)
 	else:
