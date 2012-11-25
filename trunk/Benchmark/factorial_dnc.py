@@ -50,7 +50,8 @@ def factN_dnc(N, savefile=None, chunks=5000):
 # Same DNC algorithm with multiprocessing feature.
 #
 if __IronPython__ == False:
-	def factN_dnc_m(N, savefile=None, processes=5000):
+	import multiprocessing as mp
+	def factN_dnc_m(N, savefile=None, processes=mp.cpu_count()*2):
 		print ("Calculating Divide and Conquer Algorithm with Multiprocess model...")
 		save_table = [None] * len(N)
 		factN = []

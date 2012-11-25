@@ -24,6 +24,7 @@
 
 import factorial_seq as factNs
 import factorial_dnc as factNd
+import factorial_adaptive as factNa
 import utils
 
 # detecting IronPython. For now, it will
@@ -41,7 +42,7 @@ def main():
 		import multiprocessing as mp
 		mp.freeze_support()
 
-	ver_number = '0.0.4'
+	ver_number = '0.0.4.2'
 	print ("*** T-Bench ver. Abysmal "+ver_number+" ***")
 	print (" ")
 	print ("    T-Bench Copyright (C) 2012  Taylor Shin.\n\
@@ -50,10 +51,11 @@ def main():
 
 	# Running routines
 	#N = [1000, 5000, 10000, 50000, 100000]
-	N = [1000, 5000, 10000, 50000, 100000, 500000]
+	N = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
 	#N = [1000, 5000, 10000]
 	#N = [10030]
 	print (utils.sysinfo())
+
 	N_str = ''
 	for n in N:
 		N_str += str(n)+', '
@@ -63,11 +65,13 @@ def main():
 	print (" ")
 	factNd.factN_dnc(N, "DNC.txt", 500)
 	print (" ")
-
 	# Taking Advantage of Multiprocessing module.
 	if __IronPython__ == False:
 		factNd.factN_dnc_m(N, "DNC_m.txt", 16)
 		print(" ")
+
+	factNa.factNa(N, "Adaptive.txt")
+	print(" ")
 
 	return 0
 

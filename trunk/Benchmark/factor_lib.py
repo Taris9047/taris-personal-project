@@ -93,7 +93,13 @@ def dnc(N, chunks):
 	#print fact_result
 	return fact_result, chunks
 
+#
+# DNC with multiprocessing
+#
 if __IronPython__ == False:
+	#
+	# Multiprocessing doesn't work with IronPython.
+	#
 	# Worker function for dnc_m
 	# Second input is actually output which was defined by 
 	# Queue() datatype.
@@ -103,14 +109,14 @@ if __IronPython__ == False:
 	#
 	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
 	#
-	def dnc_m(N, chunks):
-		if chunks > N:
-			print ("Too many divisions requested!!: %d > %d"%(chunks, N))
-			print ("Assuming single segment chunks.")
-			chunks = N
+	def dnc_m(N, processes=mp.cpu_count()*2):
+		if processes > N:
+			print ("Too many divisions requested!!: %d > %d"%(processes, N))
+			print ("Assuming single segment processes.")
+			processes = N
 		
 		N_list = range(1, N+1, 1)
-		N_seg = split_list(N_list, chunks)
+		N_seg = split_list(N_list, processes)
 		N_list = []
 		#print N_seg
 		
@@ -137,3 +143,41 @@ if __IronPython__ == False:
 
 		#print fact_result
 		return fact_result, chunks
+
+
+
+#
+# Choosing algorithm adaptively.
+# 
+# It seems some algorithm has advantage on others on different number 
+# ranges.
+def factN_adaptive(n):
+	if n <= 0: 
+		print "Factorial calculation requires positive number!!"
+		exit(1)
+	elif  0 < n and n <= 100:
+		print ("Using recursive algorithm")
+		return rfactorial(n)
+	elif 100 < n and n <= 1000:
+		print ("Using sequential algorithm")
+		return factorial(n)
+	elif 1000 < n and n <= 10000:
+		print ("Using sequential DNC algorithm")
+		return dnc(n, 500)
+	elif 10000 < n and n <= 100000:
+		if __IronPython__ == True:
+			print ("Using sequential DNC algorithm")
+			return dnc(n, 5000)
+		else:
+			print ("Using multiprocessing DNC algorithm")
+			return dnc_m(n)
+	else:
+		# Todo: change here with better algorithm
+		# if implemented...
+		if __IronPython__ == True:
+			print ("Using sequential DNC algorithm")
+			return dnc(n, 5000)
+		else:
+			print ("Using multiprocessing DNC algorithm")
+			return dnc_m(n)
+
