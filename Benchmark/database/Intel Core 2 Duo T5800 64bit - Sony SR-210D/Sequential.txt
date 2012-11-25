@@ -1,0 +1,11 @@
+Python 2.7.3 MSC v.1500 64 bit (AMD64)
+CPU Type: Intel(R) Core(TM)2 Duo CPU     T5800  @ 2.00GHz
+6.1.7601
+
+N	Chunks(Processes)	Elipsed Time(sec)
+1000	1	0.000881
+5000	1	0.015175
+10000	1	0.05875
+50000	1	1.646658
+100000	1	7.00842
+500000	1	335.981567
