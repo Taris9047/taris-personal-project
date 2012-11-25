@@ -11,6 +11,22 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/P/win_x86_64/Sequential.txt",
+			"settings":
+			{
+				"buffer_size": 247,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "database/Intel Core i5-3210m - Lenovo E430/Sequential.txt",
+			"settings":
+			{
+				"buffer_size": 242,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -134,8 +150,61 @@
 	"groups":
 	[
 		{
+			"selected": 1,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/P/win_x86_64/Sequential.txt",
+					"settings":
+					{
+						"buffer_size": 247,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "database/Intel Core i5-3210m - Lenovo E430/Sequential.txt",
+					"settings":
+					{
+						"buffer_size": 242,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
