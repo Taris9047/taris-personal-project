@@ -1,0 +1,204 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"_",
+				"_winreg"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/E/Documents/workshop/Benchmark/gfactor_lib.py",
+		"/E/Documents/workshop/Benchmark/factorial_seq.py",
+		"/E/Documents/workshop/Benchmark/factorial_dnc.py",
+		"/E/Documents/workshop/Benchmark/factor_lib.py",
+		"/E/Documents/workshop/Benchmark/Benchmark.py",
+		"/E/Documents/workshop/Benchmark/T-Bench.sublime-project",
+		"/E/Documents/workshop/Benchmark/cpuinfo.py",
+		"/E/Documents/workshop/Benchmark/monty.py",
+		"/C/Users/Taris/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/Taris/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/E/Documents/workshop/Benchmark/database/Intel Core 2 Duo P8600 - Mac Mini 2010/Sequential.txt",
+		"/E/Documents/workshop/Benchmark/database/AMD A8-3800/Sequential.txt",
+		"/E/Documents/workshop/Benchmark/database/Intel Core 2 Duo T2800/Sequential.txt",
+		"/E/Documents/workshop/Benchmark/setup.py",
+		"/E/Downloads/pyinstaller-2.0/pyinstaller-gui.py",
+		"/E/Downloads/fonts.conf",
+		"/E/Documents/workshop/Benchmark/utils.py",
+		"/E/Documents/workshop/factorial/factorial.lua",
+		"/E/Documents/workshop/factorial/factorial.f90",
+		"/E/Documents/workshop/factorial/factorial.f",
+		"/E/Documents/workshop/factorial/factorial.c",
+		"/C/Users/Taris/Desktop/factorial.py",
+		"/E/DOS/PRIV/PRIV.CFG",
+		"/E/DOS/CONFIG.SYS",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Flight/HUDDATA.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Options.ini",
+		"/C/Program Files (x86)/Sony/Vegas Movie Studio HD Platinum 11.0/Joystick Profiles/CH Control Manager Device 2.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-22A/F-22A_DATA.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-35A/F-35A_LOADOUT.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/FA-18F/FA-18F_USERLIST.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/FA-18F/FA-18F_LOADOUT.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Weapons/AGM-114L/AGM-114L.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Weapons/AGM-119/AGM-119.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-35A/F-35A_AVIONICS.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/Typhoon/Typhoon_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/TornadoGR4_06/TornadoGR4_06_AVIONICS.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/SEtendardM/SEtendardM_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/RafaleC/RafaleC_AVIONICS.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-111C(Late)/F-111C(Late)_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/FA-18C/FA-18C_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/FA-18E/FA-18E_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/FA-18F/FA-18F_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-16CM_B52/F-16CM_B52_AVIONICS.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-35A/F-35A.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-22A/F-22A.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-35A/F-35A_USERLIST.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-35A/F-35A_COCKPIT.ini",
+		"/C/Users/Taris/Desktop/default.xml",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/FA-18E/FA-18E_DATA.ini",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Flight/FLIGHTENGINE_Nov2011.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Flight/SPEECHSYSTEM.INI",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Controls/Default.INI",
+		"/E/Documents/settings/joystick_settings/CH Profiles/Strike Fighters 2.cms",
+		"/E/Documents/settings/joystick_settings/CH Profiles/MSFlight.cmc",
+		"/C/Users/Taris/Saved Games/ThirdWire/StrikeFighters2/Objects/Aircraft/F-22A/F-22A_AVIONICS.INI",
+		"/E/Documents/settings/joystick_settings/CH Profiles/Strike Fighters 2 rev1.cms",
+		"/E/Steam/steamapps/common/X-COM Terror from the Deep/dosbox.conf",
+		"/E/Steam/steamapps/common/XCom Apocalypse/dosbox.conf",
+		"/E/Documents/My Dropbox/Dropbox/UWaterloo/Si Detector/Comp/SiDetector.tex"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"process",
+			"leftflap",
+			"brake",
+			"leftflap",
+			"engine1"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 202.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 174.0,
+	"status_bar_visible": true
+}
