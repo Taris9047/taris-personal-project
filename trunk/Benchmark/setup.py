@@ -12,6 +12,6 @@ build_exe_options = {"packages": \
 #    base = "Win32GUI"
 
 setup(  name = "T-Bench",
-        version = "0.0.4.2",
+        version = "0.0.4.3",
         description = "An abysmal factorial calculation benchmark!!",
         executables = [Executable("Benchmark.py")])

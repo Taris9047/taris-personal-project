@@ -7,6 +7,30 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "Benchmark.py",
+			"settings":
+			{
+				"buffer_size": 2103,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "factorial.py",
+			"settings":
+			{
+				"buffer_size": 3373,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "factor_lib.py",
+			"settings":
+			{
+				"buffer_size": 6366,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -32,6 +56,11 @@
 	},
 	"file_history":
 	[
+		"/Users/Taris/workshop/Benchmark/factorial.py",
+		"/Users/Taris/workshop/Benchmark/factor_lib.py",
+		"/Users/Taris/workshop/Benchmark/T-Bench.sublime-project",
+		"/usr/local/Cellar/python/2.7.3/Frameworks/Python.framework/Versions/2.7/lib/python2.7/multiprocessing/process.py",
+		"/Users/Taris/workshop/Benchmark/setup.py",
 		"/C/Users/Taris/Documents/workshop/Benchmark/setup.py",
 		"/C/Users/Taris/Documents/workshop/Benchmark/factor_lib.py",
 		"/C/Users/Taris/Documents/workshop/Benchmark/factorial_dnc.py",
@@ -49,6 +78,7 @@
 		"height": 0.0,
 		"where_history":
 		[
+			"/E/Documents/workshop/Benchmark"
 		]
 	},
 	"find_state":
@@ -56,6 +86,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"ln -s"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -73,8 +104,90 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "Benchmark.py",
+					"settings":
+					{
+						"buffer_size": 2103,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1782,
+								1782
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 554.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "factorial.py",
+					"settings":
+					{
+						"buffer_size": 3373,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3075,
+								3075
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1275.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "factor_lib.py",
+					"settings":
+					{
+						"buffer_size": 6366,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5720,
+								5720
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3187.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -111,7 +224,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 176.0
+		"height": 244.0
 	},
 	"replace":
 	{
@@ -138,6 +251,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 200.0,
 	"status_bar_visible": true
 }
