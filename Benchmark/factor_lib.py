@@ -74,15 +74,15 @@ def split_list(list_N, n_of_chunks):
 #
 # Main DNC algorithm. Receives N as factorial number.
 #
-def dnc(N, chunks):
-	if chunks > N:
-		print ("Too many divisions requested!!: %d > %d"%(chunks, N))
+def dnc(N, chunks_dnc=5000):
+	if chunks_dnc > N:
+		print ("Too many divisions requested!!: %d > %d"%(chunks_dnc, N))
 		print ("Assuming single segment chunks.")
-		chunks = N
+		chunks_dnc = N
 
 	# Generating Parts
 	N_list = range(1, N+1, 1)
-	N_seg = split_list(N_list, chunks)
+	N_seg = split_list(N_list, chunks_dnc)
 	N_list = []
 
 	fact_result = 1
@@ -91,7 +91,7 @@ def dnc(N, chunks):
 		N_seg[i] = []
 
 	#print fact_result
-	return fact_result, chunks
+	return fact_result, chunks_dnc
 
 #
 # DNC with multiprocessing
@@ -109,14 +109,14 @@ if __IronPython__ == False:
 	#
 	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
 	#
-	def dnc_m(N, processes=mp.cpu_count()*2):
-		if processes > N:
-			print ("Too many divisions requested!!: %d > %d"%(processes, N))
+	def dnc_m(N, processes_dnc=mp.cpu_count()*2):
+		if processes_dnc > N:
+			print ("Too many divisions requested!!: %d > %d"%(processes_dnc, N))
 			print ("Assuming single segment processes.")
-			processes = N
+			processes_dnc = N
 		
 		N_list = range(1, N+1, 1)
-		N_seg = split_list(N_list, processes)
+		N_seg = split_list(N_list, processes_dnc)
 		N_list = []
 		#print N_seg
 		
@@ -142,7 +142,7 @@ if __IronPython__ == False:
 			p.join()
 
 		#print fact_result
-		return fact_result, chunks
+		return fact_result, processes_dnc
 
 
 
