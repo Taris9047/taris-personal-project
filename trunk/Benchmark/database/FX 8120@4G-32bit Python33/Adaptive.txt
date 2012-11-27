@@ -1,0 +1,15 @@
+Python 3.3.0 MSC v.1600 32 bit (Intel)
+CPU Type: AMD FX(tm)-8120 Eight-Core Processor           
+6.2.9200
+
+N	Chunks(Processes)	Elipsed Time(sec)
+10	1	8e-06
+50	1	2.5e-05
+100	1	4.5e-05
+500	1	0.000277
+1000	1	0.000889
+5000	500	0.01528
+10000	500	0.056737
+50000	16	0.901674
+100000	16	2.778144
+500000	32	52.253674
