@@ -17,7 +17,13 @@ else:
 def cpu_type(OS_type):
 
 	if OS_type == 'Windows' or __IronPython__ == True:
-		import _winreg
+		if plf.python_version().split('.')[0] == '2':
+			import _winreg
+		elif plf.python_version().split('.')[0] == '3':
+			import winreg as _winreg
+		else:
+			return "Unable to read CPU type from registry."
+
 		key = getattr(_winreg, "HKEY_LOCAL_MACHINE")
 		handle = _winreg.OpenKey(key, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
 		value, type = _winreg.QueryValueEx(handle, "ProcessorNameString")

@@ -54,8 +54,8 @@ def mul_list(RNG):
 # Splits a list into designated chunks of even size.
 #
 def split_list(list_N, n_of_chunks):
-	chunk_length = len(list_N)/n_of_chunks
-	list_remains = len(list_N)%n_of_chunks	
+	chunk_length = int(len(list_N)/n_of_chunks)
+	list_remains = len(list_N)%n_of_chunks
 	if list_remains == 0:
 		return [list_N[i:i+chunk_length] \
 			for i in range(0, len(list_N), chunk_length)]
@@ -223,7 +223,7 @@ if __IronPython__ == False:
 # ranges.
 def factN_adaptive(n):
 	if n <= 0: 
-		print "Factorial calculation requires positive number!!"
+		print ("Factorial calculation requires positive number!!")
 		exit(1)
 	elif  0 < n and n <= 100:
 		#print ("Using recursive algorithm")
