@@ -76,10 +76,9 @@ def split_list(list_N, n_of_chunks):
 #
 def dnc(N, chunks_dnc=5000):
 	if chunks_dnc >= N:
-		print ("Too many divisions requested!!: %d > %d"%(chunks_dnc, N))
+		print ("Too many divisions requested!!: %d >= %d"%(chunks_dnc, N))
 		print ("Assuming single segment chunks.")
-		chunks_dnc = N
-		return seq_fact(N), chunks_dnc
+		return seq_fact(N), 1
 	else:
 		# Generating Parts
 		N_list = range(1, N+1, 1)
@@ -99,7 +98,7 @@ def dnc(N, chunks_dnc=5000):
 #
 def dnc_seg(N_seg_list, chunks_dnc_seg=100):
 	if chunks_dnc_seg >= len(N_seg_list):
-		print ("Too many divisions for a segment requested!!: %d > %d" % \
+		print ("Too many divisions for a segment requested!!: %d >= %d" % \
 			(chunks_dnc_seg, N_seg_list))
 		chunks_dnc_seg = N
 		return mul_list(N), chunks_dnc_seg
@@ -129,10 +128,9 @@ if __IronPython__ == False:
 	#
 	def dnc_m(N, processes_dnc=mp.cpu_count()*2):
 		if processes_dnc >= N:
-			print ("Too many divisions requested!!: %d > %d"%(processes_dnc, N))
+			print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
 			print ("Assuming single segment processes.")
-			processes_dnc = N
-			return seq_fact(N), processes_dnc
+			return seq_fact(N), 1
 		else:
 			N_list = range(1, N+1, 1)
 			N_seg = split_list(N_list, processes_dnc)
@@ -184,12 +182,11 @@ if __IronPython__ == False:
 	#
 	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
 	#
-	def dnc_ml(N, processes_dnc=mp.cpu_count()*2):
+	def dnc_ml(N, processes_dnc=mp.cpu_count()*4):
 		if processes_dnc > N:
-			print ("Too many divisions requested!!: %d > %d"%(processes_dnc, N))
+			print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
 			print ("Assuming single segment processes.")
-			processes_dnc = N
-			return seq_fact(N), processes_dnc
+			return seq_fact(N), 1
 		else:
 			N_list = range(1, N+1, 1)
 			N_seg = split_list(N_list, processes_dnc)
