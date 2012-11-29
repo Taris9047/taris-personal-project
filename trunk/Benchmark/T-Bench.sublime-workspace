@@ -7,30 +7,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "Benchmark.py",
-			"settings":
-			{
-				"buffer_size": 2099,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "factorial.py",
-			"settings":
-			{
-				"buffer_size": 3373,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "factor_lib.py",
-			"settings":
-			{
-				"buffer_size": 6355,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -56,6 +32,9 @@
 	},
 	"file_history":
 	[
+		"/home/taris/Documents/workshop/Benchmark/Benchmark.py",
+		"/home/taris/Documents/workshop/Benchmark/factorial.py",
+		"/home/taris/Documents/workshop/Benchmark/factor_lib.py",
 		"/home/taris/Documents/workshop/Benchmark/prime_factor.py",
 		"/home/taris/Desktop/prime_factorial.py",
 		"/Users/Taris/workshop/Benchmark/factorial.py",
@@ -106,90 +85,8 @@
 	"groups":
 	[
 		{
-			"selected": 2,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "Benchmark.py",
-					"settings":
-					{
-						"buffer_size": 2099,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 554.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "factorial.py",
-					"settings":
-					{
-						"buffer_size": 3373,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3075,
-								3075
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1275.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "factor_lib.py",
-					"settings":
-					{
-						"buffer_size": 6355,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								894,
-								894
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 442.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],
