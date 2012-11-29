@@ -1,0 +1,15 @@
+Python 2.7.2 
+CPU Type:  AMD FX(tm)-8120 Eight-Core Processor           
+#1 SMP Tue Nov 20 19:40:01 UTC 2012
+
+N	Chunks(Processes)	Elipsed Time(sec)
+10	1	0.0
+50	1	0.0
+100	1	0.001
+500	1	0.001
+1000	1	0.003999
+5000	1	0.018998
+10000	1	0.081987
+50000	1	2.359641
+100000	1	10.420417
+500000	1	328.284092

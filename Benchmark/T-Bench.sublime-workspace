@@ -11,7 +11,7 @@
 			"file": "Benchmark.py",
 			"settings":
 			{
-				"buffer_size": 2103,
+				"buffer_size": 2099,
 				"line_ending": "Unix"
 			}
 		},
@@ -27,7 +27,7 @@
 			"file": "factor_lib.py",
 			"settings":
 			{
-				"buffer_size": 6366,
+				"buffer_size": 6355,
 				"line_ending": "Unix"
 			}
 		}
@@ -56,6 +56,8 @@
 	},
 	"file_history":
 	[
+		"/home/taris/Documents/workshop/Benchmark/prime_factor.py",
+		"/home/taris/Desktop/prime_factorial.py",
 		"/Users/Taris/workshop/Benchmark/factorial.py",
 		"/Users/Taris/workshop/Benchmark/factor_lib.py",
 		"/Users/Taris/workshop/Benchmark/T-Bench.sublime-project",
@@ -104,7 +106,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -112,15 +114,15 @@
 					"file": "Benchmark.py",
 					"settings":
 					{
-						"buffer_size": 2103,
+						"buffer_size": 2099,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1782,
-								1782
+								0,
+								0
 							]
 						],
 						"settings":
@@ -166,15 +168,15 @@
 					"file": "factor_lib.py",
 					"settings":
 					{
-						"buffer_size": 6366,
+						"buffer_size": 6355,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5720,
-								5720
+								894,
+								894
 							]
 						],
 						"settings":
@@ -183,7 +185,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 3187.0,
+						"translation.y": 442.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

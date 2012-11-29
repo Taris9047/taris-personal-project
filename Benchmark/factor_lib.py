@@ -51,6 +51,16 @@ def mul_list(RNG):
 		return fact
 
 #
+# A very mathematical approach
+# Prime factorization algorithm
+#
+
+# 
+
+
+
+
+#
 # Splits a list into designated chunks of even size.
 #
 def split_list(list_N, n_of_chunks):
@@ -126,7 +136,7 @@ if __IronPython__ == False:
 	#
 	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
 	#
-	def dnc_m(N, processes_dnc=mp.cpu_count()*2):
+	def dnc_m(N, processes_dnc=mp.cpu_count()):
 		if processes_dnc >= N:
 			print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
 			print ("Assuming single segment processes.")
@@ -182,7 +192,7 @@ if __IronPython__ == False:
 	#
 	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
 	#
-	def dnc_ml(N, processes_dnc=mp.cpu_count()*4):
+	def dnc_ml(N, processes_dnc=mp.cpu_count()):
 		if processes_dnc > N:
 			print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
 			print ("Assuming single segment processes.")

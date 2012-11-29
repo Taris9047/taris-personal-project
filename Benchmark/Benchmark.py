@@ -65,7 +65,7 @@ def main():
 	print (" ")
 	# Taking Advantage of Multiprocessing module.
 	if __IronPython__ == False:
-		factN.factN_dnc_m(N, "DNC_m.txt", 16)
+		factN.factN_dnc_m(N, "DNC_m.txt")
 		print(" ")
 
 	factN.factNa(N, "Adaptive.txt")
