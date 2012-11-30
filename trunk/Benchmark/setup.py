@@ -39,8 +39,8 @@ build_exe_options = {"build_exe": dir_name, \
 
 setup(  name = "T-Bench",
         version = Bench.ver_number,
-        description = "An abysmal factorial calculation benchmark!!",
+        description = "T-Bench: An abysmal factorial calculation benchmark!!",
         author = 'Taylor Shin',
         author_email = 'k4shin@uwaterloo.ca',
         options = {'build_exe':build_exe_options},
-        executables = [Executable("Benchmark.py")])
+        executables = [Executable("Benchmark.py"), Executable("Torture.py")])
