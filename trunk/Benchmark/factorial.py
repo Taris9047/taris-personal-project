@@ -104,7 +104,7 @@ if __IronPython__ == False:
 # Uses adoptive algorithm... 
 #
 def factNa(N, savefile=None):
-	print ("Calculating with Various Algorithm...")
+	print ("Calculating with Various Algorithms...")
 	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []

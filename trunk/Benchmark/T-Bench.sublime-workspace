@@ -3,16 +3,28 @@
 	{
 		"selected_items":
 		[
+			[
+				"gdnc",
+				"gdnc"
+			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "/home/taris/Downloads/Utils/wxPython-src-2.9.4.0/build/tools/build-wxwidgets.py",
+			"file": "Benchmark.py",
 			"settings":
 			{
-				"buffer_size": 24185,
+				"buffer_size": 2935,
 				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "setup.py",
+			"settings":
+			{
+				"buffer_size": 1374,
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -40,8 +52,20 @@
 	},
 	"file_history":
 	[
-		"/home/taris/Documents/workshop/Benchmark/Benchmark.py",
+		"/home/taris/Documents/workshop/Benchmark/gfactor_lib.py",
 		"/home/taris/Documents/workshop/Benchmark/factorial.py",
+		"/home/taris/Documents/workshop/Benchmark/gfactorial.py",
+		"/home/taris/Documents/workshop/Benchmark/nSequential.txt",
+		"/home/taris/Documents/workshop/Benchmark/setup.py",
+		"/home/taris/Documents/workshop/Benchmark/gmpDNC_m.txt",
+		"/home/taris/Documents/workshop/Benchmark/gmpDNC.txt",
+		"/home/taris/Documents/workshop/Benchmark/gmpAdaptive.txt",
+		"/home/taris/Documents/workshop/Benchmark/gmpSequential.txt",
+		"/home/taris/Documents/workshop/Benchmark/DNC.txt",
+		"/home/taris/Documents/workshop/Benchmark/Benchmark.py",
+		"/home/taris/Documents/workshop/Benchmark/utils.py",
+		"/home/taris/Documents/workshop/Benchmark/Benchmark_gmp.py",
+		"/home/taris/Downloads/Utils/wxPython-src-2.9.4.0/build/tools/build-wxwidgets.py",
 		"/home/taris/Documents/workshop/Benchmark/factor_lib.py",
 		"/home/taris/Documents/workshop/Benchmark/prime_factor.py",
 		"/home/taris/Desktop/prime_factorial.py",
@@ -93,33 +117,58 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "/home/taris/Downloads/Utils/wxPython-src-2.9.4.0/build/tools/build-wxwidgets.py",
+					"file": "Benchmark.py",
 					"settings":
 					{
-						"buffer_size": 24185,
+						"buffer_size": 2935,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9232,
-								9232
+								22,
+								22
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 5130.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "setup.py",
+					"settings":
+					{
+						"buffer_size": 1374,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1352,
+								1352
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 225.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

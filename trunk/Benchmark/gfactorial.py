@@ -23,7 +23,7 @@ else:
 # Also saves the file if filename has been defined as string.
 #
 def factN_seq(N, savefile=None):
-	print ("Calculating Generic Sequential Algorithm...")
+	print ("[GMP] Calculating Generic Sequential Algorithm...")
 	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []
@@ -50,7 +50,7 @@ def factN_seq(N, savefile=None):
 # Uses Divide and Conquer algorithm... I think.
 #
 def factN_dnc(N, savefile=None, chunks=5000):
-	print ("Calculating Divide and Conquer Algorithm...")
+	print ("[GMP] Calculating Divide and Conquer Algorithm...")
 	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []
@@ -77,7 +77,7 @@ def factN_dnc(N, savefile=None, chunks=5000):
 if __IronPython__ == False:
 	import multiprocessing as mp
 	def factN_dnc_m(N, savefile=None, processes=mp.cpu_count()*2):
-		print ("Calculating Divide and Conquer Algorithm with Multiprocess model...")
+		print ("[GMP] Calculating Divide and Conquer Algorithm with Multiprocess model...")
 		save_table = [None] * len(N)
 		factN = []
 		factNdnc = []
@@ -104,7 +104,7 @@ if __IronPython__ == False:
 # Uses adoptive algorithm... 
 #
 def factNa(N, savefile=None):
-	print ("Calculating with Various Algorithm...")
+	print ("[GMP] Calculating with Various Algorithms...")
 	save_table = [None] * len(N)
 	factN = []
 	factNdnc = []
