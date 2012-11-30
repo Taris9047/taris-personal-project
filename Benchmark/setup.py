@@ -13,12 +13,17 @@ OS_name = str(platform.uname()[0])
 arch_name = str(platform.machine())
 #Python_name = platform.python_implementation()
 #Python_version = platform.python_version()
+if sys.maxsize > 2**32 == False:
+	architecture = '32bit'
+else:
+	architecture = '64bit'
 today = date.today()
 compile_date = str(today.month)+str(today.day)+str(today.year)
 dir_name = './'+build_dir+'/'+ \
 			prog_name+'-'+ \
 			OS_name+'-'+ \
 			arch_name+'-'+ \
+			architecture+'-'+ \
 			compile_date
 
 # Dependencies are automatically detected, but it might need fine tuning.
