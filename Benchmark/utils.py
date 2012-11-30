@@ -7,16 +7,11 @@ import os, subprocess, re
 
 # Detecting IronPython
 import sys
-if '.NET' in sys.version:
-	__IronPython__ = True
-else:
-	__IronPython__ = False
-
 
 # Probing CPU type depending on current OS
 def cpu_type(OS_type):
 
-	if OS_type == 'Windows' or __IronPython__ == True:
+	if OS_type == 'Windows':
 		if plf.python_version().split('.')[0] == '2':
 			import _winreg
 		elif plf.python_version().split('.')[0] == '3':
@@ -76,3 +71,50 @@ def savelist(savefile, save_table, System_Info='__default__'):
 
 	return savefile
 
+
+# parsing arguments
+# Available options:
+# all, seq, dnc, dnc_m, auto, 
+# gseq, gdnc, gdnc_m, gauto, and torture_test
+#
+def bench_options(arg_list):
+	if len(arg_list) == 1:
+		return ['seq', 'dnc', 'dnc_m', 'auto', \
+				'gseq', 'gdnc', 'gdnc_m', 'gauto'],\
+				[]
+	else:
+		bench_option_list = []
+		bench_number_list = []
+		arg_list = arg_list[1:len(arg_list)]
+		arg_list = list(set(arg_list))
+		
+		for arg in arg_list:
+			if arg == 'all':
+				bench_option_list = \
+				['seq', 'dnc', 'dnc_m', 'auto', \
+				'gseq', 'gdnc', 'gdnc_m', 'gauto']
+				break
+			elif arg.isdigit() == True:
+				bench_number_list.append(int(arg))
+			elif arg == 'seq' or \
+				arg == 'dnc' or \
+				arg == 'dnc_m' or \
+				arg == 'auto' or \
+				arg == 'gseq' or \
+				arg == 'gdnc' or \
+				arg == 'gdnc_m' or \
+				arg == 'gauto':
+				bench_option_list.append(arg)
+			elif arg == 'torture':
+				bench_option_list = ['torture']
+				break
+			else:
+				print ("Invalid option: %s"%(arg))
+				print ("Ignoring it")
+				pass
+		
+		# removing cruds
+		bench_option_list = list(set(bench_option_list))
+		bench_number_list = list(set(bench_number_list))
+
+		return bench_option_list, bench_number_list

@@ -23,53 +23,86 @@
 #
 
 import factorial as factN
+import gfactorial as gfactN
+import random
+import time
 import utils
-
-# detecting IronPython. For now, it will
-# just prevent running multiprocessing module
-# when IronPython is detected.
 import sys
-if '.NET' in sys.version:
-	print ('Detected IronPython...')
-	__IronPython__ = True
-else:
-	__IronPython__ = False
+
+ver_number = "0.0.4.4"
 
 def main():
-	if __IronPython__ == False:
-		import multiprocessing as mp
-		mp.freeze_support()
+	import multiprocessing as mp
+	mp.freeze_support()
 
-	ver_number = '0.0.4.3'
 	print ("*** T-Bench ver. Abysmal "+ver_number+" ***")
 	print (" ")
 	print ("    T-Bench Copyright (C) 2012  Taylor Shin.\n\
     This program comes with ABSOLUTELY NO WARRANTY.\n\
     This is free software, and you are welcome to redistribute it.\n")
 
+	run_options = utils.bench_options(sys.argv)
+	print ("Options set as: ")
+	print run_options
+
 	# Running routines
-	#N = [1000, 5000, 10000, 50000, 100000]
-	N = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
-	#N = [1000, 5000, 10000]
-	#N = [100300]
+	#N_default = [1000, 5000, 10000, 50000, 100000]
+	N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
+	#N_default = [1000, 5000, 10000]
+	#N_default = [100300]
+
 	print (utils.sysinfo())
+
+	# setting up N
+	if run_options[1] == []:
+		N = N_default
+	else:
+		N = run_options[1]
 
 	N_str = ''
 	for n in N:
 		N_str += str(n)+', '
 	print ("Calculation range: "+N_str)
+	
+	for bopts in run_options[0]:
+		if bopts == 'seq':
+			factN.factN_seq(N, "nSequential.txt")
+			print (" ")
+		elif bopts == 'dnc':
+			factN.factN_dnc(N, "nDNC.txt", 500)
+			print (" ")
+		elif bopts == 'dnc_m':
+			# Taking Advantage of Multiprocessing module.
+			factN.factN_dnc_m(N, "nDNC_m.txt")
+			print(" ")
+		elif bopts == 'auto':
+			factN.factNa(N, "nAdaptive.txt")
+			print(" ")
+		elif bopts == 'gseq':
+			gfactN.factN_seq(N, "gmpSequential.txt")
+			print (" ")
+		elif bopts == 'gdnc':
+			gfactN.factN_dnc(N, "gmpDNC.txt", 500)
+			print (" ")
+		elif bopts == 'gdnc_m':
+			# Taking Advantage of Multiprocessing module.
+			gfactN.factN_dnc_m(N, "gmpDNC_m.txt")
+			print(" ")
+		elif bopts == 'gauto':
+			gfactN.factNa(N, "gmpAdaptive.txt")
+			print(" ")
+		elif bopts == 'torture':
+			while 1:
+				print (" ")
+				print ("*** Torture Test Mode ***")
+				print ("  Hit Ctrl+C to break out...")
+				print ("  Ignoring defined N list.")
+				random.seed(time.clock())
+				N = [random.randrange(1000000,100000000)]
+				gfactN.factNa(N)
+		else:
+			print ("Wrong Option!! You just found the Program Bug!!")
 
-	factN.factN_seq(N, "Sequential.txt")
-	print (" ")
-	factN.factN_dnc(N, "DNC.txt", 500)
-	print (" ")
-	# Taking Advantage of Multiprocessing module.
-	if __IronPython__ == False:
-		factN.factN_dnc_m(N, "DNC_m.txt")
-		print(" ")
-
-	factN.factNa(N, "Adaptive.txt")
-	print(" ")
 
 	return 0
 
