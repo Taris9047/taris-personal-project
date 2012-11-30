@@ -41,14 +41,19 @@ def cpu_type(OS_type):
 	return 0
 
 # grabs system information
-def sysinfo():
+def sysinfo(verbose=False):
 	#operating_system = plf.platform()
 	uname = plf.uname()
 	py_info = 'Python '+\
 			str(plf.python_version())+' '+\
 			str(plf.python_compiler())
-	return py_info+'\n'+'CPU Type: '+\
+	sys_info_text = py_info+'\n'+'CPU Type: '+\
 			str(cpu_type(uname[0]))+'\n'+str(uname[3])+'\n'
+	if verbose == True:
+		print sys_info_text
+	
+	return sys_info_text
+
 
 # saves everything into file
 def savelist(savefile, save_table, System_Info='__default__'):
@@ -118,3 +123,13 @@ def bench_options(arg_list):
 		bench_number_list = list(set(bench_number_list))
 
 		return bench_option_list, bench_number_list
+
+# print calculation range
+def print_range(N):
+	N_str = ''
+	for n in N:
+		N_str += str(n)+', '
+
+	print ("Calculation Range: %s"%N_str)
+
+	return ''

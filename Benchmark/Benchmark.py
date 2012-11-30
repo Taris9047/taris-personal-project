@@ -29,7 +29,7 @@ import time
 import utils
 import sys
 
-ver_number = "0.0.4.4"
+ver_number = "0.0.4.5"
 
 def main():
 	import multiprocessing as mp
@@ -46,24 +46,16 @@ def main():
 	print run_options
 
 	# Running routines
-	#N_default = [1000, 5000, 10000, 50000, 100000]
-	N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
-	#N_default = [1000, 5000, 10000]
-	#N_default = [100300]
-
-	print (utils.sysinfo())
-
 	# setting up N
+	N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
 	if run_options[1] == []:
 		N = N_default
 	else:
 		N = run_options[1]
 
-	N_str = ''
-	for n in N:
-		N_str += str(n)+', '
-	print ("Calculation range: "+N_str)
-	
+	utils.sysinfo(True)
+	utils.print_range(N)
+
 	for bopts in run_options[0]:
 		if bopts == 'seq':
 			factN.factN_seq(N, "nSequential.txt")
@@ -97,9 +89,25 @@ def main():
 				print ("*** Torture Test Mode ***")
 				print ("  Hit Ctrl+C to break out...")
 				print ("  Ignoring defined N list.")
-				random.seed(time.clock())
-				N = [random.randrange(1000000,100000000)]
-				gfactN.factNa(N)
+				random.seed()
+				rand_min = 100
+				rand_max = 10000000
+				N = [random.randrange(rand_min,rand_max)]
+				print ("Calculating %d!"%N[0])
+				print ("Without GMP")
+				factN_nogmp = factN.factNa(N)
+				print ("With GMP")
+				factN_gmp = gfactN.factNa(N)
+				
+				if factN_nogmp == factN_gmp:
+					print("Numbers match!! next...")
+				else:
+					print("Uh oh... something is wrong... ")
+					print("No gmp value: %d does not match with gmp value: %d !!"\
+						%(factN_nogmp, factN_gmp))
+					exit(1)
+
+				print (" ")
 		else:
 			print ("Wrong Option!! You just found the Program Bug!!")
 
