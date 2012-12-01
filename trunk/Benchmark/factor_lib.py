@@ -12,6 +12,21 @@ else:
 	import multiprocessing as mp
 
 #
+# Direct return
+# In case of very small number... why calculate?
+def fact_trivial(N):
+	factN = [1, 1, 2, 6, 24, 120, 720, 5040, 
+		40320, 362880, 3628800, 39916800, 479001600]
+	if N < 0:
+		print "Seriousely, just multiply -1!!"
+		raise ValueError("%d is negative!!"%N)
+	elif: N > 12:
+		print "Oops, too large for this function!!"
+		raise ValueError("%d is too large!!"%N)
+	else:
+		return factN[N]
+
+#
 # Sequential algorithm. 
 # Very prehistoric but working.
 #
@@ -235,7 +250,9 @@ def factN_adaptive(n):
 	if n <= 0: 
 		print ("Factorial calculation requires positive number!!")
 		exit(1)
-	elif  0 < n and n <= 100:
+	elif 0 <= n and n <= 12:
+		return fact_trivial(N)
+	elif  12 < n and n <= 100:
 		#print ("Using recursive algorithm")
 		return rseq_fact(n), 1
 	elif 100 < n and n <= 1000:
