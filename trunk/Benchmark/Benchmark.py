@@ -29,7 +29,7 @@ import time
 import utils
 import sys
 
-ver_number = "0.0.4.5"
+ver_number = "0.0.4.7"
 
 def main():
 	import multiprocessing as mp
@@ -42,8 +42,10 @@ def main():
     This is free software, and you are welcome to redistribute it.\n")
 
 	run_options = utils.bench_options(sys.argv)
-	print ("Options set as: ")
-	print run_options
+	print ("Options set as: %s"%reduce(lambda x,y: x+' '+y, run_options[0]))
+	
+	print (" ")
+	print ("Currently prime factorization algorithm cannot be run due to recursion limit...")
 
 	# Running routines
 	# setting up N
@@ -67,6 +69,9 @@ def main():
 			# Taking Advantage of Multiprocessing module.
 			factN.factN_dnc_m(N, "nDNC_m.txt")
 			print(" ")
+		elif bopts == 'prime':
+			factN.factNp(N, "nPrimeFactorial.txt")	
+			print(" ")		
 		elif bopts == 'auto':
 			factN.factNa(N, "nAdaptive.txt")
 			print(" ")
@@ -80,6 +85,9 @@ def main():
 			# Taking Advantage of Multiprocessing module.
 			gfactN.factN_dnc_m(N, "gmpDNC_m.txt")
 			print(" ")
+		elif bopts == 'gprime':
+			factN.factNp(N, "gmpPrimeFactorial.txt")	
+			print(" ")		
 		elif bopts == 'gauto':
 			gfactN.factNa(N, "gmpAdaptive.txt")
 			print(" ")

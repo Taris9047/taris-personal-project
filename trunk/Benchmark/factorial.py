@@ -88,6 +88,35 @@ def factN_dnc_m(N, savefile=None, processes=mp.cpu_count()*2):
 		return factN, utils.savelist(savefile, save_table)
 
 #
+# factNp
+#
+# Power Factorization method and displays time.
+# Also saves the file if filename has been defined as string. 
+#
+def factNp(N, savefile=None):
+	print ("Calculating with Prime Factorization Method...")
+	save_table = [None] * len(N)
+	factN = []
+	factNdnc = []
+
+	for i in range(len(N)):
+		startTime = time.clock()
+		factN, processes_result = flib.primefact(N[i])
+		endTime = time.clock()
+		time_diff = round(endTime-startTime,6)
+		print ("%d! with %d chunk(process)s has been finished in %.6f seconds."%\
+			(N[i], processes_result, time_diff))
+		save_table[i] = str(N[i])+'\t'+str(processes_result)+'\t'+str(time_diff)
+
+	if savefile == None:
+		return factN
+	else:
+		return factN, utils.savelist(savefile, save_table)
+
+
+
+
+#
 # factNa
 #
 # Calculates Sequencial Factorial and displays time.
