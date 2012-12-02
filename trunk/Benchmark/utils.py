@@ -7,21 +7,22 @@ import os, subprocess, re
 
 # Detecting IronPython
 import sys
+from functools import reduce
 
 # Probing CPU type depending on current OS
 def cpu_type(OS_type):
 
 	if OS_type == 'Windows':
 		if plf.python_version().split('.')[0] == '2':
-			import _winreg
+			import winreg
 		elif plf.python_version().split('.')[0] == '3':
 			import winreg as _winreg
 		else:
 			return "Unable to read CPU type from registry."
 
 		key = getattr(_winreg, "HKEY_LOCAL_MACHINE")
-		handle = _winreg.OpenKey(key, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
-		value, type = _winreg.QueryValueEx(handle, "ProcessorNameString")
+		handle = winreg.OpenKey(key, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
+		value, type = winreg.QueryValueEx(handle, "ProcessorNameString")
 		return value
 	elif OS_type == 'Darwin':
 		import os
@@ -50,7 +51,7 @@ def sysinfo(verbose=False):
 	sys_info_text = py_info+'\n'+'CPU Type: '+\
 			str(cpu_type(uname[0]))+'\n'+str(uname[3])+'\n'
 	if verbose == True:
-		print sys_info_text
+		print(sys_info_text)
 	
 	return sys_info_text
 
@@ -114,7 +115,7 @@ def bench_options(arg_list):
 				bench_option_list = ['torture']
 				break
 			else:
-				print ("Invalid option: %s"%(arg))
+				print(("Invalid option: %s"%(arg)))
 				print ("Ignoring it")
 				pass
 		
@@ -127,6 +128,6 @@ def bench_options(arg_list):
 # print calculation range
 def print_range(N):
 	N_str = reduce(lambda x,y: str(x)+' '+str(y), N)
-	print ("Calculation Range: %s"%N_str)
+	print(("Calculation Range: %s"%N_str))
 
 	return ''

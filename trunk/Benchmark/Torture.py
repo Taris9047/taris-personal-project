@@ -10,42 +10,65 @@ import utils
 import sys
 
 import Benchmark as Bench
-ver_number = Bench.ver_number
+
+def torture(min_fact=1, max_fact=10000000):
+	torture_log = open("Torture.log", "w")
+	print ("  Hit Ctrl+C to break out...")
+	print (" ")
+
+	controller = 1
+	i = 0
+	N = []
+	while controller:		
+		random.seed()
+		N.append(random.randrange(min_fact,max_fact))
+		sys.setrecursionlimit(N[i]+10)
+		
+		torture_log = open("Torture.log", "a")
+
+		print(("Calculating %d!"%N[i]))
+		torture_log.write("%d!:\n"%N[i])
+		factN_nogmp, time_elipsed = factN.factNa([N[i]])
+		torture_log.write(\
+			"[NOGMP] %d! finished in %.6f seconds.\n"%(N[i],time_elipsed))
+		 
+		factN_gmp, gtime_elipsed = gfactN.factNa([N[i]])
+		torture_log.write(\
+			"[GMP] %d! finished in %.6f seconds.\n"%(N[i],gtime_elipsed))
+
+
+		if factN_nogmp == factN_gmp:
+			print("Numbers match!! next...")
+			print("[GMP] is %.2f times faster."%(time_elipsed/gtime_elipsed))
+			torture_log.write(" %d! has been success!!\n"%N[i])
+			torture_log.write("[GMP] is %.2f times faster.\n"%(time_elipsed/gtime_elipsed))
+			torture_log.write("\n")
+			torture_log.close()
+			i += 1
+		else:
+			print("Uh oh... something is wrong... ")
+			torture_log.write(" Ooops... %s! had problem...\n"%N[i])
+			torture_log.close()
+			raise ValueError(\
+				"No gmp value: %d does not match with gmp value: %d !!"\
+				%(factN_nogmp, factN_gmp))
+		print (" ")
+
+	return 0
 
 def main():
 	import multiprocessing as mp
 	mp.freeze_support()
-
-	print ("*** T-Bench (Torture Test Edition) ver. Abysmal "+ver_number+" ***")
+	
+	print(("*** T-Bench (Torture Test Edition) ver. Abysmal "+Bench.ver_number+" ***"))
 	print (" ")
 	print ("    T-Bench (Torture Test Edition) Copyright (C) 2012  Taylor Shin.\n\
     This program comes with ABSOLUTELY NO WARRANTY.\n\
     This is free software, and you are welcome to redistribute it.\n")
 
-	print (utils.sysinfo())
+	print((utils.sysinfo()))
 
-	controller = 1
-	while controller:
-		print ("  Hit Ctrl+C to break out...")
-		print (" ")
-		random.seed()
-		rand_min = 100
-		rand_max = 10000000
-		N = [random.randrange(rand_min,rand_max)]
-		print ("Calculating %d!"%N[0])
-		print ("Without GMP")
-		factN_nogmp = factN.factNa(N)
-		print ("With GMP")
-		factN_gmp = gfactN.factNa(N)
-		
-		if factN_nogmp == factN_gmp:
-			print("Numbers match!! next...")
-		else:
-			print("Uh oh... something is wrong... ")
-			print("No gmp value: %d does not match with gmp value: %d !!"\
-				%(factN_nogmp, factN_gmp))
-			exit(1)
-		print (" ")
+	torture()
 
 	return 0
 
