@@ -1,15 +1,8 @@
 # Factorial calculation library
 #
 
-# detecting IronPython. For now, it will
-# just prevent running multiprocessing module
-# when IronPython is detected.
+import multiprocessing as mp
 import sys
-if '.NET' in sys.version:
-	__IronPython__ = True
-else:
-	__IronPython__ = False
-	import multiprocessing as mp
 
 #
 # Direct return
@@ -20,7 +13,7 @@ def fact_trivial(N):
 	if N < 0:
 		print "Seriousely, just multiply -1!!"
 		raise ValueError("%d is negative!!"%N)
-	elif: N > 12:
+	elif N > 12:
 		print "Oops, too large for this function!!"
 		raise ValueError("%d is too large!!"%N)
 	else:
@@ -47,6 +40,7 @@ def seq_fact(N):
 # Doesn't work due to stack limitation.
 #
 def rseq_fact(N):
+	sys.setrecursionlimit(N*1000)
 	if N == 1:
 		return 1
 	else:
@@ -71,8 +65,57 @@ def mul_list(RNG):
 #
 
 # 
+# Multiplicity: Returns the power of a prime number p in the N!
+def multiplicity(N, p):
+	if p > N:
+		return 0
+	if p > N//2:
+		return 1
+	q, m = N, 0
+	while q >= p:
+		q //= p
+		m += q
 
+	return m
 
+#
+# Generate a list of prime numbers within n!
+def primes(n):
+	sieve = range(0,n+1,1)
+	sieve[:2] = [0, 0]
+	for i in range(2, int(n**0.5)+1,1):
+		if sieve[i] != 0:
+			for j in range(i**2, n, i):
+				sieve[j] = 0
+
+	return [p for p in sieve if p]
+
+#
+# Compute the explicit of a factored integer.
+# read: exponentation by squaring
+def powproduct(ns):
+	if ns == 0:
+		return 1
+
+	units = 1
+	multi = []
+
+	for base, exp in ns:
+		if exp == 0:
+			continue
+		elif exp == 1:
+			units *= base
+		else:
+			if (exp // 2) != 0:
+				units *= base
+			multi.append((base, exp//2))
+	return units * powproduct(multi)**2
+
+#
+# prime factorization method
+def primefact(n):
+	sys.setrecursionlimit(n*1000)
+	return powproduct((p, multiplicity(n,p)) for p in primes(n))
 
 
 #
@@ -96,6 +139,7 @@ def split_list(list_N, n_of_chunks):
 			for i in range(0, len(list_N_div), chunk_length)]
 
 		return list_N_seg
+
 #
 # Main DNC algorithm. Receives N as factorial number.
 #
@@ -138,108 +182,105 @@ def dnc_seg(N_seg_list, chunks_dnc_seg=100):
 #
 # DNC with multiprocessing
 #
-if __IronPython__ == False:
-	#
-	# Multiprocessing doesn't work with IronPython.
-	#
-	# Worker function for dnc_m
-	# Second input is actually output which was defined by 
-	# Queue() datatype.
-	def dnc_m_worker(N, fact_result_q):
-			fact_result_q.put(mul_list(N))
+#
+# Worker function for dnc_m
+# Second input is actually output which was defined by 
+# Queue() datatype.
+def dnc_m_worker(N, fact_result_q):
+		fact_result_q.put(mul_list(N))
 
-	#
-	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
-	#
-	def dnc_m(N, processes_dnc=mp.cpu_count()):
-		if processes_dnc >= N:
-			print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
-			print ("Assuming single segment processes.")
-			return seq_fact(N), 1
-		else:
-			N_list = range(1, N+1, 1)
-			N_seg = split_list(N_list, processes_dnc)
-			N_list = []
-			#print N_seg
-			
-			fact_result = 1
-			fact_result_q = mp.Queue()
-			procs = []
-			for i in range(len(N_seg)):
-				p = mp.Process(target=dnc_m_worker, args=(N_seg[i], fact_result_q))
-				procs.append(p)
-				p.start()
-			
-			#i = 0
-			for p in procs:	
-				#print ['***** Iteration', i, ' *****']
-				#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
-				#print ['Segment Factorial: ', fact_result_q.get()]
-				fact_result *= fact_result_q.get()
-				#print ['result: ', fact_result]
-				#print [procs[i], 'Factorial value', fact_result]
-				#i += 1
+#
+# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
+#
+def dnc_m(N, processes_dnc=mp.cpu_count()):
+	if processes_dnc >= N:
+		print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
+		print ("Assuming single segment processes.")
+		return seq_fact(N), 1
+	else:
+		N_list = range(1, N+1, 1)
+		N_seg = split_list(N_list, processes_dnc)
+		N_list = []
+		#print N_seg
+		
+		fact_result = 1
+		fact_result_q = mp.Queue()
+		procs = []
+		for i in range(len(N_seg)):
+			p = mp.Process(target=dnc_m_worker, args=(N_seg[i], fact_result_q))
+			procs.append(p)
+			p.start()
+		
+		#i = 0
+		for p in procs:	
+			#print ['***** Iteration', i, ' *****']
+			#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
+			#print ['Segment Factorial: ', fact_result_q.get()]
+			fact_result *= fact_result_q.get()
+			#print ['result: ', fact_result]
+			#print [procs[i], 'Factorial value', fact_result]
+			#i += 1
 
-			for p in procs:
-				p.join()
+		for p in procs:
+			p.join()
 
-			#print fact_result
-			return fact_result, processes_dnc
+		#print fact_result
+		return fact_result, processes_dnc
 
 #
 # DNC with multiprocessing of recursive DNC
 #
-	# Worker function for dnc_ml
-	# Second input is actually output which was defined by 
-	# Queue() datatype.
-	def dnc_ml_worker(N, fact_result_q):
-		if len(N) < 1000:
-			segments = 100
-		elif len(N) >= 1000 and len(N) < 10000:
-			segments = 500
-		elif len(N) >= 10000 and len(N) < 50000:
-			segments = 1000
-		else:
-			segments = 5000
-		factN_dnc, chunks_dnc_child = dnc_seg(N, segments)
-		fact_result_q.put(factN_dnc)
+# Worker function for dnc_ml
+# Second input is actually output which was defined by 
+# Queue() datatype.
+def dnc_ml_worker(N, fact_result_q):
+	if len(N) < 1000:
+		segments = 100
+	elif len(N) >= 1000 and len(N) < 10000:
+		segments = 500
+	elif len(N) >= 10000 and len(N) < 50000:
+		segments = 1000
+	else:
+		segments = 5000
+	factN_dnc, chunks_dnc_child = dnc_seg(N, segments)
+	fact_result_q.put(factN_dnc)
 
-	#
-	# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
-	#
-	def dnc_ml(N, processes_dnc=mp.cpu_count()):
-		if processes_dnc > N:
-			print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
-			print ("Assuming single segment processes.")
-			return seq_fact(N), 1
-		else:
-			N_list = range(1, N+1, 1)
-			N_seg = split_list(N_list, processes_dnc)
-			N_list = []
-			
-			fact_result = 1
-			fact_result_q = mp.Queue()
-			procs = []
-			for i in range(len(N_seg)):
-				p = mp.Process(target=dnc_ml_worker, args=(N_seg[i], fact_result_q))
-				procs.append(p)
-				p.start()
-			
-			#i = 0
-			for p in procs:	
-				#print ['***** Iteration', i, ' *****']
-				#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
-				#print ['Segment Factorial: ', fact_result_q.get()]
-				fact_result *= fact_result_q.get()
-				#print ['result: ', fact_result]
-				#print [procs[i], 'Factorial value', fact_result]
-				#i += 1
+#
+# Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
+#
+def dnc_ml(N, processes_dnc=mp.cpu_count()):
+	if processes_dnc > N:
+		print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
+		print ("Assuming single segment processes.")
+		return seq_fact(N), 1
+	else:
+		N_list = range(1, N+1, 1)
+		N_seg = split_list(N_list, processes_dnc)
+		N_list = []
+		
+		fact_result = 1
+		fact_result_q = mp.Queue()
+		procs = []
+		for i in range(len(N_seg)):
+			p = mp.Process(target=dnc_ml_worker, args=(N_seg[i], fact_result_q))
+			procs.append(p)
+			p.start()
+		
+		#i = 0
+		for p in procs:	
+			#print ['***** Iteration', i, ' *****']
+			#print ['Segment for ', procs[i], ' is ', N_seg[i] ]
+			#print ['Segment Factorial: ', fact_result_q.get()]
+			fact_result *= fact_result_q.get()
+			#print ['result: ', fact_result]
+			#print [procs[i], 'Factorial value', fact_result]
+			#i += 1
 
-			for p in procs:
-				p.join()
+		for p in procs:
+			p.join()
 
-			#print fact_result
-			return fact_result, processes_dnc
+		#print fact_result
+		return fact_result, processes_dnc
 
 #
 # Choosing algorithm adaptively.

@@ -83,10 +83,10 @@ def savelist(savefile, save_table, System_Info='__default__'):
 # gseq, gdnc, gdnc_m, gauto, and torture_test
 #
 def bench_options(arg_list):
+	option_parameters = ['seq', 'dnc', 'dnc_m', 'prime', 'auto', \
+				'gseq', 'gdnc', 'gdnc_m', 'gprime', 'gauto']
 	if len(arg_list) == 1:
-		return ['seq', 'dnc', 'dnc_m', 'auto', \
-				'gseq', 'gdnc', 'gdnc_m', 'gauto'],\
-				[]
+		return option_parameters, []
 	else:
 		bench_option_list = []
 		bench_number_list = []
@@ -95,19 +95,19 @@ def bench_options(arg_list):
 		
 		for arg in arg_list:
 			if arg == 'all':
-				bench_option_list = \
-				['seq', 'dnc', 'dnc_m', 'auto', \
-				'gseq', 'gdnc', 'gdnc_m', 'gauto']
+				bench_option_list = option_parameters
 				break
 			elif arg.isdigit() == True:
 				bench_number_list.append(int(arg))
 			elif arg == 'seq' or \
 				arg == 'dnc' or \
 				arg == 'dnc_m' or \
+				arg == 'prime' or \
 				arg == 'auto' or \
 				arg == 'gseq' or \
 				arg == 'gdnc' or \
 				arg == 'gdnc_m' or \
+				arg == 'gprime' or \
 				arg == 'gauto':
 				bench_option_list.append(arg)
 			elif arg == 'torture':
@@ -126,10 +126,7 @@ def bench_options(arg_list):
 
 # print calculation range
 def print_range(N):
-	N_str = ''
-	for n in N:
-		N_str += str(n)+', '
-
+	N_str = reduce(lambda x,y: str(x)+' '+str(y), N)
 	print ("Calculation Range: %s"%N_str)
 
 	return ''

@@ -4,10 +4,27 @@ import gmpy2 as gmp
 import multiprocessing as mp
 
 #
+# Direct return
+# In case of very small number... why calculate?
+def fact_trivial(N):
+	factN = [1, 1, 2, 6, 24, 120, 720, 5040, 
+		40320, 362880, 3628800, 39916800, 479001600]
+	if N < 0:
+		print "Seriousely, just multiply -1!!"
+		raise ValueError("%d is negative!!"%N)
+	elif N > 12:
+		print "Oops, too large for this function!!"
+		raise ValueError("%d is too large!!"%N)
+	else:
+		return gmp.mpz(factN[N])
+
+
+#
 # Sequential algorithm. 
 # Very prehistoric but working.
 #
 def seq_fact(N):
+	sys.setrecursionlimit(n*1000)
 	fact = gmp.mpz(1)
 
 	for i in range(1,N+1,1):
@@ -48,7 +65,58 @@ def mul_list(RNG):
 #
 
 # 
+# Multiplicity: Returns the power of a prime number p in the N!
+def multiplicity(N, p):
+	if p > N:
+		return 0
+	if p > N//2:
+		return 1
+	q, m = N, 0
+	while q >= p:
+		q //= p
+		m += q
 
+	return m
+
+#
+# Generate a list of prime numbers within n!
+def primes(n):
+	sieve = range(0,n+1,1)
+	sieve[:2] = [0, 0]
+	for i in range(2, int(n**0.5)+1,1):
+		if sieve[i] != 0:
+			for j in range(i**2, n, i):
+				sieve[j] = 0
+
+	return [p for p in sieve if p]
+
+#
+# Compute the explicit of a factored integer.
+# read: exponentation by squaring
+def powproduct(ns):
+	if ns == 0:
+		return 1
+
+	units = 1
+	multi = []
+
+	for base, exp in ns:
+		if exp == 0:
+			continue
+		elif exp == 1:
+			units *= base
+		else:
+			if (exp // 2) != 0:
+				units *= base
+			multi.append((base, exp//2))
+	return units * powproduct(multi)**2
+
+#
+# prime factorization method
+def primefact(n):
+	n = gmp.mpz(n)
+	sys.setrecursionlimit(n*1000)
+	return powproduct((gmp.mpz(p), multiplicity(n,p)) for p in primes(n))
 
 
 
@@ -226,7 +294,9 @@ def factN_adaptive(n):
 	if n <= 0: 
 		print ("Factorial calculation requires positive number!!")
 		exit(1)
-	elif  0 < n and n <= 100:
+	elif 0 <= n and n <= 12:
+		return fact_trivial(N)
+	elif  12 < n and n <= 100:
 		#print ("Using recursive algorithm")
 		return rseq_fact(n), 1
 	elif 100 < n and n <= 1000:
@@ -236,8 +306,20 @@ def factN_adaptive(n):
 		#print ("Using sequential DNC algorithm")
 		return dnc(n, 500)
 	elif 10000 < n and n <= 100000:
-		#print ("Using multiprocessing DNC algorithm")
-		return dnc_m(n)
+		if __IronPython__ == True:
+			#print ("Using sequential DNC algorithm")
+			return dnc(n, 5000)
+		else:
+			#print ("Using multiprocessing DNC algorithm")
+			return dnc_m(n)
 	else:
-		return dnc_ml(n)
+		# Todo: change here with better algorithm
+		# if implemented...
+		if __IronPython__ == True:
+			#print ("Using sequential DNC algorithm")
+			return dnc(n, 5000)
+		else:
+			#print ("Using multiprocessing DNC algorithm")
+			return dnc_ml(n)
+
 

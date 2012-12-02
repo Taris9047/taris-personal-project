@@ -22,9 +22,8 @@ else:
 today = date.today()
 compile_date = str(today.month)+str(today.day)+str(today.year)
 dir_name = './'+build_dir+'/'+ \
-			prog_name+'-'+ \
-			OS_name+'-'+ \
-			architecture+'-'+ \
+			prog_name+'-'+Bench.ver_number+'-'+ \
+			OS_name+'-'+architecture+'-'+ \
 			compile_date
 
 # Dependencies are automatically detected, but it might need fine tuning.
