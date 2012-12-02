@@ -303,19 +303,9 @@ def factN_adaptive(n):
 		#print ("Using sequential DNC algorithm")
 		return dnc(n, 500)
 	elif 10000 < n and n <= 100000:
-		if __IronPython__ == True:
-			#print ("Using sequential DNC algorithm")
-			return dnc(n, 5000)
-		else:
-			#print ("Using multiprocessing DNC algorithm")
-			return dnc_m(n)
+		#print ("Using multiprocessing DNC algorithm")
+		return dnc_m(n)
 	else:
-		# Todo: change here with better algorithm
-		# if implemented...
-		if __IronPython__ == True:
-			#print ("Using sequential DNC algorithm")
-			return dnc(n, 5000)
-		else:
-			#print ("Using multiprocessing DNC algorithm")
-			return dnc_ml(n)
+		#print ("Using multiprocessing DNC algorithm")
+		return dnc_ml(n)
 
