@@ -25,10 +25,10 @@ for x in range(100000):
 		losses = losses + 1 # contestant switched to losing door
 	else:
 		wins = wins + 1 # contestant switched to winning door
-print "All choices were switched."
+print("All choices were switched.")
 
 
 endTime = time.clock()
-print "Wins:", wins
-print "Losses:", losses
-print "Elapsed time: %.3f"%(endTime-startTime)
+print("Wins:", wins)
+print("Losses:", losses)
+print("Elapsed time: %.3f"%(endTime-startTime))

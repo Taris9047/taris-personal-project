@@ -11,10 +11,10 @@ def fact_trivial(N):
 	factN = [1, 1, 2, 6, 24, 120, 720, 5040, 
 		40320, 362880, 3628800, 39916800, 479001600]
 	if N < 0:
-		print "Seriousely, just multiply -1!!"
+		print("Seriousely, just multiply -1!!")
 		raise ValueError("%d is negative!!"%N)
 	elif N > 12:
-		print "Oops, too large for this function!!"
+		print("Oops, too large for this function!!")
 		raise ValueError("%d is too large!!"%N)
 	else:
 		return factN[N]
@@ -40,7 +40,6 @@ def seq_fact(N):
 # Doesn't work due to stack limitation.
 #
 def rseq_fact(N):
-	sys.setrecursionlimit(N*1000)
 	if N == 1:
 		return 1
 	else:
@@ -81,7 +80,7 @@ def multiplicity(N, p):
 #
 # Generate a list of prime numbers within n!
 def primes(n):
-	sieve = range(0,n+1,1)
+	sieve = list(range(0,n+1,1))
 	sieve[:2] = [0, 0]
 	for i in range(2, int(n**0.5)+1,1):
 		if sieve[i] != 0:
@@ -114,7 +113,6 @@ def powproduct(ns):
 #
 # prime factorization method
 def primefact(n):
-	sys.setrecursionlimit(n*1000)
 	return powproduct((p, multiplicity(n,p)) for p in primes(n))
 
 
@@ -145,12 +143,12 @@ def split_list(list_N, n_of_chunks):
 #
 def dnc(N, chunks_dnc=5000):
 	if chunks_dnc >= N:
-		print ("Too many divisions requested!!: %d >= %d"%(chunks_dnc, N))
+		print(("Too many divisions requested!!: %d >= %d"%(chunks_dnc, N)))
 		print ("Assuming single segment chunks.")
 		return seq_fact(N), 1
 	else:
 		# Generating Parts
-		N_list = range(1, N+1, 1)
+		N_list = list(range(1, N+1, 1))
 		N_seg = split_list(N_list, chunks_dnc)
 		N_list = []
 
@@ -167,8 +165,8 @@ def dnc(N, chunks_dnc=5000):
 #
 def dnc_seg(N_seg_list, chunks_dnc_seg=100):
 	if chunks_dnc_seg >= len(N_seg_list):
-		print ("Too many divisions for a segment requested!!: %d >= %d" % \
-			(chunks_dnc_seg, N_seg_list))
+		print(("Too many divisions for a segment requested!!: %d >= %d" % \
+			(chunks_dnc_seg, N_seg_list)))
 		chunks_dnc_seg = N
 		return mul_list(N), chunks_dnc_seg
 	else:
@@ -187,18 +185,18 @@ def dnc_seg(N_seg_list, chunks_dnc_seg=100):
 # Second input is actually output which was defined by 
 # Queue() datatype.
 def dnc_m_worker(N, fact_result_q):
-		fact_result_q.put(mul_list(N))
+	fact_result_q.put(mul_list(N))
 
 #
 # Multiprocessing Divide and Conquer (I believe this is the 'real' DNC)
 #
 def dnc_m(N, processes_dnc=mp.cpu_count()):
 	if processes_dnc >= N:
-		print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
+		print(("Too many divisions requested!!: %d >= %d"%(processes_dnc, N)))
 		print ("Assuming single segment processes.")
 		return seq_fact(N), 1
 	else:
-		N_list = range(1, N+1, 1)
+		N_list = list(range(1, N+1, 1))
 		N_seg = split_list(N_list, processes_dnc)
 		N_list = []
 		#print N_seg
@@ -250,11 +248,11 @@ def dnc_ml_worker(N, fact_result_q):
 #
 def dnc_ml(N, processes_dnc=mp.cpu_count()):
 	if processes_dnc > N:
-		print ("Too many divisions requested!!: %d >= %d"%(processes_dnc, N))
+		print(("Too many divisions requested!!: %d >= %d"%(processes_dnc, N)))
 		print ("Assuming single segment processes.")
 		return seq_fact(N), 1
 	else:
-		N_list = range(1, N+1, 1)
+		N_list = list(range(1, N+1, 1))
 		N_seg = split_list(N_list, processes_dnc)
 		N_list = []
 		

@@ -22,12 +22,15 @@
 # requires GMPY2 package to run gmp routines
 #
 
-import factorial as factN
-import gfactorial as gfactN
 import random
 import time
 import utils
 import sys
+
+import factorial as factN
+import gfactorial as gfactN
+import Torture
+from functools import reduce
 
 ver_number = "0.0.4.7"
 
@@ -35,14 +38,14 @@ def main():
 	import multiprocessing as mp
 	mp.freeze_support()
 
-	print ("*** T-Bench ver. Abysmal "+ver_number+" ***")
+	print(("*** T-Bench ver. Abysmal "+ver_number+" ***"))
 	print (" ")
 	print ("    T-Bench Copyright (C) 2012  Taylor Shin.\n\
     This program comes with ABSOLUTELY NO WARRANTY.\n\
     This is free software, and you are welcome to redistribute it.\n")
 
 	run_options = utils.bench_options(sys.argv)
-	print ("Options set as: %s"%reduce(lambda x,y: x+' '+y, run_options[0]))
+	print(("Options set as: %s"%reduce(lambda x,y: x+' '+y, run_options[0])))
 	
 	print (" ")
 	print ("Currently prime factorization algorithm cannot be run due to recursion limit...")
@@ -50,6 +53,7 @@ def main():
 	# Running routines
 	# setting up N
 	N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
+
 	if run_options[1] == []:
 		N = N_default
 	else:
@@ -57,6 +61,9 @@ def main():
 
 	utils.sysinfo(True)
 	utils.print_range(N)
+
+	sys.setrecursionlimit(max(N)+10)
+	print(("Setting recursion limit: %d"%(max(N)+10)))
 
 	for bopts in run_options[0]:
 		if bopts == 'seq':
@@ -95,26 +102,8 @@ def main():
 			while 1:
 				print (" ")
 				print ("*** Torture Test Mode ***")
-				print ("  Hit Ctrl+C to break out...")
 				print ("  Ignoring defined N list.")
-				random.seed()
-				rand_min = 100
-				rand_max = 10000000
-				N = [random.randrange(rand_min,rand_max)]
-				print ("Calculating %d!"%N[0])
-				print ("Without GMP")
-				factN_nogmp = factN.factNa(N)
-				print ("With GMP")
-				factN_gmp = gfactN.factNa(N)
-				
-				if factN_nogmp == factN_gmp:
-					print("Numbers match!! next...")
-				else:
-					print("Uh oh... something is wrong... ")
-					print("No gmp value: %d does not match with gmp value: %d !!"\
-						%(factN_nogmp, factN_gmp))
-					exit(1)
-
+				Torture.torture()
 				print (" ")
 		else:
 			print ("Wrong Option!! You just found the Program Bug!!")
