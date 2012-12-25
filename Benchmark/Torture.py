@@ -30,11 +30,11 @@ def torture(min_fact=1, max_fact=10000000):
 		torture_log.write("%d!:\n"%N[i])
 		factN_nogmp, time_elipsed = factN.factNa([N[i]])
 		torture_log.write(\
-			"[NOGMP] %d! finished in %.6f seconds.\n"%(N[i],time_elipsed))
+			"[NOGMP] %d!\tfinished in %.6f seconds.\n"%(N[i],time_elipsed))
 		 
 		factN_gmp, gtime_elipsed = gfactN.factNa([N[i]])
 		torture_log.write(\
-			"[GMP] %d! finished in %.6f seconds.\n"%(N[i],gtime_elipsed))
+			"[GMP] %d!\tfinished in %.6f seconds.\n"%(N[i],gtime_elipsed))
 
 
 		if factN_nogmp == factN_gmp:
