@@ -51,6 +51,8 @@ def sysinfo(verbose=False):
 	sys_info_text = py_info+'\n'+'CPU Type: '+\
 			str(cpu_type(uname[0]))+'\n'+str(uname[3])+'\n'
 	if verbose == True:
+		print("")
+		print("Displaying System Info: ")
 		print(sys_info_text)
 	
 	return sys_info_text

@@ -1,0 +1,15 @@
+Python 2.7.3 GCC 4.2.1 Compatible Apple Clang 4.0 ((tags/Apple/clang-421.0.57))
+CPU Type: Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
+Darwin Kernel Version 12.2.0: Sat Aug 25 00:48:52 PDT 2012; root:xnu-2050.18.24~1/RELEASE_X86_64
+
+N	Chunks(Processes)	Elipsed Time(sec)
+10	4	0.006439
+50	4	0.007898
+100	4	0.00751
+500	4	0.007522
+1000	4	0.007573
+5000	4	0.009643
+10000	4	0.011862
+50000	4	0.033181
+100000	4	0.058368
+500000	4	0.317138

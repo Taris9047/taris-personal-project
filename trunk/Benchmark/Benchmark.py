@@ -32,7 +32,7 @@ import gfactorial as gfactN
 import Torture
 from functools import reduce
 
-ver_number = "0.0.4.7"
+ver_number = "0.0.4.8"
 
 def main():
 	import multiprocessing as mp
@@ -46,15 +46,13 @@ def main():
 
 	run_options = utils.bench_options(sys.argv)
 	print(("Options set as: %s"%reduce(lambda x,y: x+' '+y, run_options[0])))
-	
-	print (" ")
-	print ("Currently prime factorization algorithm cannot be run due to recursion limit...")
 
 	# Running routines
 	# setting up N
 	N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
 
 	if run_options[1] == []:
+		print("No numeric entry found!! Setting up default calculation range.")
 		N = N_default
 	else:
 		N = run_options[1]
@@ -62,8 +60,8 @@ def main():
 	utils.sysinfo(True)
 	utils.print_range(N)
 
-	sys.setrecursionlimit(max(N)+10)
-	print(("Setting recursion limit: %d"%(max(N)+10)))
+	#sys.setrecursionlimit(max(N)+10)
+	#print(("Setting recursion limit: %d"%(max(N)+10)))
 
 	for bopts in run_options[0]:
 		if bopts == 'seq':
@@ -107,7 +105,7 @@ def main():
 				print (" ")
 		else:
 			print ("Wrong Option!! You just found the Program Bug!!")
-
+			exit(1)
 
 	return 0
 

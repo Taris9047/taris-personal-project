@@ -28,7 +28,7 @@ def seq_fact(N):
 
 	for i in range(1,N+1,1):
 		if N == 1:
-			return 1
+			return gmp.mpz(1)
 		else:
 			fact *= gmp.mpz(i)
 
@@ -66,56 +66,65 @@ def mul_list(RNG):
 # 
 # Multiplicity: Returns the power of a prime number p in the N!
 def multiplicity(N, p):
+	N = gmp.mpz(N)
+	p = gmp.mpz(p)
 	if p > N:
 		return 0
-	if p > N//2:
+	if p > N/2:
 		return 1
 	q, m = N, 0
 	while q >= p:
-		q //= p
+		q /= p
 		m += q
-
 	return m
-
-#
-# Generate a list of prime numbers within n!
-def primes(n):
-	sieve = list(range(0,n+1,1))
-	sieve[:2] = [0, 0]
-	for i in range(2, int(n**0.5)+1,1):
-		if sieve[i] != 0:
-			for j in range(i**2, n, i):
-				sieve[j] = 0
-
-	return [p for p in sieve if p]
 
 #
 # Compute the explicit of a factored integer.
 # read: exponentation by squaring
 def powproduct(ns):
-	if ns == 0:
-		return 1
+	base, exp = ns
 
-	units = 1
-	multi = []
+	if ns == 0 or exp == 0:
+		return result
 
-	for base, exp in ns:
-		if exp == 0:
-			continue
-		elif exp == 1:
-			units *= base
+	while exp != 0:
+		if exp == 1:
+			result *= base
+			return result
+		elif exp%2 != 0:
+			result *= base
+			exp -= 1
 		else:
-			if (exp // 2) != 0:
-				units *= base
-			multi.append((base, exp//2))
-	return units * powproduct(multi)**2
+			base = (base**2)
+			exp /= 2
+
+#
+# Generate a list of prime numbers within n!
+def primes(N):
+	sieve = list(range(N))
+	sieve[:2] = [0, 0]
+	for i in range(2, int(N**0.5)+1):
+		if sieve[i] != 0:
+			for j in range(i**2, N, i):
+				sieve[j] = 0
+
+	return [p for p in sieve if p]
 
 #
 # prime factorization method
-def primefact(n):
-	n = gmp.mpz(n)
-	return powproduct((gmp.mpz(p), multiplicity(n,p)) for p in primes(n))
+def primefact(N):
+	N = gmp.mpz(N)
+	prime_num_list = primes(N)
+	prime_table = []
+	factN = gmp.mpz(1)
 
+	for p_num in prime_num_list:
+		prime_table.append((p_num, multiplicity(N, p_num)))
+
+	for base_exp_tuple in prime_table:
+		factN *= powproduct(gmp.mpz(base_exp_tuple))
+
+	return factN
 
 
 #
@@ -288,28 +297,28 @@ def dnc_ml(N, processes_dnc=mp.cpu_count()):
 # 
 # It seems some algorithm has advantage on others on different number 
 # ranges.
-def factN_adaptive(n):
-	if n <= 0: 
+def factN_adaptive(N):
+	if N <= 0: 
 		print ("Factorial calculation requires positive number!!")
 		exit(1)
-	elif 0 <= n and n <= 12:
-		return fact_trivial(N)
-	elif  12 < n and n <= 100:
+	elif 0 <= N and N <= 12:
+		return fact_trivial(N), 1
+	elif  12 < N and N <= 100:
 		#print ("Using recursive algorithm")
-		return rseq_fact(n), 1
-	elif 100 < n and n <= 1000:
+		return rseq_fact(N), 1
+	elif 100 < N and N <= 1000:
 		#print ("Using sequential algorithm")
-		return seq_fact(n), 1
-	elif 1000 < n and n <= 10000:
+		return seq_fact(N), 1
+	elif 1000 < N and N <= 10000:
 		#print ("Using sequential DNC algorithm")
-		return dnc(n, 500)
-	elif 10000 < n and n <= 100000:
+		return dnc(N, 500)
+	elif 10000 < N and N <= 100000:
 		#print ("Using multiprocessing DNC algorithm")
-		return dnc_m(n)
+		return dnc_m(N)
 	else:
 		# Todo: change here with better algorithm
 		# if implemented...
 		#print ("Using multiprocessing DNC algorithm")
-		return dnc_ml(n)
+		return dnc_ml(N)
 
 
