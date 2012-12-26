@@ -8,12 +8,27 @@ import sys
 # Direct return
 # In case of very small number... why calculate?
 def fact_trivial(N):
-	factN = [1, 1, 2, 6, 24, 120, 720, 5040, 
+	factN = [1, 1, 2, 6, 24, 120, 720, 5040, \
 		40320, 362880, 3628800, 39916800, 479001600]
 	if N < 0:
 		print("Seriousely, just multiply -1!!")
 		raise ValueError("%d is negative!!"%N)
 	elif N > 12:
+		print("Oops, too large for this function!!")
+		raise ValueError("%d is too large!!"%N)
+	else:
+		return factN[N]
+
+def fact_trivial64(N):
+	factN = [1, 1, 2, 6, 24, 120, 720, 5040, \
+		40320, 362880, 3628800, 39916800, 479001600, \
+		6227020800, 87178291200, 1307674368000, 20922789888000, \
+		355687428096000, 6402373705728000, 121645100408832000, \
+		2432902008176640000]
+	if N < 0:
+		print("Seriousely, just multiply -1!!")
+		raise ValueError("%d is negative!!"%N)
+	elif N > 20:
 		print("Oops, too large for this function!!")
 		raise ValueError("%d is too large!!"%N)
 	else:
@@ -300,12 +315,16 @@ def factN_adaptive(N):
 		exit(1)
 	elif 0 <= N and N <= 12:
 		return fact_trivial(N), 1
-	elif  12 < N and N <= 100:
+	elif 12 < N and N <= 20 and utils.is32bit() == False:
+		return fact_trivial64(N), 1
+	elif 12 < N and N <= 20:
 		#print ("Using recursive algorithm")
 		return rseq_fact(N), 1
+	elif 20 < N and N <= 100:
+		return seq_fact(N), 1
 	elif 100 < N and N <= 1000:
 		#print ("Using sequential algorithm")
-		return seq_fact(N), 1
+		return primefact(N), 1
 	elif 1000 < N and N <= 10000:
 		#print ("Using sequential DNC algorithm")
 		return dnc(N, 500)

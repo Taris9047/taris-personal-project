@@ -303,12 +303,16 @@ def factN_adaptive(N):
 		exit(1)
 	elif 0 <= N and N <= 12:
 		return fact_trivial(N), 1
-	elif  12 < N and N <= 100:
+	elif 12 < N and N <= 20 and utils.is32bit() == False:
+		return fact_trivial64(N), 1
+	elif 12 < N and N <= 20:
 		#print ("Using recursive algorithm")
 		return rseq_fact(N), 1
+	elif 20 < N and N <= 100:
+		return seq_fact(N), 1
 	elif 100 < N and N <= 1000:
 		#print ("Using sequential algorithm")
-		return seq_fact(N), 1
+		return primefact(N), 1
 	elif 1000 < N and N <= 10000:
 		#print ("Using sequential DNC algorithm")
 		return dnc(N, 500)
@@ -316,9 +320,5 @@ def factN_adaptive(N):
 		#print ("Using multiprocessing DNC algorithm")
 		return dnc_m(N)
 	else:
-		# Todo: change here with better algorithm
-		# if implemented...
 		#print ("Using multiprocessing DNC algorithm")
 		return dnc_ml(N)
-
-
