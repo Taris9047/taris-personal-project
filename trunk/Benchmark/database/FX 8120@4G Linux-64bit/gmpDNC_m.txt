@@ -1,0 +1,15 @@
+Python 2.7.3 GCC 4.7.0 20120507 (Red Hat 4.7.0-5)
+CPU Type:  AMD FX(tm)-8120 Eight-Core Processor           
+#1 SMP Tue Nov 27 19:35:02 UTC 2012
+
+N	Chunks(Processes)	Elipsed Time(sec)
+10	16	0.0
+50	16	0.05
+100	16	0.06
+500	16	0.05
+1000	16	0.05
+5000	16	0.07
+10000	16	0.05
+50000	16	0.07
+100000	16	0.1
+500000	16	0.47
