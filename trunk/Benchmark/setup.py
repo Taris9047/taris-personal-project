@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import utils
 import platform
 from datetime import date
 # importing for version name
@@ -12,12 +13,12 @@ build_dir = 'build'
 OS_name = str(sys.platform)
 #Python_name = platform.python_implementation()
 #Python_version = platform.python_version()
-if sys.maxsize > 2**32:
-	architecture = '64bit'
-elif sys.maxsize <= 2**32:
+if utils.is32bit() == True:
 	architecture = '32bit'
+elif utils.is32bit() == False:
+	architecture = '64bit'
 else:
-	architecture = 'unknown' 
+	architecture = 'unknown'
 
 today = date.today()
 compile_date = str(today.month)+str(today.day)+str(today.year)

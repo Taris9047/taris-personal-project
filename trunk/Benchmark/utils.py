@@ -9,6 +9,16 @@ import os, subprocess, re
 import sys
 from functools import reduce
 
+# Tells whether current python system is based on 32 bit or 64 bit.
+def is32bit():
+	if sys.maxsize > 2**32:
+		return False
+	elif sys.maxsize <= 2**32:
+		return True
+	else:
+		return 'unknown'
+
+
 # Probing CPU type depending on current OS
 def cpu_type(OS_type):
 
