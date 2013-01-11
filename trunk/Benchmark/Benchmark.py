@@ -32,7 +32,7 @@ import gfactorial as gfactN
 import Torture
 from functools import reduce
 
-ver_number = "0.0.4.8"
+ver_number = "0.0.4.8.1"
 
 def main():
 	import multiprocessing as mp
