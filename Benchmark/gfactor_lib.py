@@ -83,6 +83,7 @@ def multiplicity(N, p):
 # read: exponentation by squaring
 def powproduct(ns):
 	base, exp = ns
+	result = 1
 
 	if ns == 0 or exp == 0:
 		return result
@@ -122,7 +123,9 @@ def primefact(N):
 		prime_table.append((p_num, multiplicity(N, p_num)))
 
 	for base_exp_tuple in prime_table:
-		factN *= powproduct(gmp.mpz(base_exp_tuple))
+		base_exp_tuple = (gmp.mpz(base_exp_tuple[0]),\
+			gmp.mpz(base_exp_tuple[1]))
+		factN *= powproduct(base_exp_tuple)
 
 	return factN
 

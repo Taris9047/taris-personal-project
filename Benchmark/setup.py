@@ -28,7 +28,7 @@ dir_name = './'+build_dir+'/'+ \
 			compile_date
 
 # Dependencies are automatically detected, but it might need fine tuning.
-packages = ["os","sys","time","gmpy2","platform"\
+packages = ["os","sys","time","gmpy2","platform",\
 	"multiprocessing","subprocess","re","random"]
 optimize = 2
 
