@@ -62,7 +62,7 @@ class Bignum:
 a = Bignum(1241900)
 b = Bignum(-112314)
 
-a.print_N()
-b.print_N()
+print "bignum a is: ", a.print_N()
+print "bignum b is: ", b.print_N()
 t = a + b
 t.print_N()
