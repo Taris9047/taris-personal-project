@@ -1,0 +1,186 @@
+03:17:31 **** Build of configuration Debug for project MonteCarloIDE ****
+make all 
+Building file: ../src/Molecule.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Molecule.d" -MT"src/Molecule.d" -o "src/Molecule.o" "../src/Molecule.cpp"
+../src/Molecule.cpp:4:10: fatal error: 'Molecule.hpp' file not found
+#include "Molecule.hpp"
+         ^
+1 error generated.
+make: *** [src/Molecule.o] Error 1
+03:20:43 **** Clean-only build of configuration Debug for project MonteCarloIDE ****
+make clean 
+rm -rf  ./src/Molecule.o ./src/Physics.o ./src/main.o  ./src/Molecule.d ./src/Physics.d ./src/main.d  MonteCarloIDE
+ 
+03:20:43 **** Incremental Build of configuration Debug for project MonteCarloIDE ****
+make all 
+Building file: ../src/Molecule.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Molecule.d" -MT"src/Molecule.d" -o "src/Molecule.o" "../src/Molecule.cpp"
+Finished building: ../src/Molecule.cpp
+ 
+Building file: ../src/Physics.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Physics.d" -MT"src/Physics.d" -o "src/Physics.o" "../src/Physics.cpp"
+../src/Physics.cpp:77:10: warning: unused variable 'div_ratio_x' [-Wunused-variable]
+                        float div_ratio_x;
+                              ^
+../src/Physics.cpp:72:9: warning: unused variable 'next_y' [-Wunused-variable]
+                float next_y = this->y_loc.back()+\
+                      ^
+../src/Physics.cpp:66:8: warning: unused variable 'div_ratio' [-Wunused-variable]
+        float div_ratio;
+              ^
+3 warnings generated.
+Finished building: ../src/Physics.cpp
+ 
+Building file: ../src/main.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main.d" -MT"src/main.d" -o "src/main.o" "../src/main.cpp"
+Finished building: ../src/main.cpp
+ 
+Building target: MonteCarloIDE
+Invoking: Cross G++ Linker
+g++  -o "MonteCarloIDE"  ./src/Molecule.o ./src/Physics.o ./src/main.o   
+Finished building target: MonteCarloIDE
+ 
+03:21:49 **** Clean-only build of configuration Debug for project MonteCarloIDE ****
+make clean 
+rm -rf  ./src/Molecule.o ./src/Physics.o ./src/main.o  ./src/Molecule.d ./src/Physics.d ./src/main.d  MonteCarloIDE
+ 
+03:21:49 **** Incremental Build of configuration Debug for project MonteCarloIDE ****
+make all 
+Building file: ../src/Molecule.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Molecule.d" -MT"src/Molecule.d" -o "src/Molecule.o" "../src/Molecule.cpp"
+Finished building: ../src/Molecule.cpp
+ 
+Building file: ../src/Physics.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Physics.d" -MT"src/Physics.d" -o "src/Physics.o" "../src/Physics.cpp"
+../src/Physics.cpp:77:10: warning: unused variable 'div_ratio_x' [-Wunused-variable]
+                        float div_ratio_x;
+                              ^
+../src/Physics.cpp:72:9: warning: unused variable 'next_y' [-Wunused-variable]
+                float next_y = this->y_loc.back()+\
+                      ^
+../src/Physics.cpp:66:8: warning: unused variable 'div_ratio' [-Wunused-variable]
+        float div_ratio;
+              ^
+3 warnings generated.
+Finished building: ../src/Physics.cpp
+ 
+Building file: ../src/main.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main.d" -MT"src/main.d" -o "src/main.o" "../src/main.cpp"
+Finished building: ../src/main.cpp
+ 
+Building target: MonteCarloIDE
+Invoking: Cross G++ Linker
+g++  -o "MonteCarloIDE"  ./src/Molecule.o ./src/Physics.o ./src/main.o   
+Finished building target: MonteCarloIDE
+ 
+03:22:40 **** Clean-only build of configuration Debug for project MonteCarloIDE ****
+make clean 
+rm -rf  ./src/Molecule.o ./src/Physics.o ./src/main.o  ./src/Molecule.d ./src/Physics.d ./src/main.d  MonteCarloIDE
+ 
+03:22:43 **** Build of configuration Debug for project MonteCarloIDE ****
+make all 
+Building file: ../src/Molecule.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Molecule.d" -MT"src/Molecule.d" -o "src/Molecule.o" "../src/Molecule.cpp"
+Finished building: ../src/Molecule.cpp
+ 
+Building file: ../src/Physics.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Physics.d" -MT"src/Physics.d" -o "src/Physics.o" "../src/Physics.cpp"
+../src/Physics.cpp:77:10: warning: unused variable 'div_ratio_x' [-Wunused-variable]
+                        float div_ratio_x;
+                              ^
+../src/Physics.cpp:72:9: warning: unused variable 'next_y' [-Wunused-variable]
+                float next_y = this->y_loc.back()+\
+                      ^
+../src/Physics.cpp:66:8: warning: unused variable 'div_ratio' [-Wunused-variable]
+        float div_ratio;
+              ^
+3 warnings generated.
+Finished building: ../src/Physics.cpp
+ 
+Building file: ../src/main.cpp
+Invoking: Cross G++ Compiler
+g++ -I../MonteCarloIDE/headers -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main.d" -MT"src/main.d" -o "src/main.o" "../src/main.cpp"
+Finished building: ../src/main.cpp
+ 
+Building target: MonteCarloIDE
+Invoking: Cross G++ Linker
+g++  -o "MonteCarloIDE"  ./src/Molecule.o ./src/Physics.o ./src/main.o   
+Finished building target: MonteCarloIDE
+ 
+03:25:27 **** Incremental Build of configuration Debug for project MonteCarloIDE ****
+make all 
+Building file: ../src/Molecule.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Molecule.d" -MT"src/Molecule.d" -o "src/Molecule.o" "../src/Molecule.cpp"
+Finished building: ../src/Molecule.cpp
+ 
+Building file: ../src/Physics.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Physics.d" -MT"src/Physics.d" -o "src/Physics.o" "../src/Physics.cpp"
+../src/Physics.cpp:77:10: warning: unused variable 'div_ratio_x' [-Wunused-variable]
+                        float div_ratio_x;
+                              ^
+../src/Physics.cpp:72:9: warning: unused variable 'next_y' [-Wunused-variable]
+                float next_y = this->y_loc.back()+\
+                      ^
+../src/Physics.cpp:66:8: warning: unused variable 'div_ratio' [-Wunused-variable]
+        float div_ratio;
+              ^
+3 warnings generated.
+Finished building: ../src/Physics.cpp
+ 
+Building file: ../src/main.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main.d" -MT"src/main.d" -o "src/main.o" "../src/main.cpp"
+Finished building: ../src/main.cpp
+ 
+Building target: MonteCarloIDE
+Invoking: Cross G++ Linker
+g++  -o "MonteCarloIDE"  ./src/Molecule.o ./src/Physics.o ./src/main.o   
+Finished building target: MonteCarloIDE
+ 
+03:26:37 **** Clean-only build of configuration Debug for project MonteCarloIDE ****
+make clean 
+rm -rf  ./src/Molecule.o ./src/Physics.o ./src/main.o  ./src/Molecule.d ./src/Physics.d ./src/main.d  MonteCarloIDE
+ 
+03:26:37 **** Incremental Build of configuration Debug for project MonteCarloIDE ****
+make all 
+Building file: ../src/Molecule.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Molecule.d" -MT"src/Molecule.d" -o "src/Molecule.o" "../src/Molecule.cpp"
+Finished building: ../src/Molecule.cpp
+ 
+Building file: ../src/Physics.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Physics.d" -MT"src/Physics.d" -o "src/Physics.o" "../src/Physics.cpp"
+../src/Physics.cpp:77:10: warning: unused variable 'div_ratio_x' [-Wunused-variable]
+                        float div_ratio_x;
+                              ^
+../src/Physics.cpp:72:9: warning: unused variable 'next_y' [-Wunused-variable]
+                float next_y = this->y_loc.back()+\
+                      ^
+../src/Physics.cpp:66:8: warning: unused variable 'div_ratio' [-Wunused-variable]
+        float div_ratio;
+              ^
+3 warnings generated.
+Finished building: ../src/Physics.cpp
+ 
+Building file: ../src/main.cpp
+Invoking: Cross G++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main.d" -MT"src/main.d" -o "src/main.o" "../src/main.cpp"
+Finished building: ../src/main.cpp
+ 
+Building target: MonteCarloIDE
+Invoking: Cross G++ Linker
+g++  -o "MonteCarloIDE"  ./src/Molecule.o ./src/Physics.o ./src/main.o   
+Finished building target: MonteCarloIDE
+ 
