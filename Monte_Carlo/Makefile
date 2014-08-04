@@ -1,13 +1,8 @@
-all: brownian
+.PHONY: clean All
 
-brownian: brownian.cpp Molecule.o Physics.o
-	g++ -O3 ./brownian.cpp ./Molecule.o ./Physics.o -o brownian
-
-Molecule.o: Molecule.cpp Molecule.hpp
-	g++ -O3 -c ./Molecule.cpp
-
-Physics.o: Physics.cpp Physics.hpp Molecule.o
-	g++ -O3 -c ./Physics.cpp ./Molecule.o
-
+All:
+	@echo "----------Building project:[ Molecule - Debug ]----------"
+	@cd "Molecule" && $(MAKE) -f  "Molecule.mk"
 clean:
-	rm -rfv ./Molecule.o ./Physics.o ./brownian ./trace.*
+	@echo "----------Cleaning project:[ Molecule - Debug ]----------"
+	@cd "Molecule" && $(MAKE) -f  "Molecule.mk" clean

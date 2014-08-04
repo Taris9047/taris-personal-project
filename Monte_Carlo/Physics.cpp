@@ -67,8 +67,10 @@ void Physics::reflect_rect(float edge_x, float edge_y)
 
 	do {
 		// Dealing with X axis first
-		float next_x = this->x_loc+this->x_vel*div_time_left;
-		float next_y = this->y_loc+this->y_vel*div_time_left;
+		float next_x = this->x_loc.back()+\
+			this->x_vel.back()*div_time_left;
+		float next_y = this->y_loc.back()+\
+			this->y_vel.back()*div_time_left;
 
 		if (next_x > edge_x || next_x < edge_x*(-1)) {
 			float offset_x;
