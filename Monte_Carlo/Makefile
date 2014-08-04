@@ -1,8 +1,24 @@
-.PHONY: clean All
+CC=gcc
+CXX=g++
+CFLAGS=-O3 -Wall
+LIBS=-L./ -lPhysics
 
-All:
-	@echo "----------Building project:[ Molecule - Debug ]----------"
-	@cd "Molecule" && $(MAKE) -f  "Molecule.mk"
+all: brownian
+
+run: brownian
+	./run.sh 
+
+brownian: ./brownian.cpp libPhysics.so
+	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp $(LIBS)
+
+Molecule.o: ./Molecule.cpp ./Molecule.hpp
+	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Molecule.cpp
+
+Physics.o: ./Physics.cpp ./Physics.hpp
+	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Physics.cpp 
+
+libPhysics.so: ./Molecule.o ./Physics.o
+	$(CXX) -shared -o $@ ./Molecule.o ./Physics.o
+
 clean:
-	@echo "----------Cleaning project:[ Molecule - Debug ]----------"
-	@cd "Molecule" && $(MAKE) -f  "Molecule.mk" clean
+	rm -vrf ./Molecule.o ./Physics.o ./libPhysics.so ./trace.* 

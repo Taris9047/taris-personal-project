@@ -51,19 +51,19 @@
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.exe.debug.1910831147" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.exe.debug" unusedChildren="">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.948428535" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler.1922034681">
-								<option id="gnu.c.compiler.option.include.paths.1907757060" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath"/>
+								<option id="gnu.c.compiler.option.include.paths.1907757060" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
 								<option id="gnu.c.compiler.option.dialect.std.1906296165" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1244999783" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1628393826" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler.2035759927">
-								<option id="gnu.cpp.compiler.option.include.paths.2037395224" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath"/>
+								<option id="gnu.cpp.compiler.option.include.paths.2037395224" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.198545935" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1177266658" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker.2080291359"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.821854150" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker.998735400"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.1634487697" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver.442214440"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.526946778" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler.2117554971">
-								<option id="gnu.both.asm.option.include.paths.208690423" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<option id="gnu.both.asm.option.include.paths.208690423" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.855889776" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
@@ -164,5 +164,12 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/MonteCarloIDE"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/MonteCarloIDE"/>
+		</configuration>
+	</storageModule>
 </cproject>
