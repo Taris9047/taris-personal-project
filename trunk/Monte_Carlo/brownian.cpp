@@ -30,6 +30,8 @@ int main (void)
 		<< endl;
 	trace_record << scientific;
 
+	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen);
+
 	do {
 		cout << "Time: " << cal_time*unit_time << " seconds:";
 
