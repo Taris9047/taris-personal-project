@@ -1,0 +1,13 @@
+{
+	"file_exclude_patterns" :[
+		"*.png",
+		"*.pdf",
+		"*.eps",
+		"*.txt"
+	],
+
+	"cmd" :["make all"],
+	"working_dir" :"$file_path",
+	"shell": true
+
+}
