@@ -1,7 +1,7 @@
 #ifndef MOLECULE_HPP
 #define MOLECULE_HPP
 
-typedef std::vector<float> float_vec_t;
+typedef std::vector<float> std_vec_f;
 
 class Molecule
 {
@@ -33,7 +33,7 @@ public:
 
 	// Prints out current location, velocity, unity vector
 	void print_info();
-	float_vec_t read_info();
+	std_vec_f read_info();
 };
 
 #endif

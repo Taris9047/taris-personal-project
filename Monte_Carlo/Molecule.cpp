@@ -1,10 +1,10 @@
+#ifndef MOLECULE_CPP
+#define MOLECULE_CPP
+
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include "Molecule.hpp"
-
-#ifndef MOLECULE_CPP
-#define MOLECULE_CPP
 
 using namespace std;
 
@@ -35,9 +35,9 @@ void Molecule::print_info()
 	cout << endl;
 }
 
-float_vec_t Molecule::read_info()
+std_vec_f Molecule::read_info()
 {
-	float_vec_t info(5);
+	std_vec_f info(5);
 
 	info[0] = this->current_coord.x;
 	info[1] = this->current_coord.y;
