@@ -1,3 +1,6 @@
+#ifndef PHYSICS_CPP
+#define PHYSICS_CPP
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -7,9 +10,6 @@
 #include <string>
 #include <fstream>
 #include "Physics.hpp"
-
-#ifndef PHYSICS_CPP
-#define PHYSICS_CPP
 
 using namespace std;
 
@@ -155,18 +155,38 @@ void Physics::write_log_rect(std_str outfile_name)
 	trace_record << "\"Coord X\"" << "\t" << "\"Coord Y\"" \
 		<< "\t" << "\"Velocity X\"" << "\t" << "\"Velocity Y\"" \
 		<< "\t" << "\"Mass (g)\"" << "\t" << "\"Reflected\"" \
+		<< "\t" << "\"Time\"" \
 		<< endl;
 	trace_record << scientific;
 
-	float mass = curr_object->mass;
+	unsigned int log_size = this->time_trace.size();
 
-
+	for (int i=0; i < log_size; i++) {
+		trace_record << this->x_loc.at(i) << "\t" << \
+			this->y_loc.at(i) << "\t" << \
+			this->x_vel.at(i) << "\t" << \
+			this->y_vel.at(i) << "\t" << \
+			this->curr_object->mass << "\t" << \
+			this->bool_to_yesno(this->reflected_status.at(i)) << "\t" << \
+			this->time_trace.at(i) << \
+			endl;
+	}
 
 	trace_record.close();
 	cout << "File saved as ... " << outfile_name << endl;
 
 }
 
+// A little tool to convert bool type to understandable string.
+std_str Physics::bool_to_yesno(bool logic)
+{
+	if (logic == true) {
+		return "YES";
+	}
+	else {
+		return "NO";
+	}
+}
 
 // Calculate reflecting molecule in a limited space.
 void Physics::reflect_rect(float edge_left, float edge_right, \

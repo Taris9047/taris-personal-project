@@ -1,8 +1,7 @@
-#include "Molecule.hpp"
-
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
+#include "Molecule.hpp"
 
 typedef std::vector<float> std_vec_f;
 typedef std::vector<bool> std_vec_b;
@@ -43,10 +42,11 @@ public:
 		float edge_top, float edge_bottom);
 	void brownian_rect(float max_vel_x, float max_vel_y);
 	void advance_time();
+	std_str bool_to_yesno(bool logic);
 
 	// Report Status
 	void print_status_rect();
-	void write_log_rect(std_str outfile_name);
+	void write_log_rect(std_str outfile_name); 
 
 	// Constructures and Destructors
 	Physics();
