@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <fstream>
 #include "Physics.hpp"
 
 #ifndef PHYSICS_CPP
@@ -101,19 +102,10 @@ std_vec_f Physics::collision_rect(float edge_left, float edge_right, \
 		}
 
 		i++;
+
 	} while (1);
 
 	col_loc = temp_loc;
-
-/*
-	float slope = (proj_loc[1]-curr_loc[1])/(proj_loc[0]-curr_loc[0]);
-	float Y_pass = curr_loc[1] - slope*curr_loc[0];
-
-	float y_intercept_left = edge_left*slope + Y_pass;
-	float y_intercept_right = edge_right*slope + Y_pass;
-	float x_intercept_top = (edge_top-Y_pass)/slope;
-	float x_intercept_bottom = (edge_bottom-Y_pass)/slope;
-*/
 
 	return col_loc;
 }
@@ -158,6 +150,20 @@ void Physics::print_status_rect()
 // Prepare log file.
 void Physics::write_log_rect(std_str outfile_name)
 {
+	ofstream trace_record;
+	trace_record.open(outfile_name);
+	trace_record << "\"Coord X\"" << "\t" << "\"Coord Y\"" \
+		<< "\t" << "\"Velocity X\"" << "\t" << "\"Velocity Y\"" \
+		<< "\t" << "\"Mass (g)\"" << "\t" << "\"Reflected\"" \
+		<< endl;
+	trace_record << scientific;
+
+	float mass = curr_object->mass;
+
+
+
+	trace_record.close();
+	cout << "File saved as ... " << outfile_name << endl;
 
 }
 
