@@ -1,11 +1,8 @@
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
+#include "data_types.hpp"
 #include "Molecule.hpp"
-
-typedef std::vector<float> std_vec_f;
-typedef std::vector<bool> std_vec_b;
-typedef std::string std_str;
 
 // Physics implementation
 

@@ -29,12 +29,13 @@
     <CompileTarget>Bin</CompileTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\brownian.cpp" />
-    <Compile Include="..\Molecule.cpp" />
-    <Compile Include="..\Physics.cpp" />
+    <None Include="data_types.hpp" />
+    <None Include="Molecule.hpp" />
+    <None Include="Physics.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Molecule.hpp" />
-    <None Include="..\Physics.hpp" />
+    <Compile Include="brownian.cpp" />
+    <Compile Include="Molecule.cpp" />
+    <Compile Include="Physics.cpp" />
   </ItemGroup>
 </Project>
