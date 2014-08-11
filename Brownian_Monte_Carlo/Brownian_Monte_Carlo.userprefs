@@ -1,8 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Brownian_Monte_Carlo/data_types.hpp">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Brownian_Monte_Carlo/brownian.cpp">
     <Files>
-      <File FileName="Brownian_Monte_Carlo/data_types.hpp" Line="6" Column="1" />
+      <File FileName="Brownian_Monte_Carlo/data_types.hpp" Line="1" Column="1" />
+      <File FileName="Brownian_Monte_Carlo/Molecule.hpp" Line="1" Column="1" />
+      <File FileName="Brownian_Monte_Carlo/Physics.cpp" Line="14" Column="14" />
+      <File FileName="Brownian_Monte_Carlo/Physics.hpp" Line="1" Column="1" />
+      <File FileName="Brownian_Monte_Carlo/brownian.cpp" Line="30" Column="30" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
