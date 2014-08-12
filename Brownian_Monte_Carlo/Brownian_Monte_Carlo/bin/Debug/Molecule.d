@@ -1,3 +1,4 @@
 /Users/Taris/workshop/Brownian_Monte_Carlo/Brownian_Monte_Carlo/bin/Debug/Molecule.o: \
-  /Users/Taris/workshop/Brownian_Monte_Carlo/Molecule.cpp \
-  /Users/Taris/workshop/Brownian_Monte_Carlo/Molecule.hpp
+  /Users/Taris/workshop/Brownian_Monte_Carlo/Brownian_Monte_Carlo/Molecule.cpp \
+  /Users/Taris/workshop/Brownian_Monte_Carlo/Brownian_Monte_Carlo/Molecule.hpp \
+  /Users/Taris/workshop/Brownian_Monte_Carlo/Brownian_Monte_Carlo/data_types.hpp
