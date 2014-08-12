@@ -20,8 +20,9 @@ int main (void)
 
 	Molecule Hydrogen(1.00794*2.0*UNIT_MASS);
 	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen);
-	Hydrogen_rect.reflect_rect\
-		(BOUNDARY, BOUNDARY*(-1), BOUNDARY, BOUNDARY*(-1));
+	Hydrogen_rect.brownian_rect(VELOCITY_LIMIT, VELOCITY_LIMIT, \
+		-BOUNDARY, BOUNDARY, \
+		BOUNDARY, -BOUNDARY);
 	Hydrogen_rect.write_log_rect(log_filename);
 
 	cout << "Press any key to continue..." << endl;
