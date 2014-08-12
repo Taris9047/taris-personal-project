@@ -1,11 +1,8 @@
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
+#include "data_types.hpp"
 #include "Molecule.hpp"
-
-typedef std::vector<float> std_vec_f;
-typedef std::vector<bool> std_vec_b;
-typedef std::string std_str;
 
 // Physics implementation
 
@@ -16,6 +13,7 @@ class Physics: public Molecule
 private:
 	// Setting up time and time scale.
 	float time_elapsed;
+	float time_limit;
 	float time_scale;
 	// current object: Molecule (pointer)
 	Molecule* curr_object;
@@ -40,7 +38,9 @@ public:
 	// reflecting in rectangular system
 	void reflect_rect(float edge_left, float edge_right, \
 		float edge_top, float edge_bottom);
-	void brownian_rect(float max_vel_x, float max_vel_y);
+	void brownian_rect(float max_vel_x, float max_vel_y, \
+		float edge_left, float edge_right, \
+		float edge_top, float edge_bottom);
 	void advance_time();
 	std_str bool_to_yesno(bool logic);
 
@@ -51,7 +51,7 @@ public:
 	// Constructures and Destructors
 	Physics();
 	Physics(Molecule* Thing);
-	Physics(float time_el, float time_sc, Molecule* Thing);
+	Physics(float time_limit, float time_sc, Molecule* Thing);
 	~Physics();
 
 };
