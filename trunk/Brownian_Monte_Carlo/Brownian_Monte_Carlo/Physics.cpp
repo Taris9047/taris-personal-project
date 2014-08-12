@@ -33,11 +33,17 @@ void Physics::advance_time()
 	this->time_elapsed += this->time_scale;
 	this->time_trace.push_back(this->time_elapsed);
 	this->reflected_status.push_back(false);
+
+	this->print_status_rect();
 }
 
-void Physics::brownian_rect(float max_vel_x, float max_vel_y)
+void Physics::brownian_rect(float max_vel_x, float max_vel_y, \
+	float edge_left, float edge_right, \
+	float edge_top, float edge_bottom)
 {
 	srand(time(0));
+
+	// Make it looped.
 	if (this->x_vel.back() == 0.0 && this->y_vel.back() == 0.0) {
 		this->x_vel.pop_back();
 		this->x_vel.push_back((float)rand()/max_vel_x);
@@ -379,9 +385,10 @@ Physics::Physics(Molecule* Thing)
 	this->reflected_status.push_back(false);
 }
 
-Physics::Physics(float time_el, float time_sc, Molecule* Thing)
+Physics::Physics(float time_limit, float time_sc, Molecule* Thing)
 {
-	this->time_elapsed = time_el;
+	this->time_elapsed = 0.;
+	this->time_limit = time_limit;
 	this->time_scale = time_sc;
 	this->curr_object = Thing;
 
