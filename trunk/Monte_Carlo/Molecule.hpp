@@ -1,7 +1,7 @@
 #ifndef MOLECULE_HPP
 #define MOLECULE_HPP
 
-typedef std::vector<float> std_vec_f;
+#include "data_types.hpp"
 
 class Molecule
 {
