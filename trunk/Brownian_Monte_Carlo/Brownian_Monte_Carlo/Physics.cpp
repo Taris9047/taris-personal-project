@@ -43,29 +43,46 @@ void Physics::brownian_rect(float max_vel_x, float max_vel_y, \
 {
 	srand(time(0));
 
-	// Make it looped.
-	if (this->x_vel.back() == 0.0 && this->y_vel.back() == 0.0) {
-		this->x_vel.pop_back();
+	do {
+		if (this->x_vel.back() == 0.0 && this->y_vel.back() == 0.0) {
+			this->x_vel.pop_back();
+			this->x_vel.push_back((float)rand()/max_vel_x);
+			this->y_vel.pop_back();
+			this->y_vel.push_back((float)rand()/max_vel_y);		
+		}
+
+		// Display the system
+		cout << endl;
+		cout << "Edge information" << endl;
+		cout << "Left: " << edge_left << endl;
+		cout << "Rigth: " << edge_right << endl;
+		cout << "Top: " << edge_top << endl;
+		cout << "Bottom: " << edge_bottom << endl;
+		cout << endl;
+
+		// Displaying current state.
+		this->print_status_rect();
+
+		// Running reflectance for this vector.
+		this->reflect_rect(edge_left, edge_right, edge_top, edge_bottom);
+
+		this->x_loc.push_back(this->x_loc.back()+\
+			this->time_scale*this->x_vel.back());
+		this->y_loc.push_back(this->y_loc.back()+\
+			this->time_scale*this->y_vel.back());
 		this->x_vel.push_back((float)rand()/max_vel_x);
-		this->y_vel.pop_back();
 		this->y_vel.push_back((float)rand()/max_vel_y);		
-	}
 
-	this->x_loc.push_back(this->x_loc.back()+\
-		this->time_scale*this->x_vel.back());
-	this->y_loc.push_back(this->y_loc.back()+\
-		this->time_scale*this->y_vel.back());
-	this->x_vel.push_back((float)rand()/max_vel_x);
-	this->y_vel.push_back((float)rand()/max_vel_y);		
+		this->curr_object->set_location( \
+			this->x_loc.back(),this->y_loc.back());
+		this->curr_object->set_velocity( \
+			this->x_vel.back(),this->y_vel.back());
 
-	this->curr_object->set_location( \
-		this->x_loc.back(),this->y_loc.back());
-	this->curr_object->set_velocity( \
-		this->x_vel.back(),this->y_vel.back());
+		this->time_elapsed += this->time_scale;	
+		this->time_trace.push_back(this->time_elapsed);
+		this->reflected_status.push_back(false);
 
-	this->time_elapsed += this->time_scale;	
-	this->time_trace.push_back(this->time_elapsed);
-	this->reflected_status.push_back(false);
+	} while (this->time_elapsed < this->time_limit);
 }
 
 // Detects the initial collision location and returns it as float, float vector.
@@ -198,7 +215,6 @@ std_str Physics::bool_to_yesno(bool logic)
 void Physics::reflect_rect(float edge_left, float edge_right, \
 		float edge_top, float edge_bottom)
 {
-
 	if (this->x_loc.back() > edge_right || \
 		this->x_loc.back() < edge_left || \
 		this->y_loc.back() > edge_top || \
@@ -211,11 +227,20 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 
 	float div_time = 0.0; // Must be smaller than time scale.
 	float div_time_left = this->time_scale - div_time;
+	std_vec_f proj_loc(2);
+	float time_elapsed_ref = 0.0;
 
 	do {
-		// Dealing with X axis first
-		std_vec_f proj_loc(2);
 		proj_loc = this->proj_loc_rect(div_time_left);
+
+		if ( edge_left < proj_loc[0] && proj_loc[0] < edge_right \
+			&& edge_bottom < proj_loc[1] && proj_loc[1] < edge_top) {
+			// Projected location is inside the system. Thus, skip
+			// this crap!
+			cout << "reflection estimation is not necessary." << endl;
+			break;
+		}
+
 		float next_x = proj_loc[0];
 		float next_y = proj_loc[1];
 
@@ -228,7 +253,6 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 			collision_loc[0] == edge_right) {
 			
 			float offset_x = 0.0;
-			float time_elapsed_ref = 0.0;
 			float next_y_ref = this->y_vel.back(); 
 			float next_x_ref = this->x_vel.back(); 
 			
@@ -266,7 +290,6 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 		else if (collision_loc[1] == edge_top || \
 			collision_loc[1] == edge_bottom) {
 			float offset_y = 0.0;
-			float time_elapsed_ref = 0.0;
 			float next_y_ref = this->y_vel.back(); 
 			float next_x_ref = this->x_vel.back(); 
 			
@@ -312,7 +335,6 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 			collision_loc[1] == edge_top) ) {
 
 			float offset_x = 0.0;
-			float time_elapsed_ref = 0.0;
 			float next_y_ref = this->y_vel.back(); 
 			float next_x_ref = this->x_vel.back(); 
 			
@@ -343,9 +365,13 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 			this->time_trace.push_back(this->time_elapsed);
 			this->reflected_status.push_back(true);
 			div_time += time_elapsed_ref;
-			div_time_left = this->time_scale - div_time;		
+			div_time_left = this->time_scale - div_time;	
 		}
-	} while (div_time <= time_scale);
+
+		this->print_status_rect();
+		cout << div_time << endl;
+
+	} while (div_time < this->time_scale);
 }
 
 
