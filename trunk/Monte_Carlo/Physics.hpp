@@ -33,6 +33,10 @@ private:
 	std_vec_f collision_rect(float edge_left, float edge_right, \
 		float edge_top, float edge_bottom, float time_segment); // Detects the first impact location and returns it.
 	std_vec_f proj_loc_rect(float time_segment); // returns coordinate after a certain time segment.
+	
+	float rand_float(float min, float max);
+	void update_status(float x, float y, float vx, float vy, bool refl, float curr_time);
+	void log_status();
 
 public:
 	// reflecting in rectangular system
