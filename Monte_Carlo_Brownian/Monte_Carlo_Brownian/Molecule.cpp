@@ -48,6 +48,34 @@ std_vec_f Molecule::read_info()
 	return info;
 }
 
+// Reading parameters one by one.
+float Molecule::x()
+{
+	return this->current_coord.x;
+}
+
+float Molecule::y()
+{
+	return this->current_coord.y;
+}
+
+float Molecule::xv()
+{
+	return this->current_velocity.xv;
+}
+
+float Molecule::yv()
+{
+	return this->current_velocity.yv;
+}
+
+float Molecule::vel()
+{
+	return this->current_velocity.vel;
+}
+
+
+
 // Constructors and Destructors
 
 Molecule::Molecule()

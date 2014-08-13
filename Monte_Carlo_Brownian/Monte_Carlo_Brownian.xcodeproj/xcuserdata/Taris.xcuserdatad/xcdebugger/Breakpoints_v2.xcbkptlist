@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Monte_Carlo_Brownian/Physics.cpp"
-            timestampString = "429512499.462817"
+            timestampString = "429580865.509863"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "265"
-            endingLineNumber = "265"
-            landmarkName = "Physics::reflect_rect(float edge_left, float edge_right, \ float edge_top, float edge_bottom)"
+            startingLineNumber = "317"
+            endingLineNumber = "317"
+            landmarkName = "Physics::Physics()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Monte_Carlo_Brownian/Physics.cpp"
-            timestampString = "429512518.171667"
+            timestampString = "429580865.509863"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "302"
-            endingLineNumber = "302"
-            landmarkName = "Physics::reflect_rect(float edge_left, float edge_right, \ float edge_top, float edge_bottom)"
+            startingLineNumber = "354"
+            endingLineNumber = "354"
+            landmarkName = "Physics::Physics(float time_limit, float time_sc, Molecule* Thing)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,13 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Monte_Carlo_Brownian/Physics.cpp"
-            timestampString = "429512533.143613"
+            timestampString = "429580865.509863"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "347"
-            endingLineNumber = "347"
-            landmarkName = "Physics::reflect_rect(float edge_left, float edge_right, \ float edge_top, float edge_bottom)"
-            landmarkType = "5">
+            startingLineNumber = "399"
+            endingLineNumber = "399">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
