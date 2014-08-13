@@ -40,7 +40,6 @@ private:
 
 	// Report Status
 	void print_status_rect();
-	void write_log_rect(std_str outfile_name); 
 
 public:
 	// reflecting in rectangular system
@@ -49,6 +48,9 @@ public:
 	void brownian_rect(float max_vel_x, float max_vel_y, \
 		float edge_left, float edge_right, \
 		float edge_top, float edge_bottom);
+
+    // Write current history into a file
+	void write_log_rect(std_str outfile_name); 
 
 	// Constructures and Destructors
 	Physics();
