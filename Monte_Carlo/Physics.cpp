@@ -70,21 +70,15 @@ void Physics::brownian_rect(\
 		if (proj_loc[0] < edge_left || proj_loc[0] > edge_right \
 		|| proj_loc[1] < edge_bottom || proj_loc[1] > edge_top) {
 			this->reflect_rect(edge_left, edge_right, edge_top, edge_bottom);
-			this->curr_object->set_velocity(\
-				this->rand_float(0,max_vel_x), \
-				this->rand_float(0,max_vel_y));
-			this->log_status();
 		}
 		else {
 			this->time_elapsed += this->time_scale;
 			this->curr_object->set_location(proj_loc[0], proj_loc[1]);
-			this->curr_object->set_velocity(\
-				this->rand_float(0,max_vel_x), \
-				this->rand_float(0,max_vel_y));
-			this->log_status();
 		}
-
-			
+		this->curr_object->set_velocity(\
+			this->rand_float(0,max_vel_x), \
+			this->rand_float(0,max_vel_y));
+		this->log_status();
 	} while (this->time_elapsed < this->time_limit);
 }
 
@@ -122,56 +116,6 @@ void Physics::log_status()
 
 	this->reflected_status.push_back(false);
 	this->time_trace.push_back(this->time_elapsed);
-}
-
-// Detects the initial collision location and returns it as float, float vector.
-std_vec_f Physics::collision_rect(\
-	float edge_left, float edge_right, \
-	float edge_top, float edge_bottom, \
-	float time_segment)
-{
-	std_vec_f col_loc(2);
-	std_vec_f proj_loc(2);
-	std_vec_f curr_loc(2);
-	std_vec_f temp_loc(2);
-	float temp_time = 0.0;
-	float temp_time_sc = this->time_scale * 1E-5;
-
-	proj_loc = this->proj_loc_rect(time_segment);
-	curr_loc[0] = this->x_loc.back();
-	curr_loc[1] = this->y_loc.back();
-
-	temp_loc = curr_loc;
-	int i = 0;
-
-	do {
-		temp_loc = this->proj_loc_rect(temp_time);
-		temp_time = temp_time_sc*i;
-		
-		if (temp_loc[0] > edge_right) {
-			temp_loc[0] = edge_right;
-			break;
-		}
-		else if (temp_loc[0] < edge_left) {
-			temp_loc[0] = edge_left;
-			break;
-		}
-		else if (temp_loc[1] > edge_top) {
-			temp_loc[1] = edge_top;
-			break;
-		}
-		else if (temp_loc[1] < edge_bottom) {
-			temp_loc[1] = edge_bottom;
-			break;
-		}
-
-		i++;
-
-	} while (1);
-
-	col_loc = temp_loc;
-
-	return col_loc;
 }
 
 // Returns projected location after a certain time.
