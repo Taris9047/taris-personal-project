@@ -15,4 +15,4 @@ set key top left
 set samples XRANGE+XRANGE+1
 set isosamples YRANGE+YRANGE+1
 
-plot IN_FILENAME using 1:2:3:4 w vec title "Brownian Movement"
+plot IN_FILENAME using 1:2:3:4 w vec notitle

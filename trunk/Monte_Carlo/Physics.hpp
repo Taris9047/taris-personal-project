@@ -44,7 +44,8 @@ private:
 public:
 	// reflecting in rectangular system
 	void reflect_rect(float edge_left, float edge_right, \
-		float edge_top, float edge_bottom);
+		float edge_top, float edge_bottom, \
+		float time_frame);
 	void brownian_rect(float max_vel_x, float max_vel_y, \
 		float edge_left, float edge_right, \
 		float edge_top, float edge_bottom);
