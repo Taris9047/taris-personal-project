@@ -31,6 +31,13 @@ public:
 	void set_velocity(float xv, float yv);
 	void set_mass(float m);
 
+	// read up the information.
+	float x();
+	float y();
+	float xv();
+	float yv();
+	float vel();
+
 	// Prints out current location, velocity, unity vector
 	void print_info();
 	std_vec_f read_info();
