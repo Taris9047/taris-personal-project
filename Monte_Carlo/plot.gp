@@ -1,7 +1,7 @@
 #!/usr/bin/env gnuplot --persist
 set terminal postscript eps enhanced color "Helvetica" 24
 
-IN_FILENAME = "trace.txt"
+IN_FILENAME = "trace.csv"
 OUT_FILENAME = "trace.eps"
 XRANGE = 1000
 YRANGE = 1000
@@ -10,6 +10,7 @@ set output OUT_FILENAME
 set xrange [-XRANGE:XRANGE]
 set yrange [-YRANGE:YRANGE]
 show margin
+set key top left
 
 set samples XRANGE+XRANGE+1
 set isosamples YRANGE+YRANGE+1

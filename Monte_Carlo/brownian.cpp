@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <sstream>
 #include "Molecule.hpp"
 #include "Physics.hpp"
 
@@ -12,11 +13,38 @@
 
 using namespace std;
 
-int main (void)
+int main (int argc, char* argv[])
 {
-	int cal_time = CAL_TIME;
-	float unit_time = UNIT_TIME;
-	string log_filename = "trace.txt";
+	int cal_time;
+	float unit_time;
+
+	if (argc == 2) {
+		stringstream convert(argv[1]);
+		if ( !(convert >> cal_time) ) {
+			cal_time = CAL_TIME;
+		}
+
+		unit_time = UNIT_TIME;
+	}	
+	else if (argc == 3) {
+		stringstream converta(argv[1]);
+		if ( !(converta >> cal_time) ) {
+			cal_time = CAL_TIME;
+		}
+
+		stringstream convertb(argv[2]);
+		if ( !(convertb >> unit_time)) {
+			unit_time = UNIT_TIME;
+		}	
+	}
+	else {
+		cal_time = CAL_TIME;
+		unit_time = UNIT_TIME;
+	}
+
+	cout << "Calculation Time: " << cal_time*unit_time << endl;
+
+	string log_filename = "trace.csv";
 
 	Molecule Hydrogen(1.00794*2.0*UNIT_MASS);
 	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen);
