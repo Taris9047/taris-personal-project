@@ -52,6 +52,7 @@ void Physics::brownian_rect(\
 	cout << endl;
 
 	std_vec_f proj_loc(2);
+	float time_frame;
 
 	srand((unsigned int) time(0));
 
@@ -65,21 +66,34 @@ void Physics::brownian_rect(\
 
 	do {
 		// Running reflectance for this vector.
-		proj_loc = proj_loc_rect(this->time_scale);
+		if ( (this->time_elapsed + this->time_scale) > this->time_limit ) {
+        	time_frame = this->time_limit - this->time_elapsed;
+        	if ( time_frame == 0 ) {
+        		break;
+        	}
+        }
+        else {
+        	time_frame = this->time_scale;
+        }
+		proj_loc = proj_loc_rect(time_frame);
 
 		if (proj_loc[0] < edge_left || proj_loc[0] > edge_right \
 		|| proj_loc[1] < edge_bottom || proj_loc[1] > edge_top) {
-			this->reflect_rect(edge_left, edge_right, edge_top, edge_bottom);
+			this->reflect_rect( \
+                edge_left, edge_right, edge_top, edge_bottom, \
+                time_frame);
 		}
 		else {
-			this->time_elapsed += this->time_scale;
-			this->curr_object->set_location(proj_loc[0], proj_loc[1]);
+            this->curr_object->set_location(proj_loc[0], proj_loc[1]);
+            this->time_elapsed += time_frame;
+            this->print_status_rect();
 		}
 		this->curr_object->set_velocity(\
 			this->rand_float(0,max_vel_x), \
 			this->rand_float(0,max_vel_y));
 		this->log_status();
-	} while (this->time_elapsed < this->time_limit);
+
+	} while (this->time_elapsed <= this->time_limit);
 }
 
 // Updates current status
@@ -195,7 +209,7 @@ float Physics::rand_float(float min, float max)
 
 // Calculate reflecting molecule in a limited space.
 void Physics::reflect_rect(float edge_left, float edge_right, \
-		float edge_top, float edge_bottom)
+		float edge_top, float edge_bottom, float time_frame)
 {
 	if (this->x_loc.back() > edge_right || \
 		this->x_loc.back() < edge_left || \
@@ -207,7 +221,7 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 		exit(1);		
 	}
 
-	float delta_t = this->time_scale*1e-5;
+	float delta_t = time_frame*1e-5;
 	float div_time = 0.0;
 	std_vec_f adv_loc(2);
 	
@@ -250,7 +264,7 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 
 		div_time += delta_t;
 
-	} while (div_time <= this->time_scale);
+	} while (div_time <= time_frame);
 }
 
 
