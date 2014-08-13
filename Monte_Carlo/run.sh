@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./brownian 500 1 
+./brownian 20 1 
 
 gnuplot ./plot.gp 
 
