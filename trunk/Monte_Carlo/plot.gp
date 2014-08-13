@@ -15,4 +15,4 @@ set key top left
 set samples XRANGE+XRANGE+1
 set isosamples YRANGE+YRANGE+1
 
-plot IN_FILENAME using 1:2:3:4 w vec notitle
+plot IN_FILENAME using ($1):($2):($3):($4):($7) w vec head size 0.025,30,40 filled lc palette notitle
