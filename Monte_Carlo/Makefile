@@ -4,7 +4,7 @@ CFLAGS=-O3 -g -Wall
 #CFLAGS=-g -Wall
 LIBS=-L./ -lPhysics
 
-all: brownian brownian_portable
+all: brownian
 
 run: brownian
 	./run.sh 
@@ -12,20 +12,20 @@ run: brownian
 brownian: ./brownian.cpp libPhysics.so
 	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp $(LIBS)
 
-brownian_portable: ./brownian.cpp Molecule.o Physics.o
-	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp ./Molecule.o ./Physics.o
-
 Molecule.o: ./Molecule.cpp ./Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Molecule.cpp
 
 Photon.o: ./Photon.cpp ./Photon.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Photon.cpp
 
-Physics.o: ./Physics.cpp ./Physics.hpp
+Random.o: ./Random.cpp ./Random.hpp
+	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Random.cpp
+
+Physics.o: ./Physics.cpp ./Physics.hpp 
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Physics.cpp 
 
-libPhysics.so: ./Molecule.o ./Physics.o ./Photon.o
-	$(CXX) -shared -o $@ ./Molecule.o ./Physics.o ./Photon.o
+libPhysics.so: ./Molecule.o ./Physics.o ./Photon.o ./Random.o
+	$(CXX) -shared -o $@ ./Molecule.o ./Physics.o ./Photon.o ./Random.o
 
 clean:
 	rm -vrf ./*.o ./*.so ./trace.* 

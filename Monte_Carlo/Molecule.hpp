@@ -6,41 +6,41 @@
 class Molecule
 {
 public:
-  	float mass;
+  	double mass;
 	
 	struct coord2D
 	{
-		float x;
-		float y;
+		double x;
+		double y;
 	} current_coord;
 
 	struct velocity2D
 	{
-		float xv;
-		float yv;
-		float vel;
+		double xv;
+		double yv;
+		double vel;
 	} current_velocity;
 
   	// Manipulating status.
-  	void set_location(float x, float y);
-	void set_velocity(float xv, float yv);
-	void set_mass(float m);
+  	void set_location(double x, double y);
+	void set_velocity(double xv, double yv);
+	void set_mass(double m);
 
 	// read up the information.
-	float x();
-	float y();
-	float xv();
-	float yv();
-	float vel();
+	double x();
+	double y();
+	double xv();
+	double yv();
+	double vel();
 
 	// Prints out current location, velocity, unity vector
 	void print_info();
-	std_vec_f read_info();
+	std_vec_d read_info();
 
 	// Constructors and Destructors
   	Molecule();
-  	Molecule(float m);
-  	Molecule(float x, float y, float xv, float yv, float m);
+  	Molecule(double m);
+  	Molecule(double x, double y, double xv, double yv, double m);
   	~Molecule();
 };
 
