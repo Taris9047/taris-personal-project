@@ -9,6 +9,9 @@ YRANGE = 1000
 set output OUT_FILENAME
 set xrange [-XRANGE:XRANGE]
 set yrange [-YRANGE:YRANGE]
+set xlabel "X Dimension"
+set ylabel "Y Dimension"
+set y2label "Time (sec.)"
 show margin
 set key top left
 
