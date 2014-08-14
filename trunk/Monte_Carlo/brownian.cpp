@@ -6,8 +6,10 @@
 #include "Physics.hpp"
 
 #define UNIT_MASS 1.660538921E-25 
-#define BOUNDARY 1000.
-#define VELOCITY_LIMIT 500.
+#define BOUNDARY_X 1000.
+#define BOUNDARY_Y 1000.
+#define VELOCITY_LIMIT_X 1000.
+#define VELOCITY_LIMIT_Y 1000.
 #define CAL_TIME 20.
 #define UNIT_TIME 1.
 
@@ -16,7 +18,7 @@ using namespace std;
 int main (int argc, char* argv[])
 {
 	int cal_time;
-	float unit_time;
+	double unit_time;
 
 	if (argc == 2) {
 		stringstream convert(argv[1]);
@@ -45,12 +47,14 @@ int main (int argc, char* argv[])
 	cout << "Calculation Time: " << cal_time*unit_time << endl;
 
 	string log_filename = "trace.csv";
+	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
 
-	Molecule Hydrogen(1.00794*2.0*UNIT_MASS);
-	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen);
-	Hydrogen_rect.brownian_rect(VELOCITY_LIMIT, VELOCITY_LIMIT, \
-		-BOUNDARY, BOUNDARY, \
-		BOUNDARY, -BOUNDARY);
+	Molecule Hydrogen(mass_hydrogen);
+	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen, true);
+	Hydrogen_rect.brownian_rect(\
+		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y, \
+		-BOUNDARY_X, BOUNDARY_X, \
+		BOUNDARY_Y, -BOUNDARY_Y);
 	Hydrogen_rect.write_log_rect(log_filename);
 
 	//cout << "Press Enter (Return) key to continue..." << endl;

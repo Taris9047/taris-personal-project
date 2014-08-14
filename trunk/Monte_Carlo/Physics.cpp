@@ -10,11 +10,13 @@
 #include <string>
 #include <fstream>
 #include "Physics.hpp"
+#include "Random.hpp"
 
 using namespace std;
 
-// Methods
-
+//////////////////////////////
+//          Methods         //
+//////////////////////////////
 void Physics::advance_time()
 {
 	this->x_loc.push_back(this->x_loc.back()+\
@@ -34,13 +36,15 @@ void Physics::advance_time()
 	this->time_trace.push_back(this->time_elapsed);
 	this->reflected_status.push_back(false);
 
-	this->print_status_rect();
+	if (this->b_verbose == true) {
+		this->print_status_rect();
+	}
 }
 
 void Physics::brownian_rect(\
-	float max_vel_x, float max_vel_y, \
-	float edge_left, float edge_right, \
-	float edge_top, float edge_bottom)
+	double max_vel_x, double max_vel_y, \
+	double edge_left, double edge_right, \
+	double edge_top, double edge_bottom)
 {
 	// Display the system
 	cout << endl;
@@ -51,15 +55,18 @@ void Physics::brownian_rect(\
 	cout << "Bottom: " << edge_bottom << endl;
 	cout << endl;
 
-	std_vec_f proj_loc(2);
-	float time_frame;
-
-	srand((unsigned int) time(0));
+	std_vec_d proj_loc(2);
+	double time_frame;
 
 	// Initializing the first point with a random velocity vectors.
+	/*
 	this->curr_object->set_velocity(\
-		this->rand_float(0,max_vel_x), \
-		this->rand_float(0,max_vel_y));
+		this->rand_gen->uniform((-1)*max_vel_x,max_vel_x), \
+		this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
+	*/
+	this->curr_object->set_velocity(\
+		this->gaussian(0, max_vel_x/4, max_vel_x), \
+		this->gaussian(0, max_vel_y/4, max_vel_y));
 
 	// Log status into the class.
 	this->log_status();
@@ -89,11 +96,18 @@ void Physics::brownian_rect(\
             this->time_elapsed += time_frame;
 		}
 
-		this->print_status_rect();
-
+		if (this->b_verbose == true) {
+			this->print_status_rect();
+		}
+		/*
 		this->curr_object->set_velocity(\
-			this->rand_float(0,max_vel_x), \
-			this->rand_float(0,max_vel_y));
+			this->rand_gen->uniform((-1)*max_vel_x,max_vel_x), \
+			this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
+		*/
+		this->curr_object->set_velocity(\
+			this->gaussian(0, max_vel_x/4, max_vel_x), \
+			this->gaussian(0, max_vel_y/4, max_vel_y));
+		
 		this->log_status();
 
 	} while (this->time_elapsed <= this->time_limit);
@@ -101,8 +115,8 @@ void Physics::brownian_rect(\
 
 // Updates current status
 void Physics::update_status(\
-	float x, float y, float vx, float vy, \
-	bool refl, float curr_time)
+	double x, double y, double vx, double vy, \
+	bool refl, double curr_time)
 {
 	this->x_loc.push_back(x);
 	this->y_loc.push_back(y);
@@ -115,7 +129,9 @@ void Physics::update_status(\
 	this->reflected_status.push_back(refl);
 	this->time_trace.push_back(curr_time);
 
-	this->print_status_rect();
+	if (this->b_verbose == true) {
+		this->print_status_rect();
+	}
 }
 
 // Log status into Physics
@@ -136,25 +152,61 @@ void Physics::log_status()
 }
 
 // Returns projected location after a certain time.
-std_vec_f Physics::proj_loc_rect(float time_segment)
+std_vec_d Physics::proj_loc_rect(double time_segment)
 {
-	std_vec_f proj_loc(2);
+	std_vec_d proj_loc(2);
 
 	proj_loc[0] = \
 		this->curr_object->x()+this->curr_object->xv()*time_segment;
 	proj_loc[1] = \
 		this->curr_object->y()+this->curr_object->yv()*time_segment;
 
-	return proj_loc;	
+	return proj_loc;
 }
 
-// Reporting status on the way.
+// Returns current status.
+std_vec_d Physics::report_status_rect()
+{
+	std_vec_d report_info(7);
+
+	report_info[0] = this->curr_object->x();
+	report_info[1] = this->curr_object->y();
+	report_info[2] = this->curr_object->xv();
+	report_info[3] = this->curr_object->yv();
+	report_info[4] = this->curr_object->mass;
+	report_info[5] = this->time_elapsed;
+	if (this->reflected_status.back() == true) {
+		report_info[6] = 1;
+	}
+	else {
+		report_info[6] = 0;
+	}
+
+	return report_info;
+}
+
+
+// Reporting status to the stdio on the way.
 void Physics::print_status_rect()
 {
 	if (this->reflected_status.back() == true) {
 		cout << "** Reflected!! **" << endl;
 	}
 
+	std_vec_d info(7);
+
+	info = this->report_status_rect();
+
+	cout << "Location: (" << info[0] << \
+		 "," << info[1] << ")" << endl;
+	cout << "Velocity: <" << info[2] << \
+		 "," << info[3] << ">" << endl;
+	cout << "Time elapsed: " << info[5] \
+		<< " sec." << endl;
+	cout << endl;
+
+
+/*
 	cout << "Location: (" << this->x_loc.back() << \
 		 "," << this->y_loc.back() << ")" << endl;
 	cout << "Velocity: <" << this->x_vel.back() << \
@@ -162,6 +214,7 @@ void Physics::print_status_rect()
 	cout << "Time elapsed: " << this->time_elapsed \
 		<< " sec." << endl;
 	cout << endl;
+*/
 }
 
 // Prepare log file.
@@ -204,15 +257,15 @@ std_str Physics::bool_to_yesno(bool logic)
 	}
 }
 
-// Returns random float number.
-float Physics::rand_float(float min, float max)
-{
-	return pow(-1,rand()%2)*((max-min)*((float)rand()/RAND_MAX))+min;
-}
+// Returns random double number.
+//double Physics::rand_double(double min, double max)
+//{
+//	return pow(-1,rand()%2)*((max-min)*((double)rand()/RAND_MAX))+min;
+//}
 
 // Calculate reflecting molecule in a limited space.
-void Physics::reflect_rect(float edge_left, float edge_right, \
-		float edge_top, float edge_bottom, float time_frame)
+void Physics::reflect_rect(double edge_left, double edge_right, \
+		double edge_top, double edge_bottom, double time_frame)
 {
 	if (this->x_loc.back() > edge_right || \
 		this->x_loc.back() < edge_left || \
@@ -224,9 +277,9 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 		exit(1);		
 	}
 
-	float delta_t = time_frame*1e-4;
-	float div_time = 0.0;
-	std_vec_f adv_loc(2);
+	double delta_t = time_frame*1e-4;
+	double div_time = 0.0;
+	std_vec_d adv_loc(2);
 	
 	do {
 		adv_loc = this->proj_loc_rect(delta_t);		
@@ -271,9 +324,29 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 
 
 
-// Constructors and Destructors
+
+
+
+//////////////////////////////////
+// Constructors and Destructors //
+//////////////////////////////////
 
 Physics::Physics()
+{
+	this->time_elapsed = 0.0;
+	this->time_scale = 1.0;
+	this->curr_object = NULL;
+	
+	this->obj_mass = 0.0;
+
+	this->time_trace.push_back(this->time_elapsed);
+
+	this->reflected_status.push_back(false);
+
+	this->b_verbose = false;
+}
+
+Physics::Physics(bool verbose)
 {
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0;
@@ -284,6 +357,8 @@ Physics::Physics()
 	this->time_trace.push_back(this->time_elapsed);
 
 	this->reflected_status.push_back(false);
+
+	this->b_verbose = verbose;
 }
 
 Physics::Physics(Molecule* Thing)
@@ -292,7 +367,7 @@ Physics::Physics(Molecule* Thing)
 	this->time_scale = 1.0; // Default 1 sec time interval.
 	this->curr_object = Thing;
 
-	vector<float> obj_info(5);
+	vector<double> obj_info(5);
 	obj_info = Thing->read_info();
 	this->x_loc.push_back(obj_info[0]);
 	this->y_loc.push_back(obj_info[1]);
@@ -303,16 +378,40 @@ Physics::Physics(Molecule* Thing)
 	this->time_trace.push_back(this->time_elapsed);
 
 	this->reflected_status.push_back(false);
+
+	this->b_verbose = false;
 }
 
-Physics::Physics(float time_limit, float time_sc, Molecule* Thing)
+Physics::Physics(Molecule* Thing, bool verbose)
+{
+	this->time_elapsed = 0.0;
+	this->time_scale = 1.0; // Default 1 sec time interval.
+	this->curr_object = Thing;
+
+	vector<double> obj_info(5);
+	obj_info = Thing->read_info();
+	this->x_loc.push_back(obj_info[0]);
+	this->y_loc.push_back(obj_info[1]);
+	this->x_vel.push_back(obj_info[2]);
+	this->y_vel.push_back(obj_info[3]);
+	this->obj_mass = obj_info[4];
+
+	this->time_trace.push_back(this->time_elapsed);
+
+	this->reflected_status.push_back(false);
+
+	this->b_verbose = verbose;
+}
+
+
+Physics::Physics(double time_limit, double time_sc, Molecule* Thing)
 {
 	this->time_elapsed = 0.;
 	this->time_limit = time_limit;
 	this->time_scale = time_sc;
 	this->curr_object = Thing;
 
-	vector<float> obj_info(5);
+	vector<double> obj_info(5);
 	obj_info = Thing->read_info();
 	this->x_loc.push_back(obj_info[0]);
 	this->y_loc.push_back(obj_info[1]);
@@ -323,6 +422,30 @@ Physics::Physics(float time_limit, float time_sc, Molecule* Thing)
 	this->time_trace.push_back(this->time_elapsed);
 
 	this->reflected_status.push_back(false);
+
+	this->b_verbose = false;
+}
+
+Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbose)
+{
+	this->time_elapsed = 0.;
+	this->time_limit = time_limit;
+	this->time_scale = time_sc;
+	this->curr_object = Thing;
+
+	vector<double> obj_info(5);
+	obj_info = Thing->read_info();
+	this->x_loc.push_back(obj_info[0]);
+	this->y_loc.push_back(obj_info[1]);
+	this->x_vel.push_back(obj_info[2]);
+	this->y_vel.push_back(obj_info[3]);
+	this->obj_mass = obj_info[4];
+
+	this->time_trace.push_back(this->time_elapsed);
+
+	this->reflected_status.push_back(false);
+
+	this->b_verbose = verbose;
 }
 
 Physics::~Physics()

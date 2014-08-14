@@ -18,16 +18,16 @@ using namespace std;
 // According to reletivity theory, the photon speed in vacuum
 // cannot change. Thus, velocity set function automatically
 // converts the input vector to unity
-void Photon::set_velocity(float xv, float yv)
+void Photon::set_velocity(double xv, double yv)
 {
-	float vel_vec = sqrt(pow(xv,2)+pow(yv,2));
+	double vel_vec = sqrt(pow(xv,2)+pow(yv,2));
 	this->current_velocity.xv = \
 		LIGHT_SPEED*xv/vel_vec;
 	this->current_velocity.yv = \
 		LIGHT_SPEED*yv/vel_vec;
 }
 
-void Photon::set_location(float x, float y)
+void Photon::set_location(double x, double y)
 {
 	this->current_coord.x = x;
 	this->current_coord.y = y;
@@ -37,30 +37,30 @@ void Photon::set_location(float x, float y)
 // equations that are useful
 // E = hf
 // lambda = c/f
-void Photon::set_wavelength(float lambda)
+void Photon::set_wavelength(double lambda)
 {
 	this->m_lambda = lambda;
 	this->m_freq = this->m_lambda/this->current_velocity.vel;
 	this->m_energy = PLANK_RECUDED_EV*this->m_freq;
 }
 
-void Photon::set_energy(float e)
+void Photon::set_energy(double e)
 {
 	this->m_energy = e;
 	this->m_freq = this->m_energy/PLANK_RECUDED_EV;
 	this->m_lambda = this->current_velocity.vel/this->m_freq;
 }
 
-void Photon::set_frequency(float freq)
+void Photon::set_frequency(double freq)
 {
 	this->m_freq = freq;
 	this->m_lambda = this->current_velocity.vel/m_freq;
 	this->m_energy = PLANK_RECUDED_EV*this->m_freq;
 }
 
-void Photon::set_light_speed(float light_spd)
+void Photon::set_light_speed(double light_spd)
 {
-	float curr_spd = sqrt(\
+	double curr_spd = sqrt(\
 		pow(this->current_velocity.xv,2) + \
 		pow(this->current_velocity.yv,2));
 	this->current_velocity.vel = light_spd;
@@ -77,9 +77,9 @@ void Photon::print_info()
 	cout << endl;
 }
 
-std_vec_f Photon::read_info()
+std_vec_d Photon::read_info()
 {
-	std_vec_f info(7);
+	std_vec_d info(7);
 
 	info[0] = this->current_coord.x;
 	info[1] = this->current_coord.y;
@@ -93,42 +93,42 @@ std_vec_f Photon::read_info()
 }
 
 // Reading parameters one by one.
-float Photon::x()
+double Photon::x()
 {
 	return this->current_coord.x;
 }
 
-float Photon::y()
+double Photon::y()
 {
 	return this->current_coord.y;
 }
 
-float Photon::xv()
+double Photon::xv()
 {
 	return this->current_velocity.xv;
 }
 
-float Photon::yv()
+double Photon::yv()
 {
 	return this->current_velocity.yv;
 }
 
-float Photon::vel()
+double Photon::vel()
 {
 	return this->current_velocity.vel;
 }
 
-float Photon::energy()
+double Photon::energy()
 {
 	return this->m_energy;
 }
 
-float Photon::freq()
+double Photon::freq()
 {
 	return this->m_freq;
 }
 
-float Photon::wavelength()
+double Photon::wavelength()
 {
 	return this->m_lambda;
 }
@@ -143,7 +143,7 @@ Photon::Photon()
 	this->set_frequency(5000000);
 }
 
-Photon::Photon(float x, float y, float xv, float yv, float freq)
+Photon::Photon(double x, double y, double xv, double yv, double freq)
 {
 	this->current_coord.x = x;
 	this->current_coord.y = y;
