@@ -8,7 +8,7 @@
 #define UNIT_MASS 1.660538921E-25 
 #define BOUNDARY 1000.
 #define VELOCITY_LIMIT 500.
-#define CAL_TIME 100.
+#define CAL_TIME 20.
 #define UNIT_TIME 1.
 
 using namespace std;
@@ -53,8 +53,8 @@ int main (int argc, char* argv[])
 		BOUNDARY, -BOUNDARY);
 	Hydrogen_rect.write_log_rect(log_filename);
 
-	cout << "Press any key to continue..." << endl;
-	cin.get();
+	//cout << "Press Enter (Return) key to continue..." << endl;
+	//cin.get();
 
 	return 0;
 }

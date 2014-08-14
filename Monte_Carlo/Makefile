@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CFLAGS=-O3 -Wall
+CFLAGS=-O3 -g -Wall
 #CFLAGS=-g -Wall
 LIBS=-L./ -lPhysics
 
@@ -18,12 +18,16 @@ brownian_portable: ./brownian.cpp Molecule.o Physics.o
 Molecule.o: ./Molecule.cpp ./Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Molecule.cpp
 
+Photon.o: ./Photon.cpp ./Photon.hpp
+	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Photon.cpp
+
 Physics.o: ./Physics.cpp ./Physics.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Physics.cpp 
 
-libPhysics.so: ./Molecule.o ./Physics.o
-	$(CXX) -shared -o $@ ./Molecule.o ./Physics.o
+libPhysics.so: ./Molecule.o ./Physics.o ./Photon.o
+	$(CXX) -shared -o $@ ./Molecule.o ./Physics.o ./Photon.o
 
 clean:
-	rm -vrf ./Molecule.o ./Physics.o ./libPhysics.so ./trace.* 
+	rm -vrf ./*.o ./*.so ./trace.* 
 	rm -vrf ./brownian ./brownian_portable
+	rm -vrf ./brownian.dSYM ./brownian_portable.dSYM

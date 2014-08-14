@@ -33,7 +33,8 @@ private:
 	std_vec_f proj_loc_rect(float time_segment); // returns coordinate after a certain time segment.
 	
 	float rand_float(float min, float max);
-	void update_status(float x, float y, float vx, float vy, bool refl, float curr_time);
+	void update_status(float x, float y, float vx, float vy, \
+		bool refl, float curr_time);
 	void log_status();
 	void advance_time();
 	std_str bool_to_yesno(bool logic);
