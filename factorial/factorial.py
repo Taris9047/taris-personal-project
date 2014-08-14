@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 def factorial(N):
     fac = 1
     for i in range(1, N+1):
