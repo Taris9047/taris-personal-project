@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+#import math as m
+#factN = m.factorial(n)
+
 def factorial(N):
     fac = 1
     for i in range(1, N+1):

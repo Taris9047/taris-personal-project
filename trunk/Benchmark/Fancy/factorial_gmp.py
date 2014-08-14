@@ -34,6 +34,7 @@ N = 100000
 startTime = time.clock()
 fact = factorial(N)
 endTime = time.clock()
+print ("")
 print ("Calculation of %d! has been finished in %.3f seconds"%(N, endTime-startTime))
 #f = open('./factorial_gmp.txt', 'w')
 #f.write(str(fact))
