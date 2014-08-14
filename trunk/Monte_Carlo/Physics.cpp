@@ -75,6 +75,7 @@ void Physics::brownian_rect(\
         else {
         	time_frame = this->time_scale;
         }
+        
 		proj_loc = proj_loc_rect(time_frame);
 
 		if (proj_loc[0] < edge_left || proj_loc[0] > edge_right \
@@ -86,8 +87,10 @@ void Physics::brownian_rect(\
 		else {
             this->curr_object->set_location(proj_loc[0], proj_loc[1]);
             this->time_elapsed += time_frame;
-            this->print_status_rect();
 		}
+
+		this->print_status_rect();
+
 		this->curr_object->set_velocity(\
 			this->rand_float(0,max_vel_x), \
 			this->rand_float(0,max_vel_y));
@@ -221,7 +224,7 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 		exit(1);		
 	}
 
-	float delta_t = time_frame*1e-5;
+	float delta_t = time_frame*1e-4;
 	float div_time = 0.0;
 	std_vec_f adv_loc(2);
 	
@@ -256,10 +259,9 @@ void Physics::reflect_rect(float edge_left, float edge_right, \
 			adv_loc[0] < edge_right && \
 			adv_loc[1] > edge_bottom && \
 			adv_loc[1] < edge_top) {
-			//cout << "Continuing to next delta_t" << endl;
+			
 			this->time_elapsed += delta_t;
 			this->curr_object->set_location(adv_loc[0], adv_loc[1]);
-			//this->curr_object->set_velocity(this->x_vel.back(),this->y_vel.back());
 		}
 
 		div_time += delta_t;
