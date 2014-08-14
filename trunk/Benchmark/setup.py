@@ -22,20 +22,25 @@ else:
 
 today = date.today()
 compile_date = str(today.month)+str(today.day)+str(today.year)
-dir_name = './'+build_dir+'/'+ \
-			prog_name+'-'+Bench.ver_number+'-'+ \
-			OS_name+'-'+architecture+'-'+ \
-			compile_date
+#dir_name = './'+build_dir+'/'+ \
+#			prog_name+'-'+Bench.ver_number+'-'+ \
+#			OS_name+'-'+architecture+'-'+ \
+#			compile_date
 
 # Dependencies are automatically detected, but it might need fine tuning.
 packages = ["os","sys","time","gmpy2","platform",\
 	"multiprocessing","subprocess","re","random"]
 optimize = 2
 
-build_exe_options = {"build_exe": dir_name, \
-					"packages": packages, \
+#build_exe_options = {"build_exe": dir_name, \
+#					"packages": packages, \
+#					"optimize": optimize,
+#					"compressed": True}
+
+build_exe_options = {"packages": packages, \
 					"optimize": optimize,
 					"compressed": True}
+
 
 # GUI applications require a different base on Windows (the default is for a
 # console application).
@@ -50,3 +55,7 @@ setup(  name = "T-Bench",
         author_email = 'k4shin@uwaterloo.ca',
         options = {'build_exe':build_exe_options},
         executables = [Executable("Benchmark.py"), Executable("Torture.py")])
+
+
+
+
