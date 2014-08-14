@@ -68,7 +68,7 @@ def main():
 
 	print((utils.sysinfo()))
 
-	torture()
+	torture(1, 1000000)
 
 	return 0
 

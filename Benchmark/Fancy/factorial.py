@@ -29,6 +29,7 @@ N = 100000
 startTime = time.clock()
 fact = factorial(N)
 endTime = time.clock()
+print ("")
 print ("Calculation of %d! has been finished in %.3f seconds"%(N, endTime-startTime))
 #print fact
 #f = open('./factorial.txt', 'w')

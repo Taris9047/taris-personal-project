@@ -3,7 +3,7 @@
 --
 require"bc"
 
-bc.digits (250000)
+bc.digits (2500000)
 
 fact = bc.number(1)
 N = 50000
@@ -12,6 +12,7 @@ for i=2,N do
    fact = bc.mul(fact, i)
 end
 
---print(fact)
+-- print(fact)
 print(N,"! calculation is finished!")
+
 
