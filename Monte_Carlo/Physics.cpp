@@ -65,8 +65,8 @@ void Physics::brownian_rect(\
 		this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
 	*/
 	this->curr_object->set_velocity(\
-		this->gaussian(0, max_vel_x/4, max_vel_x), \
-		this->gaussian(0, max_vel_y/4, max_vel_y));
+		this->gaussian(max_vel_x/2, max_vel_x/4, max_vel_x), \
+		this->gaussian(max_vel_y/2, max_vel_y/4, max_vel_y));
 
 	// Log status into the class.
 	this->log_status();
@@ -105,8 +105,8 @@ void Physics::brownian_rect(\
 			this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
 		*/
 		this->curr_object->set_velocity(\
-			this->gaussian(0, max_vel_x/4, max_vel_x), \
-			this->gaussian(0, max_vel_y/4, max_vel_y));
+			this->gaussian(max_vel_x/2, max_vel_x/4, max_vel_x), \
+			this->gaussian(max_vel_y/2, max_vel_y/4, max_vel_y));
 		
 		this->log_status();
 
