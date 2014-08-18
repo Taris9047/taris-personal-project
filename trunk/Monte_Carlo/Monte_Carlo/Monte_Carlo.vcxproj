@@ -67,6 +67,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\Taris\Documents\workshop\Monte_Carlo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -79,18 +80,12 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\data_types.hpp" />
-    <ClInclude Include="..\Molecule.hpp" />
-    <ClInclude Include="..\Photon.hpp" />
-    <ClInclude Include="..\Physics.hpp" />
-    <ClInclude Include="..\Random.hpp" />
+    <ClCompile Include="..\brownian.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\brownian.cpp" />
-    <ClCompile Include="..\Molecule.cpp" />
-    <ClCompile Include="..\Photon.cpp" />
-    <ClCompile Include="..\Physics.cpp" />
-    <ClCompile Include="..\Random.cpp" />
+    <ProjectReference Include="..\Physics\Physics.vcxproj">
+      <Project>{422fe0db-52e8-49a9-a618-b9229d85d2f0}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
