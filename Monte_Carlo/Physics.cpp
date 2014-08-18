@@ -217,27 +217,27 @@ void Physics::print_status_rect()
 */
 }
 
-// Prepare log file.
-void Physics::write_log_rect(std_str outfile_name)
+// Logging the trace within a specified file.
+void Physics::write_log_rect(std_str outfile_name, std_str cDelim = "\t")
 {
 	ofstream trace_record;
 	trace_record.open(outfile_name);
-	trace_record << "\"Coord X\"" << "\t" << "\"Coord Y\"" \
-		<< "\t" << "\"Velocity X\"" << "\t" << "\"Velocity Y\"" \
-		<< "\t" << "\"Mass (g)\"" << "\t" << "\"Reflected\"" \
-		<< "\t" << "\"Time\"" \
+	trace_record << "\"Coord X\"" << cDelim << "\"Coord Y\"" \
+		<< cDelim << "\"Velocity X\"" << cDelim << "\"Velocity Y\"" \
+		<< cDelim << "\"Mass (g)\"" << cDelim << "\"Reflected\"" \
+		<< cDelim << "\"Time\"" \
 		<< endl;
 	trace_record << scientific;
 
 	unsigned long log_size = this->time_trace.size();
 
 	for (int i=0; i < log_size; i++) {
-		trace_record << this->x_loc.at(i) << "\t" << \
-			this->y_loc.at(i) << "\t" << \
-			this->x_vel.at(i) << "\t" << \
-			this->y_vel.at(i) << "\t" << \
-			this->curr_object->mass << "\t" << \
-			this->bool_to_yesno(this->reflected_status.at(i)) << "\t" << \
+		trace_record << this->x_loc.at(i) << cDelim << \
+			this->y_loc.at(i) << cDelim << \
+			this->x_vel.at(i) << cDelim << \
+			this->y_vel.at(i) << cDelim << \
+			this->curr_object->mass << cDelim << \
+			this->bool_to_yesno(this->reflected_status.at(i)) << cDelim << \
 			this->time_trace.at(i) << \
 			endl;
 	}
