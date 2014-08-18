@@ -59,7 +59,7 @@ public:
 		double edge_top, double edge_bottom);
 
     // Write current history into a file
-	void write_log_rect(std_str outfile_name); 
+	void write_log_rect(std_str outfile_name, std_str cDelim); 
 
 	// Constructures and Destructors
 	Physics();

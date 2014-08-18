@@ -55,7 +55,7 @@ int main (int argc, char* argv[])
 		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y, \
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
-	Hydrogen_rect.write_log_rect(log_filename);
+	Hydrogen_rect.write_log_rect(log_filename, ",");
 
 	//cout << "Press Enter (Return) key to continue..." << endl;
 	//cin.get();
