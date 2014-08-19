@@ -5,7 +5,7 @@
 
 class Molecule
 {
-public:
+private:
   	double mass;
 	
 	struct coord2D
@@ -21,10 +21,15 @@ public:
 		double vel;
 	} current_velocity;
 
+public:
   	// Manipulating status.
   	void set_location(double x, double y);
 	void set_velocity(double xv, double yv);
 	void set_mass(double m);
+	void set_x(double x);
+	void set_y(double y);
+	void set_xv(double xv);
+	void set_yv(double yv);
 
 	// read up the information.
 	double x();
@@ -32,6 +37,7 @@ public:
 	double xv();
 	double yv();
 	double vel();
+	double read_mass();
 
 	// Prints out current location, velocity, unity vector
 	void print_info();

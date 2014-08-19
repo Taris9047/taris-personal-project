@@ -8,6 +8,7 @@
 
 using namespace std;
 
+// Manipulation methods
 void Molecule::set_velocity(double xv, double yv)
 {
 	this->current_velocity.xv = xv;
@@ -26,6 +27,33 @@ void Molecule::set_mass(double m)
 	this->mass = m;
 }
 
+void Molecule::set_x(double x)
+{
+	this->current_coord.x = x;
+}
+
+void Molecule::set_y(double y)
+{
+	this->current_coord.y = y;
+}
+
+void Molecule::set_xv(double xv)
+{
+	this->current_velocity.xv = xv;
+	this->current_velocity.vel = \
+		sqrt(this->current_velocity.xv*this->current_velocity.xv + \
+			this->current_velocity.yv*this->current_velocity.yv);
+}
+
+void Molecule::set_yv(double yv)
+{
+	this->current_velocity.yv = yv;
+	this->current_velocity.vel = \
+		sqrt(this->current_velocity.xv*this->current_velocity.xv + \
+		this->current_velocity.yv*this->current_velocity.yv);
+}
+
+// Reporting status into console
 void Molecule::print_info()
 {
 	cout << endl;
@@ -72,6 +100,11 @@ double Molecule::yv()
 double Molecule::vel()
 {
 	return this->current_velocity.vel;
+}
+
+double Molecule::read_mass()
+{
+	return this->mass;
 }
 
 
