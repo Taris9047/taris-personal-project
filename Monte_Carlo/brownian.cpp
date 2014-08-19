@@ -17,7 +17,7 @@ using namespace std;
 
 int main (int argc, char* argv[])
 {
-	int cal_time;
+	double cal_time;
 	double unit_time;
 
 	if (argc == 2) {
@@ -55,7 +55,7 @@ int main (int argc, char* argv[])
 		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y, \
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
-	Hydrogen_rect.write_log_rect(log_filename, "\t");
+	Hydrogen_rect.write_log_rect(log_filename, ",");
 
 	//cout << "Press Enter (Return) key to continue..." << endl;
 	//cin.get();

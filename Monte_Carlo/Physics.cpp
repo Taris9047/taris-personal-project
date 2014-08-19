@@ -229,9 +229,9 @@ void Physics::write_log_rect(std_str outfile_name, std_str cDelim = "\t")
 		<< endl;
 	trace_record << scientific;
 
-	uint log_size = this->time_trace.size();
+	unint log_size = this->time_trace.size();
 
-	for (uint i=0; i < log_size; i++) {
+	for (unint i=0; i < log_size; i++) {
 		trace_record << this->x_loc.at(i) << cDelim << \
 			this->y_loc.at(i) << cDelim << \
 			this->x_vel.at(i) << cDelim << \

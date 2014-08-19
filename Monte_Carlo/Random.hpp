@@ -1,7 +1,9 @@
 #ifndef RANDOM_HPP
 #define RANDOM_HPP
 
-typedef unsigned int unint;
+#include "data_types.hpp"
+
+//typedef unsigned int unint;
 
 class Random
 {
