@@ -9,7 +9,7 @@
 
 // Currently, contains only reflection handler.
 
-class Physics: public Molecule, public Random
+class Physics: public Random
 {
 private:
 	// Setting up time and time scale.
@@ -18,6 +18,7 @@ private:
 	double time_scale;
 	// current object: Molecule (pointer)
 	Molecule* curr_object;
+	unint rand_type;
 
 	// Verbose
 	bool b_verbose;
@@ -35,7 +36,17 @@ private:
 
 	// returns coordinate after a certain time segment.
 	std_vec_d proj_loc_rect(double time_segment); 	
-	double rand_double(double min, double max);
+	double rand_double(\
+		double paramA, double paramB, double paramC);
+	void set_rand_velocity_rect(\
+		double paramA, double paramB, double paramC);
+	void set_rand_velocity_rect_x(\
+		double paramA, double paramB, double paramC);
+	void set_rand_velocity_rect_y(\
+		double paramA, double paramB, double paramC);
+	void select_RNG(unint rng_type);
+
+	// Utilities
 	void update_status(double x, double y, \
 		double vx, double vy, \
 		bool refl, double curr_time);
@@ -69,6 +80,8 @@ public:
 	Physics(double time_limit, double time_sc, Molecule* Thing);
 	Physics(double time_limit, double time_sc,\
 		Molecule* Thing, bool verbose);
+	Physics(double time_limit, double time_sc, \
+		Molecule* Thing, bool verbose, unint rand_type);
 	~Physics();
 
 };

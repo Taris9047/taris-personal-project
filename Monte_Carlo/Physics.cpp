@@ -64,9 +64,7 @@ void Physics::brownian_rect(\
 		this->rand_gen->uniform((-1)*max_vel_x,max_vel_x), \
 		this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
 	*/
-	this->curr_object->set_velocity(\
-		this->gaussian(max_vel_x/2, max_vel_x/4, max_vel_x), \
-		this->gaussian(max_vel_y/2, max_vel_y/4, max_vel_y));
+	this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, max_vel_x);
 
 	// Log status into the class.
 	this->log_status();
@@ -99,18 +97,69 @@ void Physics::brownian_rect(\
 		if (this->b_verbose == true) {
 			this->print_status_rect();
 		}
-		/*
-		this->curr_object->set_velocity(\
-			this->rand_gen->uniform((-1)*max_vel_x,max_vel_x), \
-			this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
-		*/
-		this->curr_object->set_velocity(\
-			this->gaussian(max_vel_x/2, max_vel_x/4, max_vel_x), \
-			this->gaussian(max_vel_y/2, max_vel_y/4, max_vel_y));
-		
+
+		this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, max_vel_x);
+
 		this->log_status();
 
 	} while (this->time_elapsed <= this->time_limit);
+}
+
+// Setting random velocity
+void Physics::set_rand_velocity_rect(\
+	double paramA = 0., double paramB = 1., double paramC = 1.)
+{
+	this->curr_object->set_velocity(\
+		this->rand_double(paramA, paramB, paramC), \
+		this->rand_double(paramA, paramB, paramC));
+}
+
+// Setting random velocity for each axis
+void Physics::set_rand_velocity_rect_x(\
+	double paramA = 0., double paramB = 1., double paramC = 1.)
+{
+	this->curr_object->set_xv(\
+		this->rand_double(paramA, paramB, paramC));
+}
+
+// Setting random velocity for each axis
+void Physics::set_rand_velocity_rect_y(\
+	double paramA = 0., double paramB = 1., double paramC = 1.)
+{
+	this->curr_object->set_yv(\
+		this->rand_double(paramA, paramB, paramC));
+}
+
+// Choosing RNG
+void Physics::select_RNG(unint rng_type)
+{
+	if (rng_type > 0) {
+		this->rand_type = rng_type;
+	}
+	else {
+		throw "Error! RNG must be specified with positive integers.";
+		exit(0);
+	}
+}
+
+// Returns random double number.
+double Physics::rand_double(\
+	double paramA = 0., double paramB = 1., double paramC = 1.)
+{
+	switch (this->rand_type) {
+	case 1:
+		return this->uniform(paramA, paramB);
+	case 2:
+		return this->gaussian(paramA, paramB, paramC);
+	case 3:
+		return this->beta(paramA, paramB);
+	case 4:
+		return this->chi_square(paramA);
+	case 5:
+		return this->binomial((unint)paramA, (unint)paramB);
+	default:
+		return this->uniform(0, 1);
+	}
 }
 
 // Updates current status
@@ -173,7 +222,7 @@ std_vec_d Physics::report_status_rect()
 	report_info[1] = this->curr_object->y();
 	report_info[2] = this->curr_object->xv();
 	report_info[3] = this->curr_object->yv();
-	report_info[4] = this->curr_object->mass;
+	report_info[4] = this->curr_object->read_mass();
 	report_info[5] = this->time_elapsed;
 	if (this->reflected_status.back() == true) {
 		report_info[6] = 1;
@@ -204,17 +253,6 @@ void Physics::print_status_rect()
 	cout << "Time elapsed: " << info[5] \
 		<< " sec." << endl;
 	cout << endl;
-
-
-/*
-	cout << "Location: (" << this->x_loc.back() << \
-		 "," << this->y_loc.back() << ")" << endl;
-	cout << "Velocity: <" << this->x_vel.back() << \
-		 "," << this->y_vel.back() << ">" << endl;
-	cout << "Time elapsed: " << this->time_elapsed \
-		<< " sec." << endl;
-	cout << endl;
-*/
 }
 
 // Logging the trace within a specified file.
@@ -236,7 +274,7 @@ void Physics::write_log_rect(std_str outfile_name, std_str cDelim = "\t")
 			this->y_loc.at(i) << cDelim << \
 			this->x_vel.at(i) << cDelim << \
 			this->y_vel.at(i) << cDelim << \
-			this->curr_object->mass << cDelim << \
+			this->curr_object->read_mass() << cDelim << \
 			this->bool_to_yesno(this->reflected_status.at(i)) << cDelim << \
 			this->time_trace.at(i) << \
 			endl;
@@ -256,12 +294,6 @@ std_str Physics::bool_to_yesno(bool logic)
 		return "NO";
 	}
 }
-
-// Returns random double number.
-//double Physics::rand_double(double min, double max)
-//{
-//	return pow(-1,rand()%2)*((max-min)*((double)rand()/RAND_MAX))+min;
-//}
 
 // Calculate reflecting molecule in a limited space.
 void Physics::reflect_rect(double edge_left, double edge_right, \
@@ -336,6 +368,7 @@ Physics::Physics()
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0;
 	this->curr_object = NULL;
+	this->rand_type = 1;
 	
 	this->obj_mass = 0.0;
 
@@ -351,6 +384,7 @@ Physics::Physics(bool verbose)
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0;
 	this->curr_object = NULL;
+	this->rand_type = 1;
 
 	this->obj_mass = 0.0;
 
@@ -366,6 +400,7 @@ Physics::Physics(Molecule* Thing)
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0; // Default 1 sec time interval.
 	this->curr_object = Thing;
+	this->rand_type = 1;
 
 	vector<double> obj_info(5);
 	obj_info = Thing->read_info();
@@ -387,6 +422,7 @@ Physics::Physics(Molecule* Thing, bool verbose)
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0; // Default 1 sec time interval.
 	this->curr_object = Thing;
+	this->rand_type = 1;
 
 	vector<double> obj_info(5);
 	obj_info = Thing->read_info();
@@ -410,6 +446,7 @@ Physics::Physics(double time_limit, double time_sc, Molecule* Thing)
 	this->time_limit = time_limit;
 	this->time_scale = time_sc;
 	this->curr_object = Thing;
+	this->rand_type = 1;
 
 	vector<double> obj_info(5);
 	obj_info = Thing->read_info();
@@ -432,6 +469,30 @@ Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbos
 	this->time_limit = time_limit;
 	this->time_scale = time_sc;
 	this->curr_object = Thing;
+	this->rand_type = 1;
+
+	vector<double> obj_info(5);
+	obj_info = Thing->read_info();
+	this->x_loc.push_back(obj_info[0]);
+	this->y_loc.push_back(obj_info[1]);
+	this->x_vel.push_back(obj_info[2]);
+	this->y_vel.push_back(obj_info[3]);
+	this->obj_mass = obj_info[4];
+
+	this->time_trace.push_back(this->time_elapsed);
+
+	this->reflected_status.push_back(false);
+
+	this->b_verbose = verbose;
+}
+
+Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbose, unint rand_type)
+{
+	this->time_elapsed = 0.;
+	this->time_limit = time_limit;
+	this->time_scale = time_sc;
+	this->curr_object = Thing;
+	this->rand_type = rand_type;
 
 	vector<double> obj_info(5);
 	obj_info = Thing->read_info();
