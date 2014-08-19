@@ -43,7 +43,7 @@
 			"file": "brownian.cpp",
 			"settings":
 			{
-				"buffer_size": 1340,
+				"buffer_size": 1346,
 				"line_ending": "Unix"
 			}
 		},
@@ -59,7 +59,7 @@
 			"file": "Physics.hpp",
 			"settings":
 			{
-				"buffer_size": 1780,
+				"buffer_size": 1796,
 				"line_ending": "Unix"
 			}
 		},
@@ -67,7 +67,7 @@
 			"file": "Physics.cpp",
 			"settings":
 			{
-				"buffer_size": 11319,
+				"buffer_size": 11391,
 				"line_ending": "Unix"
 			}
 		},
@@ -193,7 +193,7 @@
 	],
 	"find":
 	{
-		"height": 35.0
+		"height": 25.0
 	},
 	"find_in_files":
 	{
@@ -228,7 +228,7 @@
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -237,15 +237,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1340,
+						"buffer_size": 1346,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								829,
+								829
 							]
 						],
 						"settings":
@@ -254,10 +254,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 500.0,
+						"translation.y": 704.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -285,7 +285,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -294,7 +294,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1780,
+						"buffer_size": 1796,
 						"regions":
 						{
 						},
@@ -311,10 +311,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 4.0,
-						"translation.y": 0.0,
+						"translation.y": 867.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -323,15 +323,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11319,
+						"buffer_size": 11391,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								5890,
+								5890
 							]
 						],
 						"settings":
@@ -339,8 +339,8 @@
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 6027.0,
+						"translation.x": 34.0,
+						"translation.y": 5547.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
@@ -359,19 +359,20 @@
 						"selection":
 						[
 							[
-								1854,
-								1854
+								113,
+								113
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
@@ -393,13 +394,14 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
@@ -428,7 +430,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -457,7 +459,7 @@
 						"translation.y": 679.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
@@ -486,7 +488,7 @@
 						"translation.y": 1055.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -606,7 +608,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 25.0
 	},
 	"input":
 	{
@@ -646,7 +648,7 @@
 	"project": "Molecule.sublime-project",
 	"replace":
 	{
-		"height": 64.0
+		"height": 46.0
 	},
 	"save_all_on_build": true,
 	"select_file":
