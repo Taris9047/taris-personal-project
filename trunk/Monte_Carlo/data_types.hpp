@@ -11,4 +11,6 @@ typedef std::vector<double> std_vec_d;
 typedef std::vector<bool> std_vec_b;
 typedef std::string std_str;
 
+typedef unsigned int unint;
+
 #endif
