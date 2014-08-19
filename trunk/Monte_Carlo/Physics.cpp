@@ -221,7 +221,7 @@ void Physics::print_status_rect()
 void Physics::write_log_rect(std_str outfile_name, std_str cDelim = "\t")
 {
 	ofstream trace_record;
-	trace_record.open(outfile_name);
+	trace_record.open(outfile_name.c_str());
 	trace_record << "\"Coord X\"" << cDelim << "\"Coord Y\"" \
 		<< cDelim << "\"Velocity X\"" << cDelim << "\"Velocity Y\"" \
 		<< cDelim << "\"Mass (g)\"" << cDelim << "\"Reflected\"" \
@@ -229,9 +229,9 @@ void Physics::write_log_rect(std_str outfile_name, std_str cDelim = "\t")
 		<< endl;
 	trace_record << scientific;
 
-	unsigned long log_size = this->time_trace.size();
+	uint log_size = this->time_trace.size();
 
-	for (int i=0; i < log_size; i++) {
+	for (uint i=0; i < log_size; i++) {
 		trace_record << this->x_loc.at(i) << cDelim << \
 			this->y_loc.at(i) << cDelim << \
 			this->x_vel.at(i) << cDelim << \
