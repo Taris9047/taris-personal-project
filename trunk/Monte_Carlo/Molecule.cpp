@@ -24,7 +24,7 @@ void Molecule::set_location(double x, double y)
 
 void Molecule::set_mass(double m)
 {
-	this->mass = m;
+	this->m_mass = m;
 }
 
 void Molecule::set_x(double x)
@@ -59,7 +59,7 @@ void Molecule::print_info()
 	cout << endl;
 	cout <<"Location: (" << this->current_coord.x << ", " << this->current_coord.y << ")" << endl;
 	cout << "Velocity: <" << this->current_velocity.xv << ", " << this->current_velocity.yv << ">" << endl;
-	cout << "Mass: " << this->mass << " g" << endl;
+	cout << "Mass: " << this->m_mass << " g" << endl;
 	cout << endl;
 }
 
@@ -71,7 +71,7 @@ std_vec_d Molecule::read_info()
 	info[1] = this->current_coord.y;
 	info[2] = this->current_velocity.xv;
 	info[3] = this->current_velocity.yv;
-	info[4] = this->mass;
+	info[4] = this->m_mass;
 
 	return info;
 }
@@ -104,7 +104,7 @@ double Molecule::vel()
 
 double Molecule::read_mass()
 {
-	return this->mass;
+	return this->m_mass;
 }
 
 
@@ -118,7 +118,7 @@ Molecule::Molecule()
 	this->current_velocity.xv = 0;
 	this->current_velocity.yv = 0;
 	this->current_velocity.vel = 0;
-	this->mass = 0;
+	this->m_mass = 0;
 }
 
 Molecule::Molecule(double m)
@@ -128,7 +128,7 @@ Molecule::Molecule(double m)
 	this->current_velocity.xv = 0;
 	this->current_velocity.yv = 0;
 	this->current_velocity.vel = 0;
-	this->mass = m;
+	this->m_mass = m;
 }
 
 Molecule::Molecule(double x, double y, double xv, double yv, double m)
@@ -138,7 +138,7 @@ Molecule::Molecule(double x, double y, double xv, double yv, double m)
 	this->current_velocity.xv = xv;
 	this->current_velocity.yv = yv;
 	this->current_velocity.vel = sqrt(xv*xv + yv*yv);
-	this->mass = m;
+	this->m_mass = m;
 }
 
 Molecule::~Molecule()

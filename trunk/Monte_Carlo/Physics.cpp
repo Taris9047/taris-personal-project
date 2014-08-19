@@ -156,7 +156,7 @@ double Physics::rand_double(\
 	case 4:
 		return this->chi_square(paramA);
 	case 5:
-		return this->binomial((unint)paramA, (unint)paramB);
+		return (double) this->binomial((unint)paramA, (unint)paramB);
 	default:
 		return this->uniform(0, 1);
 	}

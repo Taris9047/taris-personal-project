@@ -6,7 +6,7 @@
 class Molecule
 {
 private:
-  	double mass;
+  	double m_mass;
 	
 	struct coord2D
 	{
