@@ -1,5 +1,6 @@
 #!/usr/bin/env gnuplot --persist
 set terminal postscript eps enhanced color "Helvetica" 24
+set datafile separator ","
 
 IN_FILENAME = "trace.csv"
 OUT_FILENAME = "trace.eps"

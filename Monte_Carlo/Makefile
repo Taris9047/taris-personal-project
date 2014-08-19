@@ -2,7 +2,8 @@ CC=gcc
 CXX=g++
 CFLAGS=-O3 -g -Wall
 #CFLAGS=-g -Wall
-LIBS=-L./ -lPhysics
+LIBDIR=./
+PHYSICS_LIB=Physics
 
 all: brownian
 
@@ -10,7 +11,7 @@ run: brownian
 	./run.sh 
 
 brownian: ./brownian.cpp libPhysics.so
-	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp $(LIBS)
+	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp -L$(LIBDIR) -l:lib$(PHYSICS_LIB).so
 
 Molecule.o: ./Molecule.cpp ./Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Molecule.cpp
