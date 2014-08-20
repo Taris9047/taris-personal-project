@@ -10,7 +10,7 @@ class Random
 private:
 	double beta_f(double x, double y);
 	double gamma_f(double t);
-	unint factorial(unint n); // Do not use input over 100!!! it will crash!
+	unint factorial(unint n); // Do not use an input over 100!!! it will crash!
 
 public:
 	// For... you know... redandancy. A seed generator, if needed.
