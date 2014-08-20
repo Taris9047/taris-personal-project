@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2013 for Windows Desktop
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monte_Carlo", "Monte_Carlo\Monte_Carlo.vcxproj", "{13812733-F643-412F-BE58-EC271E1C0531}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -10,10 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monte_Carlo", "Monte_Carlo\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics", "Physics\Physics.vcxproj", "{422FE0DB-52E8-49A9-A618-B9229D85D2F0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monte_Carlo_Win", "Monte_Carlo_Win\Monte_Carlo_Win.vcxproj", "{DB146C9D-6C02-4636-945D-FFBE01E2C52B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{422FE0DB-52E8-49A9-A618-B9229D85D2F0} = {422FE0DB-52E8-49A9-A618-B9229D85D2F0}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monte_Carlo_GUI", "Monte_Carlo_GUI\Monte_Carlo_GUI.vcxproj", "{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +26,10 @@ Global
 		{422FE0DB-52E8-49A9-A618-B9229D85D2F0}.Debug|Win32.Build.0 = Debug|Win32
 		{422FE0DB-52E8-49A9-A618-B9229D85D2F0}.Release|Win32.ActiveCfg = Release|Win32
 		{422FE0DB-52E8-49A9-A618-B9229D85D2F0}.Release|Win32.Build.0 = Release|Win32
-		{DB146C9D-6C02-4636-945D-FFBE01E2C52B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{DB146C9D-6C02-4636-945D-FFBE01E2C52B}.Debug|Win32.Build.0 = Debug|Win32
-		{DB146C9D-6C02-4636-945D-FFBE01E2C52B}.Release|Win32.ActiveCfg = Release|Win32
-		{DB146C9D-6C02-4636-945D-FFBE01E2C52B}.Release|Win32.Build.0 = Release|Win32
+		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Debug|Win32.Build.0 = Debug|Win32
+		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Release|Win32.ActiveCfg = Release|Win32
+		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
