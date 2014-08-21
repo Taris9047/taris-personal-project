@@ -64,7 +64,7 @@ void Physics::brownian_rect(\
 		this->rand_gen->uniform((-1)*max_vel_x,max_vel_x), \
 		this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
 	*/
-	this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, max_vel_x);
+	this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, (max_vel_x+max_vel_y)/2);
 
 	// Log status into the class.
 	this->log_status();
@@ -98,7 +98,7 @@ void Physics::brownian_rect(\
 			this->print_status_rect();
 		}
 
-		this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, max_vel_x);
+		this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, (max_vel_x+max_vel_y)/2);
 
 		this->log_status();
 
@@ -148,15 +148,15 @@ double Physics::rand_double(\
 {
 	switch (this->rand_type) {
 	case 1:
-		return this->uniform(paramA, paramB);
+		return (pow(-1,rand()%2))*this->uniform(0.0, (paramA+paramB)/2);
 	case 2:
 		return this->gaussian(paramA, paramB, paramC);
 	case 3:
-		return this->beta(paramA, paramB);
+		return this->beta(paramA, paramB, paramC);
 	case 4:
 		return this->chi_square(paramA);
 	case 5:
-		return (double) this->binomial((unint)paramA, (unint)paramB);
+		return (double) this->binomial((unsigned int)paramA, (unsigned int)paramB);
 	default:
 		return this->uniform(0, 1);
 	}
@@ -365,6 +365,8 @@ void Physics::reflect_rect(double edge_left, double edge_right, \
 
 Physics::Physics()
 {
+	this->Seed_Rand();
+
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0;
 	this->curr_object = NULL;
@@ -381,6 +383,8 @@ Physics::Physics()
 
 Physics::Physics(bool verbose)
 {
+	this->Seed_Rand();
+
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0;
 	this->curr_object = NULL;
@@ -397,6 +401,8 @@ Physics::Physics(bool verbose)
 
 Physics::Physics(Molecule* Thing)
 {
+	this->Seed_Rand();
+
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0; // Default 1 sec time interval.
 	this->curr_object = Thing;
@@ -419,6 +425,8 @@ Physics::Physics(Molecule* Thing)
 
 Physics::Physics(Molecule* Thing, bool verbose)
 {
+	this->Seed_Rand();
+
 	this->time_elapsed = 0.0;
 	this->time_scale = 1.0; // Default 1 sec time interval.
 	this->curr_object = Thing;
@@ -442,6 +450,8 @@ Physics::Physics(Molecule* Thing, bool verbose)
 
 Physics::Physics(double time_limit, double time_sc, Molecule* Thing)
 {
+	this->Seed_Rand();
+
 	this->time_elapsed = 0.;
 	this->time_limit = time_limit;
 	this->time_scale = time_sc;
@@ -465,6 +475,8 @@ Physics::Physics(double time_limit, double time_sc, Molecule* Thing)
 
 Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbose)
 {
+	this->Seed_Rand();
+
 	this->time_elapsed = 0.;
 	this->time_limit = time_limit;
 	this->time_scale = time_sc;
@@ -486,8 +498,10 @@ Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbos
 	this->b_verbose = verbose;
 }
 
-Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbose, unint rand_type)
+Physics::Physics(double time_limit, double time_sc, Molecule* Thing, bool verbose, unint rand_type = 1)
 {
+	this->Seed_Rand();
+	
 	this->time_elapsed = 0.;
 	this->time_limit = time_limit;
 	this->time_scale = time_sc;

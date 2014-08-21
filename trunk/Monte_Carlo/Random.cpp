@@ -20,16 +20,16 @@ double Random::uniform(double min, double max)
 }
 
 // Gaussian distribution
-double Random::gaussian(double mean, double sigma, double amplitude)
+double Random::gaussian(double mean, double sigma, double amplitude = 1.)
 {
 	return ((double)pow(-1,rand()%2))*amplitude*exp(-0.5*pow((this->uniform(mean-5*abs(sigma),mean+5*abs(sigma))-mean)/sigma,2));
 }
 
 // Beta distribution
-double Random::beta(double a, double b)
+double Random::beta(double a, double b, double amplitude = 1.)
 {
 	double x = this->uniform(0, 1.0);
-	return (1/this->beta_f(a, b))*pow(x, a-1)*pow(1-x, b-1);
+	return amplitude*(1/this->beta_f(a, b))*pow(x, a-1)*pow(1-x, b-1);
 }
 
 // Binomial distribution
@@ -76,7 +76,7 @@ unint Random::factorial(unint n)
 // Beta Function
 double Random::beta_f(double x, double y)
 {
-	const double dt = 1e-6;
+	const double dt = 1e-4;
 	double t = 0.0; // Starts integration from 0.0
 	double beta_int = 0.0;
 
@@ -91,7 +91,7 @@ double Random::beta_f(double x, double y)
 // Gamme Function
 double Random::gamma_f(double t)
 {
-	const double dx = 1e-6;
+	const double dx = 1e-4;
 	double x = 0.0; // Starts integration from 0.0
 	double gamma_int = 0.0;
 
@@ -107,9 +107,11 @@ double Random::gamma_f(double t)
 // Constructors and Destructors
 Random::Random()
 {
-	srand((unsigned int) time(0));
+	this->Seed_Rand();
 }
 
-
+Random::~Random()
+{
+}
 
 #endif

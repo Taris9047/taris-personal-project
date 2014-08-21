@@ -20,14 +20,15 @@ public:
 	double uniform(double min, double max);
 	// Gaussian distribution (Normal distribution)
 	double gaussian(double mean, double sigma, double amplitude);
-	// Beta distribution (amplitude is always 1)
-	double beta(double a, double b);
+	// Beta distribution 	
+	double beta(double a, double b, double amplitude);
 	// Binomial distribution
 	double binomial(unint n, unint p);
 	// Chi-square distribution
 	double chi_square(double k);
 
 	Random();
+	~Random();
 };
 
 #endif
