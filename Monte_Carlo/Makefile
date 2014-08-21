@@ -11,7 +11,7 @@ run: brownian
 	./run.sh 
 
 brownian: ./brownian.cpp libPhysics.so
-	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp -L$(LIBDIR) -l:lib$(PHYSICS_LIB).so
+	$(CXX) $(CFLAGS) -o $@ ./brownian.cpp -L$(LIBDIR) -l$(PHYSICS_LIB)
 
 Molecule.o: ./Molecule.cpp ./Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c ./Molecule.cpp
