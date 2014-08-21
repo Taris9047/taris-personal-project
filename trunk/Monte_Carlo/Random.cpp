@@ -43,7 +43,7 @@ double Random::binomial(unint n, unint p)
 // Chi-square distribution
 double Random::chi_square(double k)
 {
-	double x = this->uniform(-INF, INF);
+	double x = this->uniform(-20, 20);
 	return (1/(pow(2, k/2)*this->gamma_f(k/2)))*pow(x,(k/2)-1)*exp(x/(-2));
 }
 
@@ -98,7 +98,7 @@ double Random::gamma_f(double t)
 	do {
 		gamma_int += pow(x, t-1)*exp(-x)*dx;
 		x += dx;
-	} while (t <= INF); 
+	} while (t <= 20); 
 
 	return gamma_int;
 }
