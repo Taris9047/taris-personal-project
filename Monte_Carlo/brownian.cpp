@@ -50,7 +50,7 @@ int main (int argc, char* argv[])
 	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
 
 	Molecule Hydrogen(mass_hydrogen);
-	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen, true, 1);
+	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen, true, 2);
 	Hydrogen_rect.brownian_rect(\
 		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y, \
 		-BOUNDARY_X, BOUNDARY_X, \
