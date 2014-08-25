@@ -51,14 +51,14 @@ int main (int argc, char* argv[])
 
 	Molecule Hydrogen(mass_hydrogen);
 	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen, true, 2);
-	Hydrogen_rect.brownian_rect(\
+	Hydrogen_rect.brownian_rect(
 		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y, \
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
 	Hydrogen_rect.write_log_rect(log_filename, ",");
 
-	//cout << "Press Enter (Return) key to continue..." << endl;
-	//cin.get();
+	cout << "Press Enter (Return) key to continue..." << endl;
+	cin.get();
 
 	return 0;
 }

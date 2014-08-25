@@ -53,9 +53,11 @@ private:
 	void log_status();
 	void advance_time();
 	std_str bool_to_yesno(bool logic);
+	std_str double_to_string(double input);
 
 	// Report Status
 	void print_status_rect();
+	std_str sprint_status_rect();
 	std_vec_d report_status_rect();
 
 	// reflecting in rectangular system

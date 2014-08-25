@@ -1,0 +1,6 @@
+* Current problem:
+	Physics library doesn't fit to GUI design. It cannot spray particle status for view during Monte-Carlo process.
+
+	Two options: (1) implement a wrapper class in GUI. (2) Write a new Physics class for GUI implementation.
+
+	
