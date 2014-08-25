@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <sstream>
 #include <fstream>
 #include "Physics.hpp"
 #include "Random.hpp"
@@ -46,6 +47,7 @@ void Physics::brownian_rect(\
 	double edge_left, double edge_right, \
 	double edge_top, double edge_bottom)
 {
+	/* Deprecated
 	// Display the system
 	cout << endl;
 	cout << "Edge information" << endl;
@@ -54,17 +56,14 @@ void Physics::brownian_rect(\
 	cout << "Top: " << edge_top << endl;
 	cout << "Bottom: " << edge_bottom << endl;
 	cout << endl;
-
+	*/
+	
 	std_vec_d proj_loc(2);
 	double time_frame;
 
 	// Initializing the first point with a random velocity vectors.
-	/*
-	this->curr_object->set_velocity(\
-		this->rand_gen->uniform((-1)*max_vel_x,max_vel_x), \
-		this->rand_gen->uniform((-1)*max_vel_y,max_vel_y));
-	*/
-	this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, (max_vel_x+max_vel_y)/2);
+	this->set_rand_velocity_rect(
+		max_vel_x / 2, max_vel_y / 3, (max_vel_x+max_vel_y)/2);
 
 	// Log status into the class.
 	this->log_status();
@@ -98,7 +97,8 @@ void Physics::brownian_rect(\
 			this->print_status_rect();
 		}
 
-		this->set_rand_velocity_rect(max_vel_x / 2, max_vel_y / 3, (max_vel_x+max_vel_y)/2);
+		this->set_rand_velocity_rect(
+			max_vel_x / 2, max_vel_y / 3, (max_vel_x+max_vel_y)/2);
 
 		this->log_status();
 
@@ -106,27 +106,27 @@ void Physics::brownian_rect(\
 }
 
 // Setting random velocity
-void Physics::set_rand_velocity_rect(\
+void Physics::set_rand_velocity_rect(
 	double paramA = 0., double paramB = 1., double paramC = 1.)
 {
-	this->curr_object->set_velocity(\
+	this->curr_object->set_velocity(
 		this->rand_double(paramA, paramB, paramC), \
 		this->rand_double(paramA, paramB, paramC));
 }
 
 // Setting random velocity for each axis
-void Physics::set_rand_velocity_rect_x(\
+void Physics::set_rand_velocity_rect_x(
 	double paramA = 0., double paramB = 1., double paramC = 1.)
 {
-	this->curr_object->set_xv(\
+	this->curr_object->set_xv(
 		this->rand_double(paramA, paramB, paramC));
 }
 
 // Setting random velocity for each axis
-void Physics::set_rand_velocity_rect_y(\
+void Physics::set_rand_velocity_rect_y(
 	double paramA = 0., double paramB = 1., double paramC = 1.)
 {
-	this->curr_object->set_yv(\
+	this->curr_object->set_yv(
 		this->rand_double(paramA, paramB, paramC));
 }
 
@@ -143,7 +143,7 @@ void Physics::select_RNG(unint rng_type)
 }
 
 // Returns random double number.
-double Physics::rand_double(\
+double Physics::rand_double(
 	double paramA = 0., double paramB = 1., double paramC = 1.)
 {
 	switch (this->rand_type) {
@@ -178,9 +178,8 @@ void Physics::update_status(\
 	this->reflected_status.push_back(refl);
 	this->time_trace.push_back(curr_time);
 
-	if (this->b_verbose == true) {
+	if (refl == true && this->b_verbose == true)
 		this->print_status_rect();
-	}
 }
 
 // Log status into Physics
@@ -238,6 +237,7 @@ std_vec_d Physics::report_status_rect()
 // Reporting status to the stdio on the way.
 void Physics::print_status_rect()
 {
+	/*
 	if (this->reflected_status.back() == true) {
 		cout << "** Reflected!! **" << endl;
 	}
@@ -253,6 +253,42 @@ void Physics::print_status_rect()
 	cout << "Time elapsed: " << info[5] \
 		<< " sec." << endl;
 	cout << endl;
+	*/
+
+	cout << this->sprint_status_rect().c_str();
+}
+
+// Report status with string.
+std_str Physics::sprint_status_rect()
+{
+	std_str report_str("");
+	if (this->reflected_status.back() == true) {
+		report_str = report_str + "\n** Reflected!! **\n";
+	}
+
+	std_vec_d info(7);
+	info = this->report_status_rect();
+	report_str = report_str + \
+		"Location: (" + this->double_to_string(info[0]) + "," \
+		+ this->double_to_string(info[1]) + ")\n";
+	report_str = report_str + \
+		"Velocity: <" + this->double_to_string(info[2]) + "," \
+		+ this->double_to_string(info[3]) + ">\n";
+	report_str = report_str + \
+		"Time elapsed: " + this->double_to_string(info[5]) + " sec.\n\n";
+
+	return report_str;
+}
+
+std_str Physics::double_to_string(double input)
+{
+	o_sstream out_sstream;
+	if (!(out_sstream << input)) {
+		throw "Bad Double to String stream Conversion!!";
+		exit(1);
+	}
+
+	return out_sstream.str();
 }
 
 // Logging the trace within a specified file.

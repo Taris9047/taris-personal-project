@@ -10,7 +10,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monte_Carlo", "Monte_Carlo\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics", "Physics\Physics.vcxproj", "{422FE0DB-52E8-49A9-A618-B9229D85D2F0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Monte_Carlo_GUI", "Monte_Carlo_GUI\Monte_Carlo_GUI.vcxproj", "{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BrownianGUI", "BrownianGUI\BrownianGUI.vcxproj", "{DD9E5D4B-B854-4006-A73A-F1996C8D6A53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{422FE0DB-52E8-49A9-A618-B9229D85D2F0} = {422FE0DB-52E8-49A9-A618-B9229D85D2F0}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +29,10 @@ Global
 		{422FE0DB-52E8-49A9-A618-B9229D85D2F0}.Debug|Win32.Build.0 = Debug|Win32
 		{422FE0DB-52E8-49A9-A618-B9229D85D2F0}.Release|Win32.ActiveCfg = Release|Win32
 		{422FE0DB-52E8-49A9-A618-B9229D85D2F0}.Release|Win32.Build.0 = Release|Win32
-		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Debug|Win32.Build.0 = Debug|Win32
-		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Release|Win32.ActiveCfg = Release|Win32
-		{4BE38A9D-B8B7-43EA-B4B7-CA9F8A677B49}.Release|Win32.Build.0 = Release|Win32
+		{DD9E5D4B-B854-4006-A73A-F1996C8D6A53}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DD9E5D4B-B854-4006-A73A-F1996C8D6A53}.Debug|Win32.Build.0 = Debug|Win32
+		{DD9E5D4B-B854-4006-A73A-F1996C8D6A53}.Release|Win32.ActiveCfg = Release|Win32
+		{DD9E5D4B-B854-4006-A73A-F1996C8D6A53}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
