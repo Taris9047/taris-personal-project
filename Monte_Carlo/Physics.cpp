@@ -237,24 +237,6 @@ std_vec_d Physics::report_status_rect()
 // Reporting status to the stdio on the way.
 void Physics::print_status_rect()
 {
-	/*
-	if (this->reflected_status.back() == true) {
-		cout << "** Reflected!! **" << endl;
-	}
-
-	std_vec_d info(7);
-
-	info = this->report_status_rect();
-
-	cout << "Location: (" << info[0] << \
-		 "," << info[1] << ")" << endl;
-	cout << "Velocity: <" << info[2] << \
-		 "," << info[3] << ">" << endl;
-	cout << "Time elapsed: " << info[5] \
-		<< " sec." << endl;
-	cout << endl;
-	*/
-
 	cout << this->sprint_status_rect().c_str();
 }
 
@@ -263,19 +245,19 @@ std_str Physics::sprint_status_rect()
 {
 	std_str report_str("");
 	if (this->reflected_status.back() == true) {
-		report_str = report_str + "\n** Reflected!! **\n";
+		report_str = report_str + "\r\n** Reflected!! **\r\n";
 	}
 
 	std_vec_d info(7);
 	info = this->report_status_rect();
 	report_str = report_str + \
 		"Location: (" + this->double_to_string(info[0]) + "," \
-		+ this->double_to_string(info[1]) + ")\n";
+		+ this->double_to_string(info[1]) + ")\r\n";
 	report_str = report_str + \
 		"Velocity: <" + this->double_to_string(info[2]) + "," \
-		+ this->double_to_string(info[3]) + ">\n";
+		+ this->double_to_string(info[3]) + ">\r\n";
 	report_str = report_str + \
-		"Time elapsed: " + this->double_to_string(info[5]) + " sec.\n\n";
+		"Time elapsed: " + this->double_to_string(info[5]) + " sec.\r\n\r\n";
 
 	return report_str;
 }
@@ -318,6 +300,32 @@ void Physics::write_log_rect(std_str outfile_name, std_str cDelim = "\t")
 
 	trace_record.close();
 	cout << "File saved as ... " << outfile_name << endl;
+}
+
+// Return history with string.
+std_str Physics::extract_log_rect(std_str cDelim = "\t")
+{
+	ostringstream trace_record;
+	trace_record << "\"Coord X\"" << cDelim << "\"Coord Y\"" \
+		<< cDelim << "\"Velocity X\"" << cDelim << "\"Velocity Y\"" \
+		<< cDelim << "\"Mass (g)\"" << cDelim << "\"Reflected\"" \
+		<< cDelim << "\"Time\"" \
+		<< "\r\n";
+
+	unint log_size = this->time_trace.size();
+
+	for (unint i = 0; i < log_size; i++) {
+		trace_record << this->double_to_string(this->x_loc.at(i)) << cDelim << \
+			this->double_to_string(this->y_loc.at(i)) << cDelim << \
+			this->double_to_string(this->x_vel.at(i)) << cDelim << \
+			this->double_to_string(this->y_vel.at(i)) << cDelim << \
+			this->double_to_string(this->curr_object->read_mass()) << cDelim << \
+			this->bool_to_yesno(this->reflected_status.at(i)) << cDelim << \
+			this->double_to_string(this->time_trace.at(i)) << \
+			"\r\n";
+	}
+
+	return trace_record.str();
 }
 
 // A little tool to convert bool type to understandable string.

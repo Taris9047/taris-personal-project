@@ -32,6 +32,8 @@ void CBrownianGUIDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CBrownianGUIDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDEXIT, &CBrownianGUIDlg::OnBnClickedExit)
+	ON_BN_CLICKED(ID_RUN, &CBrownianGUIDlg::OnBnClickedRun)
 END_MESSAGE_MAP()
 
 
@@ -104,4 +106,52 @@ bool CBrownianGUIDlg::AddTextToStatus(CString CStrText)
 	c_pStatus.ReplaceSel(CStrText);
 
 	return TRUE;
+}
+
+bool CBrownianGUIDlg::AddTextToStatus(std_str CStrText)
+{
+	int nTextLength = c_pStatus.GetWindowTextLengthW();
+	c_pStatus.SetSel(nTextLength, nTextLength);
+	c_pStatus.ReplaceSel(CString(CStrText.c_str()));
+
+	return TRUE;
+}
+
+bool CBrownianGUIDlg::AddTextToStatus(const char* CStrText)
+{
+	int nTextLength = c_pStatus.GetWindowTextLengthW();
+	c_pStatus.SetSel(nTextLength, nTextLength);
+	c_pStatus.ReplaceSel(CString(CStrText));
+
+	return TRUE;
+}
+
+void CBrownianGUIDlg::OnBnClickedExit()
+{
+	// TODO: Add your control notification handler code here
+	EndDialog(IDCANCEL);
+}
+
+
+void CBrownianGUIDlg::OnBnClickedRun()
+{
+	// TODO: Add your control notification handler code here
+	AddTextToStatus("\n\n");
+
+	double cal_time = 100.;
+	double unit_time = 1.;
+
+	double vel_limit = 1000.;
+	double boundary = 1000.;
+
+	Molecule* an_object = new Molecule(0.1);
+	Physics* Rect_Estimation = new Physics(cal_time, unit_time, an_object, true, 2);
+
+	Rect_Estimation->brownian_rect(
+		vel_limit, vel_limit, \
+		boundary*(-1), boundary, \
+		boundary, boundary*(-1));
+
+	CString status_log(Rect_Estimation->extract_log_rect("\t").c_str());
+	AddTextToStatus(status_log);
 }
