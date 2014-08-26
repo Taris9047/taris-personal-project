@@ -31,4 +31,8 @@ protected:
 public:
 	CEdit c_pStatus;
 	bool AddTextToStatus(CString CStrText);
+	bool AddTextToStatus(std_str CStrText);
+	bool AddTextToStatus(const char* CStrText);
+	afx_msg void OnBnClickedExit();
+	afx_msg void OnBnClickedRun();
 };

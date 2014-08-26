@@ -73,6 +73,8 @@ public:
 
     // Write current history into a file
 	void write_log_rect(std_str outfile_name, std_str cDelim); 
+	// Extract current history with a std::string
+	std_str extract_log_rect(std_str cDelim);
 
 	// Constructures and Destructors
 	Physics();
