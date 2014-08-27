@@ -46,16 +46,23 @@ int main (int argc, char* argv[])
 
 	cout << "Calculation Time: " << cal_time*unit_time << endl;
 
-	string log_filename = "trace.csv";
+	std_str log_filename = "trace.csv";
+	std_str gPlot_filename = "plot.gp";
 	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
 
 	Molecule Hydrogen(mass_hydrogen);
-	Physics Hydrogen_rect(cal_time, unit_time, &Hydrogen, true, 2);
-	Hydrogen_rect.brownian_rect(
-		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y, \
+	Physics Hydrogen_rect(&Hydrogen, cal_time, unit_time, true, 2);
+	Hydrogen_rect.set_dimension_rect(
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
-	Hydrogen_rect.write_log_rect(log_filename, ",");
+	Hydrogen_rect.brownian_rect(
+		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y);
+	Hydrogen_rect.write_log_rect(log_filename, ",", "\n");
+
+	cout << endl;
+
+	cout << "Generating Gnuplot input deck." << endl;
+	
 
 	cout << "Press Enter (Return) key to continue..." << endl;
 	cin.get();
