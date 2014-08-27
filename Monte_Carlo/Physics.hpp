@@ -1,6 +1,15 @@
 #ifndef PHYSICS_HPP
 #define PHYSICS_HPP
 
+#include <cmath>
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+#include <sstream>
+#include <fstream>
 #include "data_types.hpp"
 #include "Molecule.hpp"
 #include "Random.hpp"

@@ -5,7 +5,7 @@ CFLAGS=-O3 -g -Wall
 LIB_CYG=-L./ -l:
 LIBDIR=./
 PHYSICS_LIB=Physics
-OBJ=Molecule.o Physics.o Photon.o Random.o
+OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o
 TARGET=brownian
 
 all: brownian
@@ -32,6 +32,9 @@ Random.o: Random.cpp Random.hpp
 
 Physics.o: Physics.cpp Physics.hpp 
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Physics.cpp 
+
+GnuplotGen.o: Gnuplot_Gen.cpp Gnuplot_Gen.hpp
+	$(CXX) $(CFLAGS) -fPIC -o $@ -c Gnuplot_Gen.cpp
 
 libPhysics.so: $(OBJ)
 	$(CXX) -shared -o $@ $(OBJ)

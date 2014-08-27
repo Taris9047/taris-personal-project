@@ -1,15 +1,6 @@
 #ifndef PHYSICS_CPP
 #define PHYSICS_CPP
 
-#include <cmath>
-#include <iostream>
-#include <vector>
-#include <stdexcept>
-#include <cstdlib>
-#include <ctime>
-#include <string>
-#include <sstream>
-#include <fstream>
 #include "Physics.hpp"
 #include "Random.hpp"
 

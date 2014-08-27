@@ -4,12 +4,13 @@
 #include <sstream>
 #include "Molecule.hpp"
 #include "Physics.hpp"
+#include "Gnuplot_Gen.hpp"
 
-#define UNIT_MASS 1.660538921E-25 
+#define UNIT_MASS 1.660538921E-25
 #define BOUNDARY_X 1000.
 #define BOUNDARY_Y 1000.
-#define VELOCITY_LIMIT_X 1000.
-#define VELOCITY_LIMIT_Y 1000.
+#define VELOCITY_LIMIT_X BOUNDARY_X/3.
+#define VELOCITY_LIMIT_Y BOUNDARY_Y/3.
 #define CAL_TIME 20.
 #define UNIT_TIME 1.
 
@@ -47,10 +48,16 @@ int main (int argc, char* argv[])
 	cout << "Calculation Time: " << cal_time*unit_time << endl;
 
 	std_str log_filename = "trace.csv";
+	std_str fig_filename = "trace.eps";
 	std_str gPlot_filename = "plot.gp";
+	
 	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
 
 	Molecule Hydrogen(mass_hydrogen);
+	GnuplotGen Hydrogen_rect_plot("plot.gp", log_filename, fig_filename);
+	Hydrogen_rect_plot.set_dimension_rect(
+		-BOUNDARY_X, BOUNDARY_X, \
+		BOUNDARY_Y, -BOUNDARY_Y);
 	Physics Hydrogen_rect(&Hydrogen, cal_time, unit_time, true, 2);
 	Hydrogen_rect.set_dimension_rect(
 		-BOUNDARY_X, BOUNDARY_X, \
@@ -62,7 +69,7 @@ int main (int argc, char* argv[])
 	cout << endl;
 
 	cout << "Generating Gnuplot input deck." << endl;
-	
+	Hydrogen_rect_plot.WriteDeck();
 
 	cout << "Press Enter (Return) key to continue..." << endl;
 	cin.get();
