@@ -5,7 +5,7 @@ import wx
 app = wx.App()
 
 frame = wx.Frame(None, -1, 'simple.py')
-frame.show()
+frame.Show()
 
 app.MainLoop()
 

@@ -50,11 +50,12 @@ int main (int argc, char* argv[])
 	std_str log_filename = "trace.csv";
 	std_str fig_filename = "trace.eps";
 	std_str gPlot_filename = "plot.gp";
-	
+
 	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
 
 	Molecule Hydrogen(mass_hydrogen);
-	GnuplotGen Hydrogen_rect_plot("plot.gp", log_filename, fig_filename);
+	GnuplotGen Hydrogen_rect_plot(
+		"plot.gp", log_filename, fig_filename);
 	Hydrogen_rect_plot.set_dimension_rect(
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
