@@ -1,9 +1,6 @@
 #ifndef MOLECULE_CPP
 #define MOLECULE_CPP
 
-#include <iostream>
-#include <cmath>
-#include <vector>
 #include "Molecule.hpp"
 
 using namespace std;

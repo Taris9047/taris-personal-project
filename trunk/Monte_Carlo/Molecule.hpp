@@ -1,6 +1,9 @@
 #ifndef MOLECULE_HPP
 #define MOLECULE_HPP
 
+#include <iostream>
+#include <cmath>
+#include <vector>
 #include "data_types.hpp"
 
 class Molecule
