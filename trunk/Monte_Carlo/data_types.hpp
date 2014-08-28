@@ -14,5 +14,7 @@ typedef std::string std_str;
 typedef std::ostringstream o_sstream;
 
 typedef unsigned int unint;
+typedef unsigned long ulong;
+typedef unsigned long long ullong;
 
 #endif

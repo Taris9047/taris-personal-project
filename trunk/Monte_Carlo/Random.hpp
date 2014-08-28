@@ -10,7 +10,9 @@ class Random
 private:
 	double beta_f(double x, double y);
 	double gamma_f(double t);
-	unint factorial(unint n); // Do not use an input over 100!!! it will crash!
+	ullong factorial(ullong n); // Do not use an input over 100!!! it will crash!
+	ullong p(); // returns 0 or 1
+	long p_bipolar(); // returns 0, 1, or -1
 
 public:
 	// For... you know... redandancy. A seed generator, if needed.
@@ -23,9 +25,11 @@ public:
 	// Beta distribution 	
 	double beta(double a, double b, double amplitude);
 	// Binomial distribution
-	double binomial(unint n, unint p);
+	double binomial(ullong n, ullong p, double amplitude);
 	// Chi-square distribution
-	double chi_square(double k);
+	double chi_square(double k, double amplitude);
+	// Poisson distribution
+	double poisson(double lambda, ullong k, double amplitude);
 
 	Random();
 	~Random();

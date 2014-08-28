@@ -6,8 +6,11 @@
 #include <ctime>
 #include "Random.hpp"
 
+#include <iostream>
+
 // Needs adjustment for better precision. Basically, this is Infinity!
-#define INF 1E15 
+#define INF 1E10 
+#define FACTORIAL_MAX 20
 
 //////////////////////////////////
 // Probablity Density Functions //
@@ -29,27 +32,53 @@ double Random::gaussian(double mean, double sigma, double amplitude = 1.)
 double Random::beta(double a, double b, double amplitude = 1.)
 {
 	double x = this->uniform(0, 1.0);
-	return amplitude*(1/this->beta_f(a, b))*pow(x, a-1)*pow(1-x, b-1);
+	return amplitude*p_bipolar()*pow(x, a-1)*pow(1-x, b-1)/this->beta_f(a, b);
 }
 
 // Binomial distribution
-double Random::binomial(unint n, unint p)
+double Random::binomial(ullong n, ullong k, double amplitude = 1.)
 {
-	unint x = rand()%100;
+	if (k > n)
+		k = n;
 
-	return this->factorial(n)/(factorial(x)*factorial(n-x))*pow(p,x)*pow(1-p,n-x);
+	// Adjusting number to avoid overflow
+	if (n > FACTORIAL_MAX)
+		n = FACTORIAL_MAX;
+	if (k > FACTORIAL_MAX)
+		k = FACTORIAL_MAX;
+
+	double p = this->p();
+
+	return amplitude*((double)this->p_bipolar()*this->factorial(n)/(factorial(k)*factorial(n-k))*pow(p,n)*pow(1-p,n-k));
 }
 
 // Chi-square distribution
-double Random::chi_square(double k)
+double Random::chi_square(double k, double amplitude)
 {
-	double x = this->uniform(-20, 20);
-	return (1/(pow(2, k/2)*this->gamma_f(k/2)))*pow(x,(k/2)-1)*exp(x/(-2));
+	double x = this->uniform(0, INF);
+
+	if (x < 0)
+		return 0;
+	else
+		return amplitude*(1/(pow(2, k/2)*this->gamma_f(k/2)))*pow(x,(k/2)-1)*exp(x/(-2));
 }
 
-///////////////
-// Utilities //
-///////////////
+// Poisson distribution
+double Random::poisson(double lambda, ullong k, double amplitude = 1.)
+{
+	if (k > FACTORIAL_MAX)
+		k = FACTORIAL_MAX;
+
+	return (double) amplitude*pow(lambda,(double)k)*exp(lambda*(-1))/(double)factorial(k);
+
+}
+
+
+
+
+//////////////////////////
+//      Utilities       //
+//////////////////////////
 
 // Seed Generator
 void Random::Seed_Rand()
@@ -58,14 +87,12 @@ void Random::Seed_Rand()
 }
 
 // Factorial
-unint Random::factorial(unint n)
+ullong Random::factorial(ullong n)
 {
-	if (n == 0) {
+	if (n <= 1)
 		return 1;
-	}
-	else {
+	else 
 		return this->factorial(n-1)*n;
-	}
 }
 
 
@@ -101,6 +128,18 @@ double Random::gamma_f(double t)
 	} while (t <= 20); 
 
 	return gamma_int;
+}
+
+// p: returns 0 or 1
+ullong Random::p()
+{
+	return rand()%2;
+}
+
+// p_bipolar: returns -1, 0, or 1
+long Random::p_bipolar()
+{
+	return (long)pow(-1, rand()%2)*rand()%2;
 }
 
 

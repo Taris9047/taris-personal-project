@@ -18,7 +18,8 @@
 
 // Currently, contains only reflection handler.
 
-class Physics: public Random
+class Physics 
+	: public virtual Random
 {
 private:
 	// Setting up time and time scale.
@@ -99,16 +100,16 @@ public:
 	// Constructures and Destructors
 	Physics(Molecule* Thing);
 	Physics(Molecule* Thing, bool verbose);
-	Physics(Molecule* Thing, double time_limit, double time_sc);
-	Physics(Molecule* Thing, double time_limit, double time_sc,\
+	Physics(Molecule* Thing, double time_lim, double time_sc);
+	Physics(Molecule* Thing, double time_lim, double time_sc,\
 		bool verbose);
-	Physics(Molecule* Thing, double time_limit, double time_sc,\
-		bool verbose, unint rand_type);
-	Physics(Molecule* Thing, double time_limit, double time_sc,\
+	Physics(Molecule* Thing, double time_lim, double time_sc,\
+		bool verbose, unint rnd_type);
+	Physics(Molecule* Thing, double time_lim, double time_sc,\
 		double rect_left, double rect_right,\
 		double rect_top, double rect_bottom,\
 		bool verbose,\
-		unint rand_type);
+		unint rnd_type);
 	~Physics();
 
 };

@@ -21,16 +21,16 @@ using namespace std;
 void Photon::set_velocity(double xv, double yv)
 {
 	double vel_vec = sqrt(pow(xv,2)+pow(yv,2));
-	this->current_velocity.xv = \
+	current_velocity.xv = \
 		LIGHT_SPEED*xv/vel_vec;
-	this->current_velocity.yv = \
+	current_velocity.yv = \
 		LIGHT_SPEED*yv/vel_vec;
 }
 
 void Photon::set_location(double x, double y)
 {
-	this->current_coord.x = x;
-	this->current_coord.y = y;
+	current_coord.x = x;
+	current_coord.y = y;
 }
 
 // Setting up physicsl properties
@@ -39,41 +39,41 @@ void Photon::set_location(double x, double y)
 // lambda = c/f
 void Photon::set_wavelength(double lambda)
 {
-	this->m_lambda = lambda;
-	this->m_freq = this->m_lambda/this->current_velocity.vel;
-	this->m_energy = PLANK_RECUDED_EV*this->m_freq;
+	m_lambda = lambda;
+	m_freq = m_lambda/current_velocity.vel;
+	m_energy = PLANK_RECUDED_EV*m_freq;
 }
 
 void Photon::set_energy(double e)
 {
-	this->m_energy = e;
-	this->m_freq = this->m_energy/PLANK_RECUDED_EV;
-	this->m_lambda = this->current_velocity.vel/this->m_freq;
+	m_energy = e;
+	m_freq = m_energy/PLANK_RECUDED_EV;
+	m_lambda = current_velocity.vel/m_freq;
 }
 
 void Photon::set_frequency(double freq)
 {
-	this->m_freq = freq;
-	this->m_lambda = this->current_velocity.vel/m_freq;
-	this->m_energy = PLANK_RECUDED_EV*this->m_freq;
+	m_freq = freq;
+	m_lambda = current_velocity.vel/m_freq;
+	m_energy = PLANK_RECUDED_EV*m_freq;
 }
 
 void Photon::set_light_speed(double light_spd)
 {
 	double curr_spd = sqrt(\
-		pow(this->current_velocity.xv,2) + \
-		pow(this->current_velocity.yv,2));
-	this->current_velocity.vel = light_spd;
-	this->current_velocity.xv = this->current_velocity.xv/curr_spd*light_spd;
-	this->current_velocity.yv = this->current_velocity.yv/curr_spd*light_spd; 
+		pow(current_velocity.xv,2) + \
+		pow(current_velocity.yv,2));
+	current_velocity.vel = light_spd;
+	current_velocity.xv = current_velocity.xv/curr_spd*light_spd;
+	current_velocity.yv = current_velocity.yv/curr_spd*light_spd; 
 }
 
 void Photon::print_info()
 {
 	cout << endl;
-	cout <<"Location: (" << this->current_coord.x << ", " << this->current_coord.y << ")" << endl;
-	cout << "Velocity: <" << this->current_velocity.xv << ", " << this->current_velocity.yv << ">" << endl;
-	cout << "Frequency: " << this->m_freq << " Hz" << endl;
+	cout <<"Location: (" << current_coord.x << ", " << current_coord.y << ")" << endl;
+	cout << "Velocity: <" << current_velocity.xv << ", " << current_velocity.yv << ">" << endl;
+	cout << "Frequency: " << m_freq << " Hz" << endl;
 	cout << endl;
 }
 
@@ -81,13 +81,13 @@ std_vec_d Photon::read_info()
 {
 	std_vec_d info(7);
 
-	info[0] = this->current_coord.x;
-	info[1] = this->current_coord.y;
-	info[2] = this->current_velocity.xv;
-	info[3] = this->current_velocity.yv;
-	info[4] = this->m_freq;
-	info[5] = this->m_energy;
-	info[6] = this->m_lambda;
+	info[0] = current_coord.x;
+	info[1] = current_coord.y;
+	info[2] = current_velocity.xv;
+	info[3] = current_velocity.yv;
+	info[4] = m_freq;
+	info[5] = m_energy;
+	info[6] = m_lambda;
 
 	return info;
 }
@@ -95,61 +95,61 @@ std_vec_d Photon::read_info()
 // Reading parameters one by one.
 double Photon::x()
 {
-	return this->current_coord.x;
+	return current_coord.x;
 }
 
 double Photon::y()
 {
-	return this->current_coord.y;
+	return current_coord.y;
 }
 
 double Photon::xv()
 {
-	return this->current_velocity.xv;
+	return current_velocity.xv;
 }
 
 double Photon::yv()
 {
-	return this->current_velocity.yv;
+	return current_velocity.yv;
 }
 
 double Photon::vel()
 {
-	return this->current_velocity.vel;
+	return current_velocity.vel;
 }
 
 double Photon::energy()
 {
-	return this->m_energy;
+	return m_energy;
 }
 
 double Photon::freq()
 {
-	return this->m_freq;
+	return m_freq;
 }
 
 double Photon::wavelength()
 {
-	return this->m_lambda;
+	return m_lambda;
 }
 
 // Constructors and Destructors
 Photon::Photon()
 {
-	this->current_coord.x = 0;
-	this->current_coord.y = 0;
-	this->current_velocity.vel = LIGHT_SPEED;
-	this->set_velocity(1., 1.);
-	this->set_frequency(5000000);
+	current_coord.x = 0;
+	current_coord.y = 0;
+	current_velocity.vel = LIGHT_SPEED;
+	set_velocity(1., 1.);
+	set_frequency(5000000);
 }
 
 Photon::Photon(double x, double y, double xv, double yv, double freq)
 {
-	this->current_coord.x = x;
-	this->current_coord.y = y;
-	this->current_velocity.vel = LIGHT_SPEED;
-	this->set_velocity(xv, yv);
-	this->set_frequency(freq);
+	current_coord.x = x;
+	current_coord.y = y;
+	current_velocity.vel = LIGHT_SPEED;
+	set_velocity(xv, yv);
+	set_frequency(freq);
 }
 
 Photon::~Photon()
