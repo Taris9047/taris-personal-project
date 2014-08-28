@@ -36,7 +36,7 @@ void Physics::advance_time()
 void Physics::brownian_rect(double max_vel_x, double max_vel_y)
 {
 	std_vec_d proj_loc(2);
-	double time_frame;
+	double time_frame = this->time_scale;
 
 	if (this->b_verbose) {
 		show_dimension_rect("\n");
@@ -55,9 +55,7 @@ void Physics::brownian_rect(double max_vel_x, double max_vel_y)
 		if ( (this->time_elapsed + this->time_scale) > this->time_limit )
 		   	time_frame = this->time_limit - this->time_elapsed;
         	if ( time_frame == 0 ) break;
-        else 
-        	time_frame = this->time_scale;
-        
+         
 		proj_loc = proj_loc_rect(time_frame);
 
 		if (proj_loc[0] < this->edge_left || proj_loc[0] > this->edge_right \
