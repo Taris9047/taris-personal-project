@@ -13,6 +13,7 @@
 #define VELOCITY_LIMIT_Y BOUNDARY_Y/3.
 #define CAL_TIME 20.
 #define UNIT_TIME 1.
+#define RNG_TYPE 2.
 
 using namespace std;
 
@@ -20,15 +21,19 @@ int main (int argc, char* argv[])
 {
 	double cal_time;
 	double unit_time;
+	unsigned int rng_type;
+
+	// Initializing input parameters.
+	cal_time = CAL_TIME;
+	unit_time = UNIT_TIME;
+	rng_type = RNG_TYPE;
 
 	if (argc == 2) {
 		stringstream convert(argv[1]);
 		if ( !(convert >> cal_time) ) {
 			cal_time = CAL_TIME;
 		}
-
-		unit_time = UNIT_TIME;
-	}	
+	}
 	else if (argc == 3) {
 		stringstream converta(argv[1]);
 		if ( !(converta >> cal_time) ) {
@@ -40,9 +45,19 @@ int main (int argc, char* argv[])
 			unit_time = UNIT_TIME;
 		}	
 	}
-	else {
-		cal_time = CAL_TIME;
-		unit_time = UNIT_TIME;
+	else if (argc == 4) {
+		stringstream converta(argv[1]);
+		if ( !(converta >> cal_time) ) {
+			cal_time = CAL_TIME;
+		}
+		stringstream convertb(argv[2]);
+		if ( !(convertb >> unit_time)) {
+			unit_time = UNIT_TIME;
+		}
+		stringstream convertc(argv[3]);
+		if ( !(convertc >> rng_type)) {
+			rng_type = RNG_TYPE;
+		}
 	}
 
 	cout << "Calculation Time: " << cal_time*unit_time << endl;
@@ -59,7 +74,7 @@ int main (int argc, char* argv[])
 	Hydrogen_rect_plot.set_dimension_rect(
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
-	Physics Hydrogen_rect(&Hydrogen, cal_time, unit_time, true, 2);
+	Physics Hydrogen_rect(&Hydrogen, cal_time, unit_time, true, rng_type);
 	Hydrogen_rect.set_dimension_rect(
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
