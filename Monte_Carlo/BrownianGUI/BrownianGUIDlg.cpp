@@ -145,13 +145,13 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	double boundary = 1000.;
 
 	Molecule* an_object = new Molecule(0.1);
-	Physics* Rect_Estimation = new Physics(cal_time, unit_time, an_object, true, 2);
+	Physics* Rect_Estimation = new Physics(an_object, cal_time, unit_time, true, 2);
+
+	Rect_Estimation->set_dimension_rect((-1)*boundary, boundary, boundary, (-1)*boundary);
 
 	Rect_Estimation->brownian_rect(
-		vel_limit, vel_limit, \
-		boundary*(-1), boundary, \
-		boundary, boundary*(-1));
+		vel_limit, vel_limit);
 
-	CString status_log(Rect_Estimation->extract_log_rect("\t").c_str());
+	CString status_log(Rect_Estimation->extract_log_rect("\t", "\r\n").c_str());
 	AddTextToStatus(status_log);
 }

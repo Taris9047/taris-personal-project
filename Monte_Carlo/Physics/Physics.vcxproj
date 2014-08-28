@@ -78,12 +78,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\data_types.hpp" />
+    <ClInclude Include="..\Gnuplot_Gen.hpp" />
     <ClInclude Include="..\Molecule.hpp" />
     <ClInclude Include="..\Photon.hpp" />
     <ClInclude Include="..\Physics.hpp" />
     <ClInclude Include="..\Random.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Gnuplot_Gen.cpp" />
     <ClCompile Include="..\Molecule.cpp" />
     <ClCompile Include="..\Photon.cpp" />
     <ClCompile Include="..\Physics.cpp" />
