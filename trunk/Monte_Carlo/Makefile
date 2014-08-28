@@ -1,12 +1,11 @@
 CC=gcc
 CXX=g++
 CFLAGS=-O3 -g -Wall
-#CFLAGS=-g -Wall
-LIB_CYG=-L./ -l:
-LIBDIR=./
 PHYSICS_LIB=Physics
-OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o
 TARGET=brownian
+LIBDIR=./
+LIB_CYG=-L$(LIBDIR) -l:
+OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o
 
 all: brownian
 
@@ -19,7 +18,7 @@ run: brownian
 	./run.sh 
 
 brownian: brownian.cpp libPhysics.so
-	$(CXX) $(CFLAGS) -o $@ brownian.cpp -L$(LIBDIR) -l$(PHYSICS_LIB)
+	$(CXX) $(CFLAGS) -o $(TARGET) brownian.cpp -L$(LIBDIR) -l$(PHYSICS_LIB)
 
 Molecule.o: Molecule.cpp Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Molecule.cpp
@@ -44,5 +43,5 @@ cyg$(PHYSICS_LIB).so: $(OBJ)
 
 clean:
 	rm -vrf ./*.o ./*.so ./trace.* 
-	rm -vrf ./brownian ./brownian_portable
-	rm -vrf ./brownian.dSYM ./brownian_portable.dSYM
+	rm -vrf ./$(TARGET) ./$(TARGET).exe 
+	rm -vrf ./*.dSYM
