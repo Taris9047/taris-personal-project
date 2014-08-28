@@ -15,7 +15,14 @@ void MainDialog::OnIDEXITClicked(wxCommandEvent& event)
 }
 void MainDialog::OnIDHELLOClicked(wxCommandEvent& event)
 {
-	m_staticTextHello->SetLabel("Hello, World!!");
-	m_textCtrlHello->Remove(0, m_textCtrlHello->GetLastPosition());
-	m_textCtrlHello->WriteText("Hello, World!!!");
+	if (m_checkBoxHello->GetValue()) {
+		m_staticTextHello->SetLabel("Hello, WxWorld!!");
+		m_textCtrlHello->Remove(0, m_textCtrlHello->GetLastPosition());
+		m_textCtrlHello->WriteText("Yey");	}
+	else {
+		m_staticTextHello->SetLabel("Hello, World!!");
+		m_textCtrlHello->Remove(0, m_textCtrlHello->GetLastPosition());
+		m_textCtrlHello->WriteText("Hello, World!!!");
+	}
+	
 }

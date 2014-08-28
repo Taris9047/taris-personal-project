@@ -39,6 +39,11 @@ MainDialogBaseClass::MainDialogBaseClass(wxWindow* parent, wxWindowID id, const 
     
     mainSizer->Add(m_textCtrlHello, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     
+    m_checkBoxHello = new wxCheckBox(this, wxID_ANY, _("Alternate Hello"), wxDefaultPosition, wxSize(-1,-1), 0);
+    m_checkBoxHello->SetValue(false);
+    
+    mainSizer->Add(m_checkBoxHello, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    
     m_staticLine15 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1,-1), wxLI_HORIZONTAL);
     
     mainSizer->Add(m_staticLine15, 0, wxALL|wxEXPAND, 5);

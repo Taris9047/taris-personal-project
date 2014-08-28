@@ -16,6 +16,7 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/checkbox.h>
 #include <wx/statline.h>
 #include <wx/button.h>
 
@@ -28,6 +29,7 @@ public:
 protected:
     wxStaticText* m_staticTextHello;
     wxTextCtrl* m_textCtrlHello;
+    wxCheckBox* m_checkBoxHello;
     wxStaticLine* m_staticLine15;
     wxButton* m_buttonHello;
     wxButton* m_buttonEXIT;
