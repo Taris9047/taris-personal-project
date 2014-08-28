@@ -343,7 +343,7 @@ void Physics::write_log_rect(
 		<< linbreak;
 	trace_record << scientific;
 
-	unint log_size = time_trace.size();
+	ulong log_size = time_trace.size();
 
 	for (unint i=0; i < log_size; i++) {
 		trace_record << x_loc.at(i) << cDelim << \
@@ -371,7 +371,7 @@ std_str Physics::extract_log_rect(
 		<< cDelim << "\"Time\"" \
 		<< linbreak;
 
-	unint log_size = time_trace.size();
+	ulong log_size = time_trace.size();
 
 	for (unint i = 0; i < log_size; i++) {
 		trace_record << double_to_string(x_loc.at(i)) << cDelim << \
