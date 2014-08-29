@@ -69,12 +69,6 @@ private:
 	std_str bool_to_yesno(bool logic);
 	std_str double_to_string(double input);
 
-	// Report Status
-	void print_status_rect();
-	std_str sprint_status_rect(std_str linbreak);
-	std_vec_d report_status_rect();
-	std_str show_dimension_rect(std_str linbreak);
-
 	// reflecting in rectangular system
 	void reflect_rect(double time_frame);
 
@@ -97,6 +91,12 @@ public:
 	bool set_Molecule(Molecule* Thing);
 	void select_RNG(unint rng_type);
 
+	// Report Status
+	void print_status_rect();
+	std_str sprint_status_rect(std_str linbreak);
+	std_vec_d report_status_rect();
+	std_str show_dimension_rect(std_str linbreak);
+	
 	// Constructures and Destructors
 	Physics(Molecule* Thing);
 	Physics(Molecule* Thing, bool verbose);
