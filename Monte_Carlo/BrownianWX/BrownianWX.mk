@@ -39,9 +39,9 @@ LinkOptions            :=  $(shell wx-config --libs)
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../ 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := 
-ArLibs                 :=  
-LibPath                := $(LibraryPathSwitch). 
+Libs                   := $(LibrarySwitch)Physics 
+ArLibs                 :=  "Physics" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)Physics 
 
 ##
 ## Common variables
