@@ -43,6 +43,7 @@ void MainDialog::OnBtnRunClicked(wxCommandEvent& event)
 	current_rect_system->brownian_rect(velocity_max_x, velocity_max_y);
 	brownian_report = current_rect_system->sprint_status_rect("\n");
 	
+	m_textReport->WriteText("\n");
 	m_textReport->WriteText(brownian_report.c_str());
 }
 

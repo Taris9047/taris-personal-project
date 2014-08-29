@@ -41,7 +41,7 @@ IncludePCH             :=
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)Physics 
 ArLibs                 :=  "Physics" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)Physics 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)./Physics/Debug 
 
 ##
 ## Common variables
@@ -50,7 +50,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)Physics
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++ 
 CC       := /usr/bin/gcc 
-CXXFLAGS :=  -g -O3 -Wall $(shell wx-config --cxxflags) $(Preprocessors)
+CXXFLAGS :=  -g -O3 -Wall $(shell wx-config --cflags --debug --unicode=yes) $(Preprocessors)
 CFLAGS   :=  -g -O3 -Wall  $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as 
@@ -61,6 +61,7 @@ AS       := /usr/bin/as
 ##
 CodeLiteDir:=/Users/Taris/Downloads/codelite.app/Contents/SharedSupport/
 PATH:=/usr/local/bin/:/usr/bin:$PATH
+DYLD_LIBRARY_PATH:=./Physics/Debug
 Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainDialog.cpp$(ObjectSuffix) 
 
 
