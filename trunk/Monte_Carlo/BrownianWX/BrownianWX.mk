@@ -41,7 +41,7 @@ IncludePCH             :=
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)Physics 
 ArLibs                 :=  "Physics" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)./Physics/Debug 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspacePath)/Physics/Debug 
 
 ##
 ## Common variables
@@ -50,7 +50,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)./Physics/De
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++ 
 CC       := /usr/bin/gcc 
-CXXFLAGS :=  -g -O3 -Wall $(shell wx-config --cflags --debug --unicode=yes) $(Preprocessors)
+CXXFLAGS :=  -g -O3 -Wall $(shell wx-config --cxxflags --debug --unicode=yes) $(Preprocessors)
 CFLAGS   :=  -g -O3 -Wall  $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as 

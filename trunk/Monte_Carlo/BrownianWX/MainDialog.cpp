@@ -31,17 +31,21 @@ void MainDialog::OnBtnRunClicked(wxCommandEvent& event)
 	double time_limit = 1000.;
 	double time_scale = 1.;
 	std::string brownian_report; 
+		
+	// Better set dimnesions and velocity here but now... just skip it.
 	
-	
-	// should set dimnesions here but now... just skip it.
 	
 	Molecule* current_molecule = new Molecule();
 	Physics* current_rect_system = 
 		new Physics(current_molecule, time_limit, time_scale);
 	
-	current_rect_system->set_dimension_rect(dim_left, dim_right, dim_top, dim_bottom);
-	current_rect_system->brownian_rect(velocity_max_x, velocity_max_y);
-	brownian_report = current_rect_system->sprint_status_rect("\n");
+	current_rect_system->\
+		set_dimension_rect(
+			dim_left, dim_right, dim_top, dim_bottom);
+	current_rect_system->\
+		brownian_rect(velocity_max_x, velocity_max_y);
+	brownian_report = \
+		current_rect_system->sprint_status_rect("\n");
 	
 	m_textReport->WriteText("\n");
 	m_textReport->WriteText(brownian_report.c_str());
