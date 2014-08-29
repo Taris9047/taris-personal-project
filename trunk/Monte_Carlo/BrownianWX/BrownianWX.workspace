@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Workspace Name="BrownianWX" Database="">
+  <Project Name="BrownianWX" Path="BrownianWX.project" Active="Yes"/>
+  <Project Name="Physics" Path="Physics/Physics.project" Active="No"/>
+  <BuildMatrix>
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
+      <Project Name="BrownianWX" ConfigName="Debug"/>
+      <Project Name="Physics" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release" Selected="yes">
+      <Project Name="BrownianWX" ConfigName="Release"/>
+      <Project Name="Physics" ConfigName="Release"/>
+    </WorkspaceConfiguration>
+  </BuildMatrix>
+</CodeLite_Workspace>
