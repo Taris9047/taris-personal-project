@@ -47,11 +47,11 @@ MainDialogBaseClass::MainDialogBaseClass(wxWindow* parent, wxWindowID id, const 
     boxSizerContents->Add(m_textReport, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     m_textReport->SetMinSize(wxSize(360,240));
     
-    m_gauge62 = new wxGauge(this, wxID_ANY, 100, wxDefaultPosition, wxSize(-1,-1), wxGA_HORIZONTAL);
-    m_gauge62->SetValue(10);
+    m_gaugeCalculation = new wxGauge(this, wxID_ANY, 100, wxDefaultPosition, wxSize(-1,-1), wxGA_HORIZONTAL);
+    m_gaugeCalculation->SetValue(10);
     
-    boxSizerContents->Add(m_gauge62, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
-    m_gauge62->SetMinSize(wxSize(360,20));
+    boxSizerContents->Add(m_gaugeCalculation, 0, wxALL|wxEXPAND|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
+    m_gaugeCalculation->SetMinSize(wxSize(360,20));
     
     wxBoxSizer* boxSizerButtons = new wxBoxSizer(wxVERTICAL);
     
@@ -79,8 +79,21 @@ MainDialogBaseClass::MainDialogBaseClass(wxWindow* parent, wxWindowID id, const 
          GetSizer()->Fit(this);
     }
     Centre(wxBOTH);
+    // Connect events
+    this->Connect(wxEVT_INIT_DIALOG, wxInitDialogEventHandler(MainDialogBaseClass::OnInitMainDialog), NULL, this);
+    m_buttonRunSim->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnRunClicked), NULL, this);
+    m_buttonSettings->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnSettingsClicked), NULL, this);
+    m_buttonSave->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnSaveClicked), NULL, this);
+    m_buttonExit->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnExitClicked), NULL, this);
+    
 }
 
 MainDialogBaseClass::~MainDialogBaseClass()
 {
+    this->Disconnect(wxEVT_INIT_DIALOG, wxInitDialogEventHandler(MainDialogBaseClass::OnInitMainDialog), NULL, this);
+    m_buttonRunSim->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnRunClicked), NULL, this);
+    m_buttonSettings->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnSettingsClicked), NULL, this);
+    m_buttonSave->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnSaveClicked), NULL, this);
+    m_buttonExit->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnExitClicked), NULL, this);
+    
 }

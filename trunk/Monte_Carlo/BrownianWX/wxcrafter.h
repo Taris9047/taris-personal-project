@@ -22,13 +22,18 @@ class MainDialogBaseClass : public wxDialog
 {
 protected:
     wxTextCtrl* m_textReport;
-    wxGauge* m_gauge62;
+    wxGauge* m_gaugeCalculation;
     wxButton* m_buttonRunSim;
     wxButton* m_buttonSettings;
     wxButton* m_buttonSave;
     wxButton* m_buttonExit;
 
 protected:
+    virtual void OnInitMainDialog(wxInitDialogEvent& event) { event.Skip(); }
+    virtual void OnBtnRunClicked(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnBtnSettingsClicked(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnBtnSaveClicked(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnBtnExitClicked(wxCommandEvent& event) { event.Skip(); }
 
 public:
     MainDialogBaseClass(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("BrownianWX"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,330), long style = wxDEFAULT_DIALOG_STYLE);
