@@ -74,11 +74,11 @@ bool GnuplotGen::WriteDeck()
 	gnuplot_input_deck << "set key top left" << std::endl;
 	gnuplot_input_deck << std::endl;
 	gnuplot_input_deck << "set samples " << \
-		this->dtostdstr(abs(this->x_range_left)).c_str() << "+" << \
-		this->dtostdstr(abs(this->x_range_right)).c_str() << "+1" << std::endl;
+		this->dtostdstr(std::abs(this->x_range_left)).c_str() << "+" << \
+		this->dtostdstr(std::abs(this->x_range_right)).c_str() << "+1" << std::endl;
 	gnuplot_input_deck << "set isosamples " << \
-		this->dtostdstr(abs(this->y_range_top)).c_str() << "+" << \
-		this->dtostdstr(abs(this->y_range_bottom)).c_str() << "+1" << std::endl;
+		this->dtostdstr(std::abs(this->y_range_top)).c_str() << "+" << \
+		this->dtostdstr(std::abs(this->y_range_bottom)).c_str() << "+1" << std::endl;
 
 	gnuplot_input_deck << "plot IN_FILENAME using " << \
 		"($1):($2):($3):($4):($7) " << \
@@ -99,7 +99,7 @@ std::string GnuplotGen::dtostdstr(double innum)
 	if (!(out_sstream << innum)) {
 		throw std::invalid_argument(
 			"Bad Double to String stream Conversion!!");
-		exit(1);
+		return "";
 	}
 	return out_sstream.str();
 }
