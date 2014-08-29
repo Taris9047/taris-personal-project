@@ -15,7 +15,7 @@ public:
 // Dialog Data
 	enum { IDD = IDD_BROWNIANGUI_DIALOG };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 
 

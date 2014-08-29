@@ -18,7 +18,7 @@
 
 CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CBrownianGUIDlg::IDD, pParent)
-	, c_pStatus(CEdit())
+	, c_pStatus( CEdit() )
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -49,7 +49,7 @@ BOOL CBrownianGUIDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	c_pStatus.Clear();
+	//c_pStatus.Clear();
 	int nTextLength = c_pStatus.GetWindowTextLengthW();
 	c_pStatus.SetSel(nTextLength, nTextLength);
 	CString strIntro = _T("******  Brownian calculation ver. 0.0.1  ******\n\n");
@@ -144,6 +144,8 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	double vel_limit = 1000.;
 	double boundary = 1000.;
 
+	c_pStatus.Clear();
+
 	Molecule* an_object = new Molecule(0.1);
 	Physics* Rect_Estimation = new Physics(an_object, cal_time, unit_time, true, 2);
 
@@ -152,6 +154,11 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	Rect_Estimation->brownian_rect(
 		vel_limit, vel_limit);
 
+	AddTextToStatus("\n");
+	CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
+	AddTextToStatus(dimension_log);
+
+	AddTextToStatus("\n");
 	CString status_log(Rect_Estimation->extract_log_rect("\t", "\r\n").c_str());
 	AddTextToStatus(status_log);
 }
