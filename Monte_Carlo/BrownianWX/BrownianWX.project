@@ -55,13 +55,14 @@
         <IncludePath Value="../"/>
       </Compiler>
       <Linker Options="$(shell wx-config --libs)" Required="yes">
-        <LibraryPath Value="./Physics/Debug"/>
+        <LibraryPath Value="$(WorkspacePath)/Physics/Debug"/>
         <Library Value="Physics"/>
       </Linker>
       <ResourceCompiler Options="`wx-config --rcflags`" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[PATH=/usr/local/bin/:/usr/bin:$PATH]]>
+        <![CDATA[PATH=/usr/local/bin/:/usr/bin:$PATH
+DYLD_LIBRARY_PATH=./Physics/Debug]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>

@@ -61,6 +61,7 @@ AS       := /usr/bin/as
 ##
 CodeLiteDir:=/Users/Taris/Downloads/codelite.app/Contents/SharedSupport/
 PATH:=$PATH
+DYLD_LIBRARY_PATH:=
 Objects0=$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix) 
 
 
