@@ -43,5 +43,6 @@ cyg$(PHYSICS_LIB).so: $(OBJ)
 
 clean:
 	rm -vrf ./*.o ./*.so ./trace.* 
-	rm -vrf ./$(TARGET) ./$(TARGET).exe 
+	rm -vrf ./$(TARGET) ./$(TARGET).exe
+	rm -vrf ./*.gp
 	rm -vrf ./*.dSYM

@@ -64,7 +64,7 @@
         <![CDATA[PATH=/usr/local/bin/:/usr/bin:$PATH
 DYLD_LIBRARY_PATH=./Physics/Debug]]>
       </Environment>
-      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="/usr/bin/gdb" IsExtended="no">
         <DebuggerSearchPaths/>
         <PostConnectCommands/>
         <StartupCommands/>
