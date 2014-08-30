@@ -5,18 +5,18 @@
 ## Debug
 ProjectName            :=Physics
 ConfigurationName      :=Debug
-WorkspacePath          := "/Users/Taris/Documents/workshop/Monte_Carlo/BrownianWX"
-ProjectPath            := "/Users/Taris/Documents/workshop/Monte_Carlo/BrownianWX/Physics"
+WorkspacePath          := "/home/taris/workshop/Monte_Carlo/BrownianWX"
+ProjectPath            := "/home/taris/workshop/Monte_Carlo/BrownianWX/Physics"
 IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
-User                   :=Taris
-Date                   :=2014-08-29
-CodeLitePath           :="/Users/Taris/Library/Application Support/codelite"
+User                   :=Taylor Shin
+Date                   :=08/30/14
+CodeLitePath           :="/home/taris/.codelite"
 LinkerName             :=/usr/bin/g++ 
-SharedObjectLinkerName :=/usr/bin/g++ -dynamiclib -fPIC
+SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.i
@@ -50,7 +50,7 @@ LibPath                := $(LibraryPathSwitch).
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++ 
 CC       := /usr/bin/gcc 
-CXXFLAGS :=  -g -O3 -Wall $(Preprocessors)
+CXXFLAGS :=  -g -O3 -Wall -fPIC $(Preprocessors)
 CFLAGS   :=  -g -O3 $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as 
@@ -59,7 +59,7 @@ AS       := /usr/bin/as
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=/Users/Taris/Downloads/codelite.app/Contents/SharedSupport/
+CodeLiteDir:=/usr/share/codelite
 PATH:=$PATH
 DYLD_LIBRARY_PATH:=
 Objects0=$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix) 
@@ -79,8 +79,8 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	@echo "" > $(IntermediateDirectory)/.d
 	@echo $(Objects0)  > $(ObjectsFileList)
 	$(SharedObjectLinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
-	@$(MakeDirCommand) "/Users/Taris/Documents/workshop/Monte_Carlo/BrownianWX/.build-debug"
-	@echo rebuilt > "/Users/Taris/Documents/workshop/Monte_Carlo/BrownianWX/.build-debug/Physics"
+	@$(MakeDirCommand) "/home/taris/workshop/Monte_Carlo/BrownianWX/.build-debug"
+	@echo rebuilt > "/home/taris/workshop/Monte_Carlo/BrownianWX/.build-debug/Physics"
 
 $(IntermediateDirectory)/.d:
 	@test -d ./Debug || $(MakeDirCommand) ./Debug
@@ -92,7 +92,7 @@ PreBuild:
 ## Objects
 ##
 $(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix): ../../Gnuplot_Gen.cpp $(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/Users/Taris/Documents/workshop/Monte_Carlo/Gnuplot_Gen.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(DependSuffix): ../../Gnuplot_Gen.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(DependSuffix) -MM "../../Gnuplot_Gen.cpp"
 
@@ -100,7 +100,7 @@ $(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(PreprocessSuffix): ../../G
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(PreprocessSuffix) "../../Gnuplot_Gen.cpp"
 
 $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix): ../../Molecule.cpp $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/Users/Taris/Documents/workshop/Monte_Carlo/Molecule.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/taris/workshop/Monte_Carlo/Molecule.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(DependSuffix): ../../Molecule.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(DependSuffix) -MM "../../Molecule.cpp"
 
@@ -108,7 +108,7 @@ $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(PreprocessSuffix): ../../Mole
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(PreprocessSuffix) "../../Molecule.cpp"
 
 $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix): ../../Photon.cpp $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/Users/Taris/Documents/workshop/Monte_Carlo/Photon.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/taris/workshop/Monte_Carlo/Photon.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(DependSuffix): ../../Photon.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(DependSuffix) -MM "../../Photon.cpp"
 
@@ -116,7 +116,7 @@ $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(PreprocessSuffix): ../../Photon
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(PreprocessSuffix) "../../Photon.cpp"
 
 $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix): ../../Physics.cpp $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/Users/Taris/Documents/workshop/Monte_Carlo/Physics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/taris/workshop/Monte_Carlo/Physics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(DependSuffix): ../../Physics.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(DependSuffix) -MM "../../Physics.cpp"
 
@@ -124,7 +124,7 @@ $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(PreprocessSuffix): ../../Physi
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(PreprocessSuffix) "../../Physics.cpp"
 
 $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix): ../../Random.cpp $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "/Users/Taris/Documents/workshop/Monte_Carlo/Random.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/taris/workshop/Monte_Carlo/Random.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(DependSuffix): ../../Random.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/Monte_Carlo_Random.cpp$(DependSuffix) -MM "../../Random.cpp"
 
