@@ -50,8 +50,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspaceP
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++ 
 CC       := /usr/bin/gcc 
-CXXFLAGS :=  -g -O3 -Wall $(shell wx-config --cxxflags --debug --unicode=yes) $(Preprocessors)
-CFLAGS   :=  -g -O3 -Wall  $(Preprocessors)
+CXXFLAGS :=  -g -O0 -Wall $(shell wx-config --cxxflags --debug --unicode=yes) $(Preprocessors)
+CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as 
 
@@ -63,7 +63,7 @@ CodeLiteDir:=/usr/share/codelite
 PATH:=/usr/local/bin/:/usr/bin:$PATH
 DYLD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Debug:$DYLD_LIBRARY_PATH
 LD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Debug:$LD_LIBRARY_PATH
-Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainDialog.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainDialog.cpp$(ObjectSuffix) $(IntermediateDirectory)/SettingsDialog.cpp$(ObjectSuffix) 
 
 
 
@@ -133,6 +133,14 @@ $(IntermediateDirectory)/MainDialog.cpp$(DependSuffix): MainDialog.cpp
 
 $(IntermediateDirectory)/MainDialog.cpp$(PreprocessSuffix): MainDialog.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/MainDialog.cpp$(PreprocessSuffix) "MainDialog.cpp"
+
+$(IntermediateDirectory)/SettingsDialog.cpp$(ObjectSuffix): SettingsDialog.cpp $(IntermediateDirectory)/SettingsDialog.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "/home/taris/workshop/Monte_Carlo/BrownianWX/SettingsDialog.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/SettingsDialog.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/SettingsDialog.cpp$(DependSuffix): SettingsDialog.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/SettingsDialog.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/SettingsDialog.cpp$(DependSuffix) -MM "SettingsDialog.cpp"
+
+$(IntermediateDirectory)/SettingsDialog.cpp$(PreprocessSuffix): SettingsDialog.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/SettingsDialog.cpp$(PreprocessSuffix) "SettingsDialog.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

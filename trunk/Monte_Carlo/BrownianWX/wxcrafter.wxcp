@@ -802,7 +802,7 @@
     }, {
      "type": "string",
      "m_label": "Name:",
-     "m_value": "SettingsDialog"
+     "m_value": "SettingsDialogBase"
     }, {
      "type": "multi-string",
      "m_label": "Tooltip:",
@@ -936,7 +936,7 @@
         }, {
          "type": "string",
          "m_label": "# Rows:",
-         "m_value": "6"
+         "m_value": "0"
         }, {
          "type": "string",
          "m_label": "Horizontal gap:",
@@ -1028,8 +1028,8 @@
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_styles": ["wxTE_NO_VSCROLL"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_RIGHT"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1045,7 +1045,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_textCtrl83"
+           "m_value": "m_textCtrlLeft"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1132,7 +1132,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_staticText97"
+           "m_value": "m_staticTextRight"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1176,7 +1176,7 @@
           }, {
            "type": "multi-string",
            "m_label": "Label:",
-           "m_value": "Static Text Label"
+           "m_value": "Right"
           }, {
            "type": "string",
            "m_label": "Wrap:",
@@ -1190,8 +1190,8 @@
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_styles": ["wxTE_NO_VSCROLL"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_RIGHT"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1207,7 +1207,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_textCtrl85"
+           "m_value": "m_textCtrlRight"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1294,7 +1294,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_staticText99"
+           "m_value": "m_staticTextTop"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1338,7 +1338,7 @@
           }, {
            "type": "multi-string",
            "m_label": "Label:",
-           "m_value": "Static Text Label"
+           "m_value": "Top"
           }, {
            "type": "string",
            "m_label": "Wrap:",
@@ -1352,8 +1352,8 @@
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_styles": ["wxTE_NO_VSCROLL"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_RIGHT"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1369,7 +1369,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_textCtrl87"
+           "m_value": "m_textCtrlTop"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1456,7 +1456,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_staticText101"
+           "m_value": "m_staticTextBottom"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1500,7 +1500,7 @@
           }, {
            "type": "multi-string",
            "m_label": "Label:",
-           "m_value": "Static Text Label"
+           "m_value": "Bottom"
           }, {
            "type": "string",
            "m_label": "Wrap:",
@@ -1514,8 +1514,8 @@
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_styles": ["wxTE_NO_VSCROLL"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_RIGHT"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1531,7 +1531,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_textCtrl89"
+           "m_value": "m_textCtrlBottom"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1618,7 +1618,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_staticText103"
+           "m_value": "m_staticTextVelXMax"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1662,7 +1662,7 @@
           }, {
            "type": "multi-string",
            "m_label": "Label:",
-           "m_value": "Static Text Label"
+           "m_value": "Max X-velocity"
           }, {
            "type": "string",
            "m_label": "Wrap:",
@@ -1676,8 +1676,8 @@
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_styles": ["wxTE_NO_VSCROLL"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_RIGHT"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1693,7 +1693,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_textCtrl91"
+           "m_value": "m_textCtrlVelXMax"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1780,7 +1780,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_staticText105"
+           "m_value": "m_staticTextVelYMax"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1824,7 +1824,7 @@
           }, {
            "type": "multi-string",
            "m_label": "Label:",
-           "m_value": "Static Text Label"
+           "m_value": "Max Y-velocity"
           }, {
            "type": "string",
            "m_label": "Wrap:",
@@ -1838,8 +1838,8 @@
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
-         "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_styles": ["wxTE_NO_VSCROLL"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_RIGHT"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1855,7 +1855,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_textCtrl93"
+           "m_value": "m_textCtrlVelYMax"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -1919,49 +1919,14 @@
           }],
          "m_events": [],
          "m_children": []
-        }]
-      }, {
-       "m_type": 4452,
-       "proportion": 1,
-       "border": 5,
-       "gbSpan": "1,1",
-       "gbPosition": "0,0",
-       "m_styles": [],
-       "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxEXPAND"],
-       "m_properties": [{
-         "type": "string",
-         "m_label": "Name:",
-         "m_value": "gridSizerButtons"
         }, {
-         "type": "string",
-         "m_label": "Style:",
-         "m_value": ""
-        }, {
-         "type": "string",
-         "m_label": "# Columns:",
-         "m_value": "2"
-        }, {
-         "type": "string",
-         "m_label": "# Rows:",
-         "m_value": "1"
-        }, {
-         "type": "string",
-         "m_label": "Horizontal gap:",
-         "m_value": "0"
-        }, {
-         "type": "string",
-         "m_label": "Vertical gap:",
-         "m_value": "0"
-        }],
-       "m_events": [],
-       "m_children": [{
          "m_type": 4400,
          "proportion": 0,
          "border": 5,
          "gbSpan": "1,1",
          "gbPosition": "0,0",
          "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_CENTER_HORIZONTAL"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -1977,7 +1942,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_button107"
+           "m_value": "m_buttonApply"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -2021,7 +1986,7 @@
           }, {
            "type": "string",
            "m_label": "Label:",
-           "m_value": "My Button"
+           "m_value": "Apply"
           }, {
            "type": "bool",
            "m_label": "Default Button",
@@ -2040,7 +2005,14 @@
            "m_label": "Margins:",
            "m_value": "2,2"
           }],
-         "m_events": [],
+         "m_events": [{
+           "m_eventName": "wxEVT_COMMAND_BUTTON_CLICKED",
+           "m_eventClass": "wxCommandEvent",
+           "m_eventHandler": "wxCommandEventHandler",
+           "m_functionNameAndSignature": "OnBtnApplyClicked(wxCommandEvent& event)",
+           "m_description": "Process a wxEVT_COMMAND_BUTTON_CLICKED event, when the button is clicked.",
+           "m_noBody": false
+          }],
          "m_children": []
         }, {
          "m_type": 4400,
@@ -2049,7 +2021,7 @@
          "gbSpan": "1,1",
          "gbPosition": "0,0",
          "m_styles": [],
-         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM"],
+         "m_sizerFlags": ["wxALL", "wxLEFT", "wxRIGHT", "wxTOP", "wxBOTTOM", "wxALIGN_CENTER_HORIZONTAL"],
          "m_properties": [{
            "type": "winid",
            "m_label": "ID:",
@@ -2065,7 +2037,7 @@
           }, {
            "type": "string",
            "m_label": "Name:",
-           "m_value": "m_button109"
+           "m_value": "m_buttonClose"
           }, {
            "type": "multi-string",
            "m_label": "Tooltip:",
@@ -2109,7 +2081,7 @@
           }, {
            "type": "string",
            "m_label": "Label:",
-           "m_value": "My Button"
+           "m_value": "Close"
           }, {
            "type": "bool",
            "m_label": "Default Button",
@@ -2128,7 +2100,14 @@
            "m_label": "Margins:",
            "m_value": "2,2"
           }],
-         "m_events": [],
+         "m_events": [{
+           "m_eventName": "wxEVT_COMMAND_BUTTON_CLICKED",
+           "m_eventClass": "wxCommandEvent",
+           "m_eventHandler": "wxCommandEventHandler",
+           "m_functionNameAndSignature": "OnBtnCloseClicked(wxCommandEvent& event)",
+           "m_description": "Process a wxEVT_COMMAND_BUTTON_CLICKED event, when the button is clicked.",
+           "m_noBody": false
+          }],
          "m_children": []
         }]
       }]
