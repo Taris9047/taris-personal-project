@@ -1,5 +1,6 @@
 #include "MainDialog.h"
 
+
 MainDialog::MainDialog(wxWindow* parent)
     : MainDialogBaseClass(parent)
 {
@@ -45,7 +46,7 @@ void MainDialog::OnBtnRunClicked(wxCommandEvent& event)
 	current_rect_system->\
 		brownian_rect(velocity_max_x, velocity_max_y);
 	brownian_report = \
-		current_rect_system->sprint_status_rect("\n");
+		current_rect_system->extract_log_rect("\t", "\n");
 	
 	m_textReport->WriteText("\n");
 	m_textReport->WriteText(brownian_report.c_str());
@@ -53,10 +54,18 @@ void MainDialog::OnBtnRunClicked(wxCommandEvent& event)
 
 void MainDialog::OnBtnSaveClicked(wxCommandEvent& event)
 {
+	wxFileDialog* saveFileDialog = new wxFileDialog(this, ("Save to File"), "", "", "csv files (*.csv)|*.csv", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+	
+	if (saveFileDialog->ShowModal() == wxID_CANCEL)
+		return;
+	
+	m_textReport->SaveFile(saveFileDialog->GetPath());
+		
 }
 
 void MainDialog::OnBtnSettingsClicked(wxCommandEvent& event)
 {
+	
 }
 
 void MainDialog::OnInitMainDialog(wxInitDialogEvent& event)

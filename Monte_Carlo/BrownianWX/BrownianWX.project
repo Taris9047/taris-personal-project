@@ -53,16 +53,19 @@
       <Compiler Options="-g;-O3;-Wall;$(shell wx-config --cxxflags --debug --unicode=yes)" C_Options="-g;-O3;-Wall;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <IncludePath Value="../"/>
+        <Preprocessor Value="__WX__"/>
       </Compiler>
       <Linker Options="$(shell wx-config --libs)" Required="yes">
         <LibraryPath Value="$(WorkspacePath)/Physics/Debug"/>
+        <LibraryPath Value="$(WorkspacePath)/Physics/Release"/>
         <Library Value="Physics"/>
       </Linker>
       <ResourceCompiler Options="`wx-config --rcflags`" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[PATH=/usr/local/bin/:/usr/bin:$PATH
-DYLD_LIBRARY_PATH=./Physics/Debug]]>
+DYLD_LIBRARY_PATH=$(WorkspacePath)/Physics/Debug:$DYLD_LIBRARY_PATH
+LD_LIBRARY_PATH=$(WorkspacePath)/Physics/Debug:$LD_LIBRARY_PATH]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="/usr/bin/gdb" IsExtended="no">
         <DebuggerSearchPaths/>
@@ -70,7 +73,9 @@ DYLD_LIBRARY_PATH=./Physics/Debug]]>
         <StartupCommands/>
       </Debugger>
       <PreBuild/>
-      <PostBuild/>
+      <PostBuild>
+        <Command Enabled="yes">cp -vrf ./Physics/Debug/libPhysics.so ./Debug/</Command>
+      </PostBuild>
       <CustomBuild Enabled="no">
         <RebuildCommand/>
         <CleanCommand/>

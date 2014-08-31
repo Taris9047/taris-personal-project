@@ -28,7 +28,7 @@ LibraryPathSwitch      :=-L
 PreprocessorSwitch     :=-D
 SourceSwitch           :=-c 
 OutputFile             :=$(IntermediateDirectory)/$(ProjectName)
-Preprocessors          :=
+Preprocessors          :=$(PreprocessorSwitch)__WX__ 
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
 PreprocessOnlySwitch   :=-E
@@ -41,7 +41,7 @@ IncludePCH             :=
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)Physics 
 ArLibs                 :=  "Physics" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspacePath)/Physics/Debug 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspacePath)/Physics/Debug $(LibraryPathSwitch)$(WorkspacePath)/Physics/Release 
 
 ##
 ## Common variables
@@ -61,7 +61,8 @@ AS       := /usr/bin/as
 ##
 CodeLiteDir:=/usr/share/codelite
 PATH:=/usr/local/bin/:/usr/bin:$PATH
-DYLD_LIBRARY_PATH:=./Physics/Debug
+DYLD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Debug:$DYLD_LIBRARY_PATH
+LD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Debug:$LD_LIBRARY_PATH
 Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainDialog.cpp$(ObjectSuffix) 
 
 
@@ -86,6 +87,11 @@ $(OutputFile): $(IntermediateDirectory)/.d ".build-debug/Physics" $(Objects)
 
 
 
+
+PostBuild:
+	@echo Executing Post Build commands ...
+	cp -vrf ./Physics/Debug/libPhysics.so ./Debug/
+	@echo Done
 
 $(IntermediateDirectory)/.d:
 	@test -d ./Debug || $(MakeDirCommand) ./Debug

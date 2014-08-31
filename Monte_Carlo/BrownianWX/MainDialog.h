@@ -2,6 +2,9 @@
 #define MAINDIALOG_H
 #include "wxcrafter.h"
 #include "Physics.hpp"
+#include <wx/filedlg.h>
+#include <wx/wfstream.h>
+#include <wx/log.h>
 
 class MainDialog : public MainDialogBaseClass
 {
