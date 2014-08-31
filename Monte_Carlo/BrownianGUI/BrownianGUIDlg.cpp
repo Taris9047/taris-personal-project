@@ -19,6 +19,12 @@
 CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CBrownianGUIDlg::IDD, pParent)
 	, c_pStatus( CEdit() )
+	, dim_left(-1000)
+	, dim_right(1000)
+	, dim_top(1000)
+	, dim_bottom(-1000)
+	, max_vel_x(500)
+	, max_vel_y(500)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -141,19 +147,17 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	double cal_time = 100.;
 	double unit_time = 1.;
 
-	double vel_limit = 1000.;
-	double boundary = 1000.;
-
 	c_pStatus.Clear();
 
 	Molecule* an_object = new Molecule(0.1);
 	Physics* Rect_Estimation = new Physics(an_object, cal_time, unit_time, true, 2);
 
-	Rect_Estimation->set_dimension_rect((-1)*boundary, boundary, boundary, (-1)*boundary);
+	Rect_Estimation->set_dimension_rect(
+		dim_left, dim_right, dim_top, dim_bottom);
 
 	Rect_Estimation->brownian_rect(
-		vel_limit, vel_limit);
-
+		max_vel_x, max_vel_y);
+	
 	AddTextToStatus("\n");
 	CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
 	AddTextToStatus(dimension_log);
