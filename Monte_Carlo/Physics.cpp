@@ -33,6 +33,45 @@ void Physics::advance_time()
 	}
 }
 
+// Normal movement
+void Physics::normal_rect(double vel_x, double vel_y)
+{
+	double time_frame = time_scale;
+	std_vec_d proj_loc(2);
+
+	if (b_verbose) {
+		show_dimension_rect("\n");
+		cout << "Initial Condition:" << endl;
+		print_status_rect();
+	}
+
+	curr_object->set_velocity(vel_x, vel_y);
+	log_status();
+
+	do {
+		if ( (time_elapsed + time_scale) > time_limit ) {
+			time_frame = time_limit - time_elapsed;
+			if (time_frame == 0) break;
+		}
+
+		proj_loc = proj_loc_rect(time_frame);
+
+		if (proj_loc[0] < edge_left || proj_loc[0] > edge_right \
+			|| proj_loc[1] < edge_bottom || proj_loc[1] > edge_top)
+			reflect_rect(time_frame);
+		else {
+            curr_object->set_location(proj_loc[0], proj_loc[1]);
+            time_elapsed += time_frame;
+		}
+
+		if (b_verbose) print_status_rect();
+
+		log_status();
+
+	} while (time_elapsed <= time_limit);
+}
+
+// Simulating brownian movement
 void Physics::brownian_rect(double max_vel_x, double max_vel_y)
 {
 	std_vec_d proj_loc(2);
@@ -52,9 +91,10 @@ void Physics::brownian_rect(double max_vel_x, double max_vel_y)
 
 	do {
 		// Running reflectance for this vector.
-		if ( (time_elapsed + time_scale) > time_limit )
+		if ( (time_elapsed + time_scale) > time_limit ) {
 		   	time_frame = time_limit - time_elapsed;
         	if ( time_frame == 0 ) break;
+        }
          
 		proj_loc = proj_loc_rect(time_frame);
 
@@ -230,19 +270,20 @@ std_str Physics::sprint_status_rect(std_str linbreak = "\n")
 	std_vec_d info(7);
 	info = report_status_rect();
 	report_str = report_str + \
-		"Location: (" + double_to_string(info[0]) + "," \
-		+ double_to_string(info[1]) + ")" + linbreak;
+		"Location: (" + Converters::numtostr(info[0]) + "," \
+		+ Converters::numtostr(info[1]) + ")" + linbreak;
 	report_str = report_str + \
-		"Velocity: <" + double_to_string(info[2]) + "," \
-		+ double_to_string(info[3]) + ">" + linbreak;
+		"Velocity: <" + Converters::numtostr(info[2]) + "," \
+		+ Converters::numtostr(info[3]) + ">" + linbreak;
 	report_str = report_str + \
-		"Time elapsed: " + double_to_string(info[5]) \
+		"Time elapsed: " + Converters::numtostr(info[5]) \
 		+ " sec." + linbreak + linbreak;
 
 	return report_str;
 }
 
 // Convert double to std::string object
+/*
 std_str Physics::double_to_string(double input)
 {
 	o_sstream out_sstream;
@@ -254,6 +295,7 @@ std_str Physics::double_to_string(double input)
 
 	return out_sstream.str();
 }
+*/
 
 // Displaying dimension
 std_str Physics::show_dimension_rect(std_str linbreak)
@@ -261,10 +303,10 @@ std_str Physics::show_dimension_rect(std_str linbreak)
 	std_str rect_report;
 	rect_report = linbreak \
 		+ "Rectangular dimnesion information" + linbreak \
-		+ "Left: " + double_to_string(edge_left) + linbreak \
-		+ "Right: " + double_to_string(edge_right) + linbreak \
-		+ "Top: " + double_to_string(edge_top) + linbreak \
-		+ "Bottom: " + double_to_string(edge_bottom) + linbreak \
+		+ "Left: " + Converters::numtostr(edge_left) + linbreak \
+		+ "Right: " + Converters::numtostr(edge_right) + linbreak \
+		+ "Top: " + Converters::numtostr(edge_top) + linbreak \
+		+ "Bottom: " + Converters::numtostr(edge_bottom) + linbreak \
 		+ linbreak + linbreak;
 
 	if (b_verbose == true) {
@@ -351,7 +393,7 @@ void Physics::write_log_rect(
 			x_vel.at(i) << cDelim << \
 			y_vel.at(i) << cDelim << \
 			curr_object->read_mass() << cDelim << \
-			bool_to_yesno(reflected_status.at(i)) << cDelim << \
+			Converters::btoyesno(reflected_status.at(i)) << cDelim << \
 			time_trace.at(i) << \
 			linbreak;
 	}
@@ -374,13 +416,13 @@ std_str Physics::extract_log_rect(
 	ulong log_size = time_trace.size();
 
 	for (unint i = 0; i < log_size; i++) {
-		trace_record << double_to_string(x_loc.at(i)) << cDelim << \
-			double_to_string(y_loc.at(i)) << cDelim << \
-			double_to_string(x_vel.at(i)) << cDelim << \
-			double_to_string(y_vel.at(i)) << cDelim << \
-			double_to_string(curr_object->read_mass()) << cDelim << \
-			bool_to_yesno(reflected_status.at(i)) << cDelim << \
-			double_to_string(time_trace.at(i)) << \
+		trace_record << Converters::numtostr(x_loc.at(i)) << cDelim << \
+			Converters::numtostr(y_loc.at(i)) << cDelim << \
+			Converters::numtostr(x_vel.at(i)) << cDelim << \
+			Converters::numtostr(y_vel.at(i)) << cDelim << \
+			Converters::numtostr(curr_object->read_mass()) << cDelim << \
+			Converters::btostr(reflected_status.at(i)) << cDelim << \
+			Converters::numtostr(time_trace.at(i)) << \
 			linbreak;
 	}
 
@@ -388,6 +430,7 @@ std_str Physics::extract_log_rect(
 }
 
 // A little tool to convert bool type to understandable string.
+/*
 std_str Physics::bool_to_yesno(bool logic)
 {
 	if (logic == true)
@@ -395,6 +438,7 @@ std_str Physics::bool_to_yesno(bool logic)
 	else 
 		return "NO";
 }
+*/
 
 // Calculate reflecting molecule in a limited space.
 void Physics::reflect_rect(double time_frame)
@@ -453,8 +497,6 @@ void Physics::reflect_rect(double time_frame)
 
 	} while (div_time <= time_frame);
 }
-
-
 
 
 

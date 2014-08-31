@@ -13,6 +13,7 @@
 #include "data_types.hpp"
 #include "Molecule.hpp"
 #include "Random.hpp"
+#include "Converters.hpp"
 
 // Physics implementation
 
@@ -66,15 +67,19 @@ private:
 		bool refl, double curr_time);
 	void log_status();
 	void advance_time();
-	std_str bool_to_yesno(bool logic);
-	std_str double_to_string(double input);
+//	std_str bool_to_yesno(bool logic);
+//	std_str double_to_string(double input);
 
 	// reflecting in rectangular system
 	void reflect_rect(double time_frame);
 
 public:
 
+	// Brownian movement simulation
 	void brownian_rect(double max_vel_x, double max_vel_y);
+
+	// Normal movement simulation
+	void normal_rect(double vel_x, double vel_y);
 
     // Write current history into a file
 	void write_log_rect(
