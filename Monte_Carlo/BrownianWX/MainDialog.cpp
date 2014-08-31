@@ -1,5 +1,5 @@
 #include "MainDialog.h"
-
+#include "SettingsDialog.h"
 
 MainDialog::MainDialog(wxWindow* parent)
     : MainDialogBaseClass(parent)
@@ -48,6 +48,7 @@ void MainDialog::OnBtnRunClicked(wxCommandEvent& event)
 	brownian_report = \
 		current_rect_system->extract_log_rect("\t", "\n");
 	
+	m_textReport->Clear();
 	m_textReport->WriteText("\n");
 	m_textReport->WriteText(brownian_report.c_str());
 }
@@ -65,7 +66,11 @@ void MainDialog::OnBtnSaveClicked(wxCommandEvent& event)
 
 void MainDialog::OnBtnSettingsClicked(wxCommandEvent& event)
 {
-	
+	SettingsDialog settingsDialog(NULL, 
+		&this->dim_left, &this->dim_right, 
+		&this->dim_top, &this->dim_bottom, 
+		&this->velocity_max_x, &this->velocity_max_y);
+	settingsDialog.ShowModal();
 }
 
 void MainDialog::OnInitMainDialog(wxInitDialogEvent& event)

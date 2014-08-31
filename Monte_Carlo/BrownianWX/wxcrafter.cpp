@@ -97,3 +97,113 @@ MainDialogBaseClass::~MainDialogBaseClass()
     m_buttonExit->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MainDialogBaseClass::OnBtnExitClicked), NULL, this);
     
 }
+
+SettingsDialogBase::SettingsDialogBase(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style)
+    : wxDialog(parent, id, title, pos, size, style)
+{
+    if ( !bBitmapLoaded ) {
+        // We need to initialise the default bitmap handler
+        wxXmlResource::Get()->AddHandler(new wxBitmapXmlHandler);
+        wxC9ED9InitBitmapResources();
+        bBitmapLoaded = true;
+    }
+    
+    wxBoxSizer* boxSizerMain = new wxBoxSizer(wxVERTICAL);
+    this->SetSizer(boxSizerMain);
+    
+    wxGridSizer* gridSizerSettings = new wxGridSizer(0, 2, 0, 0);
+    
+    boxSizerMain->Add(gridSizerSettings, 1, wxALL|wxEXPAND, 5);
+    
+    m_staticTextLeft = new wxStaticText(this, wxID_ANY, _("Left"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_staticTextLeft, 0, wxALL, 5);
+    
+    m_textCtrlLeft = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), wxTE_NO_VSCROLL);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlLeft->SetHint(wxT(""));
+    #endif
+    
+    gridSizerSettings->Add(m_textCtrlLeft, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_staticTextRight = new wxStaticText(this, wxID_ANY, _("Right"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_staticTextRight, 0, wxALL, 5);
+    
+    m_textCtrlRight = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), wxTE_NO_VSCROLL);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlRight->SetHint(wxT(""));
+    #endif
+    
+    gridSizerSettings->Add(m_textCtrlRight, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_staticTextTop = new wxStaticText(this, wxID_ANY, _("Top"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_staticTextTop, 0, wxALL, 5);
+    
+    m_textCtrlTop = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), wxTE_NO_VSCROLL);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlTop->SetHint(wxT(""));
+    #endif
+    
+    gridSizerSettings->Add(m_textCtrlTop, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_staticTextBottom = new wxStaticText(this, wxID_ANY, _("Bottom"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_staticTextBottom, 0, wxALL, 5);
+    
+    m_textCtrlBottom = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), wxTE_NO_VSCROLL);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlBottom->SetHint(wxT(""));
+    #endif
+    
+    gridSizerSettings->Add(m_textCtrlBottom, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_staticTextVelXMax = new wxStaticText(this, wxID_ANY, _("Max X-velocity"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_staticTextVelXMax, 0, wxALL, 5);
+    
+    m_textCtrlVelXMax = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), wxTE_NO_VSCROLL);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlVelXMax->SetHint(wxT(""));
+    #endif
+    
+    gridSizerSettings->Add(m_textCtrlVelXMax, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_staticTextVelYMax = new wxStaticText(this, wxID_ANY, _("Max Y-velocity"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_staticTextVelYMax, 0, wxALL, 5);
+    
+    m_textCtrlVelYMax = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(-1,-1), wxTE_NO_VSCROLL);
+    #if wxVERSION_NUMBER >= 3000
+    m_textCtrlVelYMax->SetHint(wxT(""));
+    #endif
+    
+    gridSizerSettings->Add(m_textCtrlVelYMax, 0, wxALL|wxALIGN_RIGHT, 5);
+    
+    m_buttonApply = new wxButton(this, wxID_ANY, _("Apply"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_buttonApply, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
+    
+    m_buttonClose = new wxButton(this, wxID_ANY, _("Close"), wxDefaultPosition, wxSize(-1,-1), 0);
+    
+    gridSizerSettings->Add(m_buttonClose, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
+    
+    SetMinSize( wxSize(280,330) );
+    SetSizeHints(280,330);
+    if ( GetSizer() ) {
+         GetSizer()->Fit(this);
+    }
+    Centre(wxBOTH);
+    // Connect events
+    m_buttonApply->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(SettingsDialogBase::OnBtnApplyClicked), NULL, this);
+    m_buttonClose->Connect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(SettingsDialogBase::OnBtnCloseClicked), NULL, this);
+    
+}
+
+SettingsDialogBase::~SettingsDialogBase()
+{
+    m_buttonApply->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(SettingsDialogBase::OnBtnApplyClicked), NULL, this);
+    m_buttonClose->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(SettingsDialogBase::OnBtnCloseClicked), NULL, this);
+    
+}

@@ -17,6 +17,7 @@
 #include <wx/textctrl.h>
 #include <wx/gauge.h>
 #include <wx/button.h>
+#include <wx/stattext.h>
 
 class MainDialogBaseClass : public wxDialog
 {
@@ -38,6 +39,34 @@ protected:
 public:
     MainDialogBaseClass(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("BrownianWX"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(500,330), long style = wxDEFAULT_DIALOG_STYLE);
     virtual ~MainDialogBaseClass();
+};
+
+
+class SettingsDialogBase : public wxDialog
+{
+protected:
+    wxStaticText* m_staticTextLeft;
+    wxTextCtrl* m_textCtrlLeft;
+    wxStaticText* m_staticTextRight;
+    wxTextCtrl* m_textCtrlRight;
+    wxStaticText* m_staticTextTop;
+    wxTextCtrl* m_textCtrlTop;
+    wxStaticText* m_staticTextBottom;
+    wxTextCtrl* m_textCtrlBottom;
+    wxStaticText* m_staticTextVelXMax;
+    wxTextCtrl* m_textCtrlVelXMax;
+    wxStaticText* m_staticTextVelYMax;
+    wxTextCtrl* m_textCtrlVelYMax;
+    wxButton* m_buttonApply;
+    wxButton* m_buttonClose;
+
+protected:
+    virtual void OnBtnApplyClicked(wxCommandEvent& event) { event.Skip(); }
+    virtual void OnBtnCloseClicked(wxCommandEvent& event) { event.Skip(); }
+
+public:
+    SettingsDialogBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Rect. Settings"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(280,330), long style = wxDEFAULT_DIALOG_STYLE|wxMINIMIZE_BOX|wxSYSTEM_MENU|wxCLOSE_BOX);
+    virtual ~SettingsDialogBase();
 };
 
 #endif
