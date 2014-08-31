@@ -34,6 +34,7 @@
     <File Name="../../Photon.cpp"/>
     <File Name="../../Physics.cpp"/>
     <File Name="../../Random.cpp"/>
+    <File Name="../../Converters.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="../../data_types.hpp"/>
@@ -42,6 +43,7 @@
     <File Name="../../Photon.hpp"/>
     <File Name="../../Physics.hpp"/>
     <File Name="../../Random.hpp"/>
+    <File Name="../../Converters.hpp"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>
