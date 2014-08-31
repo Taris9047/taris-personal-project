@@ -2,22 +2,24 @@
 #define WINCLASS_HPP
 
 #include <Windows.h>
+#include "WinSimpleClass.hpp"
 
-LRESULT CALLBACK WindowProcedure
-	(HWND hwnd, unsigned int message, WPARAM wParam, LPARAM lParam);
-
-class WinClass
+class WinClass: public WinSimpleClass
 {
 public:
-	WinClass(WNDPROC winProc, LPCWSTR className, HINSTANCE hInst);
+	WinClass(LPCWSTR className, HINSTANCE hInst, WNDPROC wndProc);
+	WinClass(int resId, HINSTANCE hInst, WNDPROC wndProc);
 
-	void Register()
+	void SetBgSysColor(int sysColor)
 	{
-		::RegisterClass(&_class);
+		_class.hbrBackground = reinterpret_cast<HBRUSH> (sysColor + 1);
 	}
+	void SetResIcons(int resId);
+	void Register();
 
-private:
-	WNDCLASS _class;
+protected:
+	void SetDefaults();
+	WNDCLASSEX _class;
 };
 
 #endif

@@ -78,13 +78,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TopWinClass.cpp" />
+    <ClCompile Include="TopWinMaker.cpp" />
+    <ClCompile Include="Control.cpp" />
     <ClCompile Include="WinClass.cpp" />
     <ClCompile Include="WinMaker.cpp" />
+    <ClCompile Include="WinSimpleClass.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics.hpp" />
+    <ClInclude Include="Model.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Control.hpp" />
+    <ClInclude Include="TopWinClass.hpp" />
+    <ClInclude Include="TopWinMaker.hpp" />
     <ClInclude Include="WinClass.hpp" />
     <ClInclude Include="WinMaker.hpp" />
+    <ClInclude Include="WinSimpleClass.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Generic.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="generic.ico" />
+    <Image Include="rs.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
