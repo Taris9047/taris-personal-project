@@ -2,39 +2,48 @@
 #define WINMAKER_CPP
 
 #include "WinMaker.hpp"
+#include "Control.hpp"
 
-WinMaker::WinMaker(LPCWSTR caption,
-	LPCWSTR className,
-	HINSTANCE hInstance)
+WinMaker::WinMaker(WinClass &winClass)
+	: _hwnd(0),
+	_class(winClass),
+	_exStyle(0),
+	_windowName(0),
+	_style(WS_OVERLAPPED),
+	_x(CW_USEDEFAULT),
+	_y(0),
+	_width(CW_USEDEFAULT),
+	_height(0),
+	_hWndParent(0),
+	_hMenu(0),
+	_data(0)
 {
-	_hwnd = ::CreateWindow(
-		className,            // name of a registered window class
-		caption,              // window caption
-		WS_OVERLAPPEDWINDOW,  // window style
-		CW_USEDEFAULT,        // x position
-		CW_USEDEFAULT,        // y position
-		CW_USEDEFAULT,        // witdh
-		CW_USEDEFAULT,        // height
-		0,                    // handle to parent window
-		0,                    // handle to menu
-		hInstance,            // application instance
-		0);                   // window creation data
 }
 
-
-// Window Procedure called by Windows
-LRESULT CALLBACK WindowProcedure
-(HWND hwnd, unsigned int message, WPARAM wParam, LPARAM lParam)
+void WinMaker::Create()
 {
-	switch (message)
-	{
-	case WM_DESTROY:
-		::PostQuitMessage(0);
-		return 0;
+	_hwnd = ::CreateWindowEx(
+		_exStyle,
+		_class.GetName(),
+		_windowName,
+		_style,
+		_x,
+		_y,
+		_width,
+		_height,
+		_hWndParent,
+		_hMenu,
+		_class.GetInstance(),
+		_data);
 
-	}
-	return ::DefWindowProc(hwnd, message, wParam, lParam);
+	if (_hwnd == 0)
+		throw WinException(L"Internel error: Window Creation Failed!!");
 }
 
+void WinMaker::Show(int nCmdShow)
+{
+	::ShowWindow(_hwnd, nCmdShow);
+	::UpdateWindow(_hwnd);
+}
 
 #endif
