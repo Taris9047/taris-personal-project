@@ -5,7 +5,7 @@ PHYSICS_LIB=Physics
 TARGET=brownian
 LIBDIR=./
 LIB_CYG=-L$(LIBDIR) -l:
-OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o
+OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o Converters.o
 
 all: brownian
 
@@ -28,6 +28,9 @@ Photon.o: Photon.cpp Photon.hpp
 
 Random.o: Random.cpp Random.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Random.cpp
+
+Converters.o: Converters.cpp Converters.hpp
+	$(CXX) $(CFLAGS) -fPIC -o $@ -c Converters.cpp
 
 Physics.o: Physics.cpp Physics.hpp 
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Physics.cpp 
