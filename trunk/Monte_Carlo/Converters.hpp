@@ -14,7 +14,6 @@ namespace Converters
 	const char* numtostr(float input);
 	const char* numtostr(int input);
 
-
 	const char* btostr(bool input);
 	const char* btoyesno(bool input);
 
@@ -22,7 +21,6 @@ namespace Converters
 	float strtof(const char* str);
 	int strtoi(const char* str);
 	bool strtob(const char* str);
-
 };
 
 #endif

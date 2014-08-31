@@ -260,26 +260,26 @@ void Physics::print_status_rect()
 // Report status with string.
 std_str Physics::sprint_status_rect(std_str linbreak = "\n")
 {
-	std_str report_str("");
+	ostringstream report_str;
 	if (reflected_status.back() == true) {
-		report_str = report_str \
-			+ linbreak + "** Reflected!! **" \
-			+ linbreak;
+		report_str << linbreak \
+			<< "** Reflected!! **" \
+			<< linbreak;
 	}
 
 	std_vec_d info(7);
 	info = report_status_rect();
-	report_str = report_str + \
-		"Location: (" + Converters::numtostr(info[0]) + "," \
-		+ Converters::numtostr(info[1]) + ")" + linbreak;
-	report_str = report_str + \
-		"Velocity: <" + Converters::numtostr(info[2]) + "," \
-		+ Converters::numtostr(info[3]) + ">" + linbreak;
-	report_str = report_str + \
-		"Time elapsed: " + Converters::numtostr(info[5]) \
-		+ " sec." + linbreak + linbreak;
+	report_str << \
+		"Location: (" << Converters::numtostr(info[0]) << "," \
+		<< Converters::numtostr(info[1]) << ")" << linbreak;
+	report_str << \
+		"Velocity: <" << Converters::numtostr(info[2]) << "," \
+		<< Converters::numtostr(info[3]) << ">" << linbreak;
+	report_str << \
+		"Time elapsed: " << Converters::numtostr(info[5]) \
+		<< " sec." << linbreak << linbreak;
 
-	return report_str;
+	return report_str.str();
 }
 
 // Convert double to std::string object
@@ -300,14 +300,14 @@ std_str Physics::double_to_string(double input)
 // Displaying dimension
 std_str Physics::show_dimension_rect(std_str linbreak)
 {
-	std_str rect_report;
-	rect_report = linbreak \
-		+ "Rectangular dimnesion information" + linbreak \
-		+ "Left: " + Converters::numtostr(edge_left) + linbreak \
-		+ "Right: " + Converters::numtostr(edge_right) + linbreak \
-		+ "Top: " + Converters::numtostr(edge_top) + linbreak \
-		+ "Bottom: " + Converters::numtostr(edge_bottom) + linbreak \
-		+ linbreak + linbreak;
+	ostringstream rect_report;
+	rect_report << linbreak \
+		<< "Rectangular dimnesion information" << linbreak \
+		<< "Left: " << std_str(Converters::numtostr(edge_left)) << linbreak \
+		<< "Right: " << std_str(Converters::numtostr(edge_right)) << linbreak \
+		<< "Top: " << std_str(Converters::numtostr(edge_top)) << linbreak \
+		<< "Bottom: " << std_str(Converters::numtostr(edge_bottom)) << linbreak \
+		<< linbreak << linbreak;
 
 	if (b_verbose == true) {
 		cout << endl;
@@ -319,7 +319,7 @@ std_str Physics::show_dimension_rect(std_str linbreak)
 		cout << endl;
 	}
 
-	return rect_report;
+	return rect_report.str();
 }
 
 // Set misc parameters

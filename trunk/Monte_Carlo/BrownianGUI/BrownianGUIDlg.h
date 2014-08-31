@@ -30,6 +30,15 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CEdit c_pStatus;
+
+	double dim_left;
+	double dim_right;
+	double dim_top;
+	double dim_bottom;
+
+	double max_vel_x;
+	double max_vel_y;
+
 	bool AddTextToStatus(CString CStrText);
 	bool AddTextToStatus(std_str CStrText);
 	bool AddTextToStatus(const char* CStrText);
