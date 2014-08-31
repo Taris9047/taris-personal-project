@@ -25,7 +25,6 @@ const char* Converters::numtostr(float input)
 	if (!(o << input)) 
 		throw "numtostr(double) Error!!";
 	return o.str().c_str();
-
 }
 const char* Converters::numtostr(int input)
 {
@@ -33,8 +32,37 @@ const char* Converters::numtostr(int input)
 	if (!(o << input)) 
 		throw "numtostr(double) Error!!";
 	return o.str().c_str();
-
 }
+
+std::string Converters::numtostdstr(long double input)
+{
+	std::ostringstream o;
+	if (!(o << input)) 
+		throw "numtostdstr(double) Error!!";
+	return o.str();
+}
+std::string Converters::numtostdstr(double input)
+{
+	std::ostringstream o;
+	if (!(o << input)) 
+		throw "numtostdstr(double) Error!!";
+	return o.str();
+}
+std::string Converters::numtostdstr(float input)
+{
+	std::ostringstream o;
+	if (!(o << input)) 
+		throw "numtostdstr(double) Error!!";
+	return o.str();
+}
+std::string Converters::numtostdstr(int input)
+{
+	std::ostringstream o;
+	if (!(o << input)) 
+		throw "numtostdstr(double) Error!!";
+	return o.str();
+}
+
 const char* Converters::btostr(bool input)
 {
 	std::string ret_true("TRUE");
@@ -55,6 +83,28 @@ const char* Converters::btoyesno(bool input)
 	else
 		return ret_no.c_str();;
 }
+
+std::string Converters::btostdstr(bool input)
+{
+	std::string ret_true("TRUE");
+	std::string ret_false("FALSE");
+
+	if (input)
+		return ret_true;
+	else
+		return ret_false;
+}
+std::string Converters::btostdstryesno(bool input)
+{
+	std::string ret_yes("YES");
+	std::string ret_no("NO");
+
+	if (input)
+		return ret_yes;
+	else
+		return ret_no;
+}
+
 
 double Converters::strtod(const char* str)
 {

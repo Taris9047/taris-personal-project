@@ -14,8 +14,16 @@ namespace Converters
 	const char* numtostr(float input);
 	const char* numtostr(int input);
 
+	std::string numtostdstr(long double input);
+	std::string numtostdstr(double input);
+	std::string numtostdstr(float input);
+	std::string numtostdstr(int input);
+
 	const char* btostr(bool input);
 	const char* btoyesno(bool input);
+
+	std::string btostdstr(bool input);
+	std::string btostdstryesno(bool input);
 
 	double strtod(const char* str);
 	float strtof(const char* str);
