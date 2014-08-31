@@ -3,7 +3,7 @@
   <Project Name="BrownianWX" Path="BrownianWX.project" Active="Yes"/>
   <Project Name="Physics" Path="Physics/Physics.project" Active="No"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="yes">
+    <WorkspaceConfiguration Name="Debug" Selected="no">
       <Project Name="BrownianWX" ConfigName="Debug"/>
       <Project Name="Physics" ConfigName="Debug"/>
     </WorkspaceConfiguration>

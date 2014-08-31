@@ -2,12 +2,12 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Debug
+## Release
 ProjectName            :=BrownianWX
-ConfigurationName      :=Debug
+ConfigurationName      :=Release
 WorkspacePath          := "/home/taris/workshop/Monte_Carlo/BrownianWX"
 ProjectPath            := "/home/taris/workshop/Monte_Carlo/BrownianWX"
-IntermediateDirectory  :=./Debug
+IntermediateDirectory  :=./Release
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
@@ -28,7 +28,7 @@ LibraryPathSwitch      :=-L
 PreprocessorSwitch     :=-D
 SourceSwitch           :=-c 
 OutputFile             :=$(IntermediateDirectory)/$(ProjectName)
-Preprocessors          :=$(PreprocessorSwitch)__WX__ 
+Preprocessors          :=$(PreprocessorSwitch)NDEBUG 
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
 PreprocessOnlySwitch   :=-E
@@ -41,7 +41,7 @@ IncludePCH             :=
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)Physics 
 ArLibs                 :=  "Physics" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspacePath)/Physics/Debug $(LibraryPathSwitch)$(WorkspacePath)/Physics/Release 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)./Physics/Release/ 
 
 ##
 ## Common variables
@@ -50,8 +50,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspaceP
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++ 
 CC       := /usr/bin/gcc 
-CXXFLAGS :=  -g -O0 -Wall $(shell wx-config --cxxflags --debug --unicode=yes) $(Preprocessors)
-CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
+CXXFLAGS :=  -O3 -Wall $(shell wx-config --cflags) $(Preprocessors)
+CFLAGS   :=  -O3 -Wall $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as 
 
@@ -60,9 +60,8 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-PATH:=/usr/local/bin/:/usr/bin:$PATH
-DYLD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Debug:$DYLD_LIBRARY_PATH
-LD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Debug:$LD_LIBRARY_PATH
+PATH:=/usr/local/bin:/usr/bin:$PATH
+LD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Release/:.
 Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainDialog.cpp$(ObjectSuffix) $(IntermediateDirectory)/SettingsDialog.cpp$(ObjectSuffix) 
 
 
@@ -75,26 +74,26 @@ Objects=$(Objects0)
 .PHONY: all clean PreBuild PrePreBuild PostBuild
 all: $(OutputFile)
 
-$(OutputFile): $(IntermediateDirectory)/.d ".build-debug/Physics" $(Objects) 
+$(OutputFile): $(IntermediateDirectory)/.d ".build-release/Physics" $(Objects) 
 	@$(MakeDirCommand) $(@D)
 	@echo "" > $(IntermediateDirectory)/.d
 	@echo $(Objects0)  > $(ObjectsFileList)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
-".build-debug/Physics":
-	@$(MakeDirCommand) ".build-debug"
-	@echo stam > ".build-debug/Physics"
+".build-release/Physics":
+	@$(MakeDirCommand) ".build-release"
+	@echo stam > ".build-release/Physics"
 
 
 
 
 PostBuild:
 	@echo Executing Post Build commands ...
-	cp -vrf ./Physics/Debug/libPhysics.so ./Debug/
+	ln -sf $(WorkspacePath)/Physics/Release/libPhysics.so $(WorkspacePath)/Release/libPhysics.so
 	@echo Done
 
 $(IntermediateDirectory)/.d:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@test -d ./Release || $(MakeDirCommand) ./Release
 
 PreBuild:
 
@@ -148,9 +147,9 @@ $(IntermediateDirectory)/SettingsDialog.cpp$(PreprocessSuffix): SettingsDialog.c
 ## Clean
 ##
 clean:
-	$(RM) ./Debug/*$(ObjectSuffix)
-	$(RM) ./Debug/*$(DependSuffix)
+	$(RM) ./Release/*$(ObjectSuffix)
+	$(RM) ./Release/*$(DependSuffix)
 	$(RM) $(OutputFile)
-	$(RM) ".build-debug/BrownianWX"
+	$(RM) ".build-release/BrownianWX"
 
 
