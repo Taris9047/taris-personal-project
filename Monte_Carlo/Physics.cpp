@@ -240,6 +240,7 @@ std_vec_d Physics::report_status_rect()
 	report_info[3] = curr_object->yv();
 	report_info[4] = curr_object->read_mass();
 	report_info[5] = time_elapsed;
+
 	if (reflected_status.back() == true) {
 		report_info[6] = 1;
 	}
@@ -339,7 +340,8 @@ bool Physics::set_timing(
 
 bool Physics::set_Molecule(Molecule* Thing)
 {
-	curr_object = Thing;
+	if (!(curr_object = Thing))
+		throw "Physics::set_Molecule went haywire!!";
 
 	return true;
 }
@@ -375,33 +377,9 @@ void Physics::write_log_rect(
 	std_str cDelim = "\t", std_str linbreak = "\n")
 {
 	ofstream trace_record;
-	std_str trace_record_str("");
-
 	trace_record.open(outfile_name.c_str());
-
-	trace_record_str = trace_record_str + \
-		"\"Coord X\"" + cDelim + "\"Coord Y\"" + cDelim + \
-		"\"Velocity X\"" + cDelim + "\"Velocity Y\"" + cDelim + \
-		"\"Mass (g)\"" + cDelim + "\"Reflected\"" + cDelim + \
-		"\"Time\"" + linbreak;
-
-	//trace_record << scientific;
-
-	ulong log_size = time_trace.size();
-
-	for (unint i=0; i < log_size; i++) {
-		
-		trace_record_str = trace_record_str + \
-			Converters::numtostdstr(x_loc.at(i)) + cDelim + \
-			Converters::numtostdstr(y_loc.at(i)) + cDelim + \
-			Converters::numtostdstr(x_vel.at(i)) + cDelim + \
-			Converters::numtostdstr(y_vel.at(i)) + cDelim + \
-			Converters::numtostdstr(curr_object->read_mass()) + cDelim + \
-			Converters::btostdstryesno(reflected_status.at(i)) + cDelim + \
-			Converters::numtostdstr(time_trace.at(i)) + linbreak;
-	}
-
-	trace_record << trace_record_str;
+	
+	trace_record << extract_log_rect("\t", linbreak);
 
 	trace_record.close();
 	cout << "File saved as ... " << outfile_name << endl;
