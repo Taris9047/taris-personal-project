@@ -1,7 +1,11 @@
 #!/bin/bash
 
 echo "Trying to compile... if anything changed in CPP code."
-make -j 6
+if [ $OSTYPE == "cygwin" ]; then
+	make cyg -j 6
+else
+	make -j 6
+fi
 
 echo "Running the brownian movement simulator with arguments."
 ./brownian $1 $2 $3
