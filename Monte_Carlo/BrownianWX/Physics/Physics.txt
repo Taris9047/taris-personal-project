@@ -1,1 +1,1 @@
-./Debug/Monte_Carlo_Gnuplot_Gen.cpp.o ./Debug/Monte_Carlo_Molecule.cpp.o ./Debug/Monte_Carlo_Photon.cpp.o ./Debug/Monte_Carlo_Physics.cpp.o ./Debug/Monte_Carlo_Random.cpp.o
+./Release/Monte_Carlo_Gnuplot_Gen.cpp.o ./Release/Monte_Carlo_Molecule.cpp.o ./Release/Monte_Carlo_Photon.cpp.o ./Release/Monte_Carlo_Physics.cpp.o ./Release/Monte_Carlo_Random.cpp.o

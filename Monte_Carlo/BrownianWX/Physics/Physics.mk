@@ -2,12 +2,12 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Debug
+## Release
 ProjectName            :=Physics
-ConfigurationName      :=Debug
+ConfigurationName      :=Release
 WorkspacePath          := "/home/taris/workshop/Monte_Carlo/BrownianWX"
 ProjectPath            := "/home/taris/workshop/Monte_Carlo/BrownianWX/Physics"
-IntermediateDirectory  :=./Debug
+IntermediateDirectory  :=./Release
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
@@ -35,8 +35,8 @@ PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="Physics.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=mkdir -p
-LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../ 
+LinkOptions            :=  -O2
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). 
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := 
@@ -50,8 +50,8 @@ LibPath                := $(LibraryPathSwitch).
 AR       := /usr/bin/ar rcu
 CXX      := /usr/bin/g++ 
 CC       := /usr/bin/gcc 
-CXXFLAGS :=  -g -O0 -Wall -fPIC $(Preprocessors)
-CFLAGS   :=  -g -O0  $(Preprocessors)
+CXXFLAGS :=  -O3 -Wall -fPIC $(Preprocessors)
+CFLAGS   :=   $(Preprocessors)
 ASFLAGS  := 
 AS       := /usr/bin/as 
 
@@ -60,8 +60,6 @@ AS       := /usr/bin/as
 ## User defined environment variables
 ##
 CodeLiteDir:=/usr/share/codelite
-PATH:=$PATH
-DYLD_LIBRARY_PATH:=
 Objects0=$(IntermediateDirectory)/Monte_Carlo_Gnuplot_Gen.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Molecule.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Photon.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Physics.cpp$(ObjectSuffix) $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(ObjectSuffix) 
 
 
@@ -79,11 +77,11 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	@echo "" > $(IntermediateDirectory)/.d
 	@echo $(Objects0)  > $(ObjectsFileList)
 	$(SharedObjectLinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
-	@$(MakeDirCommand) "/home/taris/workshop/Monte_Carlo/BrownianWX/.build-debug"
-	@echo rebuilt > "/home/taris/workshop/Monte_Carlo/BrownianWX/.build-debug/Physics"
+	@$(MakeDirCommand) "/home/taris/workshop/Monte_Carlo/BrownianWX/.build-release"
+	@echo rebuilt > "/home/taris/workshop/Monte_Carlo/BrownianWX/.build-release/Physics"
 
 $(IntermediateDirectory)/.d:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@test -d ./Release || $(MakeDirCommand) ./Release
 
 PreBuild:
 
@@ -137,9 +135,9 @@ $(IntermediateDirectory)/Monte_Carlo_Random.cpp$(PreprocessSuffix): ../../Random
 ## Clean
 ##
 clean:
-	$(RM) ./Debug/*$(ObjectSuffix)
-	$(RM) ./Debug/*$(DependSuffix)
+	$(RM) ./Release/*$(ObjectSuffix)
+	$(RM) ./Release/*$(DependSuffix)
 	$(RM) $(OutputFile)
-	$(RM) "../.build-debug/Physics"
+	$(RM) "../.build-release/Physics"
 
 

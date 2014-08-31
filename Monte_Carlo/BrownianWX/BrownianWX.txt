@@ -1,1 +1,1 @@
-./Debug/main.cpp.o ./Debug/wxcrafter.cpp.o ./Debug/wxcrafter_bitmaps.cpp.o ./Debug/MainDialog.cpp.o ./Debug/SettingsDialog.cpp.o
+./Release/main.cpp.o ./Release/wxcrafter.cpp.o ./Release/wxcrafter_bitmaps.cpp.o ./Release/MainDialog.cpp.o ./Release/SettingsDialog.cpp.o

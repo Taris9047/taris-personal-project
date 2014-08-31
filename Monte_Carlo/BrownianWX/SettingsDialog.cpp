@@ -2,21 +2,28 @@
 #include <sstream>
 
 SettingsDialog::SettingsDialog(wxWindow* parent)
-    : SettingsDialogBase(parent)
+    : SettingsDialogBase(parent),
+	m_dim_left(NULL),
+	m_dim_right(NULL),
+	m_dim_top(NULL),
+	m_dim_bottom(NULL),
+	m_max_vel_x(NULL),
+	m_max_vel_y(NULL)
 {
 }
 
 SettingsDialog::SettingsDialog(wxWindow* parent, 
 	double* left, double* right, double* top, double* bottom, 
 	double* max_vel_x, double* max_vel_y)
-	: SettingsDialogBase(parent)
+	: SettingsDialogBase(parent),
+	m_dim_left(left),
+	m_dim_right(right),
+	m_dim_top(top),
+	m_dim_bottom(bottom),
+	m_max_vel_x(max_vel_x),
+	m_max_vel_y(max_vel_y)
 {
-	m_dim_left = left;
-	m_dim_right = right;
-	m_dim_top = top;
-	m_dim_bottom = bottom;
-	m_max_vel_x = max_vel_x;
-	m_max_vel_y = max_vel_y;
+	m_buttonApply->SetFocus();
 	
 	SetTextFields();
 }
