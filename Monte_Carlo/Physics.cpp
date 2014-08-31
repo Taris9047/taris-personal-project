@@ -422,14 +422,14 @@ std_str Physics::extract_log_rect(
 	ulong log_size = time_trace.size();
 
 	for (ulong i = 0; i < log_size; i++) {
-		trace_record = trace_record +\
-			Converters::numtostr(x_loc.at(i)) + cDelim + \
-			Converters::numtostr(y_loc.at(i)) + cDelim + \
-			Converters::numtostr(x_vel.at(i)) + cDelim + \
-			Converters::numtostr(y_vel.at(i)) + cDelim + \
-			Converters::numtostr(curr_object->read_mass()) + cDelim + \
-			Converters::btostr(reflected_status.at(i)) + cDelim + \
-			Converters::numtostr(time_trace.at(i)) + \
+		trace_record = trace_record + \
+			Converters::numtostdstr(x_loc.at(i)) + cDelim + \
+			Converters::numtostdstr(y_loc.at(i)) + cDelim + \
+			Converters::numtostdstr(x_vel.at(i)) + cDelim + \
+			Converters::numtostdstr(y_vel.at(i)) + cDelim + \
+			Converters::numtostdstr(curr_object->read_mass()) + cDelim + \
+			Converters::btostdstryesno(reflected_status.at(i)) + cDelim + \
+			Converters::numtostdstr(time_trace.at(i)) + \
 			linbreak;
 	}
 
