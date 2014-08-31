@@ -254,32 +254,30 @@ std_vec_d Physics::report_status_rect()
 // Reporting status to the stdio on the way.
 void Physics::print_status_rect()
 {
+	//cout.flush();
 	cout << sprint_status_rect(std_str("\n")).c_str();
 }
 
 // Report status with string.
 std_str Physics::sprint_status_rect(std_str linbreak = "\n")
 {
-	ostringstream report_str;
-	if (reflected_status.back() == true) {
-		report_str << linbreak \
-			<< "** Reflected!! **" \
-			<< linbreak;
-	}
+	std_str report_str("");
+
+	if (reflected_status.back() == true)
+		report_str = report_str + \
+			linbreak + "** Reflected!! **" + linbreak;
 
 	std_vec_d info(7);
 	info = report_status_rect();
-	report_str << \
-		"Location: (" << Converters::numtostr(info[0]) << "," \
-		<< Converters::numtostr(info[1]) << ")" << linbreak;
-	report_str << \
-		"Velocity: <" << Converters::numtostr(info[2]) << "," \
-		<< Converters::numtostr(info[3]) << ">" << linbreak;
-	report_str << \
-		"Time elapsed: " << Converters::numtostr(info[5]) \
-		<< " sec." << linbreak << linbreak;
+	report_str = report_str + \
+		"Location: (" + Converters::numtostdstr(info[0]) + "," \
+		+ Converters::numtostdstr(info[1]) + ")" + linbreak + \
+		"Velocity: <" + Converters::numtostdstr(info[2]) + "," \
+		+ Converters::numtostdstr(info[3]) + ">" + linbreak + \
+		"Time elapsed: " + Converters::numtostdstr(info[5]) + " sec." + \
+		linbreak + linbreak;
 
-	return report_str.str();
+	return report_str;
 }
 
 // Convert double to std::string object
@@ -300,14 +298,14 @@ std_str Physics::double_to_string(double input)
 // Displaying dimension
 std_str Physics::show_dimension_rect(std_str linbreak)
 {
-	ostringstream rect_report;
-	rect_report << linbreak \
-		<< "Rectangular dimnesion information" << linbreak \
-		<< "Left: " << std_str(Converters::numtostr(edge_left)) << linbreak \
-		<< "Right: " << std_str(Converters::numtostr(edge_right)) << linbreak \
-		<< "Top: " << std_str(Converters::numtostr(edge_top)) << linbreak \
-		<< "Bottom: " << std_str(Converters::numtostr(edge_bottom)) << linbreak \
-		<< linbreak << linbreak;
+	std_str rect_report;
+	rect_report = rect_report + linbreak \
+		+ "Rectangular dimnesion information" + linbreak \
+		+ "Left: " + Converters::numtostdstr(edge_left) + linbreak \
+		+ "Right: " + Converters::numtostdstr(edge_right) + linbreak \
+		+ "Top: " + Converters::numtostdstr(edge_top) + linbreak \
+		+ "Bottom: " + Converters::numtostdstr(edge_bottom) + linbreak \
+		+ linbreak + linbreak;
 
 	if (b_verbose == true) {
 		cout << endl;
@@ -319,7 +317,7 @@ std_str Physics::show_dimension_rect(std_str linbreak)
 		cout << endl;
 	}
 
-	return rect_report.str();
+	return rect_report;
 }
 
 // Set misc parameters
@@ -377,26 +375,33 @@ void Physics::write_log_rect(
 	std_str cDelim = "\t", std_str linbreak = "\n")
 {
 	ofstream trace_record;
+	std_str trace_record_str("");
+
 	trace_record.open(outfile_name.c_str());
-	trace_record << "\"Coord X\"" << cDelim << "\"Coord Y\"" \
-		<< cDelim << "\"Velocity X\"" << cDelim << "\"Velocity Y\"" \
-		<< cDelim << "\"Mass (g)\"" << cDelim << "\"Reflected\"" \
-		<< cDelim << "\"Time\"" \
-		<< linbreak;
-	trace_record << scientific;
+
+	trace_record_str = trace_record_str + \
+		"\"Coord X\"" + cDelim + "\"Coord Y\"" + cDelim + \
+		"\"Velocity X\"" + cDelim + "\"Velocity Y\"" + cDelim + \
+		"\"Mass (g)\"" + cDelim + "\"Reflected\"" + cDelim + \
+		"\"Time\"" + linbreak;
+
+	//trace_record << scientific;
 
 	ulong log_size = time_trace.size();
 
 	for (unint i=0; i < log_size; i++) {
-		trace_record << x_loc.at(i) << cDelim << \
-			y_loc.at(i) << cDelim << \
-			x_vel.at(i) << cDelim << \
-			y_vel.at(i) << cDelim << \
-			curr_object->read_mass() << cDelim << \
-			Converters::btoyesno(reflected_status.at(i)) << cDelim << \
-			time_trace.at(i) << \
-			linbreak;
+		
+		trace_record_str = trace_record_str + \
+			Converters::numtostdstr(x_loc.at(i)) + cDelim + \
+			Converters::numtostdstr(y_loc.at(i)) + cDelim + \
+			Converters::numtostdstr(x_vel.at(i)) + cDelim + \
+			Converters::numtostdstr(y_vel.at(i)) + cDelim + \
+			Converters::numtostdstr(curr_object->read_mass()) + cDelim + \
+			Converters::btostdstryesno(reflected_status.at(i)) + cDelim + \
+			Converters::numtostdstr(time_trace.at(i)) + linbreak;
 	}
+
+	trace_record << trace_record_str;
 
 	trace_record.close();
 	cout << "File saved as ... " << outfile_name << endl;
@@ -406,27 +411,29 @@ void Physics::write_log_rect(
 std_str Physics::extract_log_rect(
 	std_str cDelim = "\t", std_str linbreak = "\n")
 {
-	ostringstream trace_record;
-	trace_record << "\"Coord X\"" << cDelim << "\"Coord Y\"" \
-		<< cDelim << "\"Velocity X\"" << cDelim << "\"Velocity Y\"" \
-		<< cDelim << "\"Mass (g)\"" << cDelim << "\"Reflected\"" \
-		<< cDelim << "\"Time\"" \
-		<< linbreak;
+	std_str trace_record("");
+	trace_record = trace_record + \
+		"\"Coord X\"" + cDelim + "\"Coord Y\"" \
+		+ cDelim + "\"Velocity X\"" + cDelim + "\"Velocity Y\"" \
+		+ cDelim + "\"Mass (g)\"" + cDelim + "\"Reflected\"" \
+		+ cDelim + "\"Time\"" \
+		+ linbreak;
 
 	ulong log_size = time_trace.size();
 
-	for (unint i = 0; i < log_size; i++) {
-		trace_record << Converters::numtostr(x_loc.at(i)) << cDelim << \
-			Converters::numtostr(y_loc.at(i)) << cDelim << \
-			Converters::numtostr(x_vel.at(i)) << cDelim << \
-			Converters::numtostr(y_vel.at(i)) << cDelim << \
-			Converters::numtostr(curr_object->read_mass()) << cDelim << \
-			Converters::btostr(reflected_status.at(i)) << cDelim << \
-			Converters::numtostr(time_trace.at(i)) << \
+	for (ulong i = 0; i < log_size; i++) {
+		trace_record = trace_record +\
+			Converters::numtostr(x_loc.at(i)) + cDelim + \
+			Converters::numtostr(y_loc.at(i)) + cDelim + \
+			Converters::numtostr(x_vel.at(i)) + cDelim + \
+			Converters::numtostr(y_vel.at(i)) + cDelim + \
+			Converters::numtostr(curr_object->read_mass()) + cDelim + \
+			Converters::btostr(reflected_status.at(i)) + cDelim + \
+			Converters::numtostr(time_trace.at(i)) + \
 			linbreak;
 	}
 
-	return trace_record.str();
+	return trace_record;
 }
 
 // A little tool to convert bool type to understandable string.
