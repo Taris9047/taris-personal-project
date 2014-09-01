@@ -1,0 +1,525 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		72B684A819B13483004024B3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72B684A719B13483004024B3 /* Cocoa.framework */; };
+		72B684B219B13483004024B3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 72B684B019B13483004024B3 /* InfoPlist.strings */; };
+		72B684B419B13483004024B3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B684B319B13483004024B3 /* main.m */; };
+		72B684B819B13483004024B3 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 72B684B619B13483004024B3 /* Credits.rtf */; };
+		72B684BB19B13483004024B3 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 72B684BA19B13483004024B3 /* AppDelegate.mm */; };
+		72B684BE19B13483004024B3 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 72B684BC19B13483004024B3 /* MainMenu.xib */; };
+		72B684C019B13483004024B3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 72B684BF19B13483004024B3 /* Images.xcassets */; };
+		72B684C719B13483004024B3 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72B684C619B13483004024B3 /* XCTest.framework */; };
+		72B684C819B13483004024B3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72B684A719B13483004024B3 /* Cocoa.framework */; };
+		72B684D019B13483004024B3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 72B684CE19B13483004024B3 /* InfoPlist.strings */; };
+		72B684D219B13483004024B3 /* BrownianCocoaTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B684D119B13483004024B3 /* BrownianCocoaTests.m */; };
+		72B6851319B13D42004024B3 /* Gnuplot_Gen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 72B6850919B13D42004024B3 /* Gnuplot_Gen.cpp */; };
+		72B6851419B13D42004024B3 /* Molecule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 72B6850B19B13D42004024B3 /* Molecule.cpp */; };
+		72B6851519B13D42004024B3 /* Photon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 72B6850D19B13D42004024B3 /* Photon.cpp */; };
+		72B6851619B13D42004024B3 /* Physics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 72B6850F19B13D42004024B3 /* Physics.cpp */; };
+		72B6851719B13D42004024B3 /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 72B6851119B13D42004024B3 /* Random.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		72B684C919B13483004024B3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 72B6849C19B13483004024B3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 72B684A319B13483004024B3;
+			remoteInfo = BrownianCocoa;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		72B684A419B13483004024B3 /* BrownianCocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrownianCocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		72B684A719B13483004024B3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		72B684AA19B13483004024B3 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		72B684AB19B13483004024B3 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		72B684AC19B13483004024B3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		72B684AF19B13483004024B3 /* BrownianCocoa-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BrownianCocoa-Info.plist"; sourceTree = "<group>"; };
+		72B684B119B13483004024B3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		72B684B319B13483004024B3 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		72B684B519B13483004024B3 /* BrownianCocoa-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BrownianCocoa-Prefix.pch"; sourceTree = "<group>"; };
+		72B684B719B13483004024B3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		72B684B919B13483004024B3 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		72B684BA19B13483004024B3 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		72B684BD19B13483004024B3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		72B684BF19B13483004024B3 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		72B684C519B13483004024B3 /* BrownianCocoaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BrownianCocoaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		72B684C619B13483004024B3 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		72B684CD19B13483004024B3 /* BrownianCocoaTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BrownianCocoaTests-Info.plist"; sourceTree = "<group>"; };
+		72B684CF19B13483004024B3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		72B684D119B13483004024B3 /* BrownianCocoaTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrownianCocoaTests.m; sourceTree = "<group>"; };
+		72B6850819B13D42004024B3 /* data_types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = data_types.hpp; path = ../../data_types.hpp; sourceTree = "<group>"; };
+		72B6850919B13D42004024B3 /* Gnuplot_Gen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Gnuplot_Gen.cpp; path = ../../Gnuplot_Gen.cpp; sourceTree = "<group>"; };
+		72B6850A19B13D42004024B3 /* Gnuplot_Gen.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Gnuplot_Gen.hpp; path = ../../Gnuplot_Gen.hpp; sourceTree = "<group>"; };
+		72B6850B19B13D42004024B3 /* Molecule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Molecule.cpp; path = ../../Molecule.cpp; sourceTree = "<group>"; };
+		72B6850C19B13D42004024B3 /* Molecule.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Molecule.hpp; path = ../../Molecule.hpp; sourceTree = "<group>"; };
+		72B6850D19B13D42004024B3 /* Photon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Photon.cpp; path = ../../Photon.cpp; sourceTree = "<group>"; };
+		72B6850E19B13D42004024B3 /* Photon.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Photon.hpp; path = ../../Photon.hpp; sourceTree = "<group>"; };
+		72B6850F19B13D42004024B3 /* Physics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Physics.cpp; path = ../../Physics.cpp; sourceTree = "<group>"; };
+		72B6851019B13D42004024B3 /* Physics.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Physics.hpp; path = ../../Physics.hpp; sourceTree = "<group>"; };
+		72B6851119B13D42004024B3 /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Random.cpp; path = ../../Random.cpp; sourceTree = "<group>"; };
+		72B6851219B13D42004024B3 /* Random.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Random.hpp; path = ../../Random.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		72B684A119B13483004024B3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B684A819B13483004024B3 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		72B684C219B13483004024B3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B684C819B13483004024B3 /* Cocoa.framework in Frameworks */,
+				72B684C719B13483004024B3 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		72B6849B19B13483004024B3 = {
+			isa = PBXGroup;
+			children = (
+				72B684AD19B13483004024B3 /* BrownianCocoa */,
+				72B684CB19B13483004024B3 /* BrownianCocoaTests */,
+				72B684A619B13483004024B3 /* Frameworks */,
+				72B684A519B13483004024B3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		72B684A519B13483004024B3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				72B684A419B13483004024B3 /* BrownianCocoa.app */,
+				72B684C519B13483004024B3 /* BrownianCocoaTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		72B684A619B13483004024B3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				72B684A719B13483004024B3 /* Cocoa.framework */,
+				72B684C619B13483004024B3 /* XCTest.framework */,
+				72B684A919B13483004024B3 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		72B684A919B13483004024B3 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				72B684AA19B13483004024B3 /* AppKit.framework */,
+				72B684AB19B13483004024B3 /* CoreData.framework */,
+				72B684AC19B13483004024B3 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		72B684AD19B13483004024B3 /* BrownianCocoa */ = {
+			isa = PBXGroup;
+			children = (
+				72B6850819B13D42004024B3 /* data_types.hpp */,
+				72B6850919B13D42004024B3 /* Gnuplot_Gen.cpp */,
+				72B6850A19B13D42004024B3 /* Gnuplot_Gen.hpp */,
+				72B6850B19B13D42004024B3 /* Molecule.cpp */,
+				72B6850C19B13D42004024B3 /* Molecule.hpp */,
+				72B6850D19B13D42004024B3 /* Photon.cpp */,
+				72B6850E19B13D42004024B3 /* Photon.hpp */,
+				72B6850F19B13D42004024B3 /* Physics.cpp */,
+				72B6851019B13D42004024B3 /* Physics.hpp */,
+				72B6851119B13D42004024B3 /* Random.cpp */,
+				72B6851219B13D42004024B3 /* Random.hpp */,
+				72B684B919B13483004024B3 /* AppDelegate.h */,
+				72B684BA19B13483004024B3 /* AppDelegate.mm */,
+				72B684BC19B13483004024B3 /* MainMenu.xib */,
+				72B684BF19B13483004024B3 /* Images.xcassets */,
+				72B684AE19B13483004024B3 /* Supporting Files */,
+			);
+			path = BrownianCocoa;
+			sourceTree = "<group>";
+		};
+		72B684AE19B13483004024B3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				72B684AF19B13483004024B3 /* BrownianCocoa-Info.plist */,
+				72B684B019B13483004024B3 /* InfoPlist.strings */,
+				72B684B319B13483004024B3 /* main.m */,
+				72B684B519B13483004024B3 /* BrownianCocoa-Prefix.pch */,
+				72B684B619B13483004024B3 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		72B684CB19B13483004024B3 /* BrownianCocoaTests */ = {
+			isa = PBXGroup;
+			children = (
+				72B684D119B13483004024B3 /* BrownianCocoaTests.m */,
+				72B684CC19B13483004024B3 /* Supporting Files */,
+			);
+			path = BrownianCocoaTests;
+			sourceTree = "<group>";
+		};
+		72B684CC19B13483004024B3 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				72B684CD19B13483004024B3 /* BrownianCocoaTests-Info.plist */,
+				72B684CE19B13483004024B3 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		72B684A319B13483004024B3 /* BrownianCocoa */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 72B684D519B13483004024B3 /* Build configuration list for PBXNativeTarget "BrownianCocoa" */;
+			buildPhases = (
+				72B684A019B13483004024B3 /* Sources */,
+				72B684A119B13483004024B3 /* Frameworks */,
+				72B684A219B13483004024B3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrownianCocoa;
+			productName = BrownianCocoa;
+			productReference = 72B684A419B13483004024B3 /* BrownianCocoa.app */;
+			productType = "com.apple.product-type.application";
+		};
+		72B684C419B13483004024B3 /* BrownianCocoaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 72B684D819B13483004024B3 /* Build configuration list for PBXNativeTarget "BrownianCocoaTests" */;
+			buildPhases = (
+				72B684C119B13483004024B3 /* Sources */,
+				72B684C219B13483004024B3 /* Frameworks */,
+				72B684C319B13483004024B3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				72B684CA19B13483004024B3 /* PBXTargetDependency */,
+			);
+			name = BrownianCocoaTests;
+			productName = BrownianCocoaTests;
+			productReference = 72B684C519B13483004024B3 /* BrownianCocoaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		72B6849C19B13483004024B3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Taylor Shin";
+				TargetAttributes = {
+					72B684C419B13483004024B3 = {
+						TestTargetID = 72B684A319B13483004024B3;
+					};
+				};
+			};
+			buildConfigurationList = 72B6849F19B13483004024B3 /* Build configuration list for PBXProject "BrownianCocoa" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 72B6849B19B13483004024B3;
+			productRefGroup = 72B684A519B13483004024B3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				72B684A319B13483004024B3 /* BrownianCocoa */,
+				72B684C419B13483004024B3 /* BrownianCocoaTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		72B684A219B13483004024B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B684B219B13483004024B3 /* InfoPlist.strings in Resources */,
+				72B684C019B13483004024B3 /* Images.xcassets in Resources */,
+				72B684B819B13483004024B3 /* Credits.rtf in Resources */,
+				72B684BE19B13483004024B3 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		72B684C319B13483004024B3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B684D019B13483004024B3 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		72B684A019B13483004024B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B6851319B13D42004024B3 /* Gnuplot_Gen.cpp in Sources */,
+				72B684BB19B13483004024B3 /* AppDelegate.mm in Sources */,
+				72B684B419B13483004024B3 /* main.m in Sources */,
+				72B6851619B13D42004024B3 /* Physics.cpp in Sources */,
+				72B6851419B13D42004024B3 /* Molecule.cpp in Sources */,
+				72B6851519B13D42004024B3 /* Photon.cpp in Sources */,
+				72B6851719B13D42004024B3 /* Random.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		72B684C119B13483004024B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72B684D219B13483004024B3 /* BrownianCocoaTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		72B684CA19B13483004024B3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 72B684A319B13483004024B3 /* BrownianCocoa */;
+			targetProxy = 72B684C919B13483004024B3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		72B684B019B13483004024B3 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				72B684B119B13483004024B3 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		72B684B619B13483004024B3 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				72B684B719B13483004024B3 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		72B684BC19B13483004024B3 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				72B684BD19B13483004024B3 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		72B684CE19B13483004024B3 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				72B684CF19B13483004024B3 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		72B684D319B13483004024B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		72B684D419B13483004024B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		72B684D619B13483004024B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BrownianCocoa/BrownianCocoa-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../,
+				);
+				INFOPLIST_FILE = "BrownianCocoa/BrownianCocoa-Info.plist";
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		72B684D719B13483004024B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BrownianCocoa/BrownianCocoa-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					../,
+				);
+				INFOPLIST_FILE = "BrownianCocoa/BrownianCocoa-Info.plist";
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		72B684D919B13483004024B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/BrownianCocoa.app/Contents/MacOS/BrownianCocoa";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BrownianCocoa/BrownianCocoa-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "BrownianCocoaTests/BrownianCocoaTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		72B684DA19B13483004024B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/BrownianCocoa.app/Contents/MacOS/BrownianCocoa";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "BrownianCocoa/BrownianCocoa-Prefix.pch";
+				INFOPLIST_FILE = "BrownianCocoaTests/BrownianCocoaTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		72B6849F19B13483004024B3 /* Build configuration list for PBXProject "BrownianCocoa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72B684D319B13483004024B3 /* Debug */,
+				72B684D419B13483004024B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		72B684D519B13483004024B3 /* Build configuration list for PBXNativeTarget "BrownianCocoa" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72B684D619B13483004024B3 /* Debug */,
+				72B684D719B13483004024B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		72B684D819B13483004024B3 /* Build configuration list for PBXNativeTarget "BrownianCocoaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				72B684D919B13483004024B3 /* Debug */,
+				72B684DA19B13483004024B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 72B6849C19B13483004024B3 /* Project object */;
+}
