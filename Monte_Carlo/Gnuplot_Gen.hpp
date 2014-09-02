@@ -20,6 +20,8 @@ public:
 	std::string font_option;
 	std::string datafile_separator;
 
+	std::string figure_title;
+
 	double x_range_left;
 	double x_range_right;
 	double y_range_top;
@@ -36,11 +38,17 @@ public:
 	GnuplotGen(
 		std::string input_deck_filename, \
 		std::string data_filename, \
-		std::string figure_filename);
+		std::string fig_filename);
 	GnuplotGen(
 		std::string input_deck_filename, \
 		std::string data_filename, \
-		std::string figure_filename,
+		std::string fig_filename, \
+		double left, double right, double top, double bottom);
+	GnuplotGen(
+		std::string input_deck_filename, \
+		std::string data_filename, \
+		std::string fig_filename, \
+		std::string fig_title,
 		double left, double right, double top, double bottom);
 	~GnuplotGen();
 };

@@ -19,7 +19,7 @@ convert -density 300 ./trace.eps ./trace.pdf
 echo "Opening the .pdf file"
 if [ $OSTYPE == "linux-gnu" ]; then
     evince ./trace.pdf
-elif [ $OSTYPE == "darwin" ]; then
+elif [ `uname` == "Darwin" ]; then
     open ./trace.pdf
 elif [ $OSTYPE == "cygwin" ]; then
     xpdf ./trace.pdf

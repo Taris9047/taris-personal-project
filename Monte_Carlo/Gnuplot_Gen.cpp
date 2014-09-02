@@ -83,9 +83,16 @@ bool GnuplotGen::WriteDeck()
 	gnuplot_input_deck << "plot IN_FILENAME using " << \
 		"($1):($2):($3):($4):($7) " << \
 		"w vectors head empty size 0.030,15,135 " <<
-		"lc palette " <<
-		"notitle" << std::endl;
+		"lc palette ";
 
+	if (this->figure_title == "")
+		gnuplot_input_deck << "title " << "\"" << this->figure_title \
+			<< "\"";
+	else
+		gnuplot_input_deck << "notitle ";
+
+	gnuplot_input_deck << std::endl;
+		
 	gnuplot_input_deck << std::endl;
 
 	gnuplot_input_deck.close();
@@ -111,13 +118,14 @@ std::string GnuplotGen::dtostdstr(double innum)
 ///////////////////////////////////
 
 GnuplotGen::GnuplotGen()
-	: deck_filename("plot.gp"),
-	input_filename("trace.csv"),
-	output_filename("trace.eps"),
-	terminal_type("postscript eps"),
-	terminal_option("enhanced color"),
-	font_option("\"Helvetica\" 24"),
-	datafile_separator("\",\"")
+	: deck_filename("plot.gp")
+	, input_filename("trace.csv")
+	, output_filename("trace.eps")
+	, terminal_type("postscript eps")
+	, terminal_option("enhanced color")
+	, font_option("\"Helvetica\" 24")
+	, datafile_separator("\",\"")
+	, figure_title("")
 {
 	this->set_dimension_rect(-1000,1000,1000,-1000);
 }
@@ -125,31 +133,57 @@ GnuplotGen::GnuplotGen()
 GnuplotGen::GnuplotGen(
 	std::string input_deck_filename, \
 	std::string data_filename, \
-	std::string figure_filename)
+	std::string fig_filename)
 	: terminal_type("postscript eps"),
 	terminal_option("enhanced color"),
 	font_option("\"Helvetica\" 24"),
-	datafile_separator("\",\"")
+	datafile_separator("\",\""),
+	figure_title("")
 {
 	this->deck_filename = input_deck_filename;
 	this->input_filename = data_filename;
-	this->output_filename = figure_filename;
+	this->output_filename = fig_filename;
 
 	this->set_dimension_rect(-1000,1000,1000,-1000);
 }
 
 GnuplotGen::GnuplotGen(std::string input_deck_filename, \
 	std::string data_filename, \
-	std::string figure_filename,
+	std::string fig_filename, \
 	double left, double right, double top, double bottom)
 	: terminal_type("postscript eps"),
 	terminal_option("enhanced color"),
 	font_option("\"Helvetica\" 24"),
 	datafile_separator("\",\""),
+	figure_title(""),
 	x_range_left(left), x_range_right(right),
 	y_range_top(top), y_range_bottom(bottom)
 {
+	this->deck_filename = input_deck_filename;
+	this->input_filename = data_filename;
+	this->output_filename = fig_filename;
 }
+
+GnuplotGen::GnuplotGen(std::string input_deck_filename, \
+	std::string data_filename, \
+	std::string fig_filename, \
+	std::string fig_title, \
+	double left, double right, double top, double bottom)
+	: terminal_type("postscript eps"),
+	terminal_option("enhanced color"),
+	font_option("\"Helvetica\" 24"),
+	datafile_separator("\",\""),
+	figure_title(fig_title),
+	x_range_left(left), x_range_right(right),
+	y_range_top(top), y_range_bottom(bottom)
+{
+	this->deck_filename = input_deck_filename;
+	this->input_filename = data_filename;
+	this->output_filename = fig_filename;
+	this->figure_title = fig_title;
+}
+
+
 
 GnuplotGen::~GnuplotGen()
 {
