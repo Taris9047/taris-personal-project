@@ -379,7 +379,7 @@ void Physics::write_log_rect(
 	ofstream trace_record;
 	trace_record.open(outfile_name.c_str());
 	
-	trace_record << extract_log_rect("\t", linbreak);
+	trace_record << extract_log_rect(cDelim, linbreak);
 
 	trace_record.close();
 	cout << "File saved as ... " << outfile_name << endl;

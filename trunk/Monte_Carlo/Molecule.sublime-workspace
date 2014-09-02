@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"gnuplo",
+				"gnuplot_input_deck"
+			],
+			[
+				"out",
+				"output_filename"
+			],
+			[
 				"proj_lo",
 				"proj_loc_rect"
 			],
@@ -51,23 +59,7 @@
 			"file": "brownian.cpp",
 			"settings":
 			{
-				"buffer_size": 2163,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.cpp",
-			"settings":
-			{
-				"buffer_size": 4525,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.hpp",
-			"settings":
-			{
-				"buffer_size": 957,
+				"buffer_size": 2164,
 				"line_ending": "Unix"
 			}
 		},
@@ -80,18 +72,10 @@
 			}
 		},
 		{
-			"file": "/home/taris/workshop/Monte_Carlo/Converters.hpp",
-			"settings":
-			{
-				"buffer_size": 530,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "Converters.cpp",
 			"settings":
 			{
-				"buffer_size": 1409,
+				"buffer_size": 2365,
 				"line_ending": "Unix"
 			}
 		},
@@ -107,7 +91,23 @@
 			"file": "Physics.cpp",
 			"settings":
 			{
-				"buffer_size": 15853,
+				"buffer_size": 15374,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Gnuplot_Gen.cpp",
+			"settings":
+			{
+				"buffer_size": 5471,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Gnuplot_Gen.hpp",
+			"settings":
+			{
+				"buffer_size": 1174,
 				"line_ending": "Unix"
 			}
 		},
@@ -163,7 +163,7 @@
 			"file": "run.sh",
 			"settings":
 			{
-				"buffer_size": 565,
+				"buffer_size": 622,
 				"line_ending": "Unix"
 			}
 		},
@@ -207,6 +207,9 @@
 	},
 	"file_history":
 	[
+		"/home/taris/workshop/Monte_Carlo/Converters.hpp",
+		"/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.hpp",
+		"/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.cpp",
 		"/home/taris/workshop/Monte_Carlo/Converters.cpp",
 		"/home/taris/Documents/workshop/Monte_Carlo/Converters.hpp",
 		"/home/taris/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
@@ -229,7 +232,7 @@
 	],
 	"find":
 	{
-		"height": 42.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -276,15 +279,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2163,
+						"buffer_size": 2164,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1257,
-								1257
+								0,
+								0
 							]
 						],
 						"settings":
@@ -296,69 +299,11 @@
 						"translation.y": 540.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.cpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4525,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/home/taris/workshop/Monte_Carlo/Gnuplot_Gen.hpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 957,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
 					"stack_index": 10,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
+					"buffer": 1,
 					"file": "data_types.hpp",
 					"semi_transient": false,
 					"settings":
@@ -382,52 +327,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "/home/taris/workshop/Monte_Carlo/Converters.hpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 530,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								214,
-								214
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
+					"buffer": 2,
 					"file": "Converters.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1409,
+						"buffer_size": 2365,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								391,
-								391
+								0,
+								0
 							]
 						],
 						"settings":
@@ -436,14 +353,14 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 860.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 6,
+					"buffer": 3,
 					"file": "Physics.hpp",
 					"semi_transient": false,
 					"settings":
@@ -465,27 +382,85 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": -0.0,
-						"translation.y": 0.0,
+						"translation.y": 926.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 7,
+					"buffer": 4,
 					"file": "Physics.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 15853,
+						"buffer_size": 15374,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								9697,
-								9697
+								7588,
+								7588
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 6300.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Gnuplot_Gen.cpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5471,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3038,
+								3038
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1255.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "Gnuplot_Gen.hpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1174,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								775,
+								775
 							]
 						],
 						"settings":
@@ -497,11 +472,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
-					"buffer": 8,
+					"buffer": 7,
 					"file": "Random.cpp",
 					"semi_transient": false,
 					"settings":
@@ -526,11 +501,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 9,
+					"buffer": 8,
 					"file": "Random.hpp",
 					"semi_transient": false,
 					"settings":
@@ -551,15 +526,15 @@
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": -0.0,
+						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 9,
 					"file": "Molecule.hpp",
 					"semi_transient": false,
 					"settings":
@@ -584,11 +559,11 @@
 						"translation.y": 390.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 10,
 					"file": "Molecule.cpp",
 					"semi_transient": false,
 					"settings":
@@ -613,11 +588,11 @@
 						"translation.y": 521.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 12,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 11,
 					"file": "Photon.cpp",
 					"semi_transient": false,
 					"settings":
@@ -642,11 +617,11 @@
 						"translation.y": 807.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
-					"buffer": 13,
+					"buffer": 12,
 					"file": "Photon.hpp",
 					"semi_transient": false,
 					"settings":
@@ -670,16 +645,16 @@
 						"translation.y": 221.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 15,
+					"stack_index": 14,
 					"type": "text"
 				},
 				{
-					"buffer": 14,
+					"buffer": 13,
 					"file": "run.sh",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 565,
+						"buffer_size": 622,
 						"regions":
 						{
 						},
@@ -698,11 +673,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 14,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
-					"buffer": 15,
+					"buffer": 14,
 					"file": "Makefile",
 					"semi_transient": false,
 					"settings":
@@ -726,7 +701,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 8,
 					"type": "text"
 				}
 			]
