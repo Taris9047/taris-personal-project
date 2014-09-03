@@ -43,13 +43,15 @@ public:
 		std::string input_deck_filename, \
 		std::string data_filename, \
 		std::string fig_filename, \
-		double left, double right, double top, double bottom);
+		double left, double right, \
+		double top, double bottom);
 	GnuplotGen(
 		std::string input_deck_filename, \
 		std::string data_filename, \
 		std::string fig_filename, \
-		std::string fig_title,
-		double left, double right, double top, double bottom);
+		std::string fig_title, \
+		double left, double right, \
+		double top, double bottom);
 	~GnuplotGen();
 };
 

@@ -59,7 +59,7 @@
 			"file": "brownian.cpp",
 			"settings":
 			{
-				"buffer_size": 2164,
+				"buffer_size": 2407,
 				"line_ending": "Unix"
 			}
 		},
@@ -83,7 +83,7 @@
 			"file": "Physics.hpp",
 			"settings":
 			{
-				"buffer_size": 3116,
+				"buffer_size": 3118,
 				"line_ending": "Unix"
 			}
 		},
@@ -91,15 +91,7 @@
 			"file": "Physics.cpp",
 			"settings":
 			{
-				"buffer_size": 15374,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "Gnuplot_Gen.cpp",
-			"settings":
-			{
-				"buffer_size": 5471,
+				"buffer_size": 15370,
 				"line_ending": "Unix"
 			}
 		},
@@ -107,7 +99,15 @@
 			"file": "Gnuplot_Gen.hpp",
 			"settings":
 			{
-				"buffer_size": 1174,
+				"buffer_size": 1184,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Gnuplot_Gen.cpp",
+			"settings":
+			{
+				"buffer_size": 5678,
 				"line_ending": "Unix"
 			}
 		},
@@ -270,7 +270,7 @@
 	"groups":
 	[
 		{
-			"selected": 5,
+			"selected": 6,
 			"sheets":
 			[
 				{
@@ -279,15 +279,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2164,
+						"buffer_size": 2407,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1815,
+								1815
 							]
 						],
 						"settings":
@@ -296,10 +296,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 540.0,
+						"translation.y": 825.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -327,7 +327,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -352,8 +352,8 @@
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 860.0,
+						"translation.x": -0.0,
+						"translation.y": 1155.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -365,15 +365,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3116,
+						"buffer_size": 3118,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1569,
-								1569
+								0,
+								0
 							]
 						],
 						"settings":
@@ -381,11 +381,11 @@
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": -0.0,
-						"translation.y": 926.0,
+						"translation.x": 0.0,
+						"translation.y": 194.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
@@ -394,15 +394,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 15374,
+						"buffer_size": 15370,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								7588,
-								7588
+								9138,
+								9138
 							]
 						],
 						"settings":
@@ -411,27 +411,56 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 6300.0,
+						"translation.y": 3797.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Gnuplot_Gen.hpp",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1184,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								897,
+								897
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 90.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 6,
 					"file": "Gnuplot_Gen.cpp",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5471,
+						"buffer_size": 5678,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3038,
-								3038
+								1690,
+								1690
 							]
 						],
 						"settings":
@@ -440,39 +469,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1255.0,
+						"translation.y": 764.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "Gnuplot_Gen.hpp",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1174,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								775,
-								775
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -501,7 +501,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -530,7 +530,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -559,7 +559,7 @@
 						"translation.y": 390.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -701,7 +701,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 9,
 					"type": "text"
 				}
 			]
