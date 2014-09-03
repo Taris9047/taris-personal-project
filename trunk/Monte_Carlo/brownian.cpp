@@ -5,6 +5,7 @@
 #include "Molecule.hpp"
 #include "Physics.hpp"
 #include "Gnuplot_Gen.hpp"
+#include "Converters.hpp"
 
 #define UNIT_MASS 1.660538921E-25
 #define BOUNDARY_X 1000.
@@ -60,17 +61,26 @@ int main (int argc, char* argv[])
 		}
 	}
 
-	cout << "Calculation Time: " << cal_time*unit_time << endl;
+	//cout << "Calculation Time: " << cal_time*unit_time << endl;
 
 	std_str log_filename = "trace.csv";
 	std_str fig_filename = "trace.eps";
 	std_str gPlot_filename = "plot.gp";
+	std_str fig_title = "Brownian movement for: " + \
+		Converters::numtostdstr(cal_time) + " seconds.";
+
+	cout << fig_title;
 
 	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
 
 	Molecule Hydrogen(mass_hydrogen);
+	
 	GnuplotGen Hydrogen_rect_plot(
-		"plot.gp", log_filename, fig_filename);
+		"plot.gp", log_filename, \
+		fig_filename, fig_title, \
+		-BOUNDARY_X, BOUNDARY_X, \
+		BOUNDARY_Y, -BOUNDARY_Y);
+
 	Hydrogen_rect_plot.set_dimension_rect(
 		-BOUNDARY_X, BOUNDARY_X, \
 		BOUNDARY_Y, -BOUNDARY_Y);
@@ -86,6 +96,8 @@ int main (int argc, char* argv[])
 
 	cout << "Generating Gnuplot input deck." << endl;
 	Hydrogen_rect_plot.WriteDeck();
+
+	cout << endl;
 
 	cout << "Press Enter (Return) key to continue..." << endl;
 	cin.get();

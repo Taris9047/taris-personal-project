@@ -394,8 +394,7 @@ std_str Physics::extract_log_rect(
 		"\"Coord X\"" + cDelim + "\"Coord Y\"" \
 		+ cDelim + "\"Velocity X\"" + cDelim + "\"Velocity Y\"" \
 		+ cDelim + "\"Mass (g)\"" + cDelim + "\"Reflected\"" \
-		+ cDelim + "\"Time\"" \
-		+ linbreak;
+		+ cDelim + "\"Time\"" + linbreak;
 
 	ulong log_size = time_trace.size();
 
