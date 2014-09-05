@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "BrownianGUI.h"
 #include "BrownianGUIDlg.h"
+#include "BrownianGUISettingsDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -13,8 +14,6 @@
 
 
 // CBrownianGUIDlg dialog
-
-
 
 CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CBrownianGUIDlg::IDD, pParent)
@@ -25,8 +24,14 @@ CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 	, dim_bottom(-1000)
 	, max_vel_x(500)
 	, max_vel_y(500)
+	, cal_time(100.)
+	, unit_time(1.)
+	, RNG_type(2)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	an_object = new Molecule(0.1);
+	Rect_Estimation = new Physics(an_object, cal_time, unit_time, true, RNG_type);
 }
 
 void CBrownianGUIDlg::DoDataExchange(CDataExchange* pDX)
@@ -40,6 +45,8 @@ BEGIN_MESSAGE_MAP(CBrownianGUIDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDEXIT, &CBrownianGUIDlg::OnBnClickedExit)
 	ON_BN_CLICKED(ID_RUN, &CBrownianGUIDlg::OnBnClickedRun)
+	ON_BN_CLICKED(IDC_SAVE, &CBrownianGUIDlg::OnBnClickedSave)
+	ON_BN_CLICKED(IDC_SETTINGS, &CBrownianGUIDlg::OnBnClickedSettings)
 END_MESSAGE_MAP()
 
 
@@ -101,10 +108,6 @@ HCURSOR CBrownianGUIDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
-
-
 bool CBrownianGUIDlg::AddTextToStatus(CString CStrText)
 {
 	int nTextLength = c_pStatus.GetWindowTextLengthW();
@@ -144,19 +147,10 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	// TODO: Add your control notification handler code here
 	AddTextToStatus("\n\n");
 
-	double cal_time = 100.;
-	double unit_time = 1.;
-
 	c_pStatus.Clear();
 
-	Molecule* an_object = new Molecule(0.1);
-	Physics* Rect_Estimation = new Physics(an_object, cal_time, unit_time, true, 2);
-
-	Rect_Estimation->set_dimension_rect(
-		dim_left, dim_right, dim_top, dim_bottom);
-
-	Rect_Estimation->brownian_rect(
-		max_vel_x, max_vel_y);
+	Rect_Estimation->set_dimension_rect(dim_left, dim_right, dim_top, dim_bottom);
+	Rect_Estimation->brownian_rect(max_vel_x, max_vel_y);
 	
 	AddTextToStatus("\n");
 	CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
@@ -165,4 +159,43 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	AddTextToStatus("\n");
 	CString status_log(Rect_Estimation->extract_log_rect("\t", "\r\n").c_str());
 	AddTextToStatus(status_log);
+}
+
+
+void CBrownianGUIDlg::OnBnClickedSave()
+{
+	// TODO: Add your control notification handler code here
+	CString log_filename(_T("trace.csv"));
+	CT2CA pszConvertCStr(log_filename);
+	std::string strStd(pszConvertCStr);
+	Rect_Estimation->write_log_rect(strStd, ",", "\n");
+
+	AddTextToStatus("\n");
+	AddTextToStatus("Log saved to: ");
+	AddTextToStatus(log_filename);
+}
+
+
+void CBrownianGUIDlg::OnBnClickedSettings()
+{
+	// TODO: Add your control notification handler code here
+	/*
+	BrownianGUISettingsDlg brownianGUISettingsDlg(
+		&this->dim_left, &this->dim_right, &this->dim_top, &this->dim_bottom, \
+		&this->cal_time, &this->unit_time, &this->RNG_type);
+	*/
+	BrownianGUISettingsDlg brownianGUISettingsDlg;
+	brownianGUISettingsDlg.InitSettingsDlg(
+		&this->dim_left, &this->dim_right, &this->dim_top, &this->dim_bottom, \
+		&this->cal_time, &this->unit_time, &this->RNG_type);
+	brownianGUISettingsDlg.DoModal();
+
+	Rect_Estimation->set_dimension_rect(dim_left, dim_right, dim_top, dim_bottom);
+	Rect_Estimation->brownian_rect(max_vel_x, max_vel_y);
+
+	AddTextToStatus("\n");
+	AddTextToStatus("New Settings are:\n");
+	CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
+	AddTextToStatus(dimension_log);
+
 }

@@ -39,9 +39,19 @@ public:
 	double max_vel_x;
 	double max_vel_y;
 
+	double cal_time;
+	double unit_time;
+
+	unsigned int RNG_type;
+
+	Molecule* an_object;
+	Physics* Rect_Estimation;
+
 	bool AddTextToStatus(CString CStrText);
 	bool AddTextToStatus(std_str CStrText);
 	bool AddTextToStatus(const char* CStrText);
 	afx_msg void OnBnClickedExit();
 	afx_msg void OnBnClickedRun();
+	afx_msg void OnBnClickedSave();
+	afx_msg void OnBnClickedSettings();
 };
