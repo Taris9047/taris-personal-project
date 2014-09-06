@@ -683,6 +683,9 @@
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="OnRunBtnClicked:" target="Voe-Tx-rLC" id="Vhc-45-0Io"/>
+                        </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Uxs-MC-yGh">
                         <rect key="frame" x="396" y="297" width="82" height="32"/>
@@ -699,6 +702,9 @@
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
+                        <connections>
+                            <action selector="performClick:" target="maB-5S-kjX" id="Xa1-cK-n7d"/>
+                        </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lAu-ya-jWU">
                         <rect key="frame" x="396" y="1" width="82" height="32"/>
@@ -718,10 +724,10 @@
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                            <connections>
-                                <action selector="SetTextStatusWindow:" target="Voe-Tx-rLC" id="Zl8-Og-K4g"/>
-                            </connections>
                         </textFieldCell>
+                        <connections>
+                            <action selector="performClick:" target="etY-Yr-p28" id="Tx5-Qd-gaX"/>
+                        </connections>
                     </textField>
                     <progressIndicator fixedFrame="YES" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="GUK-sY-fWK">
                         <rect key="frame" x="8" y="7" width="386" height="20"/>
@@ -730,5 +736,6 @@
                 </subviews>
             </view>
         </window>
+        <customObject id="40j-Ks-Xcb" customClass="BrownianCocoaDlg"/>
     </objects>
 </document>
