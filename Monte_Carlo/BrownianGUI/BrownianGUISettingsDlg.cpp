@@ -17,11 +17,12 @@ BrownianGUISettingsDlg::BrownianGUISettingsDlg(CWnd* pParent /*=NULL*/)
 
 }
 
-/*
-BrownianGUISettingsDlg::BrownianGUISettingsDlg(
+BrownianGUISettingsDlg::BrownianGUISettingsDlg(CWnd* pParent, CEdit* pEdit, \
 	double* dim_left, double* dim_right, double* dim_top, double* dim_bottom, \
 	double* calc_time, double* unit_time, unsigned int* RNG_type)
-	: m_pDim_left(dim_left)
+	: CDialog(BrownianGUISettingsDlg::IDD, pParent)
+	, pParentEdit(pEdit)
+	, m_pDim_left(dim_left)
 	, m_pDim_right(dim_right)
 	, m_pDim_top(dim_top)
 	, m_pDim_bottom(dim_bottom)
@@ -31,11 +32,29 @@ BrownianGUISettingsDlg::BrownianGUISettingsDlg(
 {
 
 }
-*/
 
 BrownianGUISettingsDlg::~BrownianGUISettingsDlg()
 {
 }
+
+// Initializing dialog
+BOOL BrownianGUISettingsDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	SetCEditText(&m_CEditLeft, *m_pDim_left);
+	SetCEditText(&m_CEditRight, *m_pDim_right);
+	SetCEditText(&m_CEditTop, *m_pDim_top);
+	SetCEditText(&m_CEditBottom, *m_pDim_bottom);
+
+	SetCEditText(&m_CEditCalcTime, *m_pCalc_time);
+	SetCEditText(&m_CEditUnitTime, *m_pUnit_time);
+
+	this->m_CComboBoxRNGtype.SetCurSel(*m_pRNG_type);
+
+	return TRUE;
+}
+
 
 void BrownianGUISettingsDlg::DoDataExchange(CDataExchange* pDX)
 {
@@ -56,22 +75,8 @@ BEGIN_MESSAGE_MAP(BrownianGUISettingsDlg, CDialog)
 END_MESSAGE_MAP()
 
 // Methods
-void BrownianGUISettingsDlg::InitSettingsDlg(
-	double* dim_left, double* dim_right, double* dim_top, double* dim_bottom, \
-	double* calc_time, double* unit_time, unsigned int* RNG_type)
-{
-	m_pDim_left = dim_left;
-	m_pDim_right = dim_right;
-	m_pDim_top = dim_top;
-	m_pDim_bottom = dim_bottom;
 
-	m_pCalc_time = calc_time;
-	m_pUnit_time = unit_time;
-	m_pRNG_type = RNG_type;
 
-	SetCEditText(&m_CEditLeft, *m_pDim_left);
-	SetCEditText(&m_CEditRight, *m_pDim_right);
-}
 
 bool BrownianGUISettingsDlg::SetCEditText(CEdit *CEdt, CString text)
 {
@@ -96,20 +101,35 @@ bool BrownianGUISettingsDlg::SetCEditText(CEdit *CEdt, double value)
 
 
 // BrownianGUISettingsDlg message handlers
-
-
 void BrownianGUISettingsDlg::OnBnClickedOk()
 {
 	// TODO: Add your control notification handler code here
+	*m_pDim_left = GetSettingValue(&m_CEditLeft);
+	*m_pDim_right = GetSettingValue(&m_CEditRight);
+	*m_pDim_top = GetSettingValue(&m_CEditTop);
+	*m_pDim_bottom = GetSettingValue(&m_CEditBottom);
 
+	*m_pCalc_time = GetSettingValue(&m_CEditCalcTime);
+	*m_pUnit_time = GetSettingValue(&m_CEditUnitTime);
 
+	*m_pRNG_type = m_CComboBoxRNGtype.GetCurSel();
 
-	CDialog::OnOK();
+	//CDialog::OnOK();
+	DestroyWindow();
 }
 
 
 void BrownianGUISettingsDlg::OnBnClickedCancel()
 {
 	// TODO: Add your control notification handler code here
-	CDialog::OnCancel();
+	//CDialog::OnCancel();
+	DestroyWindow();
+}
+
+
+double BrownianGUISettingsDlg::GetSettingValue(CEdit* CEdt)
+{
+	CString data_str;
+	CEdt->GetWindowText(data_str);
+	return _tstof(data_str);
 }

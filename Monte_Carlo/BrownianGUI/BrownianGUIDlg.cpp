@@ -26,7 +26,7 @@ CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 	, max_vel_y(500)
 	, cal_time(100.)
 	, unit_time(1.)
-	, RNG_type(2)
+	, RNG_type(1)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
@@ -179,23 +179,11 @@ void CBrownianGUIDlg::OnBnClickedSave()
 void CBrownianGUIDlg::OnBnClickedSettings()
 {
 	// TODO: Add your control notification handler code here
-	/*
-	BrownianGUISettingsDlg brownianGUISettingsDlg(
+	brownianGUISettingsDlg = new BrownianGUISettingsDlg(NULL, &this->c_pStatus, \
 		&this->dim_left, &this->dim_right, &this->dim_top, &this->dim_bottom, \
 		&this->cal_time, &this->unit_time, &this->RNG_type);
-	*/
-	BrownianGUISettingsDlg brownianGUISettingsDlg;
-	brownianGUISettingsDlg.InitSettingsDlg(
-		&this->dim_left, &this->dim_right, &this->dim_top, &this->dim_bottom, \
-		&this->cal_time, &this->unit_time, &this->RNG_type);
-	brownianGUISettingsDlg.DoModal();
 
-	Rect_Estimation->set_dimension_rect(dim_left, dim_right, dim_top, dim_bottom);
-	Rect_Estimation->brownian_rect(max_vel_x, max_vel_y);
-
-	AddTextToStatus("\n");
-	AddTextToStatus("New Settings are:\n");
-	CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
-	AddTextToStatus(dimension_log);
+	brownianGUISettingsDlg->Create(IDD_SETTINGS_DIALOG, NULL);
+	brownianGUISettingsDlg->ShowWindow(SW_SHOW);
 
 }

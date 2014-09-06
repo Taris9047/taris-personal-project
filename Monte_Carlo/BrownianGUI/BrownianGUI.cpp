@@ -64,6 +64,9 @@ BOOL CBrownianGUIApp::InitInstance()
 
 	CBrownianGUIDlg dlg;
 	m_pMainWnd = &dlg;
+	
+	//dlg.Create(IDD_BROWNIANGUI_DIALOG, NULL);
+	//INT_PTR nResponse = dlg.ShowWindow(SW_SHOW);
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "BrownianGUISettingsDlg.h"
 
 // CBrownianGUIDlg dialog
 class CBrownianGUIDlg : public CDialog
@@ -30,6 +31,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CEdit c_pStatus;
+
+	BrownianGUISettingsDlg* brownianGUISettingsDlg;
 
 	double dim_left;
 	double dim_right;

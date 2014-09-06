@@ -10,23 +10,21 @@ class BrownianGUISettingsDlg : public CDialog
 
 public:
 	BrownianGUISettingsDlg(CWnd* pParent = NULL);   // standard constructor
-	/*
-	BrownianGUISettingsDlg(
-		double* dim_left, double* dim_right, double* dim_top, double* dim_bottom, \
-		double* calc_time, double* unit_time, unsigned int* RNG_type);
-	*/
-
-	void InitSettingsDlg(
+	BrownianGUISettingsDlg(CWnd* pParent, CEdit* pEdit, \
 		double* dim_left, double* dim_right, double* dim_top, double* dim_bottom, \
 		double* calc_time, double* unit_time, unsigned int* RNG_type);
 
 	virtual ~BrownianGUISettingsDlg();
+
+	virtual BOOL OnInitDialog();
 
 // Dialog Data
 	enum { IDD = IDD_SETTINGS_DIALOG };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
+	CEdit* pParentEdit;
 
 	double* m_pDim_left;
 	double* m_pDim_right;
@@ -51,4 +49,5 @@ public:
 
 	bool SetCEditText(CEdit *CEdt, CString text); // Write text to CEdit control
 	bool SetCEditText(CEdit *CEdt, double value); // Write text to CEdit control with double to CString conversion.
+	double GetSettingValue(CEdit* CEdt);
 };
