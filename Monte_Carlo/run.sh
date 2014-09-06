@@ -8,13 +8,27 @@ else
 fi
 
 echo "Running the brownian movement simulator with arguments."
-./brownian $1 $2 $3
+if [ -z $1 ]; then
+	./brownian 20 1 1
+else
+	./brownian $1 1 $2
+fi
 
 echo "Plotting the log with gnuplot."
-gnuplot ./plot.gp 
+if [ -z `which gnuplot` ]; then
+	echo "Gnuplot can't be found!!"
+	break
+else
+	`which gnuplot` ./plot.gp
+fi
 
 echo "Converting the .eps to .pdf"
-convert -density 300 ./trace.eps ./trace.pdf
+if [ -z convert ]; then
+	echo "Please install Imagemagick. This script uses convert from that package!"
+	break
+else
+	convert -density 300 ./trace.eps ./trace.pdf
+fi
 
 echo "Opening the .pdf file"
 if [ $OSTYPE == "linux-gnu" ]; then
