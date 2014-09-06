@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Taris
-Date                   :=2014-09-01
+Date                   :=2014-09-06
 CodeLitePath           :="/Users/Taris/Library/Application Support/codelite"
 LinkerName             :=/usr/bin/g++ 
 SharedObjectLinkerName :=/usr/bin/g++ -dynamiclib -fPIC
@@ -41,7 +41,7 @@ IncludePCH             :=
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)Physics 
 ArLibs                 :=  "Physics" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)./Physics/Release/ 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(WorkspacePath)/Physics/Release/ 
 
 ##
 ## Common variables
@@ -62,6 +62,7 @@ AS       := /usr/bin/as
 CodeLiteDir:=/Users/Taris/Downloads/codelite.app/Contents/SharedSupport/
 PATH:=/usr/local/bin:/usr/bin:$PATH
 LD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Release/:.
+DYLD_LIBRARY_PATH:=$(WorkspacePath)/Physics/Release/:.
 Objects0=$(IntermediateDirectory)/main.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter.cpp$(ObjectSuffix) $(IntermediateDirectory)/wxcrafter_bitmaps.cpp$(ObjectSuffix) $(IntermediateDirectory)/MainDialog.cpp$(ObjectSuffix) $(IntermediateDirectory)/SettingsDialog.cpp$(ObjectSuffix) 
 
 
