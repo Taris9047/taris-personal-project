@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		720FF7B119BBA1AB0026ABF3 /* Converters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 720FF7AF19BBA1AB0026ABF3 /* Converters.cpp */; };
 		72B684A819B13483004024B3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72B684A719B13483004024B3 /* Cocoa.framework */; };
 		72B684B219B13483004024B3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 72B684B019B13483004024B3 /* InfoPlist.strings */; };
 		72B684B419B13483004024B3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 72B684B319B13483004024B3 /* main.m */; };
@@ -36,6 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		720FF7AF19BBA1AB0026ABF3 /* Converters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Converters.cpp; path = ../../Converters.cpp; sourceTree = "<group>"; };
+		720FF7B019BBA1AB0026ABF3 /* Converters.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Converters.hpp; path = ../../Converters.hpp; sourceTree = "<group>"; };
 		72B684A419B13483004024B3 /* BrownianCocoa.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrownianCocoa.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		72B684A719B13483004024B3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		72B684AA19B13483004024B3 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -131,6 +134,8 @@
 		72B684AD19B13483004024B3 /* BrownianCocoa */ = {
 			isa = PBXGroup;
 			children = (
+				720FF7AF19BBA1AB0026ABF3 /* Converters.cpp */,
+				720FF7B019BBA1AB0026ABF3 /* Converters.hpp */,
 				72B6850819B13D42004024B3 /* data_types.hpp */,
 				72B6850919B13D42004024B3 /* Gnuplot_Gen.cpp */,
 				72B6850A19B13D42004024B3 /* Gnuplot_Gen.hpp */,
@@ -281,6 +286,7 @@
 			files = (
 				72B6851319B13D42004024B3 /* Gnuplot_Gen.cpp in Sources */,
 				72B684BB19B13483004024B3 /* AppDelegate.mm in Sources */,
+				720FF7B119BBA1AB0026ABF3 /* Converters.cpp in Sources */,
 				72B684B419B13483004024B3 /* main.m in Sources */,
 				72B6851619B13D42004024B3 /* Physics.cpp in Sources */,
 				72B6851419B13D42004024B3 /* Molecule.cpp in Sources */,
@@ -510,6 +516,7 @@
 				72B684D719B13483004024B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		72B684D819B13483004024B3 /* Build configuration list for PBXNativeTarget "BrownianCocoaTests" */ = {
 			isa = XCConfigurationList;
@@ -518,6 +525,7 @@
 				72B684DA19B13483004024B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

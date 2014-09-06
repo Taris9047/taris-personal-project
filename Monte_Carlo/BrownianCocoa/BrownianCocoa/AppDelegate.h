@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "Physics.hpp"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
@@ -18,6 +19,12 @@
 @property double vel_max_x;
 @property double vel_max_y;
 
+@property double calc_time;
+@property double unit_time;
+@property unsigned int RNG_type;
+
+@property Molecule* current_object;
+@property Physics* Rect_estimation;
 
 @property (assign) IBOutlet NSWindow *window;
 @property (weak) IBOutlet NSButton *ExitButton;
