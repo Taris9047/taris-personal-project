@@ -362,10 +362,10 @@ bool Physics::set_dimension_rect(
 		return false;
 	}
 	else {
-		edge_left = dim_left;
-		edge_right = dim_right;
-		edge_top = dim_top;
-		edge_bottom = dim_bottom;
+		this->edge_left = dim_left;
+		this->edge_right = dim_right;
+		this->edge_top = dim_top;
+		this->edge_bottom = dim_bottom;
 		return true;
 	}
 }
