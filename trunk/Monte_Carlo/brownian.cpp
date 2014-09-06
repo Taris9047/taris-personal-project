@@ -8,10 +8,12 @@
 #include "Converters.hpp"
 
 #define UNIT_MASS 1.660538921E-25
-#define BOUNDARY_X 1000.
-#define BOUNDARY_Y 1000.
-#define VELOCITY_LIMIT_X BOUNDARY_X/3.
-#define VELOCITY_LIMIT_Y BOUNDARY_Y/3.
+#define BOUNDARY_LEFT -1000.
+#define BOUNDARY_RIGHT 1000.
+#define BOUNDARY_TOP 1000.
+#define BOUNDARY_BOTTOM -1000.
+#define VELOCITY_LIMIT_X 1000/3.
+#define VELOCITY_LIMIT_Y 1000/3.
 #define CAL_TIME 20.
 #define UNIT_TIME 1.
 #define RNG_TYPE 2.
@@ -61,7 +63,7 @@ int main (int argc, char* argv[])
 		}
 	}
 
-	//cout << "Calculation Time: " << cal_time*unit_time << endl;
+	cout << "Calculation Time: " << cal_time*unit_time << endl;
 
 	std_str log_filename = "trace.csv";
 	std_str fig_filename = "trace.eps";
@@ -69,37 +71,35 @@ int main (int argc, char* argv[])
 	std_str fig_title = "Brownian movement for: " + \
 		Converters::numtostdstr(cal_time) + " seconds.";
 
-	cout << fig_title;
-
 	double mass_hydrogen = 1.00794*2.0*UNIT_MASS;
-
 	Molecule Hydrogen(mass_hydrogen);
-	
 	GnuplotGen Hydrogen_rect_plot(
 		"plot.gp", log_filename, \
 		fig_filename, fig_title, \
-		-BOUNDARY_X, BOUNDARY_X, \
-		BOUNDARY_Y, -BOUNDARY_Y);
-
+		BOUNDARY_LEFT, BOUNDARY_RIGHT, \
+		BOUNDARY_TOP, BOUNDARY_BOTTOM);
 	Hydrogen_rect_plot.set_dimension_rect(
-		-BOUNDARY_X, BOUNDARY_X, \
-		BOUNDARY_Y, -BOUNDARY_Y);
-	Physics Hydrogen_rect(&Hydrogen, cal_time, unit_time, true, rng_type);
+		BOUNDARY_LEFT, BOUNDARY_RIGHT, \
+		BOUNDARY_TOP, BOUNDARY_BOTTOM);
+	Physics Hydrogen_rect(
+		&Hydrogen, cal_time, unit_time, \
+		true, rng_type);
 	Hydrogen_rect.set_dimension_rect(
-		-BOUNDARY_X, BOUNDARY_X, \
-		BOUNDARY_Y, -BOUNDARY_Y);
+		BOUNDARY_LEFT, BOUNDARY_RIGHT, \
+		BOUNDARY_TOP, BOUNDARY_BOTTOM);
 	Hydrogen_rect.brownian_rect(
 		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y);
-	Hydrogen_rect.write_log_rect(log_filename, ",", "\n");
+	Hydrogen_rect.write_log_rect(
+		log_filename, ",", "\n");
 
 	cout << endl;
-
-	cout << "Generating Gnuplot input deck." << endl;
+	cout << "Generating Gnuplot input deck." \
+		<< endl;
 	Hydrogen_rect_plot.WriteDeck();
-
 	cout << endl;
+	cout << "Press Enter (Return) key to continue..." \
+		<< endl;
 
-	cout << "Press Enter (Return) key to continue..." << endl;
 	cin.get();
 
 	return 0;
