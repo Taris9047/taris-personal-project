@@ -64,11 +64,9 @@ private:
 	void update_status(
 		double x, double y, \
 		double vx, double vy, \
-		bool refl, double curr_time);
+		bool refl);
 	void log_status();
 	void advance_time();
-//	std_str bool_to_yesno(bool logic);
-//	std_str double_to_string(double input);
 
 	// reflecting in rectangular system
 	void reflect_rect(double time_frame);
@@ -87,7 +85,7 @@ public:
 	// Extract current history with a std::string
 	std_str extract_log_rect(std_str cDelim, std_str linbreak);
 
-	// Set up dimension
+	// Set up dimension and etc.
 	bool set_dimension_rect(
 		double dim_left, double dim_right, \
 		double dim_top,	double dim_bottom);
@@ -95,6 +93,11 @@ public:
 	bool set_timing(double d_time_limit, double d_time_scale);
 	bool set_Molecule(Molecule* Thing);
 	void select_RNG(unint rng_type);
+	void set_location_rect(double xloc, double yloc);
+	
+	// Utilities for public use
+	std_str get_RNG_type();	
+	void Reset_Sim();
 
 	// Report Status
 	void print_status_rect();

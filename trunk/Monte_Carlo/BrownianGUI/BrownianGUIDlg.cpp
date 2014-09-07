@@ -22,8 +22,8 @@ CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 	, dim_right(1000)
 	, dim_top(1000)
 	, dim_bottom(-1000)
-	, max_vel_x(500)
-	, max_vel_y(500)
+	, max_vel_x(666)
+	, max_vel_y(666)
 	, cal_time(100.)
 	, unit_time(1.)
 	, RNG_type(1)
@@ -32,6 +32,8 @@ CBrownianGUIDlg::CBrownianGUIDlg(CWnd* pParent /*=NULL*/)
 
 	an_object = new Molecule(0.1);
 	Rect_Estimation = new Physics(an_object, cal_time, unit_time, true, RNG_type);
+
+	Rect_Estimation->Seed_Rand();
 }
 
 void CBrownianGUIDlg::DoDataExchange(CDataExchange* pDX)
@@ -135,6 +137,17 @@ bool CBrownianGUIDlg::AddTextToStatus(const char* CStrText)
 	return TRUE;
 }
 
+void CBrownianGUIDlg::ClearStatusControl()
+{
+	c_pStatus.SetSel(0, -1);
+	c_pStatus.ReplaceSel(_T(""));
+}
+
+
+
+//
+// Event Handlers
+//
 void CBrownianGUIDlg::OnBnClickedExit()
 {
 	// TODO: Add your control notification handler code here
@@ -147,20 +160,41 @@ void CBrownianGUIDlg::OnBnClickedRun()
 	// TODO: Add your control notification handler code here
 	AddTextToStatus("\n\n");
 
-	c_pStatus.Clear();
+	ClearStatusControl();
 
-	Rect_Estimation->set_dimension_rect(dim_left, dim_right, dim_top, dim_bottom);
+	Rect_Estimation->Reset_Sim();
+
+	//Rect_Estimation->set_dimension_rect(dim_left, dim_right, dim_top, dim_bottom);
+	max_vel_x = (abs(dim_left) + abs(dim_right)) / 3.0;
+	max_vel_y = (abs(dim_top) + abs(dim_bottom)) / 3.0;
+
 	Rect_Estimation->brownian_rect(max_vel_x, max_vel_y);
 	
-	AddTextToStatus("\n");
-	CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
-	AddTextToStatus(dimension_log);
+	//AddTextToStatus("\n");
+	//CString dimension_log(Rect_Estimation->show_dimension_rect("\r\n").c_str());
+	//AddTextToStatus(dimension_log);
+	AddTextToStatus(_T("** Dimension Info **\n"));
+	AddTextToStatus(_T("Left: "));
+	AddTextToStatus(Converters::numtostdstr(dim_left)+"\n");
+	AddTextToStatus(_T("Right: "));
+	AddTextToStatus(Converters::numtostdstr(dim_right) + "\n");
+	AddTextToStatus(_T("Top: "));
+	AddTextToStatus(Converters::numtostdstr(dim_top) + "\n");
+	AddTextToStatus(_T("Bottom: "));
+	AddTextToStatus(Converters::numtostdstr(dim_bottom) + "\n");
 
-	AddTextToStatus("\n");
+	AddTextToStatus(_T("\n"));
+	AddTextToStatus(_T("** Simulation Info **\n"));
+	AddTextToStatus(_T("Simulation Time: "));
+	AddTextToStatus(Converters::numtostdstr(cal_time*unit_time) + " seconds\n");
+	AddTextToStatus(_T("RNG Type: "));
+	AddTextToStatus(Rect_Estimation->get_RNG_type() + "\n");
+	AddTextToStatus(_T("\n"));
+	
+	//AddTextToStatus("\n");
 	CString status_log(Rect_Estimation->extract_log_rect("\t", "\r\n").c_str());
 	AddTextToStatus(status_log);
 }
-
 
 void CBrownianGUIDlg::OnBnClickedSave()
 {
@@ -179,7 +213,7 @@ void CBrownianGUIDlg::OnBnClickedSave()
 void CBrownianGUIDlg::OnBnClickedSettings()
 {
 	// TODO: Add your control notification handler code here
-	brownianGUISettingsDlg = new BrownianGUISettingsDlg(NULL, &this->c_pStatus, \
+	brownianGUISettingsDlg = new BrownianGUISettingsDlg(NULL, this->Rect_Estimation, \
 		&this->dim_left, &this->dim_right, &this->dim_top, &this->dim_bottom, \
 		&this->cal_time, &this->unit_time, &this->RNG_type);
 

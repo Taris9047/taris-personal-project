@@ -10,7 +10,7 @@ class BrownianGUISettingsDlg : public CDialog
 
 public:
 	BrownianGUISettingsDlg(CWnd* pParent = NULL);   // standard constructor
-	BrownianGUISettingsDlg(CWnd* pParent, CEdit* pEdit, \
+	BrownianGUISettingsDlg(CWnd* pParent, Physics* Rect_Phy, \
 		double* dim_left, double* dim_right, double* dim_top, double* dim_bottom, \
 		double* calc_time, double* unit_time, unsigned int* RNG_type);
 
@@ -24,7 +24,7 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-	CEdit* pParentEdit;
+	Physics* m_pPhysics;
 
 	double* m_pDim_left;
 	double* m_pDim_right;
