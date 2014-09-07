@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
+#include <cmath>
 #include "Molecule.hpp"
 #include "Physics.hpp"
 #include "Gnuplot_Gen.hpp"
@@ -12,9 +13,9 @@
 #define BOUNDARY_RIGHT 1000.
 #define BOUNDARY_TOP 1000.
 #define BOUNDARY_BOTTOM -1000.
-#define VELOCITY_LIMIT_X 1000/3.
-#define VELOCITY_LIMIT_Y 1000/3.
-#define CAL_TIME 20.
+#define VELOCITY_LIMIT_X (abs(BOUNDARY_LEFT)+abs(BOUNDARY_RIGHT))/3.
+#define VELOCITY_LIMIT_Y (abs(BOUNDARY_TOP)+abs(BOUNDARY_BOTTOM))/3.
+#define CAL_TIME 100.
 #define UNIT_TIME 1.
 #define RNG_TYPE 2.
 
@@ -78,17 +79,23 @@ int main (int argc, char* argv[])
 		fig_filename, fig_title, \
 		BOUNDARY_LEFT, BOUNDARY_RIGHT, \
 		BOUNDARY_TOP, BOUNDARY_BOTTOM);
+
 	Hydrogen_rect_plot.set_dimension_rect(
 		BOUNDARY_LEFT, BOUNDARY_RIGHT, \
 		BOUNDARY_TOP, BOUNDARY_BOTTOM);
 	Physics Hydrogen_rect(
 		&Hydrogen, cal_time, unit_time, \
 		true, rng_type);
+
+	Hydrogen_rect.Reset_Sim();
+	
 	Hydrogen_rect.set_dimension_rect(
 		BOUNDARY_LEFT, BOUNDARY_RIGHT, \
 		BOUNDARY_TOP, BOUNDARY_BOTTOM);
+	
 	Hydrogen_rect.brownian_rect(
 		VELOCITY_LIMIT_X, VELOCITY_LIMIT_Y);
+	
 	Hydrogen_rect.write_log_rect(
 		log_filename, ",", "\n");
 
