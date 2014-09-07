@@ -4,7 +4,7 @@
 #include "Gnuplot_Gen.hpp"
 
 ///////////////////////////////////
-// Methods and stuff             //
+//       Methods and stuff       //
 ///////////////////////////////////
 
 // Setting up dimension.
@@ -96,14 +96,6 @@ bool GnuplotGen::WriteDeck()
 
 	gnuplot_input_deck << "notitle ";
 
-	/*
-	if (this->figure_title != "")
-		gnuplot_input_deck << "title " << "\"" << this->figure_title \
-			<< "\"";
-	else
-		gnuplot_input_deck << "notitle ";
-	*/
-
 	gnuplot_input_deck << std::endl;
 	gnuplot_input_deck << std::endl;
 
@@ -125,9 +117,9 @@ std::string GnuplotGen::dtostdstr(double innum)
 
 
 
-///////////////////////////////////
-// Constructors and Destructors  //
-///////////////////////////////////
+////////////////////////////////////
+//  Constructors and Destructors  //
+////////////////////////////////////
 
 GnuplotGen::GnuplotGen()
 	: deck_filename("plot.gp")

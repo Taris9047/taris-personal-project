@@ -9,7 +9,7 @@ fi
 
 echo "Running the brownian movement simulator with arguments."
 if [ -z $1 ]; then
-	./brownian 20 1 1
+	./brownian 
 else
 	./brownian $1 1 $2
 fi

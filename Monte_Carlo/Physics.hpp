@@ -12,6 +12,7 @@
 #include <fstream>
 #include "data_types.hpp"
 #include "Molecule.hpp"
+#include "Photon.hpp"
 #include "Random.hpp"
 #include "Converters.hpp"
 
@@ -29,6 +30,7 @@ private:
 	double time_scale;
 	// current object: Molecule (pointer)
 	Molecule* curr_object;
+	Photon* curr_photon;
 	unint rand_type;
 	double edge_left;
 	double edge_right;
@@ -67,6 +69,7 @@ private:
 		bool refl);
 	void log_status();
 	void advance_time();
+	void Validate_Data();
 
 	// reflecting in rectangular system
 	void reflect_rect(double time_frame);
@@ -92,6 +95,7 @@ public:
 	bool set_parameters(bool verbose, unint rand_type);
 	bool set_timing(double d_time_limit, double d_time_scale);
 	bool set_Molecule(Molecule* Thing);
+	bool set_Photon(Photon* pPhoton);
 	void select_RNG(unint rng_type);
 	void set_location_rect(double xloc, double yloc);
 	
@@ -102,6 +106,8 @@ public:
 	// Report Status
 	void print_status_rect();
 	std_str sprint_status_rect(std_str linbreak);
+	// Show simulation settings
+	std_str show_siminfo_rect(std_str linbreak, bool use_RNG = "true");
 	std_vec_d report_status_rect();
 	std_str show_dimension_rect(std_str linbreak);
 	

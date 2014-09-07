@@ -41,6 +41,7 @@ void Physics::normal_rect(double vel_x, double vel_y)
 
 	if (b_verbose) {
 		show_dimension_rect("\n");
+		show_siminfo_rect("\n", false);
 		cout << "Initial Condition:" << endl;
 		print_status_rect();
 	}
@@ -79,6 +80,7 @@ void Physics::brownian_rect(double max_vel_x, double max_vel_y)
 
 	if (b_verbose) {
 		show_dimension_rect("\n");
+		show_siminfo_rect("\n");
 		cout << "Initial Condition:" << endl;
 		print_status_rect();
 	}
@@ -154,7 +156,8 @@ double Physics::rand_double(
 {
 	switch (rand_type) {
 	case 1:
-		return (pow(-1,rand()%2))*uniform(0.0, (paramA+paramB)/2);
+		return (pow(-1,rand()%2))*\
+			uniform(0.0, (paramA+paramB)/2);
 	case 2:
 		return gaussian(paramA, paramB, paramC);
 	case 3:
@@ -163,7 +166,8 @@ double Physics::rand_double(
 		return chi_square(paramA, paramC);
 	case 5:
 		return (double) binomial(
-			(unsigned long long)paramA, (unsigned long long)paramB, paramC);
+			(unsigned long long)paramA, \
+			(unsigned long long)paramB, paramC);
 	case 6:
 		return (double) poisson(
 			paramA, (ullong)paramB, paramC);
@@ -274,47 +278,80 @@ std_str Physics::sprint_status_rect(std_str linbreak = "\n")
 		"Velocity: <" + Converters::numtostdstr(info[2]) + "," \
 		+ Converters::numtostdstr(info[3]) + ">" + linbreak + \
 		"Time elapsed: " + Converters::numtostdstr(info[5]) + " sec." + \
-		linbreak + linbreak;
+		linbreak;
 
 	return report_str;
 }
 
 // Displaying dimension
-std_str Physics::show_dimension_rect(std_str linbreak)
+std_str Physics::show_dimension_rect(std_str linbreak = "\n")
 {
 	std_str rect_report;
-	rect_report = rect_report + linbreak \
-		+ "Rectangular dimnesion information" + linbreak \
+	rect_report = rect_report + \
+		+ "** Rectangular dimnesion information **" + linbreak \
 		+ "Left: " + Converters::numtostdstr(edge_left) + linbreak \
 		+ "Right: " + Converters::numtostdstr(edge_right) + linbreak \
 		+ "Top: " + Converters::numtostdstr(edge_top) + linbreak \
 		+ "Bottom: " + Converters::numtostdstr(edge_bottom) + linbreak \
-		+ linbreak + linbreak;
+		+ linbreak;
 
-	if (b_verbose == true) {
-		cout << endl;
-		cout << "Rectangular dimnesion information" << endl;
-		cout << "Left: " << edge_left << endl;
-		cout << "Rigth: " << edge_right << endl;
-		cout << "Top: " << edge_top << endl;
-		cout << "Bottom: " << edge_bottom << endl;
-		cout << endl;
-	}
+	if (b_verbose == true)
+		cout << rect_report;
 
 	return rect_report;
 }
 
+// Displaying simulation info.
+std_str Physics::show_siminfo_rect(
+	std_str linbreak = "\n", bool use_RNG)
+{
+	std_str rect_sim_report;
+
+	rect_sim_report = rect_sim_report + \
+		+ "** Simulation information **" + linbreak \
+		+ "Calculation time: " \
+		+ Converters::numtostdstr(this->time_limit) \
+		+ " seconds" + linbreak;
+
+	if (use_RNG == true)
+		rect_sim_report = rect_sim_report + \
+			"RNG Type: " + get_RNG_type() + \
+			linbreak;
+
+	rect_sim_report = rect_sim_report + linbreak;
+
+	if (b_verbose == true)
+		cout << rect_sim_report;
+
+	return rect_sim_report;
+}
+
 // Set misc parameters
-bool Physics::set_parameters(bool verbose, unint RNG_type)
+bool Physics::set_parameters(
+	bool verbose, unint RNG_type)
 {
 	b_verbose = verbose;
-	rand_type = RNG_type;
+
+	if (RNG_type > 6 || RNG_type < 1) {
+		throw "Using default RNG: Uniform distribution for (0,1)";
+		rand_type = RNG_type;
+	}
+	else {
+		rand_type = RNG_type;
+	}
+
 	return true;
 }
 
 bool Physics::set_timing(
 	double d_time_limit, double d_time_scale)
 {
+	if (d_time_limit < 0. || d_time_scale < 0.) {
+		throw invalid_argument(
+			"Uh oh... it's not a time machine simulator!!\nPlease use positive values for time variables.");
+		exit(1);
+	}
+
 	time_limit = d_time_limit;
 	time_scale = d_time_scale;
 
@@ -323,9 +360,19 @@ bool Physics::set_timing(
 
 bool Physics::set_Molecule(Molecule* Thing)
 {
-	if (!(curr_object = Thing))
+	if (!(curr_object = Thing)) {
 		throw "Physics::set_Molecule went haywire!!";
+		return false;
+	}
+	return true;
+}
 
+bool Physics::set_Photon(Photon* pPhoton)
+{
+	if (!(curr_photon = pPhoton)) {
+		throw "Physics::set_Photon went haywire!!";
+		return false;
+	}
 	return true;
 }
 
@@ -355,6 +402,17 @@ bool Physics::set_dimension_rect(
 // Force set location
 void Physics::set_location_rect(double xloc, double yloc)
 {
+	if (xloc > edge_right || xloc < edge_left) {
+		throw invalid_argument(
+			"Wrong location for x. Out of the rectangular dimension!!");
+		exit(1);
+	}
+	if (yloc > edge_top || yloc < edge_bottom) {
+		throw invalid_argument(
+			"Wrong location for y. Out of the rectangular dimension!!");
+		exit(1);
+	}
+
 	this->curr_object->set_x(xloc);
 	this->curr_object->set_y(yloc);
 }
@@ -378,6 +436,34 @@ void Physics::Reset_Sim()
 	time_elapsed = 0.0;
 
 	log_status();
+}
+
+// Sanity Check
+void Physics::Validate_Data()
+{
+	if (time_limit < 0) {
+		throw invalid_argument("Given time limit must be positive!!");
+		exit(1);
+	}
+
+	if (time_scale < 0) {
+		throw invalid_argument("Time scale must be positive!!");
+		exit(1);
+	}
+
+	if (rand_type > 6 && rand_type < 1) {
+		throw "Using default RNG. Uniform distribution for (0,1)";
+	}
+
+	if (edge_left > edge_right) {
+		throw invalid_argument("Wring rectangular assignment!! Left should be smaller than Right.");
+		exit(1);
+	}
+
+	if (edge_top < edge_bottom) {
+		throw invalid_argument("Wring rectangular assignment!! Bottom should be smaller than Top.");
+		exit(1);
+	}
 }
 
 // Return Random Number Generator type as std::string
@@ -518,6 +604,7 @@ Physics::Physics(Molecule* Thing)
 	time_elapsed = 0.0;
 	time_scale = 1.0; // Default 1 sec time interval.
 	curr_object = Thing;
+	curr_photon = NULL;
 	rand_type = 1;
 
 	vector<double> obj_info(5);
@@ -533,6 +620,8 @@ Physics::Physics(Molecule* Thing)
 	reflected_status.push_back(false);
 
 	b_verbose = false;
+
+	Validate_Data();
 }
 
 Physics::Physics(Molecule* Thing, bool verbose)
@@ -544,6 +633,7 @@ Physics::Physics(Molecule* Thing, bool verbose)
 	time_elapsed = 0.0;
 	time_scale = 1.0; // Default 1 sec time interval.
 	curr_object = Thing;
+	curr_photon = NULL;
 	rand_type = 1;
 
 	vector<double> obj_info(5);
@@ -559,8 +649,9 @@ Physics::Physics(Molecule* Thing, bool verbose)
 	reflected_status.push_back(false);
 
 	b_verbose = verbose;
-}
 
+	Validate_Data();
+}
 
 Physics::Physics(
 	Molecule* Thing, \
@@ -574,6 +665,7 @@ Physics::Physics(
 	time_limit = time_lim;
 	time_scale = time_sc;
 	curr_object = Thing;
+	curr_photon = NULL;
 	rand_type = 1;
 
 	vector<double> obj_info(5);
@@ -589,6 +681,8 @@ Physics::Physics(
 	reflected_status.push_back(false);
 
 	b_verbose = false;
+
+	Validate_Data();
 }
 
 Physics::Physics(
@@ -604,6 +698,7 @@ Physics::Physics(
 	time_limit = time_lim;
 	time_scale = time_sc;
 	curr_object = Thing;
+	curr_photon = NULL;
 	rand_type = 1;
 
 	vector<double> obj_info(5);
@@ -619,6 +714,8 @@ Physics::Physics(
 	reflected_status.push_back(false);
 
 	b_verbose = verbose;
+
+	Validate_Data();
 }
 
 Physics::Physics(
@@ -635,6 +732,7 @@ Physics::Physics(
 	time_limit = time_lim;
 	time_scale = time_sc;
 	curr_object = Thing;
+	curr_photon = NULL;
 	rand_type = rnd_type;
 
 	vector<double> obj_info(5);
@@ -650,6 +748,8 @@ Physics::Physics(
 	reflected_status.push_back(false);
 
 	b_verbose = verbose;
+
+	Validate_Data();
 }
 
 Physics::Physics(
@@ -672,6 +772,7 @@ Physics::Physics(
 	time_limit = time_lim;
 	time_scale = time_sc;
 	curr_object = Thing;
+	curr_photon = NULL;
 	rand_type = rnd_type;
 
 	vector<double> obj_info(5);
@@ -687,6 +788,8 @@ Physics::Physics(
 	reflected_status.push_back(false);
 
 	b_verbose = verbose;
+
+	Validate_Data();
 }
 
 Physics::~Physics()
@@ -696,6 +799,7 @@ Physics::~Physics()
 	x_vel.clear();
 	y_vel.clear();
 	curr_object = NULL;
+	curr_photon = NULL;
 
 	time_trace.clear();
 	reflected_status.clear();

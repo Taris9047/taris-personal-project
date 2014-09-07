@@ -1,6 +1,6 @@
 CC=gcc
 CXX=g++
-CFLAGS=-O3 -g -Wall
+CFLAGS=-O3 -Wall
 PHYSICS_LIB=Physics
 TARGET=brownian
 LIBDIR=./
