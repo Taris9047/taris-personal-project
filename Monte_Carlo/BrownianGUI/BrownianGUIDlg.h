@@ -53,6 +53,7 @@ public:
 	bool AddTextToStatus(CString CStrText);
 	bool AddTextToStatus(std_str CStrText);
 	bool AddTextToStatus(const char* CStrText);
+	void ClearStatusControl();
 	afx_msg void OnBnClickedExit();
 	afx_msg void OnBnClickedRun();
 	afx_msg void OnBnClickedSave();

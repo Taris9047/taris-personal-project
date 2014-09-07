@@ -145,14 +145,7 @@ void Physics::set_rand_velocity_rect_y(
 // Choosing RNG
 void Physics::select_RNG(unint rng_type)
 {
-	if (rng_type > 0) {
-		rand_type = rng_type;
-	}
-	else {
-		throw invalid_argument(
-			"Error! RNG must be specified with positive integers.");
-		exit(1);
-	}
+	rand_type = rng_type;
 }
 
 // Returns random double number.
@@ -182,18 +175,23 @@ double Physics::rand_double(
 // Updates current status
 void Physics::update_status(
 	double x, double y, double vx, double vy, \
-	bool refl, double curr_time)
+	bool refl)
 {
-	x_loc.push_back(x);
-	y_loc.push_back(y);
-	x_vel.push_back(vx);
-	y_vel.push_back(vy);
-
 	curr_object->set_location(x, y);
 	curr_object->set_velocity(vx, vy);
+	
+	x_loc.push_back(
+		curr_object->x());
+	y_loc.push_back(
+		curr_object->y());
+
+	x_vel.push_back(
+		curr_object->xv());
+	y_vel.push_back(
+		curr_object->yv());
 
 	reflected_status.push_back(refl);
-	time_trace.push_back(curr_time);
+	time_trace.push_back(time_elapsed);
 
 	if (refl == true && b_verbose == true)
 		print_status_rect();
@@ -281,21 +279,6 @@ std_str Physics::sprint_status_rect(std_str linbreak = "\n")
 	return report_str;
 }
 
-// Convert double to std::string object
-/*
-std_str Physics::double_to_string(double input)
-{
-	o_sstream out_sstream;
-	if (!(out_sstream << input)) {
-		throw invalid_argument(
-			"Bad Double to String stream Conversion!!");
-		exit(1);
-	}
-
-	return out_sstream.str();
-}
-*/
-
 // Displaying dimension
 std_str Physics::show_dimension_rect(std_str linbreak)
 {
@@ -346,7 +329,6 @@ bool Physics::set_Molecule(Molecule* Thing)
 	return true;
 }
 
-
 bool Physics::set_dimension_rect(
 	double dim_left, double dim_right, \
 	double dim_top, double dim_bottom)
@@ -370,6 +352,54 @@ bool Physics::set_dimension_rect(
 	}
 }
 
+// Force set location
+void Physics::set_location_rect(double xloc, double yloc)
+{
+	this->curr_object->set_x(xloc);
+	this->curr_object->set_y(yloc);
+}
+
+// Reset log
+void Physics::Reset_Sim()
+{
+	x_loc.clear();
+	y_loc.clear();
+	x_vel.clear();
+	y_vel.clear();
+
+	time_trace.clear();
+	reflected_status.clear();
+
+	curr_object->set_x(0.0);
+	curr_object->set_xv(0.0);
+	curr_object->set_y(0.0);
+	curr_object->set_yv(0.0);
+
+	time_elapsed = 0.0;
+
+	log_status();
+}
+
+// Return Random Number Generator type as std::string
+std_str Physics::get_RNG_type()
+{
+	switch (rand_type) {
+	case 1:
+		return "Uniform Distribution";
+	case 2:
+		return "Gaussian Distribution";
+	case 3:
+		return "Beta Distribution";
+	case 4:
+		return "Chi-Square Distribution";
+	case 5:
+		return "Binomial Distribution";
+	case 6:
+		return "Poisson Distribution";
+	default:
+		return "Default Uniform Distrubition (0 to 1)";
+	}
+}
 
 // Logging the trace within a specified file.
 void Physics::write_log_rect(
@@ -413,16 +443,6 @@ std_str Physics::extract_log_rect(
 	return trace_record;
 }
 
-// A little tool to convert bool type to understandable string.
-/*
-std_str Physics::bool_to_yesno(bool logic)
-{
-	if (logic == true)
-		return "YES";
-	else 
-		return "NO";
-}
-*/
 
 // Calculate reflecting molecule in a limited space.
 void Physics::reflect_rect(double time_frame)
@@ -448,25 +468,25 @@ void Physics::reflect_rect(double time_frame)
 			time_elapsed += delta_t;
 			update_status(edge_left, adv_loc[1], \
 				(-1)*curr_object->xv(), curr_object->yv(), \
-				true, time_elapsed);
+				true);
 		}
 		if (adv_loc[0] >= edge_right) {
 			time_elapsed += delta_t;
 			update_status(edge_right, adv_loc[1], \
 				(-1)*curr_object->xv(), curr_object->yv(), \
-				true, time_elapsed);
+				true);
 		}
 		if (adv_loc[1] <= edge_bottom) {
 			time_elapsed += delta_t;
 			update_status(adv_loc[0], edge_bottom, \
 				curr_object->xv(), (-1)*curr_object->yv(), \
-				true, time_elapsed);
+				true);
 		}
 		if (adv_loc[1] >= edge_top) {
 			time_elapsed += delta_t;
 			update_status(adv_loc[0], edge_top, \
 				curr_object->xv(), (-1)*curr_object->yv(), \
-				true, time_elapsed);
+				true);
 		}
 		if (adv_loc[0] > edge_left && \
 			adv_loc[0] < edge_right && \
@@ -678,7 +698,6 @@ Physics::~Physics()
 	curr_object = NULL;
 
 	time_trace.clear();
-
 	reflected_status.clear();
 }
 

@@ -17,11 +17,11 @@ BrownianGUISettingsDlg::BrownianGUISettingsDlg(CWnd* pParent /*=NULL*/)
 
 }
 
-BrownianGUISettingsDlg::BrownianGUISettingsDlg(CWnd* pParent, CEdit* pEdit, \
+BrownianGUISettingsDlg::BrownianGUISettingsDlg(CWnd* pParent, Physics* Rect_Phy, \
 	double* dim_left, double* dim_right, double* dim_top, double* dim_bottom, \
 	double* calc_time, double* unit_time, unsigned int* RNG_type)
 	: CDialog(BrownianGUISettingsDlg::IDD, pParent)
-	, pParentEdit(pEdit)
+	, m_pPhysics(Rect_Phy)
 	, m_pDim_left(dim_left)
 	, m_pDim_right(dim_right)
 	, m_pDim_top(dim_top)
@@ -50,7 +50,7 @@ BOOL BrownianGUISettingsDlg::OnInitDialog()
 	SetCEditText(&m_CEditCalcTime, *m_pCalc_time);
 	SetCEditText(&m_CEditUnitTime, *m_pUnit_time);
 
-	this->m_CComboBoxRNGtype.SetCurSel(*m_pRNG_type);
+	this->m_CComboBoxRNGtype.SetCurSel(*m_pRNG_type-1);
 
 	return TRUE;
 }
@@ -112,7 +112,13 @@ void BrownianGUISettingsDlg::OnBnClickedOk()
 	*m_pCalc_time = GetSettingValue(&m_CEditCalcTime);
 	*m_pUnit_time = GetSettingValue(&m_CEditUnitTime);
 
-	*m_pRNG_type = m_CComboBoxRNGtype.GetCurSel();
+	*m_pRNG_type = m_CComboBoxRNGtype.GetCurSel()+1;
+
+	m_pPhysics->set_dimension_rect(
+		*m_pDim_left, *m_pDim_right, *m_pDim_top, *m_pDim_bottom);
+	m_pPhysics->set_timing(
+		*m_pCalc_time, *m_pUnit_time);
+	m_pPhysics->set_parameters(true, *m_pRNG_type);
 
 	//CDialog::OnOK();
 	DestroyWindow();
