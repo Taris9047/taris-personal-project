@@ -45,7 +45,6 @@
     
     brownian_log = [[NSString alloc] initWithUTF8String:_Rect_estimation->sprint_status_rect("\n").c_str()];
     
-    
 }
 
 
