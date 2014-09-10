@@ -671,7 +671,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="390" width="480" height="360"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1058"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
             <view key="contentView" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -684,7 +684,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="OnRunBtnClicked:" target="Voe-Tx-rLC" id="Vhc-45-0Io"/>
+                            <action selector="takeStringValueFrom:" target="pjX-sB-ays" id="Tmz-21-iCy"/>
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Uxs-MC-yGh">
@@ -726,7 +726,7 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <action selector="performClick:" target="etY-Yr-p28" id="Tx5-Qd-gaX"/>
+                            <action selector="OnRunBtnClicked:" target="Voe-Tx-rLC" id="VbV-W8-fwQ"/>
                         </connections>
                     </textField>
                     <progressIndicator fixedFrame="YES" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="GUK-sY-fWK">
@@ -736,6 +736,6 @@
                 </subviews>
             </view>
         </window>
-        <customObject id="40j-Ks-Xcb" customClass="BrownianCocoaDlg"/>
+        <customObject id="DSj-xu-ThJ" userLabel="BrownianCocoaDlg" customClass="NSTextField"/>
     </objects>
 </document>
