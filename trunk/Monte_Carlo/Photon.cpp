@@ -18,6 +18,10 @@ using namespace std;
 // According to reletivity theory, the photon speed in vacuum
 // cannot change. Thus, velocity set function automatically
 // converts the input vector to unity
+//
+// So, basically, input vector of this function does not imply
+// the velocity of the photon itself but a ratio. 
+//
 void Photon::set_velocity(double xv, double yv)
 {
 	double vel_vec = sqrt(pow(xv,2)+pow(yv,2));
