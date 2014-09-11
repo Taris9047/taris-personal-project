@@ -105,9 +105,9 @@ double Molecule::read_mass()
 }
 
 
-
+//
 // Constructors and Destructors
-
+//
 Molecule::Molecule()
 {
 	current_coord.x = 0;
