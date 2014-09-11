@@ -1,6 +1,6 @@
-CC=gcc-4.9
+#CC=gcc-4.9
 #CC=tcc
-#CC=gcc
+CC=gcc
 CXX=g++
 CFLAGS=-O3 -fPIC
 OBJS=bignum.o
