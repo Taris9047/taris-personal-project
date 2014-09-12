@@ -6,7 +6,7 @@
 int main()
 {
 	bnt testnum = bignum(-9001);
-	bnt justnum = bignum_constchar("-999234004");
+	bnt justnum = bignum_constchar("-1239829489023840832");
 	bnt result;
 	printf ("Converted from integer: %s\n", testnum);
 	printf ("Direct Input: %s\n", justnum);
