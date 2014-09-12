@@ -31,18 +31,26 @@ class Bignum:
 		# TODO: Implement ++, +-, -+, -- situations
 
 		bnum_answer = Bignum()
-		ans_list = []
 		lst_A = self.lstN
 		lst_B = other.lstN
-		print lst_A, lst_B
 		carry = 0
 
 		# TODO: Implement addition algorithm
-		# remark 1: different list length needs to be handled.
-		# remark 2: situation above needs to be handled as well.
+		
 
 			
-		return bnum_answer 
+		return bnum_answer
+
+	def full_adder(an, bn, cn):
+		rn = an + bn + cn
+
+		if rn > 10:
+			cn_out = rn/10;
+			rn = rn%10;
+		else:
+			cn_out = 0;
+
+		return rn, cn_out
 
 	""" Utilities """
 	def print_N(self):
@@ -58,11 +66,3 @@ class Bignum:
 		return int(self.sign+''.join(str(x) for x in self.lstN))
 
 
-# Test here
-a = Bignum(1241900)
-b = Bignum(-112314)
-
-a.print_N()
-b.print_N()
-t = a + b
-t.print_N()
