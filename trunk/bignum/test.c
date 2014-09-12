@@ -5,8 +5,8 @@
 
 int main()
 {
-	bnt testnum = bignum(-1231234454);
-	bnt justnum = "1231123234324143513241432";
+	bnt testnum = bignum(9001);
+	bnt justnum = bignum_constchar("999234001849583102394");
 	bnt result;
 	printf ("Converted from integer: %s\n", testnum);
 	printf ("Direct Input: %s\n", justnum);
@@ -16,8 +16,7 @@ int main()
 	printf ("Added Value: %s", result);
 	printf ("\n");
 
-	printf ("Press any key to continue.\n");
-	getchar();
+	printf ("\n\n");
 
 	return 0;
 }

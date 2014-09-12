@@ -3,49 +3,114 @@
 
 #include "bignum.h"
 
+/**************************************
+				Methods
+***************************************/
+
+// Addition
 bnt bignum_add(bnt a, bnt b)
 {
 	int neg_polarity_a; // 0 for positive, 1 for negative
 	int neg_polarity_b; // 0 for positive, 1 for negative
-	unsigned int carry = 0;
 
+	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
-		a[0] = '';
+
+		a[0] = ' ';
 	}
 	else
 		neg_polarity_a = 0;	
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
-		b[0] = '';
+		b[0] = ' ';
 	}
 	else
 		neg_polarity_b = 0;
 
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
-		int i_a = strlen(a) - 1;
-		int i_b = strlen(b) - 1;
-
-		do {
-
-			i_a--; i_b--;
-
-			printf("%s\n", ret);
-
-		} while (i_a >= 0 || i_b >= 0);
-
+		return _add(a, b);
 	}
-	else if (neg_polarity_a == 1 || neg_polarity_b == 1) {
+	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
+		// pass
+	}
+	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
 		// pass
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		// pass
+		return bntpush(_add(a,b), '-');
 	}
 
-	return;
+	return NULL;
 }
 
+
+// Add
+bnt _add(bnt a, bnt b)
+{
+	bnt ret = (bnt)malloc(max(strlen(a), strlen(b))*sizeof(char));
+	
+	// Assign longer array to ret
+	if (strlen(a) >= strlen (b))
+		ret = a;
+	else
+		ret = b;
+
+	unsigned int an;
+	unsigned int bn;
+	unsigned int cn = 0;
+	unsigned int cn_n;
+	unsigned int rn = 0;
+	int i = strlen(ret)-1;
+
+	int i_a = strlen(a)-1;
+	int i_b = strlen(b)-1;
+	unsigned int ext_r = 0;
+
+	do {
+		if (i_a < 0) 
+			an = 0;
+		else
+			an = ctoi(a[i_a]);
+
+		if (i_b < 0)
+			bn = 0;
+		else
+			bn = ctoi(b[i_b]);
+
+		//printf("a[%d] is: %d\t", i_a, an);
+		//printf("b[%d] is: %d\t", i_b, bn);
+
+		full_adder(&an, &bn, cn, &cn_n, &rn);
+
+		//printf("Carry[%d] is: %d\t", i, cn);
+		//printf("ret[%d] is: %d\n", i, rn);
+
+		if (i < 0) {
+			ext_r = rn;
+			break;
+		}
+		else
+			ret[i] = itoc(rn);
+
+		cn = cn_n;
+		i--;i_a--;i_b--;
+
+	} while(1);
+
+	free(a); free(b);
+
+	if (ext_r != 0)
+		return bntpush(ret, itoc(ext_r));
+	else
+		return ret;
+}
+
+
+/**************************************
+			   Initializers
+***************************************/
 bnt bignum(int num)
 {
 	char* ret;
@@ -63,42 +128,27 @@ bnt bignum(int num)
 	return ret;
 }
 
-int count_ifs(int n)
+bnt bignum_constchar(const char* number)
 {
-    if (n < 0) n = (n == INT_MIN) ? INT_MAX : -n;
-    if (n > 999999999) return 10;
-    if (n > 99999999) return 9;
-    if (n > 9999999) return 8;
-    if (n > 999999) return 7;
-    if (n > 99999) return 6;
-    if (n > 9999) return 5;
-    if (n > 999) return 4;
-    if (n > 99) return 3;
-    if (n > 9) return 2;
-    return 1;
+	bnt ret = (bnt)malloc(strlen(number)*sizeof(char));
+	strcpy(ret, number);
+	return ret;
 }
 
-unsigned int ctoi(char c)
-{
-	return atoi(&c);
-}
 
-char itoc(unsigned int i)
-{
-	return (char)(i+((int)'0'));
-}
 
-void full_adder(int* an, int* bn, int carry_in, int* carry_out, int* rn)
+
+// Full Adder module
+void full_adder(unsigned int* an, unsigned int* bn, unsigned int carry_in, unsigned int* carry_out, unsigned int* rn)
 {
 	*rn = *an + *bn + carry_in;
 
-	if (*rn > 10) {
-		*rn = *rn/10;
-		*carry_out = *rn%10;
+	if (*rn >= 10) {
+		*carry_out = *rn/10;
+		*rn = *rn%10;
 	}
-	else {
+	else
 		*carry_out = 0;
-	}
 
 	return;
 }
