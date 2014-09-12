@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <limits.h>
 
-typedef const char* bnt;
+typedef char* bnt;
 
 #define T_INT 1
 #define T_FLOAT 2
@@ -24,12 +24,18 @@ typedef const char* bnt;
 		_a > _b ? _b : _a; })
 
 
+// Operations
+bnt bignum_add(bnt a, bnt b);
 
-bnt bignum_add(bnt a, bnt b, bnt carry);
-
+// Setting up big number
 bnt bignum(int number);
 bnt bignum_constchar(const char* number);
 
+// utilities
 int count_ifs(int n);
+unsigned int ctoi(char c);
+char itoc(unsigned int i);
+
+void full_adder(int* an, int* bn, int carry_in, int* carry_out, int* rn);
 
 #endif
