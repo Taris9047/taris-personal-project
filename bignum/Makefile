@@ -13,7 +13,7 @@ all: libbignum.so test
 $(LIBDIR):
 	mkdir $(LIBDIR)
 
-bignum.o: $(SRCDIR)/bignum.h $(SRCDIR)/bignum.c utils.o $(LIBDIR)
+bignum.o: $(SRCDIR)/bignum.h $(SRCDIR)/bignum.c $(LIBDIR)
 	$(CC) $(CFLAGS) -o $(LIBDIR)/$@ -c $(SRCDIR)/bignum.c
 
 utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.c $(LIBDIR)

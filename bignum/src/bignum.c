@@ -16,7 +16,14 @@ bnt bignum_add(bnt a, bnt b)
 	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
-		a = bntcrop(a, 0);
+
+		bnt tmp_a = (bnt)malloc(sizeof(char)*(strlen(a)-1));
+		tmp_a = bntcrop(a, 0);
+		free(a);
+		bnt a = (bnt)malloc(sizeof(char)*strlen(tmp_a));
+		a = tmp_a;
+		free(tmp_a);
+
 		printf("%s\n", a);
 	}
 	else
@@ -24,8 +31,18 @@ bnt bignum_add(bnt a, bnt b)
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
-		b = bntcrop(b, 0);
+
+		bnt tmp_b = (bnt)malloc(sizeof(char)*(strlen(b)-1));
+		tmp_b = bntcrop(b, 0);
+
 		printf("%s\n", b);
+		printf("%s\n", tmp_b);
+
+		free(b);
+		bnt b = (bnt)malloc(sizeof(char)*strlen(tmp_b));
+		b = tmp_b;
+		free(tmp_b);
+
 	}
 	else
 		neg_polarity_b = 0;
@@ -40,7 +57,7 @@ bnt bignum_add(bnt a, bnt b)
 		// pass
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		return bntpush(_add(a,b), '-');
+		return bntpush(_add(a, b), '-');
 	}
 
 	return NULL;
@@ -100,7 +117,7 @@ bnt _add(bnt a, bnt b)
 
 	} while(1);
 
-	free(a); free(b);
+//	free(a); free(b);
 
 	if (ext_r != 0)
 		return bntpush(ret, itoc(ext_r));
@@ -123,9 +140,7 @@ bnt bignum(int num)
 		digits = count_ifs(num)+1;
 
 	ret = (char*)malloc(digits*sizeof(char));
-
 	sprintf(ret, "%d", num);
-
 	return ret;
 }
 

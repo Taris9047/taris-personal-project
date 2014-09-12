@@ -30,7 +30,9 @@ char itoc(unsigned int i)
 
 
 
-
+/*********************************
+	   String Manipulations
+*********************************/
 bnt bntsel(bnt str, unsigned int init, unsigned int end)
 {
 	if (init > end)
@@ -68,13 +70,14 @@ bnt bntcrop(bnt str, unsigned int index)
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
 
 	if (index == 0)
-		strcat(temp_str, bntsel(str,1,strlen(str)-1));
+		temp_str =  bntsel(str,index+1,strlen(str)-1);
 	else if (index == strlen(str)-1)
-		strcat(temp_str, bntsel(str,0,strlen(str)-2));
+		temp_str = bntsel(str,0,strlen(str)-2);
 	else {
-		strcat(temp_str, bntsel(str,0,index-1));
+		temp_str = bntsel(str,0,index-1);
 		strcat(temp_str, bntsel(str,index+1,strlen(str)-1));
 	}
+	//printf("%s\n", temp_str);
 	return temp_str;
 }
 
