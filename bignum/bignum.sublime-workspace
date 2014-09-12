@@ -4,12 +4,12 @@
 		"selected_items":
 		[
 			[
-				"carry",
-				"carry_in"
+				"neg_",
+				"neg_polarity_b"
 			],
 			[
-				"neg_",
-				"neg_polarity_a"
+				"carry",
+				"carry_in"
 			],
 			[
 				"neg",
@@ -80,18 +80,42 @@
 	"buffers":
 	[
 		{
-			"file": "src/bignum.c",
+			"file": "src/bignum.h",
 			"settings":
 			{
-				"buffer_size": 1639,
+				"buffer_size": 639,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "src/bignum.h",
+			"file": "src/bignum.c",
 			"settings":
 			{
-				"buffer_size": 745,
+				"buffer_size": 2551,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/data_type.h",
+			"settings":
+			{
+				"buffer_size": 67,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/utils.h",
+			"settings":
+			{
+				"buffer_size": 606,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/utils.c",
+			"settings":
+			{
+				"buffer_size": 1485,
 				"line_ending": "Unix"
 			}
 		},
@@ -99,7 +123,7 @@
 			"file": "test.c",
 			"settings":
 			{
-				"buffer_size": 492,
+				"buffer_size": 453,
 				"line_ending": "Unix"
 			}
 		},
@@ -107,7 +131,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 457,
+				"buffer_size": 623,
 				"line_ending": "Unix"
 			}
 		},
@@ -224,53 +248,24 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "src/bignum.c",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1639,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								365,
-								365
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 169.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
 					"file": "src/bignum.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 745,
+						"buffer_size": 639,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								141,
-								141
+								175,
+								175
 							]
 						],
 						"settings":
@@ -285,20 +280,49 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "test.c",
+					"buffer": 1,
+					"file": "src/bignum.c",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 492,
+						"buffer_size": 2551,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								415,
-								415
+								2274,
+								2274
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 855.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/data_type.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 67,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								59,
+								59
 							]
 						],
 						"settings":
@@ -309,24 +333,109 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "Makefile",
+					"file": "src/utils.h",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 457,
+						"buffer_size": 606,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								51,
-								51
+								561,
+								597
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/utils.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1485,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1348,
+								1348
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 653.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "test.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 453,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								137,
+								137
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "Makefile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 623,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								249,
+								249
 							]
 						],
 						"settings":
@@ -337,11 +446,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 7,
 					"file": "run.sh",
 					"semi_transient": false,
 					"settings":
@@ -365,11 +474,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
-					"buffer": 5,
+					"buffer": 8,
 					"file": "PBN.py",
 					"semi_transient": false,
 					"settings":
@@ -394,7 +503,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 8,
 					"type": "text"
 				}
 			]
