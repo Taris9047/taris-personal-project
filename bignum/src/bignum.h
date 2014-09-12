@@ -7,35 +7,24 @@
 #include <stdio.h>
 #include <limits.h>
 
-typedef char* bnt;
+#include "data_type.h"
+#include "utils.h"
 
-#define T_INT 1
-#define T_FLOAT 2
-#define T_DOUBLE 3
-#define T_CONSTCHAR 0
-
-#define max(a,b) \
-	({ __typeof__ (a) _a = (a); \
-		__typeof__ (b) _b = (b); \
-		_a > _b ? _a : _b; })
-#define min(a,b) \
-	({ __typeof__ (a) _a = (a); \
-		__typeof__ (b) _b = (b); \
-		_a > _b ? _b : _a; })
-
-
-// Operations
+// Operations.
 bnt bignum_add(bnt a, bnt b);
 
-// Setting up big number
+// Simple Operations, make sure they are used properly.
+// adding
+bnt _add(bnt a, bnt b);
+// subraction: a - b
+bnt _sub(bnt a, bnt b);
+// multiplication (positive*positive)
+bnt _mul(bnt a, bnt b);
+
+// Setting up big number.
 bnt bignum(int number);
 bnt bignum_constchar(const char* number);
+void full_adder(unsigned int* an, unsigned int* bn, unsigned int carry_in, unsigned int* carry_out, unsigned int* rn);
 
-// utilities
-int count_ifs(int n);
-unsigned int ctoi(char c);
-char itoc(unsigned int i);
-
-void full_adder(int* an, int* bn, int carry_in, int* carry_out, int* rn);
 
 #endif

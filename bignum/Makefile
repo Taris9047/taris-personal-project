@@ -3,20 +3,24 @@
 CC=gcc
 CXX=g++
 CFLAGS=-O3 -Wall -fPIC
-OBJS=bignum.o
 SRCDIR=./src
 LIBDIR=./lib
+OBJ=bignum.o utils.o
+OBJS=$(LIBDIR)/bignum.o $(LIBDIR)/utils.o
 
 all: libbignum.so test
 
 $(LIBDIR):
 	mkdir $(LIBDIR)
 
-bignum.o: $(SRCDIR)/bignum.h $(SRCDIR)/bignum.c $(LIBDIR)
+bignum.o: $(SRCDIR)/bignum.h $(SRCDIR)/bignum.c utils.o $(LIBDIR)
 	$(CC) $(CFLAGS) -o $(LIBDIR)/$@ -c $(SRCDIR)/bignum.c
 
-libbignum.so: $(OBJS)
-	$(CC) -shared -o $(LIBDIR)/$@ $(LIBDIR)/$(OBJS)
+utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.c $(LIBDIR)
+	$(CC) $(CFLAGS) -o $(LIBDIR)/$@ -c $(SRCDIR)/utils.c
+
+libbignum.so: $(OBJ) $(LIBDIR)
+	$(CC) -shared -o $(LIBDIR)/$@ $(OBJS)
 
 test: test.c
 	$(CC) $(CFLAGS) -o $@ test.c -I$(SRCDIR) -L$(LIBDIR) -lbignum
