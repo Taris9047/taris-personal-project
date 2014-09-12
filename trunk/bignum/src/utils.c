@@ -42,8 +42,6 @@ bnt bntsel(bnt str, unsigned int init, unsigned int end)
 		ret[i] = str[init+i];
 	}
 
-	free(str);
-
 	return ret;
 }
 
@@ -52,8 +50,31 @@ bnt bntpush(bnt str, char c)
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
 	temp_str[0] = c;
 	strcat(temp_str,str);
-	free(str);
 
+	return temp_str;
+}
+
+bnt bntpop(bnt str, char* c)
+{
+	*c = str[0];
+	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
+	temp_str = bntsel(str, 1, strlen(str)-1);
+
+	return temp_str;
+}
+
+bnt bntcrop(bnt str, unsigned int index)
+{
+	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
+
+	if (index == 0)
+		strcat(temp_str, bntsel(str,1,strlen(str)-1));
+	else if (index == strlen(str)-1)
+		strcat(temp_str, bntsel(str,0,strlen(str)-2));
+	else {
+		strcat(temp_str, bntsel(str,0,index-1));
+		strcat(temp_str, bntsel(str,index+1,strlen(str)-1));
+	}
 	return temp_str;
 }
 

@@ -16,15 +16,16 @@ bnt bignum_add(bnt a, bnt b)
 	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
-
-		a[0] = ' ';
+		a = bntcrop(a, 0);
+		printf("%s\n", a);
 	}
 	else
 		neg_polarity_a = 0;	
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
-		b[0] = ' ';
+		b = bntcrop(b, 0);
+		printf("%s\n", b);
 	}
 	else
 		neg_polarity_b = 0;
