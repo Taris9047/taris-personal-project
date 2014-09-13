@@ -40,8 +40,9 @@ bnt bntsel(bnt str, unsigned int init, unsigned int end)
 
 	bnt ret = (bnt)malloc(sizeof(char)*(end-init+1));
 
-	for (int i = 0; i < sizeof(ret); i++) {
+	for (int i = 0; i < (end-init+1); i++) {
 		ret[i] = str[init+i];
+		//printf("bntsel, ret[%d]: %c\n", i, str[init+i]);
 	}
 
 	return ret;
@@ -49,9 +50,12 @@ bnt bntsel(bnt str, unsigned int init, unsigned int end)
 
 bnt bntpush(bnt str, char c)
 {
+	printf("bntpush inputs: %s, %c\n", str, c);
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
 	temp_str[0] = c;
-	strcat(temp_str,str);
+	printf("bntpush, temp_str: %s\n", temp_str);
+	strcat(temp_str, str);
+	printf("bntpush, temp_str(after strcat): %s\n", temp_str);
 
 	return temp_str;
 }
