@@ -28,3 +28,4 @@ test: test.c
 clean:
 	rm -rvf $(LIBDIR)
 	rm -rvf ./test
+	rm -rvf *.pyc

@@ -23,8 +23,7 @@ bnt bignum_add(bnt a, bnt b)
 		bnt a = (bnt)malloc(sizeof(char)*strlen(tmp_a));
 		a = tmp_a;
 		free(tmp_a);
-
-		printf("%s\n", a);
+		//printf("a (after - deletion) is: %s\n", a);
 	}
 	else
 		neg_polarity_a = 0;	
@@ -33,16 +32,17 @@ bnt bignum_add(bnt a, bnt b)
 		neg_polarity_b = 1;
 
 		bnt tmp_b = (bnt)malloc(sizeof(char)*(strlen(b)-1));
+		//printf("size of b is: %u\n", (unsigned)strlen(b));
 		tmp_b = bntcrop(b, 0);
-
-		printf("%s\n", b);
-		printf("%s\n", tmp_b);
+		//printf("size of tmp_b is: %u\n", (unsigned)strlen(tmp_b));
+		//printf("tmp_b is: %s\n", tmp_b);
 
 		free(b);
 		bnt b = (bnt)malloc(sizeof(char)*strlen(tmp_b));
 		b = tmp_b;
 		free(tmp_b);
 
+		//printf("b (after - deletion) is: %s\n", b);
 	}
 	else
 		neg_polarity_b = 0;
@@ -105,8 +105,12 @@ bnt _add(bnt a, bnt b)
 		//printf("Carry[%d] is: %d\t", i, cn);
 		//printf("ret[%d] is: %d\n", i, rn);
 
-		if (i < 0) {
+		if (i == -1) {
 			ext_r = rn;
+			break;
+		}
+		else if (i == 0 && cn_n == 0) {
+			ret[i] = itoc(rn);
 			break;
 		}
 		else
@@ -119,10 +123,13 @@ bnt _add(bnt a, bnt b)
 
 //	free(a); free(b);
 
-	if (ext_r != 0)
+	if (ext_r != 0) {
+		printf("_add, ret: %s\n", ret);
 		return bntpush(ret, itoc(ext_r));
-	else
+	}
+	else {
 		return ret;
+	}
 }
 
 
@@ -146,7 +153,7 @@ bnt bignum(int num)
 
 bnt bignum_constchar(const char* number)
 {
-	bnt ret = (bnt)malloc(strlen(number)*sizeof(char));
+	bnt ret = (bnt)malloc((unsigned)strlen(number)*sizeof(char));
 	strcpy(ret, number);
 	return ret;
 }
