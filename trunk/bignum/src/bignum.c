@@ -14,41 +14,44 @@ bnt bignum_add(bnt a, bnt b)
 	int neg_polarity_b; // 0 for positive, 1 for negative
 
 	// Dealing with negative signs
+	bnt tmp_a;
+	bnt tmp_b;	
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
 
 		bnt tmp_a = (bnt)malloc(sizeof(char)*(strlen(a)-1));
 		tmp_a = bntcrop(a, 0);
-		free(a);
-		bnt a = (bnt)malloc(sizeof(char)*strlen(tmp_a));
-		a = tmp_a;
-		free(tmp_a);
+		//bnt a = (bnt)malloc(sizeof(char)*strlen(tmp_a));
+		//a = tmp_a;
 		//printf("a (after - deletion) is: %s\n", a);
 	}
-	else
-		neg_polarity_a = 0;	
+	else {
+		tmp_a = (bnt)malloc(sizeof(char)*(strlen(a)));
+		tmp_a = a;
+		neg_polarity_a = 0;
+	}
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
 
 		bnt tmp_b = (bnt)malloc(sizeof(char)*(strlen(b)-1));
-		//printf("size of b is: %u\n", (unsigned)strlen(b));
 		tmp_b = bntcrop(b, 0);
-		//printf("size of tmp_b is: %u\n", (unsigned)strlen(tmp_b));
-		//printf("tmp_b is: %s\n", tmp_b);
-
-		free(b);
-		bnt b = (bnt)malloc(sizeof(char)*strlen(tmp_b));
-		b = tmp_b;
-		free(tmp_b);
-
+		//bnt b = (bnt)malloc(sizeof(char)*strlen(tmp_b));
+		//b = tmp_b;
 		//printf("b (after - deletion) is: %s\n", b);
 	}
-	else
+	else {
+		tmp_b = (bnt)malloc(sizeof(char)*(strlen(b)));
+		tmp_b = b;
 		neg_polarity_b = 0;
+	}
+
+	printf("bntadd, a and b: %s, %s\n", a, b);
+	printf("bntadd, tmp_a and tmp_b: %s, %s\n", tmp_a, tmp_b);
 
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
-		return _add(a, b);
+		printf("bntadd, polarity + n +, a, b: %s, %s\n", a, b);
+		return _add(tmp_a, tmp_b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
 		// pass
@@ -57,7 +60,8 @@ bnt bignum_add(bnt a, bnt b)
 		// pass
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		return bntpush(_add(a, b), '-');
+		printf("bntadd, polarity - n -, a, b: %s, %s\n", a, b);
+		return bntpush(_add(tmp_a, tmp_b), '-');
 	}
 
 	return NULL;
@@ -67,13 +71,19 @@ bnt bignum_add(bnt a, bnt b)
 // Add
 bnt _add(bnt a, bnt b)
 {
-	bnt ret = (bnt)malloc(max(strlen(a), strlen(b))*sizeof(char));
+	bnt ret;
 	
+	printf("_add, a, b: %s, %s\n", a, b);
+
 	// Assign longer array to ret
-	if (strlen(a) >= strlen (b))
+	if (strlen(a) >= strlen (b)) {
+		ret = (bnt)malloc(strlen(a)*sizeof(char));
 		ret = a;
-	else
+	}
+	else {
+		ret = (bnt)malloc(strlen(b)*sizeof(char));
 		ret = b;
+	}
 
 	unsigned int an;
 	unsigned int bn;
@@ -113,8 +123,11 @@ bnt _add(bnt a, bnt b)
 			ret[i] = itoc(rn);
 			break;
 		}
-		else
+		else {
 			ret[i] = itoc(rn);
+		}
+		//printf("_add, ret: %s\n", ret);
+		//printf("_add, i, i_a, i_b: %d, %d, %d\n", i, i_a, i_b);
 
 		cn = cn_n;
 		i--;i_a--;i_b--;
@@ -125,6 +138,7 @@ bnt _add(bnt a, bnt b)
 
 	if (ext_r != 0) {
 		printf("_add, ret: %s\n", ret);
+		printf("_add, ext_r: %u\n", ext_r);
 		return bntpush(ret, itoc(ext_r));
 	}
 	else {

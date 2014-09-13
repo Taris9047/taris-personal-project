@@ -91,7 +91,7 @@
 			"file": "src/bignum.c",
 			"settings":
 			{
-				"buffer_size": 3189,
+				"buffer_size": 3609,
 				"line_ending": "Unix"
 			}
 		},
@@ -296,15 +296,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3189,
+						"buffer_size": 3609,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2427,
-								2427
+								303,
+								303
 							]
 						],
 						"settings":
@@ -313,7 +313,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1494.0,
+						"translation.y": 52.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
