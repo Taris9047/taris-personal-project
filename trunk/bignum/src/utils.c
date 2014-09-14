@@ -40,22 +40,29 @@ bnt bntsel(bnt str, unsigned int init, unsigned int end)
 
 	bnt ret = (bnt)malloc(sizeof(char)*(end-init+1));
 
-	for (int i = 0; i < (end-init+1); i++) {
-		ret[i] = str[init+i];
-		//printf("bntsel, ret[%d]: %c\n", i, str[init+i]);
+	if (ret != NULL) {
+		for (int i = 0; i < (end-init+1); i++) {
+			ret[i] = str[init+i];
+			//printf("bntsel, ret[%d]: %c\n", i, str[init+i]);
+		}
 	}
 
+	//printf("bntcrop, ret: %s\n", ret);
 	return ret;
 }
 
 bnt bntpush(bnt str, char c)
 {
-	printf("bntpush inputs: %s, %c\n", str, c);
+	//printf("bntpush inputs: %s, %c\n", str, c);
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
-	temp_str[0] = c;
-	printf("bntpush, temp_str: %s\n", temp_str);
-	strcat(temp_str, str);
-	printf("bntpush, temp_str(after strcat): %s\n", temp_str);
+	//printf("bntpush, temp_str: %s\n", temp_str);
+	//printf("bntpush, str: %s\n", str);
+	if (temp_str != NULL && str != NULL) {
+		temp_str[0] = c;
+		strcat(temp_str, str);
+	}
+	//printf("bntpush, temp_str: %s\n", temp_str)
+	//printf("bntpush, temp_str(after strcat): %s\n", temp_str);
 
 	return temp_str;
 }
@@ -64,7 +71,9 @@ bnt bntpop(bnt str, char* c)
 {
 	*c = str[0];
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
-	temp_str = bntsel(str, 1, strlen(str)-1);
+	if (temp_str != NULL) {
+		temp_str = bntsel(str, 1, strlen(str)-1);
+	}
 
 	return temp_str;
 }
@@ -73,15 +82,20 @@ bnt bntcrop(bnt str, unsigned int index)
 {
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
 
-	if (index == 0)
-		temp_str =  bntsel(str,index+1,strlen(str)-1);
-	else if (index == strlen(str)-1)
-		temp_str = bntsel(str,0,strlen(str)-2);
-	else {
-		temp_str = bntsel(str,0,index-1);
-		strcat(temp_str, bntsel(str,index+1,strlen(str)-1));
+	if (temp_str != NULL) {
+		if (index == 0) {
+			temp_str =  bntsel(str,index+1,strlen(str)-1);
+		}
+		else if (index == strlen(str)-1) {
+			temp_str = bntsel(str,0,strlen(str)-2);
+		}
+		else {
+			temp_str = bntsel(str,0,index-1);
+			strcat(temp_str, bntsel(str,index+1,strlen(str)-1));
+		}
 	}
-	//printf("%s\n", temp_str);
+
+	//printf("bntcrop, temp_str: %s\n", temp_str);
 	return temp_str;
 }
 
