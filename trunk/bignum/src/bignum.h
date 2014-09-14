@@ -10,16 +10,23 @@
 #include "data_type.h"
 #include "utils.h"
 
+#define CHAR_SZ sizeof(char)
+
 // Operations.
-bnt bignum_add(bnt a, bnt b);
+bnt bignum_add(cbnt a, cbnt b);
 
 // Simple Operations, make sure they are used properly.
 // adding
-bnt _add(bnt a, bnt b);
+bnt _add(cbnt a, cbnt b);
 // subraction: a - b
-bnt _sub(bnt a, bnt b);
+bnt _sub(cbnt a, cbnt b);
 // multiplication (positive*positive)
-bnt _mul(bnt a, bnt b);
+bnt _mul(cbnt a, cbnt b);
+
+// Numerical utils
+bnt bntmax(cbnt a, cbnt b);
+bnt bntmin(cbnt a, cbnt b);
+bool bntcomp(cbnt a, cbnt b); // returns true if a > b
 
 // Setting up big number.
 bnt bignum(int number);

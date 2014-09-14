@@ -22,9 +22,10 @@ int count_ifs(int n);
 unsigned int ctoi(char c);
 char itoc(unsigned int i);
 
-bnt bntsel(bnt str, unsigned int init, unsigned int end);
-bnt bntpush(bnt str, char c);
-bnt bntpop(bnt str, char* c);
-bnt bntcrop(bnt str, unsigned int index);
+bnt bntsel(cbnt str, unsigned int init, unsigned int end);
+bnt bntpush(cbnt str, char c);
+bnt bntpop(cbnt str, char* c);
+bnt bntcrop(cbnt str, unsigned int index);
+void test_malloc(void);
 
 #endif
