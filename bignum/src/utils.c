@@ -33,7 +33,7 @@ char itoc(unsigned int i)
 /*********************************
 	   String Manipulations
 *********************************/
-bnt bntsel(bnt str, unsigned int init, unsigned int end)
+bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 {
 	if (init > end)
 		init = end;
@@ -46,39 +46,50 @@ bnt bntsel(bnt str, unsigned int init, unsigned int end)
 			//printf("bntsel, ret[%d]: %c\n", i, str[init+i]);
 		}
 	}
+	else {
+		printf("Crap, malloc in bntsel failed!!\n");
+		exit(-1);
+	}
 
 	//printf("bntcrop, ret: %s\n", ret);
 	return ret;
 }
 
-bnt bntpush(bnt str, char c)
+bnt bntpush(cbnt str, char c)
 {
 	//printf("bntpush inputs: %s, %c\n", str, c);
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
 	//printf("bntpush, temp_str: %s\n", temp_str);
 	//printf("bntpush, str: %s\n", str);
-	if (temp_str != NULL && str != NULL) {
+	if (temp_str != NULL) {
 		temp_str[0] = c;
 		strcat(temp_str, str);
 	}
-	//printf("bntpush, temp_str: %s\n", temp_str)
+	else {
+		printf("Crap, malloc in bntpush failed!!\n");
+		exit(-1);
+	}
 	//printf("bntpush, temp_str(after strcat): %s\n", temp_str);
 
 	return temp_str;
 }
 
-bnt bntpop(bnt str, char* c)
+bnt bntpop(cbnt str, char* c)
 {
 	*c = str[0];
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
 	if (temp_str != NULL) {
 		temp_str = bntsel(str, 1, strlen(str)-1);
 	}
+	else {
+		printf("Crap, malloc in bntpop failed!!\n");
+		exit(-1);
+	}
 
 	return temp_str;
 }
 
-bnt bntcrop(bnt str, unsigned int index)
+bnt bntcrop(cbnt str, unsigned int index)
 {
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
 
@@ -94,9 +105,37 @@ bnt bntcrop(bnt str, unsigned int index)
 			strcat(temp_str, bntsel(str,index+1,strlen(str)-1));
 		}
 	}
+	else {
+		printf("Crap, malloc in bntcrop failed!!\n");
+		exit(-1);
+	}
 
 	//printf("bntcrop, temp_str: %s\n", temp_str);
 	return temp_str;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Testing malloc
+void test_malloc(void)
+{
+	for (int i=0;i < 999999;i++) {
+		char* test_array = malloc(sizeof(char)*(50000));
+		if (test_array == NULL) {
+			printf("malloc failed!!\n");
+			exit(-1);
+		}
+	}
 }
 
 #endif

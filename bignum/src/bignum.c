@@ -8,7 +8,7 @@
 ***************************************/
 
 // Addition
-bnt bignum_add(bnt a, bnt b)
+bnt bignum_add(cbnt a, cbnt b)
 {
 	int neg_polarity_a; // 0 for positive, 1 for negative
 	int neg_polarity_b; // 0 for positive, 1 for negative
@@ -18,27 +18,39 @@ bnt bignum_add(bnt a, bnt b)
 	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
-		tmp_a = (bnt)malloc(sizeof(char)*(strlen(a)-1));
+		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)-1));
 		if (tmp_a != NULL) {
 			tmp_a = bntcrop(a, 0);
+		}
+		else {
+			printf("malloc in bignum_add failed!!\n");
+			exit(-1);
 		}
 		//bnt a = (bnt)malloc(sizeof(char)*strlen(tmp_a));
 		//a = tmp_a;
 		//printf("a (after - deletion) is: %s\n", a);
 	}
 	else {
-		tmp_a = (bnt)malloc(sizeof(char)*(strlen(a)));
+		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)));
 		if (tmp_a != NULL) {
 			tmp_a = a;
+		}
+		else {
+			printf("malloc in bignum_add failed!!\n");
+			exit(-1);
 		}
 		neg_polarity_a = 0;
 	}
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
-		tmp_b = (bnt)malloc(sizeof(char)*(strlen(b)-1));
+		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)-1));
 		if (tmp_b != NULL) {
 			tmp_b = bntcrop(b, 0);
+		}
+		else {
+			printf("malloc in bignum_add failed!!\n");
+			exit(-1);
 		}
 	
 		//bnt b = (bnt)malloc(sizeof(char)*strlen(tmp_b));
@@ -46,22 +58,23 @@ bnt bignum_add(bnt a, bnt b)
 		//printf("b (after - deletion) is: %s\n", b);
 	}
 	else {
-		tmp_b = (bnt)malloc(sizeof(char)*(strlen(b)));
+		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)));
 		if (tmp_b != NULL) {
 			tmp_b = b;
 		}
+		else {
+			printf("malloc in bignum_add failed!!\n");
+			exit(-1);
+		}
 		neg_polarity_b = 0;
 	}
-
-	free(a);
-	free(b);
 
 	//printf("bntadd, a and b: %s, %s\n", a, b);
 	//printf("bntadd, tmp_a and tmp_b: %s, %s\n", tmp_a, tmp_b);
 
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
-		printf("bntadd, polarity + n +, a, b: %s, %s\n", tmp_a, tmp_b);
-		printf("bntadd, return %s\n", _add(tmp_a, tmp_b));
+		//printf("bntadd, polarity + n +, a, b: %s, %s\n", tmp_a, tmp_b);
+		//printf("bntadd, return %s\n", _add(tmp_a, tmp_b));
 		return _add(tmp_a, tmp_b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
@@ -71,8 +84,8 @@ bnt bignum_add(bnt a, bnt b)
 		// pass
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		printf("bntadd, polarity - n -, a, b: %s, %s\n", tmp_a, tmp_b);
-		printf("bntadd, return %s\n", _add(tmp_a, tmp_b));
+		//printf("bntadd, polarity - n -, a, b: %s, %s\n", tmp_a, tmp_b);
+		//printf("bntadd, return %s\n", _add(tmp_a, tmp_b));
 		return bntpush(_add(tmp_a, tmp_b), '-');
 	}
 
@@ -81,22 +94,27 @@ bnt bignum_add(bnt a, bnt b)
 
 
 // Add
-bnt _add(bnt a, bnt b)
+bnt _add(cbnt a, cbnt b)
 {
-	bnt ret;
-	
-	//printf("_add, a, b: %s, %s\n", a, b);
-
+	bnt ret = NULL;
 	// Assign longer array to ret
 	if (strlen(a) >= strlen (b)) {
-		ret = (bnt)malloc(strlen(a)*sizeof(char));
+		ret = (bnt)malloc(strlen(a)*CHAR_SZ);
 		if (ret != NULL)
 			ret = a;
+		else {
+			printf("malloc in _add failed for a!!\n");
+			exit(-1);
+		}
 	}
 	else {
-		ret = (bnt)malloc(strlen(b)*sizeof(char));
+		ret = (bnt)malloc(strlen(b)*CHAR_SZ);
 		if (ret != NULL)
 			ret = b;
+		else {
+			printf("malloc in _add failed for b!!\n");
+			exit(-1);
+		}
 	}
 
 	unsigned int an;
@@ -160,6 +178,88 @@ bnt _add(bnt a, bnt b)
 	}
 }
 
+// Subtract (a-b)
+// Assuming a is always larger than b
+// and they are all positives.
+bnt _sub(cbnt a, cbnt b)
+{
+	if (!bntcomp(a, b)) {
+		printf("a must be larger than b");
+		exit(-1);
+	}
+
+	bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+	if ( ret != NULL ) {
+		ret = a;
+
+		// performing subtraction.
+		unint i_a = strlen(a) - strlen(b);
+		unint i_b = 0;
+		int i = i_a - 1;
+
+		
+
+		for (i = i_a - 1; i < strlen(a); i++) {
+
+		}
+
+
+	}
+	else {
+		printf("Uh oh... got some malloc problem in _sub..\n");
+		exit(-1);
+	}
+
+	return ret;
+}
+
+
+/**************************************
+		Numerical Utilities
+***************************************/
+bool bntcomp(cbnt a, cbnt b)
+{
+	// detecting negative.
+	if (a[0] == '-' && b[0] != '-')
+		return false;
+	else if (a[0] != '-' && b[0] == '-')
+		return true;
+	else if (a[0] == '-' && b[0] == '-') {
+		if (strlen(a) < strlen(b))
+			return true;
+		else if (strlen(a) > strlen(b))
+			return false;
+		else {
+			for (int i = 0; i < strlen(a); i++) {
+				if (ctoi(a[i]) < ctoi(b[i]))
+					return true;
+				else if (ctoi(a[i]) > ctoi(b[i]))
+					return false;
+				else
+					continue;
+			} // for
+		} // if strlen
+	} // else if a[]
+	else {
+		if (strlen(a) > strlen(b))
+			return true;
+		else if (strlen(a) < strlen(b))
+			return false;
+		else {
+			for (int i = 0; i < strlen(a); i++) {
+				if (ctoi(a[i]) > ctoi(b[i]))
+					return true;
+				else if (ctoi(a[i]) < ctoi(b[i]))
+					return false;
+				else
+					continue;
+			} // for
+		} // if strlen
+	} // else
+
+	return false;
+}
+
 
 /**************************************
 			   Initializers
@@ -178,17 +278,24 @@ bnt bignum(int num)
 	if (ret != NULL) {
 		sprintf(ret, "%d", num);
 	}
+	else {
+		printf("Oh crap.. malloc in bignum(int) failed!!\n");
+		exit(-1);
+	}
 	
 	return ret;
 }
 
 bnt bignum_constchar(const char* number)
 {
-	bnt ret = (bnt)malloc((unsigned)strlen(number)*sizeof(char));
+	bnt ret = (bnt)malloc((unsigned)strlen(number)*CHAR_SZ);
 	if (ret != NULL) {
 		strcpy(ret, number);
 	}
-		
+	else {
+		printf("Oh crap.. malloc in bignum_constchar failed!!\n");
+		exit(-1);
+	}	
 	return ret;
 }
 
@@ -196,7 +303,10 @@ bnt bignum_constchar(const char* number)
 
 
 // Full Adder module
-void full_adder(unsigned int* an, unsigned int* bn, unsigned int carry_in, unsigned int* carry_out, unsigned int* rn)
+void full_adder(
+	unsigned int* an, unsigned int* bn, \
+	unsigned int carry_in, unsigned int* carry_out, \
+	unsigned int* rn)
 {
 	*rn = *an + *bn + carry_in;
 
