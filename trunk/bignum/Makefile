@@ -6,10 +6,18 @@ CFLAGS=-O3 -Wall -fPIC
 SRCDIR=./src
 LIBDIR=./lib
 OBJ=bignum.o utils.o
+TARGET=test
 
-all: libbignum.so test
+SYS := $(shell gcc -dumpmachine)
+ifneq (, $(findstring linux, $(SYS)))
+	LIBNAME=libbignum.so
+else ifneq (, $(findstring cygwin, $(SYS)))
+	LIBNAME=cygbignum.dll
+else
+	LIBNAME=libbignum.so
+endif
 
-cyg: libbignum.so test_cyg
+all: $(LIBNAME) test
 
 $(LIBDIR):
 	mkdir $(LIBDIR)
@@ -20,18 +28,13 @@ bignum.o: $(SRCDIR)/bignum.h $(SRCDIR)/bignum.c
 utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.c
 	$(CC) $(CFLAGS) -o $@ -c $(SRCDIR)/utils.c
 
-libbignum.so: $(OBJ) $(LIBDIR)
+$(LIBNAME): $(OBJ) $(LIBDIR)
 	$(CC) -shared -o $(LIBDIR)/$@ $(OBJ)
 
-test: test.c $(LIBDIR)/libbignum.so
-	$(CC) $(CFLAGS) -o $@ test.c -I$(SRCDIR) -L$(LIBDIR) -lbignum
-
-test_cyg: test.c $(LIBDIR)/libbignum.so
-	cp -rvf $(LIBDIR)/libbignum.so ./libbignum.so
-	$(CC) $(CFLAGS) -o $@ test.c -I$(SRCDIR) -L. -l:libbignum.so
+test: test.c $(LIBDIR)/$(LIBNAME)
+	$(CC) $(CFLAGS) -o $(TARGET) test.c -I$(SRCDIR) -L$(LIBDIR) -lbignum
 
 clean:
 	rm -rvf $(LIBDIR)
-	rm -rvf ./test ./test_cyg
-	rm -rfv ./*.so ./*.o
+	rm -rvf ./$(TARGET)
 	rm -rvf *.pyc *.o *.so

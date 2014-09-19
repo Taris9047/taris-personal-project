@@ -44,24 +44,18 @@ bnt bntsel(cbnt str, unsigned int init, unsigned int end)
         int i;
 		for (i = 0; i < (end-init+1); i++) {
 			ret[i] = str[init+i];
-			//printf("bntsel, ret[%d]: %c\n", i, str[init+i]);
 		}
 	}
 	else {
 		printf("Crap, malloc in bntsel failed!!\n");
 		exit(-1);
 	}
-
-	//printf("bntcrop, ret: %s\n", ret);
 	return ret;
 }
 
 bnt bntpush(cbnt str, char c)
 {
-	//printf("bntpush inputs: %s, %c\n", str, c);
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
-	//printf("bntpush, temp_str: %s\n", temp_str);
-	//printf("bntpush, str: %s\n", str);
 	if (temp_str != NULL) {
 		temp_str[0] = c;
 		strcat(temp_str, str);
@@ -70,7 +64,6 @@ bnt bntpush(cbnt str, char c)
 		printf("Crap, malloc in bntpush failed!!\n");
 		exit(-1);
 	}
-	//printf("bntpush, temp_str(after strcat): %s\n", temp_str);
 
 	return temp_str;
 }
@@ -111,7 +104,6 @@ bnt bntcrop(cbnt str, unsigned int index)
 		exit(-1);
 	}
 
-	//printf("bntcrop, temp_str: %s\n", temp_str);
 	return temp_str;
 }
 
