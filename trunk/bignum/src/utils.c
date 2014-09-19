@@ -41,7 +41,8 @@ bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 	bnt ret = (bnt)malloc(sizeof(char)*(end-init+1));
 
 	if (ret != NULL) {
-		for (int i = 0; i < (end-init+1); i++) {
+        int i;
+		for (i = 0; i < (end-init+1); i++) {
 			ret[i] = str[init+i];
 			//printf("bntsel, ret[%d]: %c\n", i, str[init+i]);
 		}
@@ -129,7 +130,8 @@ bnt bntcrop(cbnt str, unsigned int index)
 // Testing malloc
 void test_malloc(void)
 {
-	for (int i=0;i < 999999;i++) {
+    int i;
+	for (i = 0;i < 999999;i++) {
 		char* test_array = malloc(sizeof(char)*(50000));
 		if (test_array == NULL) {
 			printf("malloc failed!!\n");

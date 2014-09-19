@@ -8,7 +8,7 @@
 ***************************************/
 
 // Addition
-bnt bignum_add(cbnt a, cbnt b)
+bnt bignum_add(bnt a, bnt b)
 {
 	int neg_polarity_a; // 0 for positive, 1 for negative
 	int neg_polarity_b; // 0 for positive, 1 for negative
@@ -94,7 +94,7 @@ bnt bignum_add(cbnt a, cbnt b)
 
 
 // Add
-bnt _add(cbnt a, cbnt b)
+bnt _add(bnt a, bnt b)
 {
 	bnt ret = NULL;
 	// Assign longer array to ret
@@ -181,7 +181,7 @@ bnt _add(cbnt a, cbnt b)
 // Subtract (a-b)
 // Assuming a is always larger than b
 // and they are all positives.
-bnt _sub(cbnt a, cbnt b)
+bnt _sub(bnt a, bnt b)
 {
 	if (!bntcomp(a, b)) {
 		printf("a must be larger than b");
@@ -193,16 +193,24 @@ bnt _sub(cbnt a, cbnt b)
 		ret = a;
 
 		// performing subtraction.
-		unint i_a = strlen(a) - strlen(b);
-		unint i_b = 0;
-		int i = i_a - 1;
+		unint i_a = 0;
+		unint i_b = strlen(b) - strlen(a);
+		int i = 0;
 
-		
+		unint an;
+		unint bn;
+		int rn;
+		unint cn;
+		unint cn_prev;
 
-		for (i = i_a - 1; i < strlen(a); i++) {
+		do {
+			if (i_b < 0) {
 
-		}
+			}
 
+
+			i_a++; i_b++; i++;
+		} while(1);
 
 	}
 	else {
@@ -217,7 +225,7 @@ bnt _sub(cbnt a, cbnt b)
 /**************************************
 		Numerical Utilities
 ***************************************/
-bool bntcomp(cbnt a, cbnt b)
+bool bntcomp(bnt a, bnt b)
 {
 	// detecting negative.
 	if (a[0] == '-' && b[0] != '-')
@@ -230,7 +238,8 @@ bool bntcomp(cbnt a, cbnt b)
 		else if (strlen(a) > strlen(b))
 			return false;
 		else {
-			for (int i = 0; i < strlen(a); i++) {
+			int i;
+			for (i = 0; i < strlen(a); i++) {
 				if (ctoi(a[i]) < ctoi(b[i]))
 					return true;
 				else if (ctoi(a[i]) > ctoi(b[i]))
@@ -246,7 +255,8 @@ bool bntcomp(cbnt a, cbnt b)
 		else if (strlen(a) < strlen(b))
 			return false;
 		else {
-			for (int i = 0; i < strlen(a); i++) {
+			int i;
+			for (i = 0; i < strlen(a); i++) {
 				if (ctoi(a[i]) > ctoi(b[i]))
 					return true;
 				else if (ctoi(a[i]) < ctoi(b[i]))
@@ -316,6 +326,16 @@ void full_adder(
 	}
 	else
 		*carry_out = 0;
+
+	return;
+}
+
+void full_subtracter(
+	unsigned int* an, unsigned int* bn, \
+	unsigned int carry_in, unsigned int* carry_out, \
+	int* rn)
+{
+
 
 	return;
 }
