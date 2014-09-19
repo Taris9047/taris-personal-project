@@ -66,10 +66,10 @@ bnt bignum_add(bnt a, bnt b)
 		return _add(tmp_a, tmp_b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
-		// pass
+		return bntpush(_sub(tmp_a, tmp_b),'-');
 	}
 	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
-		// pass
+		return _sub(tmp_a, tmp_b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
 		return bntpush(_add(tmp_a, tmp_b), '-');
@@ -89,7 +89,7 @@ bnt _add(bnt a, bnt b)
 		if (ret != NULL)
 			ret = a;
 		else {
-			printf("malloc in _add failed for a!!\n");
+			printf("_add: malloc in _add failed for a!!\n");
 			exit(-1);
 		}
 	}
@@ -98,7 +98,7 @@ bnt _add(bnt a, bnt b)
 		if (ret != NULL)
 			ret = b;
 		else {
-			printf("malloc in _add failed for b!!\n");
+			printf("_add: malloc in _add failed for b!!\n");
 			exit(-1);
 		}
 	}
@@ -158,41 +158,59 @@ bnt _add(bnt a, bnt b)
 bnt _sub(bnt a, bnt b)
 {
 	if (!bntcomp(a, b)) {
-		printf("a must be larger than b");
+		printf("_sub: a must be larger than b");
 		exit(-1);
 	}
 
 	bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
 	if ( ret != NULL ) {
 		ret = a;
-
 		// performing subtraction.
-		unint i_a = 0;
-		unint i_b = strlen(b) - strlen(a);
-		int i = 0;
+		unint i_a = strlen(a) - 1;
+		unint i_b = strlen(b) - 1;
+		//int i = (int)i_a;
 
 		unint an;
 		unint bn;
 		int rn;
-		unint cn;
-		unint cn_prev;
+		//unint cn = 0;
+		unint cn_prev = 0;
 
 		do {
-			if (i_b < 0) {
+			if (i_b >= 0) {
+				an = (unint)ctoi(a[i_a]);
+				bn = (unint)ctoi(b[i_b]);
 
+				if (an < bn) {
+					ret = borrow(ret, i_a);
+					cn_prev = 10;
+				}
+				else {
+					cn_prev = 0;
+				}
+
+				rn = (an+cn_prev) - bn;
+				ret[i_a] = itoc(rn);
 			}
 
+			i_a--; i_b--;
+		} while(i_a > -1);
 
-			i_a++; i_b++; i++;
-		} while(1);
+		// Cropping zero for a[]
+		for (;;i_a++) {
+			if (ret[0] == '0') {
+				ret = bntcrop(ret, 0);
+			}
+			else
+				break;
+		}
 
+		return ret;
 	}
 	else {
 		printf("Uh oh... got some malloc problem in _sub..\n");
 		exit(-1);
 	}
-
-	return ret;
 }
 
 
@@ -304,14 +322,42 @@ void full_adder(
 	return;
 }
 
+bnt borrow(bnt array, unint index)
+{
+	for (; index >= 0; index--) {
+		if (index == 0) {
+			array[index] = itoc(ctoi(array[index]-1));
+			break;			
+		}
+
+		if (array[index] == '0')
+			array[index] = '9';
+		else {
+			array[index] = itoc(ctoi(array[index]-1));
+			break;
+		}
+	}
+
+	if (array[0] == '0')
+		array = bntcrop(array, 0);
+
+	return array;
+}
+
+/*
 void full_subtracter(
 	unsigned int* an, unsigned int* bn, \
 	unsigned int carry_in, unsigned int* carry_out, \
 	int* rn)
 {
+	*rn = (*an + carry_in) - *bn;
 
+	if (*rn < 0) {
+
+	}
 
 	return;
 }
+*/
 
 #endif
