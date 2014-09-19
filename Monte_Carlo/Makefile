@@ -1,24 +1,31 @@
 CC=gcc
 CXX=g++
 CFLAGS=-O3 -Wall
-PHYSICS_LIB=Physics
 TARGET=brownian
+LIBNAME=Physics
 LIBDIR=./
-LIB_CYG=-L$(LIBDIR) -l:
 OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o Converters.o
 
+#
+# Selecting Library output for specific OS'
+#
+SYS := $(shell gcc -dumpmachine)
+ifneq (, $(findstring linux, $(SYS)))
+	SONAME=lib$(LIBNAME).so
+else ifneq (, $(findstring cygwin, $(SYS)))
+	SONAME=cyg$(LIBNAME).dll
+else
+	SONAME=lib$(LIBNAME).so
+endif
+
+
 all: brownian
-
-cyg: brownian_cyg
-
-brownian_cyg: brownian.cpp cyg$(PHYSICS_LIB).so
-	$(CXX) $(CFLAGS) -o $(TARGET) brownian.cpp $(LIB_CYG)cyg$(PHYSICS_LIB).so
 
 run: brownian
 	./run.sh 
 
-brownian: brownian.cpp libPhysics.so
-	$(CXX) $(CFLAGS) -o $(TARGET) brownian.cpp -L$(LIBDIR) -l$(PHYSICS_LIB)
+brownian: brownian.cpp $(SONAME)
+	$(CXX) $(CFLAGS) -o $(TARGET) brownian.cpp -L$(LIBDIR) -l$(LIBNAME)
 
 Molecule.o: Molecule.cpp Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Molecule.cpp
@@ -38,14 +45,11 @@ Physics.o: Physics.cpp Physics.hpp
 GnuplotGen.o: Gnuplot_Gen.cpp Gnuplot_Gen.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Gnuplot_Gen.cpp
 
-libPhysics.so: $(OBJ)
+$(SONAME): $(OBJ)
 	$(CXX) -shared -o $@ $(OBJ)
 
-cyg$(PHYSICS_LIB).so: $(OBJ)
-	$(CXX) -shared -o cyg$(PHYSICS_LIB).so $(OBJ)
-
 clean:
-	rm -vrf ./*.o ./*.so ./trace.* 
+	rm -vrf ./*.o ./*.so ./*.dll ./trace.* 
 	rm -vrf ./$(TARGET) ./$(TARGET).exe
 	rm -vrf ./*.gp
 	rm -vrf ./*.dSYM

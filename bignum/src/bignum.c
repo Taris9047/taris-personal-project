@@ -26,9 +26,6 @@ bnt bignum_add(bnt a, bnt b)
 			printf("malloc in bignum_add failed!!\n");
 			exit(-1);
 		}
-		//bnt a = (bnt)malloc(sizeof(char)*strlen(tmp_a));
-		//a = tmp_a;
-		//printf("a (after - deletion) is: %s\n", a);
 	}
 	else {
 		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)));
@@ -52,10 +49,6 @@ bnt bignum_add(bnt a, bnt b)
 			printf("malloc in bignum_add failed!!\n");
 			exit(-1);
 		}
-	
-		//bnt b = (bnt)malloc(sizeof(char)*strlen(tmp_b));
-		//b = tmp_b;
-		//printf("b (after - deletion) is: %s\n", b);
 	}
 	else {
 		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)));
@@ -69,12 +62,7 @@ bnt bignum_add(bnt a, bnt b)
 		neg_polarity_b = 0;
 	}
 
-	//printf("bntadd, a and b: %s, %s\n", a, b);
-	//printf("bntadd, tmp_a and tmp_b: %s, %s\n", tmp_a, tmp_b);
-
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
-		//printf("bntadd, polarity + n +, a, b: %s, %s\n", tmp_a, tmp_b);
-		//printf("bntadd, return %s\n", _add(tmp_a, tmp_b));
 		return _add(tmp_a, tmp_b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
@@ -84,8 +72,6 @@ bnt bignum_add(bnt a, bnt b)
 		// pass
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		//printf("bntadd, polarity - n -, a, b: %s, %s\n", tmp_a, tmp_b);
-		//printf("bntadd, return %s\n", _add(tmp_a, tmp_b));
 		return bntpush(_add(tmp_a, tmp_b), '-');
 	}
 
@@ -139,13 +125,7 @@ bnt _add(bnt a, bnt b)
 		else
 			bn = ctoi(b[i_b]);
 
-		//printf("a[%d] is: %d\t", i_a, an);
-		//printf("b[%d] is: %d\t", i_b, bn);
-
 		full_adder(&an, &bn, cn, &cn_n, &rn);
-
-		//printf("Carry[%d] is: %d\t", i, cn);
-		//printf("ret[%d] is: %d\n", i, rn);
 
 		if (i == -1) {
 			ext_r = rn;
@@ -158,19 +138,13 @@ bnt _add(bnt a, bnt b)
 		else {
 			ret[i] = itoc(rn);
 		}
-		//printf("_add, ret: %s\n", ret);
-		//printf("_add, i, i_a, i_b: %d, %d, %d\n", i, i_a, i_b);
 
 		cn = cn_n;
 		i--;i_a--;i_b--;
 
 	} while(1);
 
-//	free(a); free(b);
-
 	if (ext_r != 0) {
-		//printf("_add, ret: %s\n", ret);
-		//printf("_add, ext_r: %u\n", ext_r);
 		return bntpush(ret, itoc(ext_r));
 	}
 	else {
