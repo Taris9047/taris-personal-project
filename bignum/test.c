@@ -5,8 +5,8 @@
 
 int main()
 {
-	bnt testnum = bignum(-9001);
-	bnt justnum = bignum_constchar("-999232");
+	bnt testnum = bignum(1000);
+	bnt justnum = bignum_constchar("-232");
 	bnt result;
 	printf("Converted from integer: %s\n", testnum);
 	printf("Direct Input: %s\n", justnum);

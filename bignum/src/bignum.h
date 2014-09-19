@@ -31,8 +31,14 @@ bool bntcomp(bnt a, bnt b); // returns true if a > b
 // Setting up big number.
 bnt bignum(int number);
 bnt bignum_constchar(const char* number);
-void full_adder(unsigned int* an, unsigned int* bn, unsigned int carry_in, unsigned int* carry_out, unsigned int* rn);
-void full_subtracter(unsigned int* an, unsigned int* bn, unsigned int carry_in, unsigned int* carry_out, int* rn);
-
+void full_adder(unsigned int* an, unsigned int* bn, \
+	unsigned int carry_in, unsigned int* carry_out, \
+	unsigned int* rn);
+/*
+void full_subtracter(unsigned int* an, unsigned int* bn, \
+	unsigned int carry_in, unsigned int* carry_out, \
+	int* rn);
+*/
+bnt borrow(bnt array, unint loc);
 
 #endif
