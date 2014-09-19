@@ -32,7 +32,7 @@ $(LIBNAME): $(OBJ) $(LIBDIR)
 	$(CC) -shared -o $(LIBDIR)/$@ $(OBJ)
 
 test: test.c $(LIBDIR)/$(LIBNAME)
-	$(CC) $(CFLAGS) -o $(TARGET) test.c -I$(SRCDIR) -L$(LIBDIR) -lbignum
+	$(CC) $(CFLAGS) -o $(TARGET) test.c -Wl,-rpath=$(LIBDIR) -I$(SRCDIR) -L$(LIBDIR) -lbignum
 
 clean:
 	rm -rvf $(LIBDIR)
