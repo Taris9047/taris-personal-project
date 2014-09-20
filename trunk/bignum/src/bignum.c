@@ -15,6 +15,7 @@ bnt bignum_add(bnt a, bnt b)
 
 	bnt tmp_a;
 	bnt tmp_b;
+
 	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
@@ -156,12 +157,12 @@ bnt bignum_sub(bnt a, bnt b)
 // Add
 bnt _add(bnt a, bnt b)
 {
-	bnt ret = NULL;
+	bnt ret;
 	// Assign longer array to ret
 	if (strlen(a) >= strlen (b)) {
 		ret = (bnt)malloc(strlen(a)*CHAR_SZ);
 		if (ret != NULL)
-			ret = a;
+			strcpy(ret, a);
 		else {
 			printf("_add: malloc in _add failed for a!!\n");
 			exit(-1);
@@ -170,7 +171,7 @@ bnt _add(bnt a, bnt b)
 	else {
 		ret = (bnt)malloc(strlen(b)*CHAR_SZ);
 		if (ret != NULL)
-			ret = b;
+			strcpy(ret, b);
 		else {
 			printf("_add: malloc in _add failed for b!!\n");
 			exit(-1);
@@ -236,34 +237,34 @@ bnt _sub(bnt a, bnt b)
 		exit(-1);
 	}
 
-	//bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
-	if ( a != NULL ) {
+	bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+	if ( ret != NULL ) {
 		// performing subtraction.
 		int i_a = (int)strlen(a) - 1;
 		int i_b = (int)strlen(b) - 1;
-		//int i = (int)i_a;
+		strcpy(ret, a);
+		//free(a);
 
 		unint an;
 		unint bn;
 		unint rn;
-		//unint cn = 0;
 		unint cn_prev = 0;
 
 		do {
 			if (i_b >= 0 && i_a >= 0) {
-				an = (unint)ctoi(a[i_a]);
+				an = (unint)ctoi(ret[i_a]);
 				bn = (unint)ctoi(b[i_b]);
 				//printf("_sub, a[%d], b[%d]: %u, %u\n",i_a, i_b, an, bn);
 
 				if (an < bn) {
-					a = borrow(a, i_a, &cn_prev);
-					i_a--;
+					ret = borrow(ret, i_a, &cn_prev);
+					//i_a--;
 					rn = (an+cn_prev) - bn;
-					a[i_a] = itoc(rn);
+					ret[i_a] = itoc(rn);
 				}
 				else {
 					rn = an - bn;
-					a[i_a] = itoc(rn);
+					ret[i_a] = itoc(rn);
 				}
 			}
 			else
@@ -276,16 +277,16 @@ bnt _sub(bnt a, bnt b)
 		} while(1);
 
 		// Cropping zero for a[]
-		for (i_a = 0; i_a < strlen(a); i_a++) {
+		for (i_a = 0; i_a < strlen(ret); i_a++) {
 			//printf("_sub, a[%u] = %c\n", i_a, a[i_a]);
-			if (a[i_a] == '0') {
-				a = bntcrop(a, 0);
+			if (ret[i_a] == '0') {
+				ret = bntcrop(ret, 0);
 			}
 			else
 				break;
 		}
 
-		return a;
+		return ret;
 	}
 	else {
 		printf("Uh oh... got some malloc problem in _sub..\n");
@@ -344,9 +345,9 @@ bool bntcomp(bnt a, bnt b)
 
 
 /**************************************
-			   Initializers
+             Initializers
 ***************************************/
-bnt bignum(int num)
+bnt bnint(int num)
 {
 	char* ret;
 	unsigned int digits;
@@ -368,7 +369,7 @@ bnt bignum(int num)
 	return ret;
 }
 
-bnt bignum_constchar(const char* number)
+bnt bncc(const char* number)
 {
 	bnt ret = (bnt)malloc((unsigned)strlen(number)*CHAR_SZ);
 	if (ret != NULL) {

@@ -5,18 +5,16 @@
 
 int main()
 {
-	bnt testnum = bignum(10000);
-	bnt justnum = bignum_constchar("-232");
-	bnt result;
-	printf("Converted from integer: %s\n", testnum);
-	printf("Direct Input: %s\n", justnum);
+	printf("Testing Addition:\n");	
+	bnt numA = bncc("301823");
+	bnt numB = bncc("20232");
+	bnt result = bignum_add(numA, numB);
+	printf("%s + %s = %s\n", numA, numB, result);
 
-	printf("\n\n");
-
-	printf("Performing addition. Prolly end up with stack overflow!!\n");
-	result = bignum_add(testnum, justnum);
-	printf("Added Value: %s\n", result);
-	printf("\n");
+	numA = bncc("124");
+	numB = bncc("-32");
+	result = bignum_add(numA, numB);
+	printf("%s + %s = %s\n", numA, numB, result);
 
 	return 0;
 }
