@@ -14,6 +14,7 @@
 
 // Operations.
 bnt bignum_add(bnt a, bnt b);
+bnt bignum_sub(bnt a, bnt b);
 
 // Simple Operations, make sure they are used properly.
 // adding
@@ -39,6 +40,6 @@ void full_subtracter(unsigned int* an, unsigned int* bn, \
 	unsigned int carry_in, unsigned int* carry_out, \
 	int* rn);
 */
-bnt borrow(bnt array, unint loc);
+bnt borrow(bnt array, int index, unint* cn_prev);
 
 #endif

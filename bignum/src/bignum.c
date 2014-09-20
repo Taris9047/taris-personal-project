@@ -78,6 +78,80 @@ bnt bignum_add(bnt a, bnt b)
 	return NULL;
 }
 
+bnt bignum_sub(bnt a, bnt b)
+{
+	int neg_polarity_a; // 0 for positive, 1 for negative
+	int neg_polarity_b; // 0 for positive, 1 for negative
+
+	bnt tmp_a;
+	bnt tmp_b;
+	// Dealing with negative signs
+	if (a[0] == '-') {
+		neg_polarity_a = 1;
+		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)-1));
+		if (tmp_a != NULL) {
+			tmp_a = bntcrop(a, 0);
+		}
+		else {
+			printf("malloc in bignum_sub failed!!\n");
+			exit(-1);
+		}
+	}
+	else {
+		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)));
+		if (tmp_a != NULL) {
+			tmp_a = a;
+		}
+		else {
+			printf("malloc in bignum_sub failed!!\n");
+			exit(-1);
+		}
+		neg_polarity_a = 0;
+	}
+
+	if (b[0] == '-') {
+		neg_polarity_b = 1;
+		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)-1));
+		if (tmp_b != NULL) {
+			tmp_b = bntcrop(b, 0);
+		}
+		else {
+			printf("malloc in bignum_sub failed!!\n");
+			exit(-1);
+		}
+	}
+	else {
+		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)));
+		if (tmp_b != NULL) {
+			tmp_b = b;
+		}
+		else {
+			printf("malloc in bignum_sub failed!!\n");
+			exit(-1);
+		}
+		neg_polarity_b = 0;
+	}
+
+	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
+		if (bntcomp(tmp_a, tmp_b))
+			return _sub(tmp_a, tmp_b);
+		else
+			return _sub(tmp_b, tmp_a);
+	}
+	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
+		// ok continue from here..
+
+		//return bntpush(_sub(tmp_a, tmp_b),'-');
+	}
+	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
+		return _sub(tmp_a, tmp_b);
+	}
+	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
+		return bntpush(_add(tmp_a, tmp_b), '-');
+	}
+
+	return NULL;
+}
 
 // Add
 bnt _add(bnt a, bnt b)
@@ -162,50 +236,56 @@ bnt _sub(bnt a, bnt b)
 		exit(-1);
 	}
 
-	bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
-	if ( ret != NULL ) {
-		ret = a;
+	//bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+	if ( a != NULL ) {
 		// performing subtraction.
-		unint i_a = strlen(a) - 1;
-		unint i_b = strlen(b) - 1;
+		int i_a = (int)strlen(a) - 1;
+		int i_b = (int)strlen(b) - 1;
 		//int i = (int)i_a;
 
 		unint an;
 		unint bn;
-		int rn;
+		unint rn;
 		//unint cn = 0;
 		unint cn_prev = 0;
 
 		do {
-			if (i_b >= 0) {
+			if (i_b >= 0 && i_a >= 0) {
 				an = (unint)ctoi(a[i_a]);
 				bn = (unint)ctoi(b[i_b]);
+				//printf("_sub, a[%d], b[%d]: %u, %u\n",i_a, i_b, an, bn);
 
 				if (an < bn) {
-					ret = borrow(ret, i_a);
-					cn_prev = 10;
+					a = borrow(a, i_a, &cn_prev);
+					i_a--;
+					rn = (an+cn_prev) - bn;
+					a[i_a] = itoc(rn);
 				}
 				else {
-					cn_prev = 0;
+					rn = an - bn;
+					a[i_a] = itoc(rn);
 				}
-
-				rn = (an+cn_prev) - bn;
-				ret[i_a] = itoc(rn);
 			}
+			else
+				break;
+
+			//printf("_sub, a: %s\n", a);
 
 			i_a--; i_b--;
-		} while(i_a > -1);
+
+		} while(1);
 
 		// Cropping zero for a[]
-		for (;;i_a++) {
-			if (ret[0] == '0') {
-				ret = bntcrop(ret, 0);
+		for (i_a = 0; i_a < strlen(a); i_a++) {
+			//printf("_sub, a[%u] = %c\n", i_a, a[i_a]);
+			if (a[i_a] == '0') {
+				a = bntcrop(a, 0);
 			}
 			else
 				break;
 		}
 
-		return ret;
+		return a;
 	}
 	else {
 		printf("Uh oh... got some malloc problem in _sub..\n");
@@ -322,42 +402,35 @@ void full_adder(
 	return;
 }
 
-bnt borrow(bnt array, unint index)
+bnt borrow(bnt array, int index, unint* cn_prev)
 {
-	for (; index >= 0; index--) {
-		if (index == 0) {
-			array[index] = itoc(ctoi(array[index]-1));
+	if (index < 0)
+		return array;
+
+	int i = index;
+
+	for (; i >= 0; i--) {
+		if (i == 0) {
+			array[i] = itoc(ctoi(array[i]-1));
 			break;			
 		}
 
-		if (array[index] == '0')
-			array[index] = '9';
+		if (array[i] == '0') {
+			array[i] = '9';
+		}
 		else {
-			array[index] = itoc(ctoi(array[index]-1));
+			array[i] = itoc(ctoi(array[i]-1));
 			break;
 		}
 	}
 
-	if (array[0] == '0')
+	*cn_prev = 10;
+
+	if (array[0] == '0') {
 		array = bntcrop(array, 0);
+	}
 
 	return array;
 }
-
-/*
-void full_subtracter(
-	unsigned int* an, unsigned int* bn, \
-	unsigned int carry_in, unsigned int* carry_out, \
-	int* rn)
-{
-	*rn = (*an + carry_in) - *bn;
-
-	if (*rn < 0) {
-
-	}
-
-	return;
-}
-*/
 
 #endif

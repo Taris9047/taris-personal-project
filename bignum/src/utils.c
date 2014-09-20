@@ -25,7 +25,13 @@ unsigned int ctoi(char c)
 
 char itoc(unsigned int i)
 {
-	return (char)(i+((int)'0'));
+	if (i > 9) {
+		printf("itoc, oops.. input was two digits...\n");
+		printf("returning 0\n");
+		return '0';
+	}
+	else
+		return (char)(i+((int)'0'));
 }
 
 
