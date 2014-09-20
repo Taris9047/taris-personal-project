@@ -113,29 +113,4 @@ bnt bntcrop(cbnt str, unsigned int index)
 	return temp_str;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Testing malloc
-void test_malloc(void)
-{
-    int i;
-	for (i = 0;i < 999999;i++) {
-		char* test_array = malloc(sizeof(char)*(50000));
-		if (test_array == NULL) {
-			printf("malloc failed!!\n");
-			exit(-1);
-		}
-	}
-}
-
 #endif
