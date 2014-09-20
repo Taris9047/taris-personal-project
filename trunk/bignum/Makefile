@@ -17,7 +17,7 @@ else
 	LIBNAME=libbignum.so
 endif
 
-all: $(LIBNAME) test
+all: test
 
 $(LIBDIR):
 	mkdir $(LIBDIR)
@@ -31,7 +31,7 @@ utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.c
 $(LIBNAME): $(OBJ) $(LIBDIR)
 	$(CC) -shared -o $(LIBDIR)/$@ $(OBJ)
 
-test: test.c $(LIBDIR)/$(LIBNAME)
+test: test.c $(LIBNAME)
 	$(CC) $(CFLAGS) -o $(TARGET) test.c -Wl,-rpath=$(LIBDIR) -I$(SRCDIR) -L$(LIBDIR) -lbignum
 
 clean:

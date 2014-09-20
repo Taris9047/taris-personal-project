@@ -5,7 +5,7 @@
 
 int main()
 {
-	bnt testnum = bignum(1000);
+	bnt testnum = bignum(10000);
 	bnt justnum = bignum_constchar("-232");
 	bnt result;
 	printf("Converted from integer: %s\n", testnum);
