@@ -89,7 +89,7 @@ class Bignum:
 		if self.sign != other.sign:
 			return False
 		else:
-			
+			return self.lstN == other.lstN
 
 	""" Adding Positive + Positive """
 	def add(self, A, B):
@@ -131,6 +131,19 @@ class Bignum:
 		if isinstance(B, list) != True:
 			raise ValueError("add, B is not a list!!")
 
+		# Swap A and B if B is larger.
+		if A < B:
+			tmp = A
+			A = B
+			B = tmp
+
+		indexA = len(A) - 1
+		indexB = len(B) - 1
+		indexMain = max(indexA, indexB)
+		ret = [0]*max(len(A), len(B))
+
+		for i in reversed(range(len(ret))):
+
 
 	"""
 
@@ -148,6 +161,27 @@ class Bignum:
 			cn_out = 0;
 
 		return rn, cn_out
+
+	"""
+
+	borrow: take borrow from designated spot in an integer array
+	** MUST... FIX... THIS... Crap...
+
+	"""
+	def borrow(self, array, index):
+		for i in reversed(range(0, index)):
+			if array[i] == 0:
+				array[i] = 9
+			elif array[i] > 0:
+				array[i] -= 1
+			else:
+				break
+
+		if array[0] == 0:
+			del array[0]
+
+		return array
+
 
 	""" Utilities """
 	def print_N(self):
