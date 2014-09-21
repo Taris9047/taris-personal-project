@@ -81,6 +81,15 @@ class Bignum:
 			bnum_answer.lstN = self.add(self.lstN, other.lstN)
 			return bnum_answer
 		# Positive + Negative
+		elif self.sign == '' and other.sign == '-':
+			if self.lstN > other.lstN[1:]:
+				bnum_answer.sign = ''
+				bnum_answer.lstN = self.sub(self.lstN, other.lstN)
+				return bnum_answer
+			else:
+				bnum_answer.sign = '-'
+				bnum_answer.lstN = self.sub(other.lstN, self.lstN)
+				return bnum_answer
 
 		# Negative + Positive
 
@@ -90,6 +99,8 @@ class Bignum:
 			return False
 		else:
 			return self.lstN == other.lstN
+
+
 
 	""" Adding Positive + Positive """
 	def add(self, A, B):
@@ -131,18 +142,35 @@ class Bignum:
 		if isinstance(B, list) != True:
 			raise ValueError("add, B is not a list!!")
 
-		# Swap A and B if B is larger.
-		if A < B:
-			tmp = A
-			A = B
-			B = tmp
-
 		indexA = len(A) - 1
 		indexB = len(B) - 1
 		indexMain = max(indexA, indexB)
 		ret = [0]*max(len(A), len(B))
 
-		for i in reversed(range(len(ret))):
+		for i in range(1,len(ret)):
+			if min(indexA, indexB) > 0:
+				ret[indexMain], A[indexA-1] = self.subtractor(A[indexA], B[indexB], A[indexA-1])
+			else:
+				ret[indexMain] = A[indexA]
+
+			#print A[indexA], B[indexB], ret[indexMain]
+
+			indexA -= 1
+			indexB -= 1
+			indexMain -= 1
+
+			#print "ret[", indexMain, "]: ", ret[indexMain]
+
+#		for i in range(0,len(ret)):
+#			if ret[i] == 0:
+#				del ret[i]
+#
+#			elif ret[i] == 0 and i == len(ret) - 1:
+#				break
+#			else:
+#				break
+
+		return ret
 
 
 	"""
@@ -164,23 +192,44 @@ class Bignum:
 
 	"""
 
-	borrow: take borrow from designated spot in an integer array
-	** MUST... FIX... THIS... Crap...
+	full_subtractor: subtracts with A, B and borrow digit and return its result
 
 	"""
-	def borrow(self, array, index):
-		for i in reversed(range(0, index)):
-			if array[i] == 0:
-				array[i] = 9
-			elif array[i] > 0:
-				array[i] -= 1
+	def subtractor(self, an, bn, borrow_digit):
+		if an < bn:
+			rn = 10 + an - bn
+			return rn
+			if borrow_digit == 0:
+				borrow_digit = 9
 			else:
-				break
+				borrow_digit -= 1
+		else:
+			rn = an - bn
 
-		if array[0] == 0:
-			del array[0]
+		return rn, borrow_digit
 
-		return array
+	"""
+	borrow: manipulate digits after borrowing at a certain location
+
+	"""
+	def borrow(self, A, position):
+		if position < 0:
+			position = 0
+		elif position > len(A)-1:
+			position = len(A) - 1
+
+		if A[i] == 0:
+			for i in reversed(range(0, position)):
+				if A[i] == 0:
+					A[i] == 9
+				elif A[i] > 0:
+					A[i] -= 1
+					break
+
+		if A[0] == 0:
+			del A[0]
+
+		return A
 
 
 	""" Utilities """
