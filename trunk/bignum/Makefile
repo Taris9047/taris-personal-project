@@ -11,10 +11,13 @@ TARGET=test
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
 	LIBNAME=libbignum.so
+	RPATH=-Wl,-rpath=$(LIBDIR)
 else ifneq (, $(findstring cygwin, $(SYS)))
 	LIBNAME=cygbignum.dll
-else
+	RPATH=-Wl,-rpath=$(LIBDIR)
+else ifneq (, $(findstring darwin, $(SYS)))
 	LIBNAME=libbignum.so
+	RPATH=
 endif
 
 all: test
@@ -32,7 +35,7 @@ $(LIBNAME): $(OBJ) $(LIBDIR)
 	$(CC) -shared -o $(LIBDIR)/$@ $(OBJ)
 
 test: test.c $(LIBNAME)
-	$(CC) $(CFLAGS) -o $(TARGET) test.c -Wl,-rpath=$(LIBDIR) -I$(SRCDIR) -L$(LIBDIR) -lbignum
+	$(CC) $(CFLAGS) -o $(TARGET) test.c $(RPATH) -I$(SRCDIR) -L$(LIBDIR) -lbignum
 
 clean:
 	rm -rvf $(LIBDIR)
