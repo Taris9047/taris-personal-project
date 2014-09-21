@@ -41,22 +41,24 @@ char itoc(unsigned int i)
 *********************************/
 bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 {
+	// If any fallacy happens... init must be smaller than end
 	if (init > end)
 		init = end;
 
+	// Working with stuff
 	bnt ret = (bnt)malloc(sizeof(char)*(end-init+1));
-
 	if (ret != NULL) {
         int i;
 		for (i = 0; i < (end-init+1); i++) {
 			ret[i] = str[init+i];
 		}
+
+		return ret;
 	}
 	else {
 		printf("Crap, malloc in bntsel failed!!\n");
 		exit(-1);
 	}
-	return ret;
 }
 
 bnt bntpush(cbnt str, char c)
@@ -92,7 +94,6 @@ bnt bntpop(cbnt str, char* c)
 bnt bntcrop(cbnt str, unsigned int index)
 {
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
-
 	if (temp_str != NULL) {
 		if (index == 0) {
 			temp_str =  bntsel(str,index+1,strlen(str)-1);

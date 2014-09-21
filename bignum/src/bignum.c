@@ -408,19 +408,27 @@ bnt borrow(bnt array, int index, unint* cn_prev)
 	if (index < 0)
 		return array;
 
+	// TODO: Gotta code here to ensure next digit was
+	// subtracted for borrow.
+
 	int i = index;
 
 	for (; i >= 0; i--) {
 		if (i == 0) {
-			array[i] = itoc(ctoi(array[i]-1));
-			break;			
+			//array[i] = itoc(ctoi(array[i])-1);
+			//printf("a[%d]: %c\n",i, array[i]);
+			break;
 		}
 
 		if (array[i] == '0') {
 			array[i] = '9';
+			//printf("a[%d]: %c\n",i, array[i]);
 		}
-		else {
-			array[i] = itoc(ctoi(array[i]-1));
+		else if (ctoi(array[i]) > 0) {
+			//printf("%c\n", array[i]);
+			array[i] = itoc(ctoi(array[i])-1);
+			array[i-1] = itoc(ctoi(array[i-1])-1);
+			//printf("a[%d]: %c\n",i, array[i]);
 			break;
 		}
 	}
