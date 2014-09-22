@@ -65,15 +65,14 @@ bnt bntpush(cbnt str, char c)
 {
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
 	if (temp_str != NULL) {
-		temp_str[0] = c;
+		strcpy(temp_str, &c);
 		strcat(temp_str, str);
+		return temp_str;
 	}
 	else {
 		printf("Crap, malloc in bntpush failed!!\n");
 		exit(-1);
 	}
-
-	return temp_str;
 }
 
 bnt bntpop(cbnt str, char* c)
@@ -96,14 +95,14 @@ bnt bntcrop(cbnt str, unsigned int index)
 	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
 	if (temp_str != NULL) {
 		if (index == 0) {
-			temp_str =  bntsel(str,index+1,strlen(str)-1);
+			temp_str = bntsel(str, index+1, strlen(str)-1);
 		}
 		else if (index == strlen(str)-1) {
-			temp_str = bntsel(str,0,strlen(str)-2);
+			temp_str = bntsel(str, 0, strlen(str)-2);
 		}
 		else {
 			temp_str = bntsel(str,0,index-1);
-			strcat(temp_str, bntsel(str,index+1,strlen(str)-1));
+			strcat(temp_str, bntsel(str,index+1, strlen(str)-1));
 		}
 	}
 	else {
