@@ -18,9 +18,13 @@ int main()
 	numB = bncc("-32");
 	result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
+	result = bignum_sub(numA, numB);
+	printf("%s - %s = %s\n", numA, numB, result);	
 
-	numA = bncc("124");
-	numB = bncc("-32");
+	numA = bncc("100");
+	numB = bncc("-249");
+	result = bignum_add(numA, numB);
+	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
 	printf("%s - %s = %s\n", numA, numB, result);	
 

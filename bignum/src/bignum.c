@@ -32,14 +32,22 @@ bnt bignum_add(bnt a, bnt b)
 		return _add(a, b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
-		return bntpush(_sub(bntabs(a), b),'-');
+		if (bntcomp(bntabs(a), b))
+			return bntpush(_sub(bntabs(a), b),'-');
+		else if (!bntcomp(bntabs(a), b))
+			return _sub(b, bntabs(a));
 	}
 	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
-		return _sub(a, bntabs(b));
+		if (bntcomp(a, bntabs(b)))
+			return _sub(a, bntabs(b));
+		else if (!bntcomp(a, bntabs(b)))
+			return bntpush(_sub(bntabs(b), a), '-');
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
 		return bntpush(_add(bntabs(a), bntabs(b)), '-');
 	}
+	else
+		return NULL;
 
 	return NULL;
 }
@@ -78,9 +86,9 @@ bnt bignum_sub(bnt a, bnt b)
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
 		if (bntcomp(bntabs(a), bntabs(b)))
-			return _sub(b, a);
+			return _sub(bntabs(b), bntabs(a));
 		else
-			return _sub(a, b);
+			return _sub(bntabs(a), bntabs(b));
 	}
 
 	return NULL;
@@ -165,7 +173,9 @@ bnt _add(bnt a, bnt b)
 bnt _sub(bnt a, bnt b)
 {
 	if (!bntcomp(a, b)) {
-		printf("_sub: a must be larger than b");
+		printf("_sub: a: %s\n", a);
+		printf("_sub: b: %s\n", b);
+		printf("_sub: a must be larger than b\b");
 		exit(-1);
 	}
 
