@@ -11,6 +11,8 @@
 #include "utils.h"
 
 #define CHAR_SZ sizeof(char)
+#define BNZERO bncc("0")
+#define BNONE bncc("1")
 
 // Operations.
 bnt bignum_add(bnt a, bnt b);
@@ -32,7 +34,11 @@ bnt _div(bnt a, bnt b);
 bnt bntmax(bnt a, bnt b);
 bnt bntmin(bnt a, bnt b);
 bool bntcomp(bnt a, bnt b); // returns true if a > b
+BOOL bnteq(bnt a, bnt b);
 bnt bntabs(bnt a);
+BOOL bntpolarity(bnt a);
+bnt bntshift(bnt a, int shift); // shifts bnt number. positive adds 0s to the end. negative removes 0s... for now.
+void bntinit(bnt a, unint num); // inits bignum with given integer
 
 // Setting up big number.
 bnt bnint(int number);
