@@ -52,6 +52,7 @@ bnt bignum_add(bnt a, bnt b)
 	return NULL;
 }
 
+// Subtraction
 bnt bignum_sub(bnt a, bnt b)
 {
 	int neg_polarity_a; // 0 for positive, 1 for negative
@@ -75,8 +76,10 @@ bnt bignum_sub(bnt a, bnt b)
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
 		if (bntcomp(a, b))
 			return _sub(a, b);
+		else if (bntcomp(b, a))
+			return bntpush(_sub(b, a), '-');
 		else
-			return _sub(b, a);
+			return BNZERO;
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
 		return bntpush(_add(bntabs(a), b), '-');
@@ -86,13 +89,55 @@ bnt bignum_sub(bnt a, bnt b)
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
 		if (bntcomp(bntabs(a), bntabs(b)))
-			return _sub(bntabs(b), bntabs(a));
+			return bntpush(_sub(bntabs(a), bntabs(b)), '-');
 		else
-			return _sub(bntabs(a), bntabs(b));
+			return _sub(bntabs(b), bntabs(a));
 	}
 
 	return NULL;
 }
+
+// Multiplication
+bnt bignum_mul(bnt a, bnt b)
+{
+	BOOL polarity_a = bntpolarity(a);
+	BOOL polarity_b = bntpolarity(b);
+
+	if (polarity_a == TRUE && polarity_b == TRUE)
+		return _mul(bntabs(a), bntabs(b));
+	else if (polarity_a == TRUE && polarity_b == FALSE)
+		return bntpush(_mul(bntabs(a), bntabs(b)), '-');
+	else if (polarity_a == FALSE && polarity_b == TRUE)
+		return bntpush(_mul(bntabs(a), bntabs(b)), '-');
+	else if (polarity_a == FALSE && polarity_b == FALSE)
+		return _mul(bntabs(a), bntabs(b));
+	else
+		return NULL;
+
+	return NULL;
+}
+
+// Division
+bnt bignum_div(bnt a, bnt b)
+{
+	BOOL polarity_a = bntpolarity(a);
+	BOOL polarity_b = bntpolarity(b);
+
+	if (polarity_a == TRUE && polarity_b == TRUE)
+		return _div(bntabs(a), bntabs(b));
+	else if (polarity_a == TRUE && polarity_b == FALSE)
+		return bntpush(_div(bntabs(a), bntabs(b)), '-');
+	else if (polarity_a == FALSE && polarity_b == TRUE)
+		return bntpush(_div(bntabs(a), bntabs(b)), '-');
+	else if (polarity_a == FALSE && polarity_b == FALSE)
+		return _div(bntabs(a), bntabs(b));
+	else
+		return NULL;
+
+	return NULL;
+}
+
+
 
 // Add
 bnt _add(bnt a, bnt b)
@@ -240,6 +285,85 @@ bnt _sub(bnt a, bnt b)
 	}
 }
 
+// Multiply (positive * positive)
+bnt _mul(bnt a, bnt b)
+{
+	if (!bntpolarity(a) || !bntpolarity(b)) {
+		printf("a: %s\n", a);
+		printf("b: %s\n", b);
+		printf("_mul only accepts positive numbers!!\n");
+		exit(-1);
+	}
+
+	bnt ret = (bnt)malloc(CHAR_SZ*(strlen(a)+strlen(b)-1));
+	if (ret != NULL) {
+		bntinit(ret, 0);
+		bnt i = bncc("0");
+		do {
+			ret = bignum_add(ret, a);
+
+			i = bignum_add(i, bncc("1"));
+		} while (!bnteq(i, b));
+
+		return ret;
+	}
+	else {
+		printf("_mul, malloc failed!!\n");
+		exit(-1);
+	}
+}
+
+// Divide (positive/positive)
+bnt _div(bnt a, bnt b)
+{
+	if (!bntpolarity(a) || !bntpolarity(b)) {
+		printf("a: %s\n", a);
+		printf("b: %s\n", b);
+		printf("_div only accepts positive numbers!!\n");
+		exit(-1);
+	}
+
+	if (bntcomp(a, b)) {
+		// Do division
+		bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+		if (ret != NULL) {
+			strcpy(ret, a);	
+		}
+		else {
+			printf("_div, malloc on ret failed!!\n");
+			exit(-1);
+		}
+		
+		bnt i = BNZERO;
+		do {
+			if (!bntcomp(BNZERO, bignum_sub(ret, b))) {
+				ret = bignum_sub(ret, b);
+			}
+			else
+				break;
+
+			i = bignum_add(i, BNONE);
+			
+			//printf("_div, ret: %s\n", ret);
+			//printf("_div, i: %s\n", i);
+
+		} while(1);
+
+		return i;
+	}
+	else if (!bntcomp(a, b)) {
+		// return 0 if a < b
+		return bncc("0");
+	}
+	else if (bnteq(a, b)) {
+		// return 1 if a == b
+		return bncc("1");
+	}
+	else
+		return NULL;
+
+	return NULL;
+}
 
 /**************************************
 		Numerical Utilities
@@ -257,36 +381,49 @@ bool bntcomp(bnt a, bnt b)
 		else if (strlen(a) > strlen(b))
 			return false;
 		else {
-			int i;
+			unint i;
 			for (i = 0; i < strlen(a); i++) {
 				if (ctoi(a[i]) < ctoi(b[i]))
 					return true;
 				else if (ctoi(a[i]) > ctoi(b[i]))
 					return false;
-				else
-					continue;
 			} // for
 		} // if strlen
-	} // else if a[]
+	} // else if a[])
 	else {
 		if (strlen(a) > strlen(b))
 			return true;
 		else if (strlen(a) < strlen(b))
 			return false;
 		else {
-			int i;
+			unint i;
 			for (i = 0; i < strlen(a); i++) {
 				if (ctoi(a[i]) > ctoi(b[i]))
 					return true;
 				else if (ctoi(a[i]) < ctoi(b[i]))
 					return false;
-				else
-					continue;
 			} // for
 		} // if strlen
 	} // else
 
 	return false;
+}
+
+// Returns TRUE if a == b
+BOOL bnteq(bnt a, bnt b)
+{
+	if (strlen(a) != strlen(b))
+		return FALSE;
+	else {
+		unint i;
+		for (i = 0; i < strlen(a); i++) {
+			if (a[i] != b[i])
+				return FALSE;
+			else
+				continue;
+		}
+		return TRUE;
+	}
 }
 
 
@@ -348,6 +485,7 @@ void full_adder(
 	return;
 }
 
+// full subtractor module
 void full_subtractor(
 	unsigned int* an, unsigned int* bn, \
 	unsigned int borrow, unsigned int* carry_out, \
@@ -364,6 +502,7 @@ void full_subtractor(
 	}
 }
 
+// Returns absolute value of a bignum
 bnt bntabs(bnt a)
 {
 	if (a[0] == '-') {
@@ -388,6 +527,53 @@ bnt bntabs(bnt a)
 			exit(-1);
 		}
 	}
+}
+
+// Returns polarity of a bignum: Positive -> True, Negative -> False
+BOOL bntpolarity(bnt a)
+{
+	if (a[0] == '-')
+		return FALSE;
+	else
+		return TRUE;
+}
+
+// bntshift
+bnt bntshift(bnt a, int shift)
+{
+	bnt ret = (bnt)malloc(CHAR_SZ*(strlen(a)+shift));
+	if (ret != NULL) {
+		if (shift > 0) {
+			strcpy(ret, a);
+			int i;
+			for (i = 0; i < shift; i++) {
+				strcat(ret, "0");
+			}
+			return ret;
+		}
+		else if (shift < 0) {
+			ret = bntsel(a, 0, strlen(a) - shift - 1);
+			return ret;
+		}
+		else {
+			strcpy(ret, a);
+			return ret;
+		}
+	}
+	else {
+		printf("bntshift, malloc failed!!\n");
+		exit(-1);
+	}
+}
+
+// bntinit
+void bntinit(bnt a, unint num)
+{
+	unint i = 0;
+	for (i = 0; i < strlen(a); i++)
+		a[i] = itoc(num);
+
+	return;
 }
 
 #endif
