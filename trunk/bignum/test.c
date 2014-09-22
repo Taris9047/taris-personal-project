@@ -7,7 +7,7 @@ bnt factorial(bnt n);
 
 int main()
 {
-	bnt n = bncc("12");
+	bnt n = bncc("6");
 	bnt result = factorial(n);
 
 	printf("%s! = %s\n", n, result);
