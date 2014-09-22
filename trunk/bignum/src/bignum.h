@@ -28,6 +28,7 @@ bnt _mul(bnt a, bnt b);
 bnt bntmax(bnt a, bnt b);
 bnt bntmin(bnt a, bnt b);
 bool bntcomp(bnt a, bnt b); // returns true if a > b
+bnt bntabs(bnt a);
 
 // Setting up big number.
 bnt bnint(int number);
@@ -37,6 +38,9 @@ bnt bncc(const char* number);
 void full_adder(unsigned int* an, unsigned int* bn, \
 	unsigned int carry_in, unsigned int* carry_out, \
 	unsigned int* rn);
-bnt borrow(bnt array, int index, unint* cn_prev);
+void full_subtractor(
+	unsigned int* an, unsigned int* bn, \
+	unsigned int borrow, unsigned int* carry_out, \
+	int* rn);
 
 #endif

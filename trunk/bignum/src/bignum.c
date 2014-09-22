@@ -13,67 +13,32 @@ bnt bignum_add(bnt a, bnt b)
 	int neg_polarity_a; // 0 for positive, 1 for negative
 	int neg_polarity_b; // 0 for positive, 1 for negative
 
-	bnt tmp_a;
-	bnt tmp_b;
-
 	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
-		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)-1));
-		if (tmp_a != NULL) {
-			tmp_a = bntcrop(a, 0);
-		}
-		else {
-			printf("malloc in bignum_add failed!!\n");
-			exit(-1);
-		}
 	}
 	else {
-		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)));
-		if (tmp_a != NULL) {
-			tmp_a = a;
-		}
-		else {
-			printf("malloc in bignum_add failed!!\n");
-			exit(-1);
-		}
 		neg_polarity_a = 0;
 	}
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
-		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)-1));
-		if (tmp_b != NULL) {
-			tmp_b = bntcrop(b, 0);
-		}
-		else {
-			printf("malloc in bignum_add failed!!\n");
-			exit(-1);
-		}
 	}
 	else {
-		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)));
-		if (tmp_b != NULL) {
-			tmp_b = b;
-		}
-		else {
-			printf("malloc in bignum_add failed!!\n");
-			exit(-1);
-		}
 		neg_polarity_b = 0;
 	}
 
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
-		return _add(tmp_a, tmp_b);
+		return _add(a, b);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
-		return bntpush(_sub(tmp_a, tmp_b),'-');
+		return bntpush(_sub(bntabs(a), b),'-');
 	}
 	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
-		return _sub(tmp_a, tmp_b);
+		return _sub(a, bntabs(b));
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		return bntpush(_add(tmp_a, tmp_b), '-');
+		return bntpush(_add(bntabs(a), bntabs(b)), '-');
 	}
 
 	return NULL;
@@ -84,71 +49,38 @@ bnt bignum_sub(bnt a, bnt b)
 	int neg_polarity_a; // 0 for positive, 1 for negative
 	int neg_polarity_b; // 0 for positive, 1 for negative
 
-	bnt tmp_a;
-	bnt tmp_b;
 	// Dealing with negative signs
 	if (a[0] == '-') {
 		neg_polarity_a = 1;
-		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)-1));
-		if (tmp_a != NULL) {
-			tmp_a = bntcrop(a, 0);
-		}
-		else {
-			printf("malloc in bignum_sub failed!!\n");
-			exit(-1);
-		}
 	}
 	else {
-		tmp_a = (bnt)malloc(CHAR_SZ*(strlen(a)));
-		if (tmp_a != NULL) {
-			tmp_a = a;
-		}
-		else {
-			printf("malloc in bignum_sub failed!!\n");
-			exit(-1);
-		}
 		neg_polarity_a = 0;
 	}
 
 	if (b[0] == '-') {
 		neg_polarity_b = 1;
-		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)-1));
-		if (tmp_b != NULL) {
-			tmp_b = bntcrop(b, 0);
-		}
-		else {
-			printf("malloc in bignum_sub failed!!\n");
-			exit(-1);
-		}
 	}
 	else {
-		tmp_b = (bnt)malloc(CHAR_SZ*(strlen(b)));
-		if (tmp_b != NULL) {
-			tmp_b = b;
-		}
-		else {
-			printf("malloc in bignum_sub failed!!\n");
-			exit(-1);
-		}
 		neg_polarity_b = 0;
 	}
 
 	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
-		if (bntcomp(tmp_a, tmp_b))
-			return _sub(tmp_a, tmp_b);
+		if (bntcomp(a, b))
+			return _sub(a, b);
 		else
-			return _sub(tmp_b, tmp_a);
+			return _sub(b, a);
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
-		// ok continue from here..
-
-		//return bntpush(_sub(tmp_a, tmp_b),'-');
+		return bntpush(_add(bntabs(a), b), '-');
 	}
 	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
-		return _sub(tmp_a, tmp_b);
+		return _add(a, bntabs(b));
 	}
 	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
-		return bntpush(_add(tmp_a, tmp_b), '-');
+		if (bntcomp(bntabs(a), bntabs(b)))
+			return _sub(b, a);
+		else
+			return _sub(a, b);
 	}
 
 	return NULL;
@@ -242,37 +174,41 @@ bnt _sub(bnt a, bnt b)
 		// performing subtraction.
 		int i_a = (int)strlen(a) - 1;
 		int i_b = (int)strlen(b) - 1;
+		int i_u = max(i_a, i_b);
 		strcpy(ret, a);
-		//free(a);
 
 		unint an;
 		unint bn;
-		unint rn;
-		unint cn_prev = 0;
+		int rn;
+		unint borrow = 0;
+		unint carry = 0;
 
 		do {
 			if (i_b >= 0 && i_a >= 0) {
-				an = (unint)ctoi(ret[i_a]);
+				an = (unint)ctoi(a[i_a]);
 				bn = (unint)ctoi(b[i_b]);
 				//printf("_sub, a[%d], b[%d]: %u, %u\n",i_a, i_b, an, bn);
 
-				if (an < bn) {
-					ret = borrow(ret, i_a, &cn_prev);
-					//i_a--;
-					rn = (an+cn_prev) - bn;
-					ret[i_a] = itoc(rn);
-				}
-				else {
-					rn = an - bn;
-					ret[i_a] = itoc(rn);
-				}
+				full_subtractor(&an, &bn, borrow, &carry, &rn);
+				borrow = carry;
+				
+				ret[i_u] = itoc(rn);
+			}
+			else if (i_b < 0 && i_a >= 0) {
+				an = (unint)ctoi(a[i_a]);
+				bn = 0;
+
+				full_subtractor(&an, &bn, borrow, &carry, &rn);
+				borrow = carry;
+
+				ret[i_u] = itoc(rn);
 			}
 			else
 				break;
 
 			//printf("_sub, a: %s\n", a);
 
-			i_a--; i_b--;
+			i_a--; i_b--; i_u--;
 
 		} while(1);
 
@@ -360,13 +296,12 @@ bnt bnint(int num)
 	ret = (char*)malloc(digits*sizeof(char));
 	if (ret != NULL) {
 		sprintf(ret, "%d", num);
+		return ret;
 	}
 	else {
 		printf("Oh crap.. malloc in bignum(int) failed!!\n");
 		exit(-1);
 	}
-	
-	return ret;
 }
 
 bnt bncc(const char* number)
@@ -374,12 +309,12 @@ bnt bncc(const char* number)
 	bnt ret = (bnt)malloc((unsigned)strlen(number)*CHAR_SZ);
 	if (ret != NULL) {
 		strcpy(ret, number);
+		return ret;
 	}
 	else {
 		printf("Oh crap.. malloc in bignum_constchar failed!!\n");
 		exit(-1);
 	}	
-	return ret;
 }
 
 
@@ -403,43 +338,46 @@ void full_adder(
 	return;
 }
 
-bnt borrow(bnt array, int index, unint* cn_prev)
+void full_subtractor(
+	unsigned int* an, unsigned int* bn, \
+	unsigned int borrow, unsigned int* carry_out, \
+	int* rn)
 {
-	if (index < 0)
-		return array;
+	*rn = *an - *bn - borrow;
+	
+	if (*rn < 0) {
+		*rn = *rn + 10;
+		*carry_out = 1;
+	}
+	else {
+		*carry_out = 0;
+	}
+}
 
-	// TODO: Gotta code here to ensure next digit was
-	// subtracted for borrow.
-
-	int i = index;
-
-	for (; i >= 0; i--) {
-		if (i == 0) {
-			//array[i] = itoc(ctoi(array[i])-1);
-			//printf("a[%d]: %c\n",i, array[i]);
-			break;
+bnt bntabs(bnt a)
+{
+	if (a[0] == '-') {
+		bnt ret = (bnt)malloc(CHAR_SZ*(sizeof(a)-1));
+		if (ret != NULL) {
+			strcpy(ret, bntcrop(a,0));
+			return ret;
 		}
-
-		if (array[i] == '0') {
-			array[i] = '9';
-			//printf("a[%d]: %c\n",i, array[i]);
-		}
-		else if (ctoi(array[i]) > 0) {
-			//printf("%c\n", array[i]);
-			array[i] = itoc(ctoi(array[i])-1);
-			array[i-1] = itoc(ctoi(array[i-1])-1);
-			//printf("a[%d]: %c\n",i, array[i]);
-			break;
+		else {
+			printf("bntabs, malloc failed!!\n");
+			exit(-1);
 		}
 	}
-
-	*cn_prev = 10;
-
-	if (array[0] == '0') {
-		array = bntcrop(array, 0);
+	else {
+		bnt ret = (bnt)malloc(CHAR_SZ*sizeof(a));
+		if (ret != NULL) {
+			strcpy(ret, a);
+			return ret;
+		}
+		else {
+			printf("bntabs, malloc failed!!\n");
+			exit(-1);
+		}
 	}
-
-	return array;
 }
 
 #endif
