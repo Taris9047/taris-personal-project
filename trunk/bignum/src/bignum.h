@@ -15,6 +15,8 @@
 // Operations.
 bnt bignum_add(bnt a, bnt b);
 bnt bignum_sub(bnt a, bnt b);
+bnt bignum_mul(bnt a, bnt b);
+bnt bignum_div(bnt a, bnt b);
 
 // Simple Operations, make sure they are used properly.
 // adding
@@ -23,6 +25,8 @@ bnt _add(bnt a, bnt b);
 bnt _sub(bnt a, bnt b);
 // multiplication (positive*positive)
 bnt _mul(bnt a, bnt b);
+// division (positive/positive)
+bnt _div(bnt a, bnt b);
 
 // Numerical utils
 bnt bntmax(bnt a, bnt b);
