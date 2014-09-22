@@ -41,3 +41,4 @@ clean:
 	rm -rvf $(LIBDIR)
 	rm -rvf ./$(TARGET)
 	rm -rvf *.pyc *.o *.so
+	rm -rvf *.dSYM

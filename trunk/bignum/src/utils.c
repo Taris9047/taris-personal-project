@@ -65,7 +65,9 @@ bnt bntpush(cbnt str, char c)
 {
 	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
 	if (temp_str != NULL) {
-		strcpy(temp_str, &c);
+		char* tmp = (char*)malloc(sizeof(char)*1);
+		tmp[0] = c;
+		strcpy(temp_str, tmp);
 		strcat(temp_str, str);
 		return temp_str;
 	}

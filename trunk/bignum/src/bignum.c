@@ -104,11 +104,11 @@ bnt bignum_mul(bnt a, bnt b)
 	BOOL polarity_b = bntpolarity(b);
 
 	if (polarity_a == TRUE && polarity_b == TRUE)
-		return _mul(bntabs(a), bntabs(b));
+		return _mul(a, b);
 	else if (polarity_a == TRUE && polarity_b == FALSE)
-		return bntpush(_mul(bntabs(a), bntabs(b)), '-');
+		return bntpush(_mul(a, bntabs(b)), '-');
 	else if (polarity_a == FALSE && polarity_b == TRUE)
-		return bntpush(_mul(bntabs(a), bntabs(b)), '-');
+		return bntpush(_mul(bntabs(a), b), '-');
 	else if (polarity_a == FALSE && polarity_b == FALSE)
 		return _mul(bntabs(a), bntabs(b));
 	else
@@ -200,8 +200,8 @@ bnt _add(bnt a, bnt b)
 		}
 
 		cn = cn_n;
-		i--;i_a--;i_b--;
 
+		i--;i_a--;i_b--;
 	} while(1);
 
 	if (ext_r != 0) {
@@ -271,7 +271,8 @@ bnt _sub(bnt a, bnt b)
 		for (i_a = 0; i_a < strlen(ret); i_a++) {
 			//printf("_sub, a[%u] = %c\n", i_a, a[i_a]);
 			if (ret[i_a] == '0') {
-				ret = bntcrop(ret, 0);
+				//ret = bntcrop(ret, 0);
+				ret += 1;
 			}
 			else
 				break;
@@ -299,13 +300,15 @@ bnt _mul(bnt a, bnt b)
 	if (ret != NULL) {
 		bntinit(ret, 0);
 		bnt i = bncc("0");
+		printf("_mul, ret: %s, i: %s\n", ret, i);
 		do {
 			ret = bignum_add(ret, a);
 
 			i = bignum_add(i, bncc("1"));
+			printf("_mul, ret: %s, i: %s\n", ret, i);
 		} while (!bnteq(i, b));
 
-		free(i);
+		//free(i);
 		return ret;
 	}
 	else {
@@ -501,12 +504,16 @@ void full_subtractor(
 	else {
 		*carry_out = 0;
 	}
+
+	return;
 }
 
 // Returns absolute value of a bignum
 bnt bntabs(bnt a)
 {
 	if (a[0] == '-') {
+		return bntcrop(a, 0);
+		/*
 		bnt ret = (bnt)malloc(CHAR_SZ*(sizeof(a)-1));
 		if (ret != NULL) {
 			strcpy(ret, bntcrop(a,0));
@@ -516,8 +523,11 @@ bnt bntabs(bnt a)
 			printf("bntabs, malloc failed!!\n");
 			exit(-1);
 		}
+		*/
 	}
 	else {
+		return a;
+		/*
 		bnt ret = (bnt)malloc(CHAR_SZ*sizeof(a));
 		if (ret != NULL) {
 			strcpy(ret, a);
@@ -527,6 +537,7 @@ bnt bntabs(bnt a)
 			printf("bntabs, malloc failed!!\n");
 			exit(-1);
 		}
+		*/
 	}
 }
 
