@@ -37,7 +37,7 @@ char itoc(unsigned int i)
 
 
 /*********************************
-	   String Manipulations
+	   String Manipulation
 *********************************/
 bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 {
