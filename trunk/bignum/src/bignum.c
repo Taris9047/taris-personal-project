@@ -305,6 +305,7 @@ bnt _mul(bnt a, bnt b)
 			i = bignum_add(i, bncc("1"));
 		} while (!bnteq(i, b));
 
+		free(i);
 		return ret;
 	}
 	else {

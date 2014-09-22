@@ -2,7 +2,7 @@
 #CC=tcc
 CC=gcc
 CXX=g++
-CFLAGS=-O3 -Wall -fPIC
+CFLAGS=-g -O3 -Wall -fPIC
 SRCDIR=./src
 LIBDIR=./lib
 OBJ=bignum.o utils.o

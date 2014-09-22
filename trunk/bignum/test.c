@@ -7,10 +7,13 @@ bnt factorial(bnt n);
 
 int main()
 {
-	bnt n = bncc("6");
+	bnt n = bncc("11");
 	bnt result = factorial(n);
 
 	printf("%s! = %s\n", n, result);
+
+	//result = bignum_mul(factorial(n), bncc("12"));
+	//printf("Next factorial = %s\n", result);	
 
 	/*
 	printf("Testing Operations:\n");	
@@ -53,8 +56,20 @@ bnt factorial(bnt n)
 {
 	if (bnteq(BNZERO, n))
 		return BNONE;
-	else
-		return bignum_mul(n, factorial(bignum_sub(n, BNONE)));
+	else if (n[0] == '-')
+		return BNONE;
+	else {
+		bnt ret = BNONE;
+		bnt i = BNONE;
+
+		do {
+			ret = bignum_mul(ret, i);
+
+			i = bignum_add(i, BNONE);
+		} while(!bnteq(i, n));
+
+		return ret;
+	}
 }
 
 #endif
