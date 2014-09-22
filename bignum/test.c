@@ -3,8 +3,16 @@
 
 #include "bignum.h"
 
+bnt factorial(bnt n);
+
 int main()
 {
+	bnt n = bncc("12");
+	bnt result = factorial(n);
+
+	printf("%s! = %s\n", n, result);
+
+	/*
 	printf("Testing Operations:\n");	
 	bnt numA = bncc("301823");
 	bnt numB = bncc("20232");
@@ -36,7 +44,17 @@ int main()
 
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
 
+	*/
+
 	return 0;
+}
+
+bnt factorial(bnt n)
+{
+	if (bnteq(BNZERO, n))
+		return BNONE;
+	else
+		return bignum_mul(n, factorial(bignum_sub(n, BNONE)));
 }
 
 #endif
