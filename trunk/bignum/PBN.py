@@ -74,24 +74,81 @@ class Bignum:
 		if self.sign == '' and other.sign == '':
 			bnum_answer.sign = ''
 			bnum_answer.lstN = self.add(self.lstN, other.lstN)
-			return bnum_answer
 		# Negative + Negative
 		elif self.sign == '-' and other.sign == '-':
 			bnum_answer.sign = '-'
 			bnum_answer.lstN = self.add(self.lstN, other.lstN)
-			return bnum_answer
 		# Positive + Negative
 		elif self.sign == '' and other.sign == '-':
 			if self.lstN > other.lstN[1:]:
 				bnum_answer.sign = ''
 				bnum_answer.lstN = self.sub(self.lstN, other.lstN)
-				return bnum_answer
 			else:
 				bnum_answer.sign = '-'
 				bnum_answer.lstN = self.sub(other.lstN, self.lstN)
-				return bnum_answer
-
 		# Negative + Positive
+		elif self.sign == '-' and other.sign == '':
+			if self.lstN > other.lstN[1:]:
+				bnum_answer.sign = '-'
+				bnum_answer.lstN = self.sub(self.lstN, other.lstN)
+			else:
+				bnum_answer.sign = ''
+				bnum_answer.lstN = self.sub(other.lstN, self.lstN)
+
+		return bnum_answer
+
+	# -
+	def __sub__(self, other):
+		bnum_answer = Bignum()
+		# Positive - Negative
+		if self.sign == '' and other.sign == '-':
+			bnum_answer.sign = ''
+			bnum_answer.lstN = self.add(self.lstN, other.lstN)
+		# Negative - Positive
+		elif self.sign == '-' and other.sign == '':
+			bnum_answer.sign = '-'
+			bnum_answer.lstN = self.add(self.lstN, other.lstN)
+		# Positive - Positive
+		elif self.sign == '' and other.sign == '':
+			if self.lstN > other.lstN:
+				bnum_answer.sign = ''
+				bnum_answer.lstN = self.sub(self.lstN, other.lstN)
+			else:
+				bnum_answer.sign = '-'
+				bnum_answer.lstN = self.sub(other.lstN, self.lstN)
+		elif self.sign == '-' and other.sign == '-':
+			if self.lstN > other.lstN:
+				bnum_answer.sign = '-'
+				bnum_answer.lstN = self.sub(other.lstN, self.lstN)
+			else:
+				bnum_answer.sign = ''
+				bnum_answer.lstN = self.sub(self.lstN, other.lstN)
+
+		return bnum_answer
+
+	# *
+	def __mul__(self, other):
+		answer = Bignum()
+		if self.sign == other.sign:
+			answer.sign = ''
+		else:
+			answer.sign = '-'
+
+		answer.lstN = self.mul(self.lstN, other.lstN)
+
+		return answer
+
+	def __div__(self, other):
+		answer = Bignum()
+		if self.sign == other.sign:
+			answer.sign = ''
+		else:
+			answer.sign = '-'
+
+		answer.lstN = self.div(self.lstN, other.lstN)
+
+		return answer
+
 
 	# ==
 	def __eq__(self, other):
@@ -145,32 +202,88 @@ class Bignum:
 		indexA = len(A) - 1
 		indexB = len(B) - 1
 		indexMain = max(indexA, indexB)
-		ret = [0]*max(len(A), len(B))
-
-		for i in range(1,len(ret)):
-			if min(indexA, indexB) > 0:
-				ret[indexMain], A[indexA-1] = self.subtractor(A[indexA], B[indexB], A[indexA-1])
+		ret = [0]*len(A)
+		
+		borrow = 0
+		for i in range(0, len(ret)):
+			if indexB >= 0 and indexA >= 0:
+				an = A[indexA]
+				bn = B[indexB]
+				rn, borrow = self.subtractor(an, bn, borrow)
+				ret[indexMain] = rn
+			elif indexB < 0 and indexA >= 0:
+				an = A[indexA]
+				bn = 0
+				rn, borrow = self.subtractor(an, bn, borrow)
+				ret[indexMain] = rn
 			else:
-				ret[indexMain] = A[indexA]
-
-			#print A[indexA], B[indexB], ret[indexMain]
+				break
 
 			indexA -= 1
 			indexB -= 1
 			indexMain -= 1
 
-			#print "ret[", indexMain, "]: ", ret[indexMain]
-
-#		for i in range(0,len(ret)):
-#			if ret[i] == 0:
-#				del ret[i]
-#
-#			elif ret[i] == 0 and i == len(ret) - 1:
-#				break
-#			else:
-#				break
+		# Trim zeros from ret
+		indexMain = 0
+		for i in range(0, len(ret)):
+			if ret[indexMain] == 0:
+				ret = ret[1:]
+				indexMain -= 1
+			else:
+				break
 
 		return ret
+
+	""" Multiplication """
+	def mul(self, A, B):
+		if isinstance(A, list) != True:
+			raise ValueError("add, A is not a list!!")
+		if isinstance(B, list) != True:
+			raise ValueError("add, B is not a list!!")
+
+		answer = [0]
+		index = [0]
+
+		# Return [0] if one of lists are [0]
+		if A == [0] or B == [0]:
+			return [0]
+
+		# Performing addition
+		while True:
+			answer = self.add(answer, A)
+			index = self.add(index, [1])
+			if index == B:
+				break
+
+		del index
+		return answer
+
+
+	""" Division """
+	def div(self, A, B):
+		if isinstance(A, list) != True:
+			raise ValueError("add, A is not a list!!")
+		if isinstance(B, list) != True:
+			raise ValueError("add, B is not a list!!")
+
+		if A == B:
+			return [1]
+		elif B == [0]:
+			raise ValueError("Oops, divide by zero!!")
+		elif A == [0]:
+			return [0]
+		else:
+			# Performing division
+			answer = A
+			index = [1]
+			while True:
+				answer = self.sub(answer, B)
+				#print answer, B, index
+				if len(answer) <= len(B) and answer < B:
+					break
+				index = self.add(index, [1])
+			return index
+
 
 
 	"""
@@ -195,18 +308,16 @@ class Bignum:
 	full_subtractor: subtracts with A, B and borrow digit and return its result
 
 	"""
-	def subtractor(self, an, bn, borrow_digit):
-		if an < bn:
-			rn = 10 + an - bn
-			return rn
-			if borrow_digit == 0:
-				borrow_digit = 9
-			else:
-				borrow_digit -= 1
-		else:
-			rn = an - bn
+	def subtractor(self, an, bn, borrow):
+		rn = an - bn - borrow
 
-		return rn, borrow_digit
+		if rn < 0:
+			rn = rn + 10
+			carry_out = 1
+		else:
+			carry_out = 0
+
+		return rn, carry_out
 
 	"""
 	borrow: manipulate digits after borrowing at a certain location
