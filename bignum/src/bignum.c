@@ -355,11 +355,15 @@ bnt _div(bnt a, bnt b)
 	}
 	else if (!bntcomp(a, b)) {
 		// return 0 if a < b
-		return bncc("0");
+		return BNZERO;
 	}
 	else if (bnteq(a, b)) {
 		// return 1 if a == b
-		return bncc("1");
+		return BNONE;
+	}
+	else if (bnteq(b, BNZERO)) {
+		printf("_div, oops, divide by zero!!");
+		return NULL;
 	}
 	else
 		return NULL;
