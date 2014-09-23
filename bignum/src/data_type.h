@@ -7,7 +7,6 @@ typedef unsigned int unint;
 typedef unsigned long ulong;
 typedef unsigned long long ullong;
 typedef int BOOL;
-typedef enum { false, true } bool;
 
 #define TRUE 1
 #define FALSE 0
