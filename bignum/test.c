@@ -1,6 +1,8 @@
 #ifndef TEST_C
 #define TEST_C
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "bignum.h"
 
 bnt factorial(bnt n);
@@ -9,7 +11,7 @@ int main()
 {
 	printf("Testing Operations:\n");	
 	bnt numA = bncc("3023");
-	bnt numB = bncc("1");
+	bnt numB = bncc("423");
 	bnt result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
@@ -24,8 +26,8 @@ int main()
 	result = bignum_sub(numA, numB);
 	printf("%s - %s = %s\n", numA, numB, result);	
 
-	numA = bncc("-100");
-	numB = bncc("-249");
+	numA = bncc("8290318908810238498231848908213498092381904832901885873478783758892398749817349823180480932084098329814098327589179");
+	numB = bncc("9819048902381473567863532801487327907389231789479845674372109328498729384093219758923789175748990281208934098320198");
 	result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
@@ -36,13 +38,11 @@ int main()
 
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
 
-	bnt n = bncc("1000");
+    printf("Running Factorial calculation:\n");
+	bnt n = bncc("110");
 	result = factorial(n);
-
 	printf("%s! = %s\n", n, result);
 
-	//result = bignum_mul(factorial(n), bncc("12"));
-	//printf("Next factorial = %s\n", result);	
 	return 0;
 }
 
