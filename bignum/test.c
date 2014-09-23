@@ -24,8 +24,8 @@ int main()
 	result = bignum_sub(numA, numB);
 	printf("%s - %s = %s\n", numA, numB, result);	
 
-	numA = bncc("0");
-	numB = bncc("249");
+	numA = bncc("-100");
+	numB = bncc("-249");
 	result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
@@ -36,7 +36,7 @@ int main()
 
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
 
-	bnt n = bncc("100");
+	bnt n = bncc("1000");
 	result = factorial(n);
 
 	printf("%s! = %s\n", n, result);
