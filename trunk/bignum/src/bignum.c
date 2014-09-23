@@ -124,11 +124,11 @@ bnt bignum_div(bnt a, bnt b)
 	BOOL polarity_b = bntpolarity(b);
 
 	if (polarity_a == TRUE && polarity_b == TRUE)
-		return _div(bntabs(a), bntabs(b));
+		return _div(a, b);
 	else if (polarity_a == TRUE && polarity_b == FALSE)
-		return bntpush(_div(bntabs(a), bntabs(b)), '-');
+		return bntpush(_div(a, bntabs(b)), '-');
 	else if (polarity_a == FALSE && polarity_b == TRUE)
-		return bntpush(_div(bntabs(a), bntabs(b)), '-');
+		return bntpush(_div(bntabs(a), b), '-');
 	else if (polarity_a == FALSE && polarity_b == FALSE)
 		return _div(bntabs(a), bntabs(b));
 	else
@@ -142,74 +142,65 @@ bnt bignum_div(bnt a, bnt b)
 // Add
 bnt _add(bnt a, bnt b)
 {
-	bnt ret;
-	// Assign longer array to ret
-	if (strlen(a) >= strlen (b)) {
-		ret = (bnt)malloc(strlen(a)*CHAR_SZ);
-		if (ret != NULL)
-			strcpy(ret, a);
+	bnt ret = (bnt)malloc(CHAR_SZ*max(strlen(a), strlen(b)));
+	if (ret != NULL) {
+		unsigned int an;
+		unsigned int bn;
+		unsigned int cn = 0;
+		unsigned int cn_n;
+		unsigned int rn = 0;
+
+		int i = (int)max(strlen(a), strlen(b)) - 1;
+		int i_a = (int)strlen(a) - 1;
+		int i_b = (int)strlen(b) - 1;
+		unsigned int ext_r = 0;
+
+		do {
+			if (i_a < 0 && i_b >= 0) {
+				an = 0;
+				bn = ctoi(b[i_b]);
+			}
+			else if (i_a >= 0 && i_b < 0) {
+				an = ctoi(a[i_a]);
+				bn = 0;
+			}
+			else {
+				an = ctoi(a[i_a]);
+				bn = ctoi(b[i_b]);
+			}
+
+			full_adder(&an, &bn, cn, &cn_n, &rn);
+
+			if (i == -1) {
+				ext_r = rn;
+				break;
+			}
+			else if (i == 0 && cn_n == 0) {
+				ret[i] = itoc(rn);
+				break;
+			}
+			else {
+				ret[i] = itoc(rn);
+			}
+
+			cn = cn_n;
+
+			i--;i_a--;i_b--;
+		} while(1);
+
+		if (ext_r != 0) {
+			return bntpush(ret, itoc(ext_r));
+		}
 		else {
-			printf("_add: malloc in _add failed for a!!\n");
-			exit(-1);
+			return ret;
 		}
 	}
 	else {
-		ret = (bnt)malloc(strlen(b)*CHAR_SZ);
-		if (ret != NULL)
-			strcpy(ret, b);
-		else {
-			printf("_add: malloc in _add failed for b!!\n");
-			exit(-1);
-		}
+		printf("_add, malloc for ret failed!!\n");
+		exit(-1);
 	}
 
-	unsigned int an;
-	unsigned int bn;
-	unsigned int cn = 0;
-	unsigned int cn_n;
-	unsigned int rn = 0;
-
-	int i = strlen(ret)-1;
-	int i_a = strlen(a)-1;
-	int i_b = strlen(b)-1;
-	unsigned int ext_r = 0;
-
-	do {
-		if (i_a < 0) 
-			an = 0;
-		else
-			an = ctoi(a[i_a]);
-
-		if (i_b < 0)
-			bn = 0;
-		else
-			bn = ctoi(b[i_b]);
-
-		full_adder(&an, &bn, cn, &cn_n, &rn);
-
-		if (i == -1) {
-			ext_r = rn;
-			break;
-		}
-		else if (i == 0 && cn_n == 0) {
-			ret[i] = itoc(rn);
-			break;
-		}
-		else {
-			ret[i] = itoc(rn);
-		}
-
-		cn = cn_n;
-
-		i--;i_a--;i_b--;
-	} while(1);
-
-	if (ext_r != 0) {
-		return bntpush(ret, itoc(ext_r));
-	}
-	else {
-		return ret;
-	}
+	return NULL;
 }
 
 // Subtract (a-b)
@@ -284,6 +275,8 @@ bnt _sub(bnt a, bnt b)
 		printf("Uh oh... got some malloc problem in _sub..\n");
 		exit(-1);
 	}
+
+	return NULL;
 }
 
 // Multiply (positive * positive)
@@ -296,25 +289,33 @@ bnt _mul(bnt a, bnt b)
 		exit(-1);
 	}
 
-	bnt ret = (bnt)malloc(CHAR_SZ*(strlen(a)+strlen(b)-1));
-	if (ret != NULL) {
-		bntinit(ret, 0);
-		bnt i = bncc("0");
-		printf("_mul, ret: %s, i: %s\n", ret, i);
-		do {
-			ret = bignum_add(ret, a);
-
-			i = bignum_add(i, bncc("1"));
-			printf("_mul, ret: %s, i: %s\n", ret, i);
-		} while (!bnteq(i, b));
-
-		//free(i);
-		return ret;
+	// return zero if one of inputs is zero...
+	if (bnteq(a, BNZERO) || bnteq(b, BNZERO)) {
+		return BNZERO;
 	}
+	// Running the calculation...
 	else {
-		printf("_mul, malloc failed!!\n");
-		exit(-1);
+		bnt ret = BNZERO;
+		if (ret != NULL) {
+			bnt i = BNZERO;
+			//printf("_mul, ret: %s, i: %s\n", ret, i);
+			do {
+				ret = bignum_add(ret, a);
+
+				i = bignum_add(i, BNONE);
+				//printf("_mul, ret: %s, i: %s\n", ret, i);
+			} while (!bnteq(i, b));
+
+			free(i);
+			return ret;
+		}
+		else {
+			printf("_mul, malloc failed!!\n");
+			exit(-1);
+		}
 	}
+
+	return NULL;
 }
 
 // Divide (positive/positive)
@@ -348,9 +349,6 @@ bnt _div(bnt a, bnt b)
 
 			i = bignum_add(i, BNONE);
 			
-			//printf("_div, ret: %s\n", ret);
-			//printf("_div, i: %s\n", i);
-
 		} while(1);
 
 		return i;
@@ -372,45 +370,45 @@ bnt _div(bnt a, bnt b)
 /**************************************
 		Numerical Utilities
 ***************************************/
-bool bntcomp(bnt a, bnt b)
+BOOL bntcomp(bnt a, bnt b)
 {
 	// detecting negative.
 	if (a[0] == '-' && b[0] != '-')
-		return false;
+		return FALSE;
 	else if (a[0] != '-' && b[0] == '-')
-		return true;
+		return TRUE;
 	else if (a[0] == '-' && b[0] == '-') {
 		if (strlen(a) < strlen(b))
-			return true;
+			return TRUE;
 		else if (strlen(a) > strlen(b))
-			return false;
+			return FALSE;
 		else {
 			unint i;
 			for (i = 0; i < strlen(a); i++) {
 				if (ctoi(a[i]) < ctoi(b[i]))
-					return true;
+					return TRUE;
 				else if (ctoi(a[i]) > ctoi(b[i]))
-					return false;
+					return FALSE;
 			} // for
 		} // if strlen
 	} // else if a[])
 	else {
 		if (strlen(a) > strlen(b))
-			return true;
+			return TRUE;
 		else if (strlen(a) < strlen(b))
-			return false;
+			return FALSE;
 		else {
 			unint i;
 			for (i = 0; i < strlen(a); i++) {
 				if (ctoi(a[i]) > ctoi(b[i]))
-					return true;
+					return TRUE;
 				else if (ctoi(a[i]) < ctoi(b[i]))
-					return false;
+					return FALSE;
 			} // for
 		} // if strlen
 	} // else
 
-	return false;
+	return FALSE;
 }
 
 // Returns TRUE if a == b
@@ -428,6 +426,8 @@ BOOL bnteq(bnt a, bnt b)
 		}
 		return TRUE;
 	}
+
+	return FALSE;
 }
 
 
@@ -436,8 +436,8 @@ BOOL bnteq(bnt a, bnt b)
 ***************************************/
 bnt bnint(int num)
 {
-	char* ret;
-	unsigned int digits;
+	bnt ret;
+	unint digits;
 
 	if (num > 0)
 		digits = count_ifs(num);
@@ -453,6 +453,8 @@ bnt bnint(int num)
 		printf("Oh crap.. malloc in bignum(int) failed!!\n");
 		exit(-1);
 	}
+
+	return NULL;
 }
 
 bnt bncc(const char* number)
@@ -465,7 +467,9 @@ bnt bncc(const char* number)
 	else {
 		printf("Oh crap.. malloc in bignum_constchar failed!!\n");
 		exit(-1);
-	}	
+	}
+
+	return NULL;	
 }
 
 
@@ -539,6 +543,8 @@ bnt bntabs(bnt a)
 		}
 		*/
 	}
+
+	return NULL;
 }
 
 // Returns polarity of a bignum: Positive -> True, Negative -> False
@@ -548,6 +554,8 @@ BOOL bntpolarity(bnt a)
 		return FALSE;
 	else
 		return TRUE;
+
+	return FALSE;
 }
 
 // bntshift
@@ -564,7 +572,7 @@ bnt bntshift(bnt a, int shift)
 			return ret;
 		}
 		else if (shift < 0) {
-			ret = bntsel(a, 0, strlen(a) - shift - 1);
+			ret = bntsel(a, 0, (int)strlen(a) - shift - 1);
 			return ret;
 		}
 		else {
@@ -576,14 +584,18 @@ bnt bntshift(bnt a, int shift)
 		printf("bntshift, malloc failed!!\n");
 		exit(-1);
 	}
+
+	return NULL;
 }
 
 // bntinit
 void bntinit(bnt a, unint num)
 {
 	unint i = 0;
-	for (i = 0; i < strlen(a); i++)
+	for (i = 0; i < strlen(a); i++) {
 		a[i] = itoc(num);
+		printf("bntinit, a[%u] = %c\n", i, a[i]);
+	}
 
 	return;
 }

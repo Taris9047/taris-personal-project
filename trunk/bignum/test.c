@@ -9,7 +9,7 @@ int main()
 {
 	printf("Testing Operations:\n");	
 	bnt numA = bncc("3023");
-	bnt numB = bncc("20232");
+	bnt numB = bncc("1");
 	bnt result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
@@ -36,7 +36,7 @@ int main()
 
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
 
-	bnt n = bncc("11");
+	bnt n = bncc("100");
 	result = factorial(n);
 
 	printf("%s! = %s\n", n, result);

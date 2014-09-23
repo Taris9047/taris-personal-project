@@ -33,7 +33,7 @@ bnt _div(bnt a, bnt b);
 // Numerical utils
 bnt bntmax(bnt a, bnt b);
 bnt bntmin(bnt a, bnt b);
-bool bntcomp(bnt a, bnt b); // returns true if a > b
+BOOL bntcomp(bnt a, bnt b); // returns true if a > b
 BOOL bnteq(bnt a, bnt b);
 bnt bntabs(bnt a);
 BOOL bntpolarity(bnt a);
