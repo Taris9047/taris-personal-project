@@ -35,6 +35,6 @@ print a.N(), "/", b.N(), "=", t.N()
 k = c - d
 print c.N(), "-", d.N(), "=", k.N()
 
-n = 100
+n = 130
 fact = factorial_bignum(n)
 print n, "! = ", fact.N()
