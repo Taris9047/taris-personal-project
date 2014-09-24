@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-
 import sys
 from PBN import Bignum
-import math as m
+import math
 import time
 
 def factorial(num):
@@ -18,29 +17,59 @@ def factorial(num):
 		
 	return bignum
 
+def factorial_statistics(num, trials):
+	time_array = [0]*trials
+	
+	for i in range(trials):
+		start_time = time.clock()
+		factorial(int(num))
+		end_time = time.clock()
+		time_array[i] = end_time - start_time
 
-if len(sys.argv) >= 2:
-	input_num = sys.argv[1]
-else:
-	input_num = 10
+	return time_array
 
-start_time = time.clock()
-fact_num = factorial(int(input_num))
-print "%s! = %s\n" % (input_num, fact_num.N())
-end_time = time.clock()
-PBN_time = end_time - start_time
-print "%s! was finished in %f seconds with PBN\n" % (input_num, PBN_time)
+def mfactorial_statistics(num, trials):
+	time_array = [0]*trials
+	
+	for i in range(trials):
+		start_time = time.clock()
+		math.factorial(int(num))
+		end_time = time.clock()
+		time_array[i] = end_time - start_time
 
-del fact_num
+	return time_array
+	
 
-start_time = time.clock()
-fact_num = m.factorial(int(input_num))
-print "%s! = %s\n" % (input_num, fact_num)
-end_time = time.clock()
-builtin_time = end_time - start_time
-print "%s! was finished in %f seconds with built-in math\n" % (input_num, builtin_time)
+def main():
+	if len(sys.argv) >= 2:
+		input_num = int(sys.argv[1])
+	else:
+		input_num = 10
 
-print "PBN was %f times slower than built-in for %s!\n" % (PBN_time/builtin_time, input_num)
+	PBY_avg = [0]*input_num
+	builtin_avg = [0]*input_num
+	for i in range(input_num):
+		print "Running estimation for %d!" % (i+1)
+		PBY_result = factorial_statistics(i+1, 100)
+		builtin_result = mfactorial_statistics(i+1, 100)
+		PBY_avg[i] = reduce(lambda x, y: x + y, PBY_result)/len(PBY_result)
+		builtin_avg[i] = reduce(lambda x, y: x + y, builtin_result)/len(builtin_result)
 
+	print ('Writing result up to %d! to file\n' % (input_num))
+	file = open('factorial_benchmark.txt', 'w')
+	file.write('Fact_Num\tPBY\tBuilt-in\n')
+	for i in range(input_num):
+		line_text = str(i+1)+'\t'+"%e"%(PBY_avg[i])+'\t'+"%e"%(builtin_avg[i])+'\t'+'\n'
+		file.write(line_text)
 
+	file.close()
 
+	'''
+	print "Comparison:"
+	print "%d! in PBY vs. %d! in built-in\n" % (int(input_num), int(input_num))
+	print "PBY average: %f, built-in average: %f" % (PBY_avg, builtin_avg)
+	print "PBY is %f slower than built-in math\n" % (PBY_avg/builtin_avg)
+	'''
+	
+if __name__ == "__main__":
+	main()
