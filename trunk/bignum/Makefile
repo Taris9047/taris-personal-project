@@ -42,3 +42,5 @@ clean:
 	rm -rvf ./$(TARGET)
 	rm -rvf *.pyc *.o *.so
 	rm -rvf *.dSYM
+	rm -rvf *.txt
+	rm -rvf *.eps
