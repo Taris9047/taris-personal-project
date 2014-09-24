@@ -18,6 +18,19 @@ def factorial(num):
 		
 	return bignum
 
+def simplefactorial(num):
+	answer = 1
+	index = 1
+
+	if num == 0:
+		return 1
+	else:
+		for i in range(num):
+			answer = answer*index
+			index += 1
+
+	return answer
+
 def factorial_statistics(num, trials):
 	time_array = [0]*trials
 	

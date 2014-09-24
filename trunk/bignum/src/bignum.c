@@ -10,40 +10,26 @@
 // Addition
 bnt bignum_add(bnt a, bnt b)
 {
-	int neg_polarity_a; // 0 for positive, 1 for negative
-	int neg_polarity_b; // 0 for positive, 1 for negative
-
 	// Dealing with negative signs
-	if (a[0] == '-') {
-		neg_polarity_a = 1;
-	}
-	else {
-		neg_polarity_a = 0;
-	}
+	BOOL polarity_a = bntpolarity(a);
+	BOOL polarity_b = bntpolarity(b);
 
-	if (b[0] == '-') {
-		neg_polarity_b = 1;
-	}
-	else {
-		neg_polarity_b = 0;
-	}
-
-	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
+	if (polarity_a == TRUE && polarity_b == TRUE) {
 		return _add(a, b);
 	}
-	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
+	else if (polarity_a == FALSE && polarity_b == TRUE) {
 		if (bntcomp(bntabs(a), b))
 			return bntpush(_sub(bntabs(a), b),'-');
 		else if (!bntcomp(bntabs(a), b))
 			return _sub(b, bntabs(a));
 	}
-	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
+	else if (polarity_a == TRUE && polarity_b == FALSE) {
 		if (bntcomp(a, bntabs(b)))
 			return _sub(a, bntabs(b));
 		else if (!bntcomp(a, bntabs(b)))
 			return bntpush(_sub(bntabs(b), a), '-');
 	}
-	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
+	else if (polarity_a == FALSE && polarity_b == FALSE) {
 		return bntpush(_add(bntabs(a), bntabs(b)), '-');
 	}
 	else
@@ -55,25 +41,12 @@ bnt bignum_add(bnt a, bnt b)
 // Subtraction
 bnt bignum_sub(bnt a, bnt b)
 {
-	int neg_polarity_a; // 0 for positive, 1 for negative
-	int neg_polarity_b; // 0 for positive, 1 for negative
-
 	// Dealing with negative signs
-	if (a[0] == '-') {
-		neg_polarity_a = 1;
-	}
-	else {
-		neg_polarity_a = 0;
-	}
+	BOOL polarity_a = bntpolarity(a);
+	BOOL polarity_b = bntpolarity(b);
 
-	if (b[0] == '-') {
-		neg_polarity_b = 1;
-	}
-	else {
-		neg_polarity_b = 0;
-	}
 
-	if (neg_polarity_a == 0 && neg_polarity_b == 0) {
+	if (polarity_a == TRUE && polarity_b == TRUE) {
 		if (bntcomp(a, b))
 			return _sub(a, b);
 		else if (bntcomp(b, a))
@@ -81,13 +54,13 @@ bnt bignum_sub(bnt a, bnt b)
 		else
 			return BNZERO;
 	}
-	else if (neg_polarity_a == 1 && neg_polarity_b == 0) {
+	else if (polarity_a == FALSE && polarity_b == TRUE) {
 		return bntpush(_add(bntabs(a), b), '-');
 	}
-	else if (neg_polarity_a == 0 && neg_polarity_b == 1) {
+	else if (polarity_a == TRUE && polarity_b == FALSE) {
 		return _add(a, bntabs(b));
 	}
-	else if (neg_polarity_a == 1 && neg_polarity_b == 1) {
+	else if (polarity_a == FALSE && polarity_b == FALSE) {
 		if (bntcomp(bntabs(a), bntabs(b)))
 			return bntpush(_sub(bntabs(a), bntabs(b)), '-');
 		else
@@ -297,16 +270,52 @@ bnt _mul(bnt a, bnt b)
 	else {
 		bnt ret = BNZERO;
 		if (ret != NULL) {
-			bnt i = BNZERO;
+			//bnt i = BNZERO;
+            unint i_b = 0;
+            unint i_a = 0;
+            unint carry = 0;
 			//printf("_mul, ret: %s, i: %s\n", ret, i);
 			do {
+                bnt mul_residual = (bnt)malloc(CHAR_SZ*strlen(a));
+                if (mul_residual != NULL) {
+                    for (i_a = 0; i_a < strlen(a); i_a++) {
+                        unint rn = ctoi(a[i_a])*ctoi(b[i_b])+carry;
+                        carry = rn/10;
+                        mul_residual[i_a] = itoc(rn%10);
+                    }
+                }
+                else {
+                    printf("_mul, malloc for mul_residual failed!!\n");
+                    exit(-1);
+                }
+                if (carry != 0)
+                	mul_residual = bntpush(mul_residual, itoc(carry));
+
+                // Extending zeros for residual
+                realloc(mul_residual, strlen(mul_residual)+i_b);
+                bnt tmpzero = (bnt)malloc(CHAR_SZ*(i_b+1));
+                if (tmpzero != NULL) {
+                	unint i;
+                	for (i = 0; i <= i_b; i++)
+                		tmpzero[i] = '0';
+                }
+                strcat(mul_residual, tmpzero);
+
+                //realloc(ret, strlen(mul_residual));
+                ret = _add(mul_residual, ret);
+                
+                free(mul_residual);
+                i_b++;
+                /*
 				ret = bignum_add(ret, a);
 
 				i = bignum_add(i, BNONE);
-				//printf("_mul, ret: %s, i: %s\n", ret, i);
-			} while (!bnteq(i, b));
-
-			free(i);
+				*/
+                //printf("_mul, ret: %s, i: %s\n", ret, i);
+			} //while (!bnteq(i, b));
+            while (i_b < strlen(b));
+            
+			//free(i);
 			return ret;
 		}
 		else {
