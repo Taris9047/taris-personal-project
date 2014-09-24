@@ -29,6 +29,9 @@ print a.N(), "-", b.N(), "=", t.N()
 t = a * b
 print a.N(), "*", b.N(), "=", t.N()
 
+k = c * d
+print c.N(), "*", d.N(), "=", k.N()
+
 t = a / b
 print a.N(), "/", b.N(), "=", t.N()
 

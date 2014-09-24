@@ -241,14 +241,15 @@ class Bignum:
 		if isinstance(B, list) != True:
 			raise ValueError("add, B is not a list!!")
 
-		answer = [0]
-		index = [0]
+		answer = [0]*len(A)
+		#index = [0]
 
 		# Return [0] if one of lists are [0]
 		if A == [0] or B == [0]:
 			return [0]
 
 		# Performing addition
+		'''
 		while True:
 			answer = self.add(answer, A)
 			index = self.add(index, [1])
@@ -256,6 +257,29 @@ class Bignum:
 				break
 
 		del index
+		'''
+
+		indexB = 0
+		while True:
+			if (indexB == len(B)):
+				break
+
+			mul_residual = [0]*len(A)
+			carry = 0
+			for i in range(len(A)):
+				rn = A[i] * B[indexB] + carry
+				carry = rn/10
+				mul_residual[i] = rn%10
+
+			if carry != 0:
+				mul_residual = [carry] + mul_residual
+
+			mul_residual = mul_residual+([0]*indexB)
+			#print mul_residual
+			answer = self.add(mul_residual, answer)
+
+			indexB += 1
+
 		return answer
 
 
