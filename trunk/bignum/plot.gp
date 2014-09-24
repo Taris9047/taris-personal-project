@@ -10,8 +10,9 @@ OUT_FILE = 'factorial_comparison.eps'
 set output OUT_FILE
 set xlabel 'Integer for factorial (#)'
 set ylabel 'Time (seconds)'
+set format y '%.2E'
 set xrange [1:]
-set title 'Factorial performance comparison for PBY'
+set title 'Factorial performance comparison for PBY.py'
 set key top left
 
 plot IN_FILE using ($1):($2) title 'PBY' w l ls 1, \
