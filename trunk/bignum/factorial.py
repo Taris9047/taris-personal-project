@@ -3,6 +3,7 @@ import sys
 from PBN import Bignum
 import math
 import time
+import subprocess as sp
 
 def factorial(num):
 	bignum = Bignum(1)
@@ -70,6 +71,7 @@ def main():
 	print "PBY average: %f, built-in average: %f" % (PBY_avg, builtin_avg)
 	print "PBY is %f slower than built-in math\n" % (PBY_avg/builtin_avg)
 	'''
+	sp.call(["gnuplot", "plot.gp"])
 	
 if __name__ == "__main__":
 	main()

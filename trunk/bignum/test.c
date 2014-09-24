@@ -39,7 +39,7 @@ int main()
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
 
     printf("Running Factorial calculation:\n");
-	bnt n = bncc("100");
+	bnt n = bncc("50");
 	result = factorial(n);
 	printf("%s! = %s\n", n, result);
 
