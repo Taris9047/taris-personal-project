@@ -2,20 +2,20 @@
 #define UTILS_H
 
 #include <math.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
 
 #include "data_type.h"
 
-#ifndef max(a,b)
+#ifndef max
 #define max(a,b) \
 	({ __typeof__ (a) _a = (a); \
 		__typeof__ (b) _b = (b); \
 		_a > _b ? _a : _b; })
 #endif
-#ifndef min(a,b)
+#ifndef min
 #define min(a,b) \
 	({ __typeof__ (a) _a = (a); \
 		__typeof__ (b) _b = (b); \
