@@ -115,12 +115,20 @@ bnt bignum_div(bnt a, bnt b)
 // Add
 bnt _add(bnt a, bnt b)
 {
+    // dealing with trivial cases.
     if (bnteq(a, BNZERO))
-        return a;
+        return bntc(b);
     else if (bnteq(b, BNZERO))
-        return b;
+        return bntc(a);
     
-	bnt ret = (bnt)calloc(CHAR_SZ, (max(strlen(a), strlen(b))));
+    // Swapping a and b if a < b
+    if (!bntcomp(a, b)) {
+        bnt temp = b;
+        b = a;
+        a = temp;
+    }
+    
+	bnt ret = (bnt)calloc(CHAR_SZ, strlen(a));
 	if (ret != NULL) {
 		unsigned int an;
 		unsigned int bn;
@@ -128,17 +136,13 @@ bnt _add(bnt a, bnt b)
 		unsigned int cn_n;
 		unsigned int rn = 0;
 
-		int i = (int)max(strlen(a), strlen(b)) - 1;
+		int i = (int)strlen(a) - 1;
 		int i_a = (int)strlen(a) - 1;
 		int i_b = (int)strlen(b) - 1;
 		unsigned int ext_r = 0;
 
 		do {
-			if (i_a < 0 && i_b >= 0) {
-				an = 0;
-				bn = ctoi(b[i_b]);
-			}
-			else if (i_a >= 0 && i_b < 0) {
+			if (i_a >= 0 && i_b < 0) {
 				an = ctoi(a[i_a]);
 				bn = 0;
 			}
@@ -195,20 +199,10 @@ bnt _sub(bnt a, bnt b)
     
     if (bnteq(a, b))
         return BNZERO;
-    else if (bnteq(a, BNZERO)) {
-        bnt ret = (bnt)malloc(CHAR_SZ*strlen(b));
-        unint i;
-        for (i = 0; i < strlen(b); i++)
-            ret[i] = b[i];
-        return bntpush(ret, '-');
-    }
-    else if (bnteq(b, BNZERO)) {
-        bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
-        unint i;
-        for (i = 0; i < strlen(a); i++)
-            ret[i] = a[i];
-        return ret;
-    }
+    else if (bnteq(a, BNZERO))
+        return bntpush(b, '-');
+    else if (bnteq(b, BNZERO))
+        return bntc(a);
 
 	bnt ret = (bnt)calloc(CHAR_SZ, strlen(a));
 	if ( ret != NULL ) {
@@ -216,7 +210,7 @@ bnt _sub(bnt a, bnt b)
 		int i_a = (int)strlen(a) - 1;
 		int i_b = (int)strlen(b) - 1;
 		int i_u = max(i_a, i_b);
-		strcpy(ret, a);
+		//strcpy(ret, a);
 
 		unint an;
 		unint bn;
@@ -228,29 +222,21 @@ bnt _sub(bnt a, bnt b)
 			if (i_b >= 0 && i_a >= 0) {
 				an = (unint)ctoi(a[i_a]);
 				bn = (unint)ctoi(b[i_b]);
-				//printf("_sub, a[%d], b[%d]: %u, %u\n",i_a, i_b, an, bn);
-
 				full_subtractor(&an, &bn, borrow, &carry, &rn);
 				borrow = carry;
-				
 				ret[i_u] = itoc(rn);
 			}
 			else if (i_b < 0 && i_a >= 0) {
 				an = (unint)ctoi(a[i_a]);
 				bn = 0;
-
 				full_subtractor(&an, &bn, borrow, &carry, &rn);
 				borrow = carry;
-
 				ret[i_u] = itoc(rn);
 			}
 			else
 				break;
-
 			//printf("_sub, a: %s\n", a);
-
 			i_a--; i_b--; i_u--;
-
 		} while(1);
 
 		// Cropping zero for a[]
@@ -288,24 +274,13 @@ bnt _mul(bnt a, bnt b)
 	if (bnteq(a, BNZERO) || bnteq(b, BNZERO)) {
 		return BNZERO;
 	}
-    if (bnteq(a, BNONE)) {
-        bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
-        unint i;
-        for (i = 0; i < strlen(a); i++)
-            ret[i] = a[i];
-        return ret;
-    }
-    else if (bnteq(b, BNONE)) {
-        bnt ret = (bnt)malloc(CHAR_SZ*strlen(b));
-        unint i;
-        for (i = 0; i < strlen(b); i++)
-            ret[i] = b[i];
-        return ret;
-    }
+    if (bnteq(a, BNONE))
+        return bntc(b);
+    else if (bnteq(b, BNONE))
+        return bntc(a);
     else if (bnteq(a, BNONE) && bnteq(b, BNONE)) {
         return BNONE;
     }
-    
 	// Running the calculation...
 	else {
 		bnt ret = BNZERO;
@@ -326,6 +301,7 @@ bnt _mul(bnt a, bnt b)
 	                    mul_residual[i_a] = itoc(rn%10);
 	                }
 	                
+                    // Extending most significant number with carry, if carry isn't zero.
 	                if (carry != 0)
 	                    mul_residual = bntpush(mul_residual, itoc(carry));
 	                
@@ -341,11 +317,12 @@ bnt _mul(bnt a, bnt b)
                             for (i = 0; i < (strlen(b)-1-i_b); i++) {
                                 tmpzero[i] = '0';
                             }
-                            strcat(mul_residual_adjusted, tmpzero);
+                            //strcat(mul_residual_adjusted, tmpzero);
+                            bntcat(mul_residual_adjusted, tmpzero);
                             free(tmpzero);
                         }
                         else {
-                            printf("_mul, calloc failed for tmpzero!!\n");
+                            printf("_mul, malloc failed for tmpzero!!\n");
                             exit(-1);
                         }
                         ret = _add(mul_residual_adjusted, ret);
@@ -365,10 +342,11 @@ bnt _mul(bnt a, bnt b)
                 //ret = _add(BNZERO, ret);
             }
             i_b--;
-            printf("_mul, a: %s, b: %s, ret: %s, i_b: %d\n", a, b, ret, i_b);
+            //printf("_mul, a: %s, b: %s, ret: %s, i_b: %d\n", a, b, ret, i_b);
         } //while (!bnteq(i, b));
         while (1);
         
+        //printf("_mul, a: %s, b: %s, ret: %s\n", a, b, ret);
         //free(i);
         return ret;
 	}
@@ -537,18 +515,18 @@ bnt bncc(const char* number)
 bnt bntc(bnt number)
 {
     bnt ret = (bnt)calloc(CHAR_SZ, strlen(number));
-    if (!ret) {
+    if (ret != NULL) {
         unint i;
         for (i = 0; i < strlen(number); i++) {
             ret[i] = number[i];
         }
+        //printf("bntc, ret: %s\n", ret);
         return ret;
     }
     else {
         printf("Oh crap, calloc failed in bntc...\n");
         exit(-1);
     }
-    
     return NULL;
 }
 

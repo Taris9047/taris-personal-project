@@ -30,6 +30,7 @@ bnt bntsel(cbnt str, unsigned int init, unsigned int end);
 bnt bntpush(cbnt str, char c);
 bnt bntpop(cbnt str, char* c);
 bnt bntcrop(cbnt str, unsigned int index);
+void bntcat(bnt str, bnt attach);
 void test_malloc(void);
 
 #endif

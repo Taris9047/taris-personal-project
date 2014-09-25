@@ -116,4 +116,17 @@ bnt bntcrop(cbnt str, unsigned int index)
 	return temp_str;
 }
 
+void bntcat(bnt str, bnt attach)
+{
+    int i = (int)strlen(str);
+    int j = 0;
+    
+    do {
+        str[i] = attach[j];
+        j++; i++;
+    } while (j < strlen(attach));
+    
+    return;
+}
+
 #endif
