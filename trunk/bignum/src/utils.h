@@ -2,21 +2,25 @@
 #define UTILS_H
 
 #include <math.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
 
 #include "data_type.h"
 
+#ifndef max(a,b)
 #define max(a,b) \
 	({ __typeof__ (a) _a = (a); \
 		__typeof__ (b) _b = (b); \
 		_a > _b ? _a : _b; })
+#endif
+#ifndef min(a,b)
 #define min(a,b) \
 	({ __typeof__ (a) _a = (a); \
 		__typeof__ (b) _b = (b); \
 		_a > _b ? _b : _a; })
+#endif
 
 int count_ifs(int n);
 unsigned int ctoi(char c);
