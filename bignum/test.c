@@ -9,10 +9,10 @@ bnt factorial(bnt n);
 
 int main()
 {
-    //bnt numA;
-    //bnt numB;
+    bnt numA;
+    bnt numB;
     bnt result;
-/*
+
 	printf("Testing Operations:\n");	
 	numA = bncc("3023");
 	numB = bncc("423");
@@ -31,9 +31,8 @@ int main()
 	printf("%s - %s = %s\n", numA, numB, result);	
 	result = bignum_mul(numA, numB);
 	printf("%s * %s = %s\n", numA, numB, result);
-*/
-/*
-	numA = bncc("49823180480932084098329814098327589179");
+
+    numA = bncc("49823180480932084098329814098327589179");
 	numB = bncc("19758923789175748990281208934098320198");
 	result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
@@ -42,11 +41,12 @@ int main()
 	result = bignum_mul(numA, numB);
 	printf("%s * %s = %s\n", numA, numB, result);	
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
-*/
+
     printf("Running Factorial calculation:\n");
+    bnt fact_result;
 	bnt n = bncc("50");
-	result = factorial(n);
-	printf("%s! = %s\n", n, result);
+	fact_result = factorial(n);
+	printf("%s! = %s\n", n, fact_result);
 
 	return 0;
 }
@@ -59,12 +59,12 @@ bnt factorial(bnt n)
 		return BNONE;
 	else {
 		bnt ret = BNONE;
-		bnt i = BNONE;
+		bnt i = bntc(n);
 
 		do {
             ret = bignum_mul(ret, i);
-			i = bignum_add(i, BNONE);
-		} while(!bnteq(i, n));
+			i = bignum_sub(i, BNONE);
+		} while(!bnteq(i, BNZERO));
 
 		return ret;
 	}
