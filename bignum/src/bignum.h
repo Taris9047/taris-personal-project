@@ -43,6 +43,7 @@ void bntinit(bnt a, unint num); // inits bignum with given integer
 // Setting up big number.
 bnt bnint(int number);
 bnt bncc(const char* number);
+bnt bntc(bnt number);
 
 // Adder, Borrower
 void full_adder(unsigned int* an, unsigned int* bn, \

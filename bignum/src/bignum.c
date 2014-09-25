@@ -115,7 +115,12 @@ bnt bignum_div(bnt a, bnt b)
 // Add
 bnt _add(bnt a, bnt b)
 {
-	bnt ret = (bnt)malloc(CHAR_SZ*max(strlen(a), strlen(b)));
+    if (bnteq(a, BNZERO))
+        return a;
+    else if (bnteq(b, BNZERO))
+        return b;
+    
+	bnt ret = (bnt)calloc(CHAR_SZ, (max(strlen(a), strlen(b))));
 	if (ret != NULL) {
 		unsigned int an;
 		unsigned int bn;
@@ -169,7 +174,7 @@ bnt _add(bnt a, bnt b)
 		}
 	}
 	else {
-		printf("_add, malloc for ret failed!!\n");
+		printf("_add, calloc for ret failed!!\n");
 		exit(-1);
 	}
 
@@ -187,8 +192,25 @@ bnt _sub(bnt a, bnt b)
 		printf("_sub: a must be larger than b\b");
 		exit(-1);
 	}
+    
+    if (bnteq(a, b))
+        return BNZERO;
+    else if (bnteq(a, BNZERO)) {
+        bnt ret = (bnt)malloc(CHAR_SZ*strlen(b));
+        unint i;
+        for (i = 0; i < strlen(b); i++)
+            ret[i] = b[i];
+        return bntpush(ret, '-');
+    }
+    else if (bnteq(b, BNZERO)) {
+        bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+        unint i;
+        for (i = 0; i < strlen(a); i++)
+            ret[i] = a[i];
+        return ret;
+    }
 
-	bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+	bnt ret = (bnt)calloc(CHAR_SZ, strlen(a));
 	if ( ret != NULL ) {
 		// performing subtraction.
 		int i_a = (int)strlen(a) - 1;
@@ -245,7 +267,7 @@ bnt _sub(bnt a, bnt b)
 		return ret;
 	}
 	else {
-		printf("Uh oh... got some malloc problem in _sub..\n");
+		printf("Uh oh... got some calloc problem in _sub..\n");
 		exit(-1);
 	}
 
@@ -266,21 +288,40 @@ bnt _mul(bnt a, bnt b)
 	if (bnteq(a, BNZERO) || bnteq(b, BNZERO)) {
 		return BNZERO;
 	}
+    if (bnteq(a, BNONE)) {
+        bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+        unint i;
+        for (i = 0; i < strlen(a); i++)
+            ret[i] = a[i];
+        return ret;
+    }
+    else if (bnteq(b, BNONE)) {
+        bnt ret = (bnt)malloc(CHAR_SZ*strlen(b));
+        unint i;
+        for (i = 0; i < strlen(b); i++)
+            ret[i] = b[i];
+        return ret;
+    }
+    else if (bnteq(a, BNONE) && bnteq(b, BNONE)) {
+        return BNONE;
+    }
+    
 	// Running the calculation...
 	else {
 		bnt ret = BNZERO;
         int i_b = (int)strlen(b)-1;
         int i_a;
+        unint rn;
         unint carry = 0;
         do {
             if (i_b < 0) {
                 break;
             }
             else if (b[i_b] != '0') {
-	            bnt mul_residual = (bnt)malloc(CHAR_SZ*strlen(a));
+	            bnt mul_residual = (bnt)calloc(CHAR_SZ, strlen(a));
 	            if (mul_residual != NULL) {
 	                for (i_a = (int)strlen(a)-1; i_a >= 0; i_a--) {
-	                    unint rn = ctoi(a[i_a])*ctoi(b[i_b])+carry;
+	                    rn = ctoi(a[i_a])*ctoi(b[i_b])+carry;
 	                    carry = rn/10;
 	                    mul_residual[i_a] = itoc(rn%10);
 	                }
@@ -293,33 +334,38 @@ bnt _mul(bnt a, bnt b)
 	                	(bnt)realloc(
 	                		mul_residual, \
 	                		CHAR_SZ*(strlen(mul_residual)+(strlen(b)-1-i_b)));
-	                bnt tmpzero = (bnt)malloc(CHAR_SZ*(strlen(b)-1-i_b));
-	                if (tmpzero != NULL) {
-	                    unint i;
-	                    for (i = 0; i < (strlen(b)-1-i_b); i++) {
-	                        tmpzero[i] = '0';
-	                    }
-	                    strcat(mul_residual_adjusted, tmpzero);
-	                    free(tmpzero);
-	                }
-	                else {
-	                    printf("_mul, malloc failed for tmpzero!!\n");
-	                    exit(-1);
-	                }
-	                
-	                ret = _add(mul_residual_adjusted, ret);
-	                //free(mul_residual);
-	                free(mul_residual_adjusted);
+                    if (mul_residual_adjusted != NULL) {
+                        bnt tmpzero = (bnt)calloc(CHAR_SZ, (strlen(b)-1-i_b));
+                        if (tmpzero != NULL) {
+                            unint i;
+                            for (i = 0; i < (strlen(b)-1-i_b); i++) {
+                                tmpzero[i] = '0';
+                            }
+                            strcat(mul_residual_adjusted, tmpzero);
+                            free(tmpzero);
+                        }
+                        else {
+                            printf("_mul, calloc failed for tmpzero!!\n");
+                            exit(-1);
+                        }
+                        ret = _add(mul_residual_adjusted, ret);
+                        free(mul_residual_adjusted);
+                    }
+                    else {
+                        printf("_mul, realloc failed for mul_residual_adjusted");
+                        exit(-1);
+                    }
 	            }
 	            else {
-	                printf("_mul, malloc for mul_residual failed!!\n");
+	                printf("_mul, calloc for mul_residual failed!!\n");
 	                exit(-1);
 	            }
             }
-            else {
-            	continue;
+            else if (b[i_b] == '0') {
+                //ret = _add(BNZERO, ret);
             }
             i_b--;
+            printf("_mul, a: %s, b: %s, ret: %s, i_b: %d\n", a, b, ret, i_b);
         } //while (!bnteq(i, b));
         while (1);
         
@@ -342,7 +388,7 @@ bnt _div(bnt a, bnt b)
 
 	if (bntcomp(a, b)) {
 		// Do division
-		bnt ret = (bnt)malloc(CHAR_SZ*strlen(a));
+		bnt ret = (bnt)calloc(CHAR_SZ, strlen(a));
 		if (ret != NULL) {
 			strcpy(ret, a);	
 		}
@@ -460,7 +506,7 @@ bnt bnint(int num)
 	else
 		digits = count_ifs(num)+1;
 
-	ret = (char*)malloc(digits*sizeof(char));
+	ret = (char*)calloc(CHAR_SZ, digits);
 	if (ret != NULL) {
 		sprintf(ret, "%d", num);
 		return ret;
@@ -475,7 +521,7 @@ bnt bnint(int num)
 
 bnt bncc(const char* number)
 {
-	bnt ret = (bnt)malloc((unsigned)strlen(number)*CHAR_SZ);
+	bnt ret = (bnt)calloc(CHAR_SZ, strlen(number)+1);
 	if (ret != NULL) {
 		strcpy(ret, number);
 		return ret;
@@ -488,6 +534,23 @@ bnt bncc(const char* number)
 	return NULL;	
 }
 
+bnt bntc(bnt number)
+{
+    bnt ret = (bnt)calloc(CHAR_SZ, strlen(number));
+    if (!ret) {
+        unint i;
+        for (i = 0; i < strlen(number); i++) {
+            ret[i] = number[i];
+        }
+        return ret;
+    }
+    else {
+        printf("Oh crap, calloc failed in bntc...\n");
+        exit(-1);
+    }
+    
+    return NULL;
+}
 
 
 

@@ -46,7 +46,7 @@ bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 		init = end;
 
 	// Working with stuff
-	bnt ret = (bnt)malloc(sizeof(char)*(end-init+1));
+	bnt ret = (bnt)calloc(sizeof(char), (end-init+1));
 	if (ret != NULL) {
         int i;
 		for (i = 0; i < (end-init+1); i++) {
@@ -56,23 +56,24 @@ bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 		return ret;
 	}
 	else {
-		printf("Crap, malloc in bntsel failed!!\n");
+		printf("Crap, calloc in bntsel failed!!\n");
 		exit(-1);
 	}
 }
 
 bnt bntpush(cbnt str, char c)
 {
-	bnt temp_str = (bnt)malloc((strlen(str)+1)*sizeof(char));
+	bnt temp_str = (bnt)calloc(sizeof(char), (strlen(str)+1));
 	if (temp_str != NULL) {
-		char* tmp = (char*)malloc(sizeof(char)*1);
+		char* tmp = (char*)calloc(sizeof(char), 1);
 		tmp[0] = c;
 		strcpy(temp_str, tmp);
+        free(tmp);
 		strcat(temp_str, str);
 		return temp_str;
 	}
 	else {
-		printf("Crap, malloc in bntpush failed!!\n");
+		printf("Crap, calloc in bntpush failed!!\n");
 		exit(-1);
 	}
 }
@@ -80,12 +81,12 @@ bnt bntpush(cbnt str, char c)
 bnt bntpop(cbnt str, char* c)
 {
 	*c = str[0];
-	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
+	bnt temp_str = (bnt)calloc(sizeof(char), (strlen(str)-1));
 	if (temp_str != NULL) {
 		temp_str = bntsel(str, 1, (int)strlen(str)-1);
 	}
 	else {
-		printf("Crap, malloc in bntpop failed!!\n");
+		printf("Crap, calloc in bntpop failed!!\n");
 		exit(-1);
 	}
 
@@ -94,7 +95,7 @@ bnt bntpop(cbnt str, char* c)
 
 bnt bntcrop(cbnt str, unsigned int index)
 {
-	bnt temp_str = (bnt)malloc((strlen(str)-1)*sizeof(char));
+	bnt temp_str = (bnt)calloc(sizeof(char), (strlen(str)-1));
 	if (temp_str != NULL) {
 		if (index == 0) {
 			temp_str = bntsel(str, index+1, (int)strlen(str)-1);
