@@ -32,5 +32,7 @@ bnt bntpop(cbnt str, char* c);
 bnt bntcrop(cbnt str, unsigned int index);
 void bntcat(bnt str, bnt attach);
 void test_malloc(void);
+void bntcpy(bnt str, bnt text);
+ullong bntlen(bnt str);
 
 #endif
