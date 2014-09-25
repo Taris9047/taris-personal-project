@@ -25,10 +25,11 @@ int main()
 	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
 	printf("%s - %s = %s\n", numA, numB, result);	
+	result = bignum_mul(numA, numB);
+	printf("%s * %s = %s\n", numA, numB, result);
 
-    /*
-	numA = bncc("8290318908810238498231848908213498092381904832901885873478783758892398749817349823180480932084098329814098327589179");
-	numB = bncc("9819048902381473567863532801487327907389231789479845674372109328498729384093219758923789175748990281208934098320198");
+	numA = bncc("49823180480932084098329814098327589179");
+	numB = bncc("19758923789175748990281208934098320198");
 	result = bignum_add(numA, numB);
 	printf("%s + %s = %s\n", numA, numB, result);
 	result = bignum_sub(numA, numB);
@@ -38,7 +39,8 @@ int main()
 	printf("%s * %s = %s\n", numA, numB, result);	
 
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
-     */
+
+
     printf("Running Factorial calculation:\n");
 	bnt n = bncc("50");
 	result = factorial(n);

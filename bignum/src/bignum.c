@@ -269,52 +269,56 @@ bnt _mul(bnt a, bnt b)
 	// Running the calculation...
 	else {
 		bnt ret = BNZERO;
-        //bnt i = BNZERO;
         int i_b = (int)strlen(b)-1;
         int i_a;
         unint carry = 0;
-        //printf("_mul, ret: %s, i: %s\n", ret, i);
         do {
-            if (i_b < 0)
+            if (i_b < 0) {
                 break;
-
-            bnt mul_residual = (bnt)malloc(CHAR_SZ*strlen(a));
-            if (mul_residual != NULL) {
-                for (i_a = (int)strlen(a)-1; i_a >= 0; i_a--) {
-                    unint rn = ctoi(a[i_a])*ctoi(b[i_b])+carry;
-                    carry = rn/10;
-                    mul_residual[i_a] = itoc(rn%10);
-                }
-                
-                if (carry != 0)
-                    mul_residual = bntpush(mul_residual, itoc(carry));
-                
-                // Extending zeros for residual at i_b != 0
-                realloc(mul_residual, CHAR_SZ*(strlen(mul_residual)+(strlen(b)-1-i_b)));
-                bnt tmpzero = (bnt)malloc(CHAR_SZ*(strlen(b)-1-i_b));
-                if (tmpzero != NULL) {
-                    unint i;
-                    for (i = 0; i < (strlen(b)-1-i_b); i++) {
-                        tmpzero[i] = '0';
-                    }
-                    strcat(mul_residual, tmpzero);
-                    free(tmpzero);
-                }
-                else {
-                    printf("_mul, malloc failed for tmpzero!!\n");
-                    exit(-1);
-                }
-                
-                //realloc(ret, strlen(mul_residual));
-                ret = _add(mul_residual, ret);
-                
-                free(mul_residual);
+            }
+            else if (b[i_b] != '0') {
+	            bnt mul_residual = (bnt)malloc(CHAR_SZ*strlen(a));
+	            if (mul_residual != NULL) {
+	                for (i_a = (int)strlen(a)-1; i_a >= 0; i_a--) {
+	                    unint rn = ctoi(a[i_a])*ctoi(b[i_b])+carry;
+	                    carry = rn/10;
+	                    mul_residual[i_a] = itoc(rn%10);
+	                }
+	                
+	                if (carry != 0)
+	                    mul_residual = bntpush(mul_residual, itoc(carry));
+	                
+	                // Extending zeros for residual at i_b != 0
+	                bnt mul_residual_adjusted = \
+	                	(bnt)realloc(
+	                		mul_residual, \
+	                		CHAR_SZ*(strlen(mul_residual)+(strlen(b)-1-i_b)));
+	                bnt tmpzero = (bnt)malloc(CHAR_SZ*(strlen(b)-1-i_b));
+	                if (tmpzero != NULL) {
+	                    unint i;
+	                    for (i = 0; i < (strlen(b)-1-i_b); i++) {
+	                        tmpzero[i] = '0';
+	                    }
+	                    strcat(mul_residual_adjusted, tmpzero);
+	                    free(tmpzero);
+	                }
+	                else {
+	                    printf("_mul, malloc failed for tmpzero!!\n");
+	                    exit(-1);
+	                }
+	                
+	                ret = _add(mul_residual_adjusted, ret);
+	                //free(mul_residual);
+	                free(mul_residual_adjusted);
+	            }
+	            else {
+	                printf("_mul, malloc for mul_residual failed!!\n");
+	                exit(-1);
+	            }
             }
             else {
-                printf("_mul, malloc for mul_residual failed!!\n");
-                exit(-1);
+            	continue;
             }
-            
             i_b--;
         } //while (!bnteq(i, b));
         while (1);
