@@ -516,10 +516,8 @@ bnt bntc(bnt number)
 {
     bnt ret = (bnt)calloc(CHAR_SZ, strlen(number));
     if (ret != NULL) {
-        unint i;
-        for (i = 0; i < strlen(number); i++) {
-            ret[i] = number[i];
-        }
+        bntcpy(ret, number);
+        //unint i;
         //printf("bntc, ret: %s\n", ret);
         return ret;
     }

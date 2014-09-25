@@ -65,11 +65,11 @@ bnt bntpush(cbnt str, char c)
 {
 	bnt temp_str = (bnt)calloc(sizeof(char), (strlen(str)+1));
 	if (temp_str != NULL) {
-		char* tmp = (char*)calloc(sizeof(char), 1);
+		char* tmp = (char*)malloc(sizeof(char)*1);
 		tmp[0] = c;
-		strcpy(temp_str, tmp);
+		bntcpy(temp_str, tmp);
         free(tmp);
-		strcat(temp_str, str);
+		bntcat(temp_str, (bnt)str);
 		return temp_str;
 	}
 	else {
@@ -105,7 +105,7 @@ bnt bntcrop(cbnt str, unsigned int index)
 		}
 		else {
 			temp_str = bntsel(str,0,index-1);
-			strcat(temp_str, bntsel(str,index+1, (int)strlen(str)-1));
+			bntcat(temp_str, bntsel(str,index+1, (int)strlen(str)-1));
 		}
 	}
 	else {
@@ -118,6 +118,9 @@ bnt bntcrop(cbnt str, unsigned int index)
 
 void bntcat(bnt str, bnt attach)
 {
+    while (*str) str++;
+    while ((*str++ = *attach++));
+/*
     int i = (int)strlen(str);
     int j = 0;
     
@@ -125,8 +128,27 @@ void bntcat(bnt str, bnt attach)
         str[i] = attach[j];
         j++; i++;
     } while (j < strlen(attach));
+*/
+    return;
+}
+
+void bntcpy(bnt str, bnt text)
+{
+    //while (*text) ((*str++ = *text++));
+    
+    unint i = 0;
+    for (i = 0; i < strlen(text); i++) {
+        str[i] = text[i];
+    }
     
     return;
+}
+
+ullong bntlen(bnt str)
+{
+    bnt tmp = str;
+    while (*str) str++;
+    return str - tmp;
 }
 
 #endif
