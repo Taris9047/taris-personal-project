@@ -12,8 +12,8 @@ all: $(SONAME)
 $(SONAME): $(OBJ) $(ARDATASTR)
 	$(CC) $(CFLAGS) -shared -o $@ $(OBJ) -L$(LIBDATASTRDIR) -l$(LIBDATASTRNAME)
 
-bignum_int.o: bignum_int.c bignum_int.h data_type_bignum.h
-	$(CC) $(CFLAGS) -c bignum_int.c
+bignum_int.o: bignum_int.c bignum_int.h data_type_bignum.h utils.o
+	$(CC) $(CFLAGS) -c bignum_int.c utils.o
 
 $(ARDATASTR): $(LIBDATASTRDIR)/llist.c $(LIBDATASTRDIR)/llist.h
 	cd $(LIBDATASTRDIR) && make lib$(LIBDATASTRNAME).a && cd ..
