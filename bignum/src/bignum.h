@@ -11,6 +11,13 @@
 #include "utils.h"
 
 #define CHAR_SZ sizeof(char)
+#define INT_SZ sizeof(int)
+#define UNINT_SZ sizeof(unsigned int)
+#define LONG_SZ sizeof(long)
+#define ULONG_SZ sizeof(unsigned long)
+#define ULLONG_SZ sizeof(unsigned long long)
+#define FLOAT_SZ sizeof(float)
+#define DOUBLE_SZ sizeof(double)
 #define BNZERO bncc("0")
 #define BNONE bncc("1")
 

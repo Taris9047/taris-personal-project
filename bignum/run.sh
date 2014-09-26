@@ -2,4 +2,4 @@
 
 make
 
-./test
+./test $1

@@ -326,7 +326,12 @@ bnt _mul(bnt a, bnt b)
                             exit(-1);
                         }
                         ret = _add(mul_residual_adjusted, ret);
-                        free(mul_residual_adjusted);
+                        if (mul_residual == mul_residual_adjusted)
+                        	free(mul_residual_adjusted);
+                        else {
+                        	free(mul_residual);
+                        	free(mul_residual_adjusted);
+                        }
                     }
                     else {
                         printf("_mul, realloc failed for mul_residual_adjusted");
@@ -342,7 +347,7 @@ bnt _mul(bnt a, bnt b)
                 //ret = _add(BNZERO, ret);
             }
             i_b--;
-            //printf("_mul, a: %s, b: %s, ret: %s, i_b: %d\n", a, b, ret, i_b);
+            printf("_mul, a: %s, b: %s, ret: %s, i_b: %d\n", a, b, ret, i_b);
         } //while (!bnteq(i, b));
         while (1);
         
