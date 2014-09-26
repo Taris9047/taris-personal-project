@@ -58,17 +58,16 @@ char* ulltobnt(unsigned long long num)
 
 char* itobnt(int num)
 {
+	char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num));
+	char* ptr = ret;
+	
 	if (num < 0) {
-		char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num) + 1);
+		ret = (char*)realloc(ret, sizeof(char)*(unsigned int)count_ifs(num) + 1);
 		*ret = '-';
-		char* ptr = (ret+1);
+		ptr = (ret+1);
 		num = num*(-1);
 	}
-	else {
-		char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num));
-		char* ptr = ret;
-	}
-
+	
 	if (!ret) {
 		int tmp_num;
 		do {
