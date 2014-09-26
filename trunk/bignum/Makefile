@@ -4,8 +4,6 @@ CC=gcc
 CXX=g++
 CFLAGS=-g -O3 -Wall -fPIC
 SRCDIR=./src
-LIBDIR=./lib
-OBJ=bignum.o utils.o
 TARGET=test
 
 SYS := $(shell gcc -dumpmachine)

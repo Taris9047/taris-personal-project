@@ -3,4 +3,9 @@
 
 #include "bignum_int.h"
 
+bignum_int bnint(int num)
+{
+	
+}
+
 #endif

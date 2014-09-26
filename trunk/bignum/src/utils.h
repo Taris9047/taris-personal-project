@@ -26,6 +26,7 @@ int count_ifs(int n);
 unsigned int ctoi(char c);
 char itoc(unsigned int i);
 char* ulltobnt(unsigned long long num);
+char* itobnt(int num);
 
 char* bntsel(const char* str, unsigned int init, unsigned int end);
 char* bntpush(const char* str, char c);

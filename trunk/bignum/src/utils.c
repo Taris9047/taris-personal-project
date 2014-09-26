@@ -52,10 +52,33 @@ char* ulltobnt(unsigned long long num)
 
 		} while (num);
 	}
-	printf("ulltobnt: ret = %s\n", ret);
+	//printf("ulltobnt: ret = %s\n", ret);
 	return ret;
 }
 
+char* itobnt(int num)
+{
+	if (num < 0) {
+		char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num) + 1);
+		*ret = '-';
+		char* ptr = (ret+1);
+		num = num*(-1);
+	}
+	else {
+		char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num));
+		char* ptr = ret;
+	}
+
+	if (!ret) {
+		int tmp_num;
+		do {
+			tmp_num = num;
+			num /= 10;
+			*ptr++ = "0123456789"[tmp_num - (num*10)];
+		} while (num);
+	}
+	return ret;
+}
 
 
 /*********************************
