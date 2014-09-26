@@ -3,6 +3,7 @@ CFLAGS=-g -O3 -fPIC -Wall
 OBJ=llist.o
 LIBNAME=datastr
 SONAME=lib$(LIBNAME).so
+ARNAME=lib$(LIBNAME).a
 
 all: test
 
@@ -15,6 +16,9 @@ llist.o: llist.c llist.h data_type_llist.h
 $(SONAME): $(OBJ)
 	$(CC) $(CFLAGS) -shared -o $@ $(OBJ)
 
+$(ARNAME): $(OBJ)
+	ar r $@ $(OBJ)
+
 clean:
-	rm -rvf *.o *.so
-	rm -rvf test test.exe *.dSYM
+	rm -rvf *.o *.so *.dSYM *.a
+	rm -rvf test test.exe

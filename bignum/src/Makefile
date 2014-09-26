@@ -1,25 +1,26 @@
 CC=gcc
 CFLAGS=-g -O3 -fPIC -Wall
 SONAME=libbignum.so
-LIBDIR=./DataStr
-LIBNAME=datastr
-SODATASTR=$(LIBDIR)/lib$(LIBNAME).so
+LIBDATASTRDIR=./DataStr
+LIBDATASTRNAME=datastr
+SODATASTR=$(LIBDATASTRDIR)/lib$(LIBDATASTRNAME).so
+ARDATASTR=$(LIBDATASTRDIR)/lib$(LIBDATASTRNAME).a
 OBJ=bignum_int.o utils.o
 
 all: $(SONAME)
 
-$(SONAME): $(OBJ)
-	$(CC) $(CFLAGS) -shared -o $@ $(OBJ)
+$(SONAME): $(OBJ) $(ARDATASTR)
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJ) -L$(LIBDATASTRDIR) -l$(LIBDATASTRNAME)
 
-bignum_int.o: bignum_int.c bignum_int.h utils.o data_type_bignum.h $(SODATASTR)
-	$(CC) $(CFLAGS) -c bignum_int.c utils.o -I. -L. -L$(LIBDIR) -l$(LIBNAME)
+bignum_int.o: bignum_int.c bignum_int.h data_type_bignum.h
+	$(CC) $(CFLAGS) -c bignum_int.c
 
-$(SODATASTR):
-	cd $(LIBDIR) && make && cd ..
+$(ARDATASTR): $(LIBDATASTRDIR)/llist.c $(LIBDATASTRDIR)/llist.h
+	cd $(LIBDATASTRDIR) && make lib$(LIBDATASTRNAME).a && cd ..
 
 utils.o: utils.c utils.h
 	$(CC) $(CFLAGS) -c utils.c
 
 clean:
-	cd $(LIBDIR) && make clean && cd ..
-	rm -rvf *.so *.o 
+	cd $(LIBDATASTRDIR) && make clean && cd ..
+	rm -rvf *.so *.o *.dSYM *.a
