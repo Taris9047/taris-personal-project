@@ -240,7 +240,7 @@ bnt _sub(bnt a, bnt b)
 		} while(1);
 
 		// Cropping zero for a[]
-		for (i_a = 0; i_a < strlen(ret); i_a++) {
+		for (i_a = 0; i_a < (int)strlen(ret); i_a++) {
 			//printf("_sub, a[%u] = %c\n", i_a, a[i_a]);
 			if (ret[i_a] == '0') {
 				//ret = bntcrop(ret, 0);
@@ -296,7 +296,7 @@ bnt _mul(bnt a, bnt b)
 	            bnt mul_residual = (bnt)calloc(CHAR_SZ, strlen(a));
 	            if (mul_residual != NULL) {
 	                for (i_a = (int)strlen(a)-1; i_a >= 0; i_a--) {
-	                    rn = ctoi(a[i_a])*ctoi(b[i_b])+carry;
+						rn = ctoi(a[i_a])*ctoi(b[i_b]) + carry; //printf("a[%d] = %u, b[%d] = %u\n", i_a, ctoi(a[i_a]), i_b, ctoi(b[i_b]));
 	                    carry = rn/10;
 	                    mul_residual[i_a] = itoc(rn%10);
 	                }
@@ -476,6 +476,24 @@ BOOL bnteq(bnt a, bnt b)
 ***************************************/
 bnt bnint(int num)
 {
+	bnt ret = (bnt)malloc(CHAR_SZ*count_ifs(num));
+	if (!ret) {
+		if (num < 0) {
+			ret = ulltobnt((unsigned long long)(num*(-1)));
+			return bntpush(ret, '-');
+		}
+		else {
+			ret = ulltobnt((unsigned long long)num);
+			return ret;
+		}
+	}
+	else {
+		printf("bnint: Oops, malloc phail...\n");
+		exit(-1);
+	}
+
+
+	/*
 	bnt ret;
 	unint digits;
 
@@ -486,22 +504,26 @@ bnt bnint(int num)
 
 	ret = (char*)calloc(CHAR_SZ, digits);
 	if (ret != NULL) {
-		sprintf(ret, "%d", num);
+		unint i;
+		for (i = 0; i < digits; i++) {
+			ret[i] = itoc()
+		}
+		//sprintf(ret, "%d", num);
 		return ret;
 	}
 	else {
 		printf("Oh crap.. malloc in bignum(int) failed!!\n");
 		exit(-1);
 	}
-
+	*/
 	return NULL;
 }
 
 bnt bncc(const char* number)
 {
-	bnt ret = (bnt)calloc(CHAR_SZ, strlen(number)+1);
+	bnt ret = (bnt)malloc(CHAR_SZ*strlen(number));
 	if (ret != NULL) {
-		strcpy(ret, number);
+		bntcpy(ret, (bnt)number);
 		return ret;
 	}
 	else {
@@ -514,7 +536,8 @@ bnt bncc(const char* number)
 
 bnt bntc(bnt number)
 {
-    bnt ret = (bnt)calloc(CHAR_SZ, strlen(number));
+	//bnt ret = malloc(2);
+    bnt ret = (bnt)malloc(CHAR_SZ*strlen(number));
     if (ret != NULL) {
         bntcpy(ret, number);
         //unint i;
@@ -522,7 +545,7 @@ bnt bntc(bnt number)
         return ret;
     }
     else {
-        printf("Oh crap, calloc failed in bntc...\n");
+        printf("Oh crap, malloc failed in bntc...\n");
         exit(-1);
     }
     return NULL;
@@ -631,7 +654,7 @@ bnt bntshift(bnt a, int shift)
 			return ret;
 		}
 		else {
-			strcpy(ret, a);
+			bntcpy(ret, a);
 			return ret;
 		}
 	}

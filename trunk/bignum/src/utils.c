@@ -20,18 +20,40 @@ int count_ifs(int n)
 
 unsigned int ctoi(char c)
 {
-	return (unsigned int)(c-((unsigned int)'0'));
+	char ch[1];
+	ch[0] = c;
+	return (unsigned int)atoi(ch);
+	//return (unsigned long long)strtol(c);
+	//return (unsigned int)(c-((unsigned int)'0'));
 }
 
 char itoc(unsigned int i)
 {
 	if (i > 9) {
-		printf("itoc, oops.. input was two digits...\n");
+		printf("itoc, i = %u, oops.. input was larger than two digits...\n", i);
 		printf("returning 0\n");
 		return '0';
 	}
-	else
-		return (char)(i+((int)'0'));
+	else {
+		return (char)(i + ((unsigned int)'0'));
+	}
+}
+
+bnt ulltobnt(unsigned long long num)
+{
+	bnt ret = (bnt)malloc(sizeof(char)*(unsigned int)count_ifs(num));
+	bnt ptr = ret;
+	if (!ret) {
+		unsigned long long tmp_num;
+		do {
+			tmp_num = num;
+			num /= 10;
+			*ptr++ = "0123456789"[tmp_num - (num*10)];
+
+		} while (num);
+	}
+	printf("ulltobnt: ret = %s\n", ret);
+	return ret;
 }
 
 
@@ -48,7 +70,7 @@ bnt bntsel(cbnt str, unsigned int init, unsigned int end)
 	// Working with stuff
 	bnt ret = (bnt)calloc(sizeof(char), (end-init+1));
 	if (ret != NULL) {
-        int i;
+        unint i;
 		for (i = 0; i < (end-init+1); i++) {
 			ret[i] = str[init+i];
 		}
@@ -134,13 +156,14 @@ void bntcat(bnt str, bnt attach)
 
 void bntcpy(bnt str, bnt text)
 {
-    //while (*text) ((*str++ = *text++));
+    while (*text) ((*str++ = *text++));
     
+	/*
     unint i = 0;
     for (i = 0; i < strlen(text); i++) {
         str[i] = text[i];
     }
-    
+    */
     return;
 }
 

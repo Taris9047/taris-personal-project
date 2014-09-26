@@ -46,7 +46,7 @@ int main()
     
     printf("Running Factorial calculation:\n");
     bnt fact_result;
-	bnt n = bncc("10000");
+	bnt n = bncc("10"); printf("n = %s\n", n);
 	fact_result = factorial(n);
 	printf("%s! = %s\n", n, fact_result);
 
@@ -62,11 +62,12 @@ bnt factorial(bnt n)
 	else {
 		bnt ret = BNONE;
 		bnt i = bntc(n);
+		printf("factorial, after init\n ret = %s, i = %s\n", ret, i);
 
 		do {
             ret = bignum_mul(ret, i);
 			i = bignum_sub(i, BNONE);
-            printf("i(%llu) = %s, ret(%llu) = %s\n", bntlen(i), i, bntlen(ret), ret);
+            printf("factorial: i(%llu) = %s, ret(%llu) = %s\n", bntlen(i), i, bntlen(ret), ret);
 		} while(!bnteq(i, BNZERO));
 
 		return ret;

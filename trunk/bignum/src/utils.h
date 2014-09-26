@@ -25,6 +25,7 @@
 int count_ifs(int n);
 unsigned int ctoi(char c);
 char itoc(unsigned int i);
+bnt ulltobnt(unsigned long long num);
 
 bnt bntsel(cbnt str, unsigned int init, unsigned int end);
 bnt bntpush(cbnt str, char c);
