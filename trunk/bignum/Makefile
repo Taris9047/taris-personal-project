@@ -25,24 +25,16 @@ endif
 
 all: test
 
-$(LIBDIR):
-	mkdir $(LIBDIR)
-
-bignum.o: $(SRCDIR)/bignum.h $(SRCDIR)/bignum.c
-	$(CC) $(CFLAGS) -o $@ -c $(SRCDIR)/bignum.c
-
-utils.o: $(SRCDIR)/utils.h $(SRCDIR)/utils.c
-	$(CC) $(CFLAGS) -o $@ -c $(SRCDIR)/utils.c
-
-$(LIBNAME): $(OBJ) $(LIBDIR)
-	$(CC) -shared -o $(LIBDIR)/$@ $(OBJ)
+$(LIBNAME):
+	cd $(SRCDIR) && make $(LIBNAME) && cd ..
 
 test: test.c $(LIBNAME)
 	$(CYGCOMMAND)
-	$(CC) $(CFLAGS) -o $(TARGET) test.c $(RPATH) -I$(SRCDIR) -L$(LIBDIR) -lbignum
+	$(CC) $(CFLAGS) -o $(TARGET) test.c $(RPATH) -I$(SRCDIR) -L$(SRCDIR) -lbignum
 
 clean:
-	rm -rvf $(LIBDIR)
+#	rm -rvf $(LIBDIR)
+	cd $(SRCDIR) && make clean && cd ..
 	rm -rvf ./$(TARGET)
 	rm -rvf *.pyc *.o *.so
 	rm -rvf *.dSYM

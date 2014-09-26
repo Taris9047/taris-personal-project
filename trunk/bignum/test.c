@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include "bignum.h"
 
-bnt factorial(bnt n);
+//bnt factorial(bnt n);
 
 int main(int argc, char* argv[])
 {
+
+
+    /*
 	bnt factorial_n;
 	if (argc > 1) {
 		factorial_n = bncc(argv[1]);
@@ -16,6 +19,7 @@ int main(int argc, char* argv[])
 	else {
 		factorial_n = bncc("10");
 	}
+    */
 
     /*
     bnt numA;
@@ -52,13 +56,16 @@ int main(int argc, char* argv[])
 	printf("%s < %s == %d\n", numA, numB, bntcomp(numB, numA));
     */
     
+    /*
     printf("Running Factorial calculation:\n");
     bnt fact_result = factorial(factorial_n);
 	printf("%s! = %s\n", factorial_n, fact_result);
+    */
 
 	return 0;
 }
 
+/*
 bnt factorial(bnt n)
 {
 	if (bnteq(BNZERO, n))
@@ -79,5 +86,7 @@ bnt factorial(bnt n)
 		return factN;
 	}
 }
+
+*/
 
 #endif
