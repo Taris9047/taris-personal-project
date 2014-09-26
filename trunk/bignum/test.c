@@ -7,8 +7,16 @@
 
 bnt factorial(bnt n);
 
-int main()
+int main(int argc, char* argv[])
 {
+	bnt factorial_n;
+	if (argc > 1) {
+		factorial_n = bncc(argv[1]);
+	}
+	else {
+		factorial_n = bncc("10");
+	}
+
     /*
     bnt numA;
     bnt numB;
@@ -45,10 +53,8 @@ int main()
     */
     
     printf("Running Factorial calculation:\n");
-    bnt fact_result;
-	bnt n = bncc("10"); printf("n = %s\n", n);
-	fact_result = factorial(n);
-	printf("%s! = %s\n", n, fact_result);
+    bnt fact_result = factorial(factorial_n);
+	printf("%s! = %s\n", factorial_n, fact_result);
 
 	return 0;
 }
@@ -60,17 +66,17 @@ bnt factorial(bnt n)
 	else if (n[0] == '-')
 		return BNONE;
 	else {
-		bnt ret = BNONE;
+		bnt factN = BNONE;
 		bnt i = bntc(n);
-		printf("factorial, after init\n ret = %s, i = %s\n", ret, i);
+		//printf("factorial, after init\n ret = %s, i = %s\n", ret, i);
 
 		do {
-            ret = bignum_mul(ret, i);
+            factN = bignum_mul(factN, i);
 			i = bignum_sub(i, BNONE);
-            printf("factorial: i(%llu) = %s, ret(%llu) = %s\n", bntlen(i), i, bntlen(ret), ret);
-		} while(!bnteq(i, BNZERO));
+            printf("factorial: i(%llu) = %s, factN(%llu) = %s\n", bntlen(i), i, bntlen(factN), factN);
+		} while(!bnteq(i, BNONE));
 
-		return ret;
+		return factN;
 	}
 }
 
