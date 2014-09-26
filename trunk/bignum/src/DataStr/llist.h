@@ -22,19 +22,30 @@ typedef struct DList {
 	ULLONG index;
 } DList;
 
+typedef List* SLIST;
+typedef DList* DLIST;
+
 // Manip. utils (macro)
-#define SLread(SList, Index, type) \
-	*(type*)SLfind(SList, Index)->content	
-#define SLset(SList, Index, element) \
-	SLfind(SList, Index)->content = &(element)
+#define SLread(SList, Index, type) *(type*)SLfind(SList, Index)->content	
+#define SLset(SList, Index, element) SLfind(SList, Index)->content = &(element)
 
 // Manipulation utilities
-List* SLfind(List* slhead, ULLONG index);
-ULLONG SLlen(List* slhead);
+SLIST SLfind(SLIST slhead, ULLONG index);
+ULLONG SLlen(SLIST slhead);
+DLIST DLfind(DLIST dlhead, ULLONG index);
+ULLONG DLlen(DLIST dlhead);
+
+// Constructors and Destructors (macro)
+#define SLIST(size) SLalloc(size)
+#define DLIST(size) DLalloc(size)
 
 // Constructor(?)s and Destructors
-List* SLalloc(ULLONG nodesize);
-List* SLstralloc(const char* str);
-void SLfree(List* slhead);
+SLIST SLalloc(ULLONG nodesize);
+SLIST SLstralloc(const char* str);
+void SLfree(SLIST slhead);
+
+DLIST DLalloc(ULLONG nodesize);
+DLIST DLstralloc(const char* str);
+void DLfree(DLIST dlhead);
 
 #endif

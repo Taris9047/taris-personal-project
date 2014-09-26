@@ -3,20 +3,20 @@
 
 #include "llist.h"
 
-List* SLfind(List* slhead, ULLONG index)
+List* SLfind(SLIST slhead, ULLONG index)
 {
 	ULLONG i;
-	List* Tmp = slhead;
+	SLIST Tmp = slhead;
 	for (i = 0; i < index; i++) {
 		Tmp = Tmp->nextList;
 	}
 	return Tmp;
 }
 
-ULLONG SLlen(List* slhead)
+ULLONG SLlen(SLIST slhead)
 {
 	ULLONG i = 1;
-	List* Tmp = slhead;
+	SLIST Tmp = slhead;
 	do {
 		Tmp = Tmp->nextList;
 		i++;
@@ -26,15 +26,15 @@ ULLONG SLlen(List* slhead)
 
 
 // Constructors and Destructors
-List* SLalloc(ULLONG nodesize)
+SLIST SLalloc(ULLONG nodesize)
 {
 	ULLONG i;
-	List* LstPtr = NULL;
+	SLIST LstPtr = NULL;
 
 	if (nodesize == 0) return LstPtr;
 	else {
-		LstPtr = (List*)malloc(LIST_SZ);
-		List* FirstPtr = LstPtr;
+		LstPtr = (SLIST)malloc(LIST_SZ);
+		SLIST FirstPtr = LstPtr;
 		for (i = 0; i < nodesize; i++) {
 			LstPtr->index = i;
 			if (i == nodesize - 1) {
@@ -56,8 +56,8 @@ List* SLstralloc(const char* str)
 	ULLONG i;
 	char* str_ptr = (char*)str;
 
-	List* LstPtr = SLalloc(str_length);
-	List* Tmp;
+	SLIST LstPtr = SLalloc(str_length);
+	SLIST Tmp;
 	for (i = 0; i < str_length; i++) {
 		Tmp = SLfind(LstPtr, i);
 		Tmp->content = (str_ptr+i);
@@ -68,7 +68,7 @@ List* SLstralloc(const char* str)
 
 void SLfree(List* slhead)
 {
-	List* sldel;
+	SLIST sldel;
 
 	while ((sldel = slhead)) {
 		slhead = slhead->nextList;
