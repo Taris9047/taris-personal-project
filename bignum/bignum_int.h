@@ -4,7 +4,7 @@
 #include "data_type_bignum.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "DataStr/llist.h"
+#include "llist.h"
 #include "utils.h"
 
 typedef struct bignum_int {
