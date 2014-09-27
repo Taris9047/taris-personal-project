@@ -5,31 +5,43 @@ CXX=g++
 CFLAGS=-g -O3 -Wall -fPIC
 SRCDIR=./src
 TARGET=test
+OBJDATASTR=llist.o
+OBJBIGNUM=bignum_int.o
 
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
-	LIBNAME=libbignum.so
+	LIBBIGNUMNAME=libbignum.so
 	RPATH=-Wl,-rpath=$(SRCDIR)
 	CYGCOMMAND=
 else ifneq (, $(findstring cygwin, $(SYS)))
-	LIBNAME=cygbignum.dll
+	LIBBIGNUMNAME=cygbignum.dll
 	RPATH=
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
 else ifneq (, $(findstring darwin, $(SYS)))
-	LIBNAME=libbignum.so
+	LIBBIGNUMNAME=libbignum.so
 	RPATH=
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
 endif
 
 all: test
 
-$(LIBNAME):
-	cd $(SRCDIR) && make $(LIBNAME)
-	cd ..
+utils.o: utils.c utils.h
+	$(CC) $(CFLAGS) -c $@ utils.c
 
-test: test.c $(LIBNAME)
-	$(CYGCOMMAND)
-	$(CC) $(CFLAGS) -o $(TARGET) test.c $(RPATH) -I$(SRCDIR) -L. -lbignum
+llist.o: llist.c llist.h data_type_llist.h utils.o
+	$(CC) $(CFLAGS) -c $@ llist.c utils.o 
+
+libdatastr.a: $(OBJDATASTR)
+	ar r $@ $(OBJDATASTR)
+
+bignum_int.o: libdatastr.a
+	$(CC) $(CFLAGS) -c $@ bignum_int.c -L. -ldatastr
+
+$(LIBBIGNUMNAME): $(OBJBIGNUM)
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM) 
+
+test: test.c 
+	$(CC) $(CFLAGS) -o $(TARGET) test.c -I. -L. -lbignum
 
 clean:
 #	rm -rvf $(LIBDIR)
