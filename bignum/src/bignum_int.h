@@ -3,6 +3,7 @@
 
 #include "data_type_bignum.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include "DataStr/llist.h"
 #include "utils.h"
 
@@ -26,6 +27,7 @@ BOOL BNIdiv(BNI answer, BNI A, BNI B);
 // Utilities
 BOOL BNIcomp(BNI A, BNI B); // returns TRUE if A > B
 BOOL BNIeq(BNI A, BNI B); // returns TRUE if A == B
+void BNIprint(BNI A);
 
 // Constructors and Destructors
 BNI BNI_int(int num);

@@ -43,12 +43,13 @@ char* ulltobnt(unsigned long long num)
 {
 	char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num));
 	char* ptr = ret;
-	if (!ret) {
+	if (ret != NULL) {
 		unsigned long long tmp_num;
+		ptr = ptr+count_ifs(num)-1;
 		do {
 			tmp_num = num;
 			num /= 10;
-			*ptr++ = "0123456789"[tmp_num - (num*10)];
+			*ptr-- = "0123456789"[tmp_num - (num*10)];
 
 		} while (num);
 	}
@@ -68,12 +69,13 @@ char* itobnt(int num)
 		num = num*(-1);
 	}
 	
-	if (!ret) {
+	if (ret != NULL) {
 		int tmp_num;
+		ptr = ptr+(unsigned int)count_ifs(num)-1;
 		do {
 			tmp_num = num;
 			num /= 10;
-			*ptr++ = "0123456789"[tmp_num - (num*10)];
+			*ptr-- = "0123456789"[tmp_num - (num*10)];
 		} while (num);
 	}
 	return ret;

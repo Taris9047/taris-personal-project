@@ -9,31 +9,32 @@ TARGET=test
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
 	LIBNAME=libbignum.so
-	RPATH=-Wl,-rpath=$(LIBDIR)
+	RPATH=-Wl,-rpath=$(SRCDIR)
 	CYGCOMMAND=
 else ifneq (, $(findstring cygwin, $(SYS)))
 	LIBNAME=cygbignum.dll
 	RPATH=
-	CYGCOMMAND=cp -vrf $(LIBDIR)/$(LIBNAME) ./
+	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
 else ifneq (, $(findstring darwin, $(SYS)))
 	LIBNAME=libbignum.so
 	RPATH=
-	CYGCOMMAND=
+	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
 endif
 
 all: test
 
 $(LIBNAME):
-	cd $(SRCDIR) && make $(LIBNAME) && cd ..
+	cd $(SRCDIR) && make $(LIBNAME)
+	cd ..
 
 test: test.c $(LIBNAME)
 	$(CYGCOMMAND)
-	$(CC) $(CFLAGS) -o $(TARGET) test.c $(RPATH) -I$(SRCDIR) -L$(SRCDIR) -lbignum
+	$(CC) $(CFLAGS) -o $(TARGET) test.c $(RPATH) -I$(SRCDIR) -L. -lbignum
 
 clean:
 #	rm -rvf $(LIBDIR)
 	cd $(SRCDIR) && make clean && cd ..
-	rm -rvf ./$(TARGET)
+	rm -rvf ./$(TARGET) *.exe
 	rm -rvf *.pyc *.o *.so
 	rm -rvf *.dSYM
 	rm -rvf *.txt

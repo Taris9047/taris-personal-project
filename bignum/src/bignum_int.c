@@ -6,8 +6,19 @@
 
 
 
-
-
+/**********************************
+            Utilities
+**********************************/
+void BNIprint(BNI A)
+{
+	int i;
+	if (!A->sign) printf("-");
+	for (i = 0; i < SLlen(A->num_list); i++) {
+		//printf("BNIprint, %d\n", i);
+		printf("%c", SLread(A->num_list, i, char));
+	}
+	printf("\n");
+}
 
 
 /**********************************
@@ -17,6 +28,7 @@
 BNI BNI_int(int num)
 {
 	char* num_char_ary = itobnt(num);
+	//printf("BNI_int, %s\n", num_char_ary);
 	BNI ret = (BNI)malloc(BNI_SZ);
 
 	if (num >= 0) {

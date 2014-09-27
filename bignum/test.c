@@ -9,6 +9,9 @@
 
 int main(int argc, char* argv[])
 {
+	BNI numA = BNI_int(39489);
+
+	BNIprint(numA);
 
 
     /*
