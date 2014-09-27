@@ -26,26 +26,24 @@ endif
 all: test
 
 utils.o: utils.c utils.h
-	$(CC) $(CFLAGS) -c $@ utils.c
+	$(CC) $(CFLAGS) -c -o $@ utils.c
 
 llist.o: llist.c llist.h data_type_llist.h utils.o
-	$(CC) $(CFLAGS) -c $@ llist.c utils.o 
+	$(CC) $(CFLAGS) -c -o $@ llist.c
 
 libdatastr.a: $(OBJDATASTR)
-	ar r $@ $(OBJDATASTR)
+	ar r $@ $(OBJDATASTR) utils.o
 
 bignum_int.o: libdatastr.a
-	$(CC) $(CFLAGS) -c $@ bignum_int.c -L. -ldatastr
+	$(CC) $(CFLAGS) -c -o $@ bignum_int.c
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)
-	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM) 
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM) -L. -ldatastr
 
-test: test.c 
+test: test.c $(LIBBIGNUMNAME)
 	$(CC) $(CFLAGS) -o $(TARGET) test.c -I. -L. -lbignum
 
 clean:
-#	rm -rvf $(LIBDIR)
-	cd $(SRCDIR) && make clean && cd ..
 	rm -rvf ./$(TARGET) *.exe
 	rm -rvf *.pyc *.o *.so
 	rm -rvf *.dSYM
