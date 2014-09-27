@@ -5,8 +5,8 @@ CXX=g++
 CFLAGS=-g -O3 -Wall -fPIC
 SRCDIR=./src
 TARGET=test
-OBJDATASTR=llist.o
-OBJBIGNUM=bignum_int.o
+OBJDATASTR=llist.o utils.o
+OBJBIGNUM=bignum_int.o $(OBJDATASTR)
 
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
@@ -34,18 +34,19 @@ llist.o: llist.c llist.h data_type_llist.h utils.o
 libdatastr.a: $(OBJDATASTR)
 	ar r $@ $(OBJDATASTR) utils.o
 
-bignum_int.o: libdatastr.a
+bignum_int.o: bignum_int.c bignum_int.h data_type_bignum.h
 	$(CC) $(CFLAGS) -c -o $@ bignum_int.c
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)
-	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM) -L. -ldatastr
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM)
 
-test: test.c $(LIBBIGNUMNAME)
+test: test.c $(LIBBIGNUMNAME) *.c *.h
 	$(CC) $(CFLAGS) -o $(TARGET) test.c -I. -L. -lbignum
 
 clean:
 	rm -rvf ./$(TARGET) *.exe
 	rm -rvf *.pyc *.o *.so
+	rm -rvf *.a
 	rm -rvf *.dSYM
 	rm -rvf *.txt
 	rm -rvf *.eps
