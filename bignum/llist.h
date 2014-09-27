@@ -32,13 +32,19 @@ typedef DList* DLIST;
 // Manipulation utilities
 SLIST SLfind(SLIST slhead, ULLONG index);
 ULLONG SLlen(SLIST slhead);
+SLIST SLpush(SLIST slhead, SLIST slpush);
+SLIST SLpop(SLIST slhead);
+SLIST SLinsert(SLIST slhead, SLIST slinsert, ULLONG loc);
+void SLupdateindex(SLIST slhead);
+
 DLIST DLfind(DLIST dlhead, ULLONG index);
 ULLONG DLlen(DLIST dlhead);
 
 // Constructors and Destructors (macro)
 #define SLIST(size) SLalloc(size)
-#define DLIST(size) DLalloc(size)
 #define SLISTC(str) SLstralloc(str)
+
+#define DLIST(size) DLalloc(size)
 #define DLISTC(str) DLstralloc(str)
 
 // Constructor(?)s and Destructors

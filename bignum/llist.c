@@ -3,7 +3,10 @@
 
 #include "llist.h"
 
-List* SLfind(SLIST slhead, ULLONG index)
+///////////////////////////////////////////////
+//     Mapulation Utilities (Single List)    //
+///////////////////////////////////////////////
+SLIST SLfind(SLIST slhead, ULLONG index)
 {
 	ULLONG i;
 	SLIST Tmp = slhead;
@@ -24,8 +27,71 @@ ULLONG SLlen(SLIST slhead)
 	return i;
 }
 
+SLIST SLpush(SLIST slhead, SLIST slpush)
+{
+	SLIST Tmp = slpush;
+	while(Tmp->nextList) Tmp = Tmp->nextList;
+	Tmp->nextList = slhead;
 
-// Constructors and Destructors
+	SLupdateindex(slpush);
+	return slpush;
+}
+
+SLIST SLpop(SLIST slhead)
+{
+	SLIST Tmp = slhead;
+	slhead = slhead->nextList;
+	Tmp->nextList = NULL;
+
+	SLupdateindex(slhead);
+	return Tmp;
+}
+
+SLIST SLinsert(SLIST slhead, SLIST slinsert, ULLONG loc)
+{
+	SLIST TmpIns = slinsert;
+	SLIST TmpHead = slhead;
+	ULLONG i;
+	if (loc == 0) {
+		while(TmpIns->nextList) TmpIns = TmpIns->nextList;
+		TmpIns->nextList = slhead;
+
+		SLupdateindex(slinsert);
+		return slinsert;
+	}
+	else if (loc >= SLlen(slhead)) {
+		while(TmpHead->nextList) TmpHead = TmpHead->nextList;
+		TmpHead->nextList = slinsert;
+
+		SLupdateindex(slhead);
+		return slhead;
+	}
+	else {
+		TmpHead = slhead;
+		for (i = 0; i < loc; i++) TmpHead = TmpHead->nextList;
+		TmpHead->nextList = slinsert;
+		TmpHead = TmpHead->nextList;
+		while(TmpIns->nextList) TmpIns = TmpIns->nextList;
+		TmpIns->nextList = TmpHead;
+
+		SLupdateindex(slhead);
+		return slhead;
+	}
+}
+
+void SLupdateindex(SLIST slhead)
+{
+	SLIST Tmp = slhead;
+	ULLONG i = 0;
+	while (Tmp->nextList) {
+		Tmp->index = i++;
+		Tmp = Tmp->nextList;
+	}
+}
+
+//////////////////////////////////
+// Constructors and Destructors //
+//////////////////////////////////
 SLIST SLalloc(ULLONG nodesize)
 {
 	ULLONG i;
