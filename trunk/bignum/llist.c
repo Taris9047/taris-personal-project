@@ -37,6 +37,16 @@ SLIST SLpush(SLIST slhead, SLIST slpush)
 	return slpush;
 }
 
+SLIST SLpush_back(SLIST slhead, SLIST slpush)
+{
+	SLIST Tmp = slhead;
+	while(Tmp->nextList) Tmp = Tmp->nextList;
+	Tmp->nextList = slpush;
+
+	SLupdateindex(slhead);
+	return slhead;
+}
+
 SLIST SLpop(SLIST slhead)
 {
 	SLIST Tmp = slhead;
@@ -45,6 +55,21 @@ SLIST SLpop(SLIST slhead)
 
 	SLupdateindex(slhead);
 	return Tmp;
+}
+
+SLIST SLpop_back(SLIST slhead)
+{
+	SLIST Tmp = slhead;
+	SLIST slpop;
+	//while(Tmp->nextList) Tmp = Tmp->nextList;
+	ULLONG i;
+	for (i = 0; i < (SLlen(slhead)-1); i++)
+		Tmp = Tmp->nextList;
+
+	slpop = Tmp->nextList;
+	Tmp->nextList = NULL;
+	SLupdateindex(slpop);
+	return slpop;
 }
 
 SLIST SLinsert(SLIST slhead, SLIST slinsert, ULLONG loc)
@@ -124,10 +149,11 @@ List* SLstralloc(const char* str)
 
 	SLIST LstPtr = SLalloc(str_length);
 	SLIST Tmp;
+    char c;
 	for (i = 0; i < str_length; i++) {
 		Tmp = SLfind(LstPtr, i);
-		Tmp->content = (str_ptr+i);
-		//printf("%c", *(char*)Tmp->content);
+        c = *(str_ptr+i);
+		Tmp->content = &c;
 	}
 	return LstPtr;
 }

@@ -31,9 +31,12 @@ typedef DList* DLIST;
 
 // Manipulation utilities
 SLIST SLfind(SLIST slhead, ULLONG index);
+//BOOL SLset(SLIST slhead, ULLONG index, void* element);
 ULLONG SLlen(SLIST slhead);
 SLIST SLpush(SLIST slhead, SLIST slpush);
+SLIST SLpush_back(SLIST slhead, SLIST slpush);
 SLIST SLpop(SLIST slhead);
+SLIST SLpop_back(SLIST slhead);
 SLIST SLinsert(SLIST slhead, SLIST slinsert, ULLONG loc);
 void SLupdateindex(SLIST slhead);
 
