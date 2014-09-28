@@ -111,7 +111,7 @@
 			"file": "test.c",
 			"settings":
 			{
-				"buffer_size": 742,
+				"buffer_size": 750,
 				"line_ending": "Unix"
 			}
 		},
@@ -119,7 +119,7 @@
 			"file": "bignum_int.c",
 			"settings":
 			{
-				"buffer_size": 5236,
+				"buffer_size": 5749,
 				"line_ending": "Unix"
 			}
 		},
@@ -143,7 +143,7 @@
 			"file": "llist.c",
 			"settings":
 			{
-				"buffer_size": 3091,
+				"buffer_size": 3283,
 				"line_ending": "Unix"
 			}
 		},
@@ -151,7 +151,7 @@
 			"file": "llist.h",
 			"settings":
 			{
-				"buffer_size": 1739,
+				"buffer_size": 1702,
 				"line_ending": "Unix"
 			}
 		},
@@ -183,7 +183,7 @@
 			"file": "utils.c",
 			"settings":
 			{
-				"buffer_size": 3912,
+				"buffer_size": 4229,
 				"line_ending": "Unix"
 			}
 		},
@@ -191,7 +191,7 @@
 			"file": "utils.h",
 			"settings":
 			{
-				"buffer_size": 857,
+				"buffer_size": 907,
 				"line_ending": "Unix"
 			}
 		}
@@ -321,7 +321,7 @@
 	"groups":
 	[
 		{
-			"selected": 10,
+			"selected": 4,
 			"sheets":
 			[
 				{
@@ -330,15 +330,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 742,
+						"buffer_size": 750,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								351,
-								351
+								0,
+								0
 							]
 						],
 						"settings":
@@ -350,7 +350,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -359,15 +359,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5236,
+						"buffer_size": 5749,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4375,
-								4375
+								3741,
+								3741
 							]
 						],
 						"settings":
@@ -376,10 +376,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 317.0,
+						"translation.y": 2819.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -407,7 +407,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
@@ -435,7 +435,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
@@ -444,7 +444,36 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3091,
+						"buffer_size": 3283,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2619,
+								2619
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 9.0,
+						"translation.y": 587.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "llist.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1702,
 						"regions":
 						{
 						},
@@ -457,42 +486,13 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1742.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "llist.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1739,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								409,
-								409
-							]
-						],
-						"settings":
-						{
 							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
@@ -520,7 +520,7 @@
 						"translation.y": 230.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -585,7 +585,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3912,
+						"buffer_size": 4229,
 						"regions":
 						{
 						},
@@ -613,15 +613,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 857,
+						"buffer_size": 907,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								129,
-								129
+								0,
+								0
 							]
 						],
 						"settings":
@@ -632,7 +632,7 @@
 						"translation.y": 5.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]

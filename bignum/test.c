@@ -9,12 +9,12 @@
 
 int main(int argc, char* argv[])
 {
-	BNI numA = BNI_int(39489);
-	BNI numB = BNI_cchar("234932084032840");
-	BNI result = BNI_int(0);
+	BNI numA = BNI(39489);
+	BNI numB = BNICC("234932084032840");
+	BNI result = BNI(0);
 
-	char* str_numA = malloc(sizeof(char)*BNIlen(numA));
-	char* str_numB = malloc(sizeof(char)*BNIlen(numB));
+    char* str_numA = (char*)malloc(sizeof(char)*BNIlen(numA));
+    char* str_numB = (char*)malloc(sizeof(char)*BNIlen(numB));
 
 	BNIsprint(str_numA, numA);
 	BNIsprint(str_numB, numB);

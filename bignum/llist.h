@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 typedef unsigned int UINT;
 typedef unsigned long ULONG;
@@ -19,7 +20,7 @@ typedef unsigned int BOOL;
 #define FALSE 0
 #endif
 
-#define LIST_SZ sizeof(List)
+#define SLIST_SZ sizeof(List)
 #define DLIST_SZ sizeof(DList)
 
 // List node definitions
@@ -40,12 +41,11 @@ typedef List* SLIST;
 typedef DList* DLIST;
 
 // Manip. utils (macro)
-#define SLread(SList, Index, type) *(type*)SLfind(SList, Index)->content	
+#define SLread(SList, Index, Type) *(Type*)SLfind(SList, Index)->content	
 #define SLset(SList, Index, element) SLfind(SList, Index)->content = &(element)
 
 // Manipulation utilities
 SLIST SLfind(SLIST slhead, ULLONG index);
-//BOOL SLset(SLIST slhead, ULLONG index, void* element);
 ULLONG SLlen(SLIST slhead);
 SLIST SLpush(SLIST slhead, SLIST slpush);
 SLIST SLpush_back(SLIST slhead, SLIST slpush);

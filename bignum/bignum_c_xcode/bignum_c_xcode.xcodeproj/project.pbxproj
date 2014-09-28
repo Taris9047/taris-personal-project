@@ -30,8 +30,6 @@
 		7282756B19D7621800E6EF14 /* bignum_int.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bignum_int.c; path = ../bignum_int.c; sourceTree = "<group>"; };
 		7282756C19D7621800E6EF14 /* bignum_int.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bignum_int.h; path = ../bignum_int.h; sourceTree = "<group>"; };
 		7282756D19D7621800E6EF14 /* bignum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bignum.h; path = ../bignum.h; sourceTree = "<group>"; };
-		7282756E19D7621800E6EF14 /* data_type_bignum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = data_type_bignum.h; path = ../data_type_bignum.h; sourceTree = "<group>"; };
-		7282756F19D7621800E6EF14 /* data_type_llist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = data_type_llist.h; path = ../data_type_llist.h; sourceTree = "<group>"; };
 		7282757019D7621800E6EF14 /* llist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = llist.c; path = ../llist.c; sourceTree = "<group>"; };
 		7282757119D7621800E6EF14 /* llist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = llist.h; path = ../llist.h; sourceTree = "<group>"; };
 		7282757219D7621800E6EF14 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = ../test.c; sourceTree = "<group>"; };
@@ -56,8 +54,6 @@
 				7282756B19D7621800E6EF14 /* bignum_int.c */,
 				7282756C19D7621800E6EF14 /* bignum_int.h */,
 				7282756D19D7621800E6EF14 /* bignum.h */,
-				7282756E19D7621800E6EF14 /* data_type_bignum.h */,
-				7282756F19D7621800E6EF14 /* data_type_llist.h */,
 				7282757019D7621800E6EF14 /* llist.c */,
 				7282757119D7621800E6EF14 /* llist.h */,
 				7282757219D7621800E6EF14 /* test.c */,

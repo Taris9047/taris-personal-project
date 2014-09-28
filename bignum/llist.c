@@ -124,7 +124,7 @@ SLIST SLalloc(ULLONG nodesize)
 
 	if (nodesize == 0) return LstPtr;
 	else {
-		LstPtr = (SLIST)malloc(LIST_SZ);
+		LstPtr = (SLIST)malloc(SLIST_SZ);
 		SLIST FirstPtr = LstPtr;
 		for (i = 0; i < nodesize; i++) {
 			LstPtr->index = i;
@@ -133,7 +133,7 @@ SLIST SLalloc(ULLONG nodesize)
 				break;
 			}
 			else {
-				LstPtr->nextList = (List*)malloc(LIST_SZ);
+				LstPtr->nextList = (SLIST)malloc(SLIST_SZ);
 				LstPtr = LstPtr->nextList;
 			}
 		}
@@ -141,24 +141,28 @@ SLIST SLalloc(ULLONG nodesize)
 	}
 }
 
-List* SLstralloc(const char* str)
+SLIST SLstralloc(const char* str)
 {
 	ULLONG str_length = (ULLONG)strlen(str);
 	ULLONG i;
-	char* str_ptr = (char*)str;
-
+    //printf("SLstralloc, str: %s\n", str);
 	SLIST LstPtr = SLalloc(str_length);
-	SLIST Tmp;
-    char c;
-	for (i = 0; i < str_length; i++) {
-		Tmp = SLfind(LstPtr, i);
-        c = *(str_ptr+i);
+    SLIST Tmp = LstPtr;
+    char c; i = 0;
+    do {
+        c = *(char*)(str+i);
+        //printf("SLstralloc, c: %c\n", c);
 		Tmp->content = &c;
-	}
+        //printf("SLstralloc, Tmp->content: %c\n", SLread(LstPtr, i, char));
+        Tmp->index = i;
+        Tmp = Tmp->nextList;
+        i++;
+    } while (Tmp);
+    
 	return LstPtr;
 }
 
-void SLfree(List* slhead)
+void SLfree(SLIST slhead)
 {
 	SLIST sldel;
 
