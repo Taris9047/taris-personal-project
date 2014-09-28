@@ -28,13 +28,13 @@ all: test
 utils.o: utils.c utils.h
 	$(CC) $(CFLAGS) -c -o $@ utils.c
 
-llist.o: llist.c llist.h data_type_llist.h utils.o
+llist.o: llist.c llist.h utils.o
 	$(CC) $(CFLAGS) -c -o $@ llist.c
 
 libdatastr.a: $(OBJDATASTR)
 	ar r $@ $(OBJDATASTR) utils.o
 
-bignum_int.o: bignum_int.c bignum_int.h data_type_bignum.h
+bignum_int.o: bignum_int.c bignum_int.h llist.o
 	$(CC) $(CFLAGS) -c -o $@ bignum_int.c
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)

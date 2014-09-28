@@ -1,7 +1,13 @@
 #ifndef BIGNUM_INT_H
 #define BIGNUM_INT_H
 
-#include "data_type_bignum.h"
+#ifndef BOOLTYPE
+#define BOOLTYPE
+typedef int BOOL;
+#define TRUE 1
+#define FALSE 0
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "llist.h"
