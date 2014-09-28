@@ -159,7 +159,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 1120,
+				"buffer_size": 1113,
 				"line_ending": "Unix"
 			}
 		},
@@ -451,8 +451,8 @@
 						"selection":
 						[
 							[
-								2619,
-								2619
+								867,
+								867
 							]
 						],
 						"settings":
@@ -460,8 +460,8 @@
 							"syntax": "Packages/C++/C++.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 9.0,
-						"translation.y": 587.0,
+						"translation.x": 0.0,
+						"translation.y": 7.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -501,15 +501,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1120,
+						"buffer_size": 1113,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								793,
-								793
+								0,
+								0
 							]
 						],
 						"settings":
