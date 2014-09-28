@@ -18,21 +18,34 @@ int count_ifs(int n)
     return 1;
 }
 
+unsigned int count_ullfs(unsigned long long n)
+{
+    if (n > 999999999) return 10;
+    if (n > 99999999) return 9;
+    if (n > 9999999) return 8;
+    if (n > 999999) return 7;
+    if (n > 99999) return 6;
+    if (n > 9999) return 5;
+    if (n > 999) return 4;
+    if (n > 99) return 3;
+    if (n > 9) return 2;
+    return 1;
+}
+
 unsigned int ctoi(char c)
 {
-	char ch[1];
-	ch[0] = c;
-	return (unsigned int)atoi(ch);
+//	char ch[1];
+//	ch[0] = c;
+//	return (unsigned int)atoi(ch);
 	//return (unsigned long long)strtol(c);
-	//return (unsigned int)(c-((unsigned int)'0'));
+	return (unsigned int)(c-((unsigned int)'0'));
 }
 
 char itoc(unsigned int i)
 {
 	if (i > 9) {
-		printf("itoc, i = %u, oops.. input was larger than two digits...\n", i);
-		printf("returning 0\n");
-		return '0';
+		printf("itoc, input = %u, oops.. input was larger than two digits...\n", i);
+        exit(-1);
 	}
 	else {
 		return (char)(i + ((unsigned int)'0'));
@@ -41,11 +54,11 @@ char itoc(unsigned int i)
 
 char* ulltobnt(unsigned long long num)
 {
-	char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ifs(num));
+	char* ret = (char*)malloc(sizeof(char)*(unsigned int)count_ullfs(num));
 	char* ptr = ret;
 	if (ret != NULL) {
 		unsigned long long tmp_num;
-		ptr = ptr+count_ifs(num)-1;
+		ptr = ptr+count_ullfs(num)-1;
 		do {
 			tmp_num = num;
 			num /= 10;

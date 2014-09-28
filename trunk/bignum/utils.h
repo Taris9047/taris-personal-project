@@ -21,6 +21,7 @@
 #endif
 
 int count_ifs(int n);
+unsigned int count_ullfs(unsigned long long n);
 unsigned int ctoi(char c);
 char itoc(unsigned int i);
 char* ulltobnt(unsigned long long num);
@@ -30,9 +31,9 @@ char* bntsel(const char* str, unsigned int init, unsigned int end);
 char* bntpush(const char* str, char c);
 char* bntpop(const char* str, char* c);
 char* bntcrop(const char* str, unsigned int index);
-void bntcat(char* str, char*attach);
+void bntcat(char* str, char* attach);
 void test_malloc(void);
-void bntcpy(char* str, char*text);
+void bntcpy(char* str, char* text);
 unsigned long long bntlen(char* str);
 
 #endif

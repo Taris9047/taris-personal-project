@@ -173,9 +173,9 @@ void BNIprint(BNI A)
 {
 	char* str_num;
 	if (!A->sign)
-		str_num = malloc(sizeof(char)*(BNIlen(A)+1));
+		str_num = (char*)malloc(sizeof(char)*(BNIlen(A)+1));
 	else
-		str_num = malloc(sizeof(char)*(BNIlen(A)));
+		str_num = (char*)malloc(sizeof(char)*(BNIlen(A)));
 
 	BNIsprint(str_num, A);
 	printf("BNIprint output: %s\n", str_num);
@@ -184,12 +184,14 @@ void BNIprint(BNI A)
 ULLONG BNIsprint(char* str, BNI A)
 {
 	ULLONG i;
-	if (!A->sign) *str++ = '-';
 	if (str != NULL) {
 		for (i = 0; i < BNIlen(A); i++) {
-			*str++ = itoc(BNIread(A, i));
+			//*(str+i) = itoc(BNIread(A, i));
+            *(str+i) = itoc(SLread(A->num_list, i, char));
+            printf("BNIsprint, BNIread(A, i), *str, i: %d, %c, %llu\n", BNIread(A, i), *(str+i), i);
 		}
 		str = str - i - 1;
+        //printf("BNIsprint, str: %s\n", str);
 		return i;
 	}
 	else {
@@ -204,6 +206,10 @@ ULLONG BNIlen(BNI A)
 
 int BNIread(BNI A, ULLONG i)
 {
+    char tmpc = SLread(A->num_list, i, char);
+    //int tmp = ctoi(SLread(A->num_list, i, char));
+    printf("BNIread, tmpc: %c\n", tmpc);
+    
 	return ctoi(SLread(A->num_list, i, char));
 }
 
@@ -218,7 +224,7 @@ BOOL BNIset(BNI A, ULLONG index, int element)
 void BNIpush(BNI A, int element)
 {
 	char char_num = itoc(element);
-	SLIST Tmp = (SLIST)malloc(LIST_SZ);
+	SLIST Tmp = (SLIST)malloc(SLIST_SZ);
 	Tmp->index = 0;
 	Tmp->content = &char_num;
 	Tmp->nextList = NULL;
@@ -235,8 +241,14 @@ int BNIpop(BNI A)
 
 void BNIpush_back(BNI A, int element)
 {
+    if (element > 9 || element < 0) {
+        printf("BNIpush_back, element: %d\n", element);
+        printf("element must be one digit!\n");
+        exit(-1);
+    }
+    
 	char char_num = itoc(element);
-	SLIST Tmp = (SLIST)malloc(LIST_SZ);
+	SLIST Tmp = (SLIST)malloc(SLIST_SZ);
 	Tmp->index = 0;
 	Tmp->content = &char_num;
 	Tmp->nextList = NULL;

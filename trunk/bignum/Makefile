@@ -34,8 +34,8 @@ llist.o: llist.c llist.h utils.o
 libdatastr.a: $(OBJDATASTR)
 	ar r $@ $(OBJDATASTR) utils.o
 
-bignum_int.o: bignum_int.c bignum_int.h llist.o
-	$(CC) $(CFLAGS) -c -o $@ bignum_int.c
+bignum_int.o: bignum_int.c bignum_int.h
+	$(CC) $(CFLAGS) -c -o $@ bignum_int.c 
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)
 	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM)
