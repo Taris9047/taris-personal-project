@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include "data_type_bignum.h"
-
 #ifndef max
 #define max(a,b) \
 	({ __typeof__ (a) _a = (a); \

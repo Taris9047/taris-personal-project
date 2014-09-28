@@ -1,9 +1,23 @@
 #ifndef LLIST_H
 #define LLIST_H
 
-#include "data_type_llist.h"
 #include <stdlib.h>
 #include <string.h>
+
+typedef unsigned int UINT;
+typedef unsigned long ULONG;
+typedef unsigned long long ULLONG;
+typedef long long LLONG;
+typedef unsigned char UCHAR;
+typedef long double LDOUBLE;
+
+#ifndef BOOLTYPE
+#define BOOLTYPE
+typedef unsigned int BOOL;
+
+#define TRUE 1
+#define FALSE 0
+#endif
 
 #define LIST_SZ sizeof(List)
 #define DLIST_SZ sizeof(DList)
