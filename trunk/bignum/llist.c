@@ -10,6 +10,11 @@ SLIST SLfind(SLIST slhead, ULLONG index)
 {
 	ULLONG i;
 	SLIST Tmp = slhead;
+    
+    if (index >= SLlen(slhead)) {
+        printf("Invalid access!!\n");
+    }
+    
 	for (i = 0; i < index; i++) {
 		Tmp = Tmp->nextList;
 	}
@@ -20,11 +25,15 @@ ULLONG SLlen(SLIST slhead)
 {
 	ULLONG i = 1;
 	SLIST Tmp = slhead;
-	do {
-		Tmp = Tmp->nextList;
-		i++;
-	} while(Tmp->nextList);
-	return i;
+    if (Tmp != NULL) {
+        while (Tmp->nextList) {
+            Tmp = Tmp->nextList;
+            i++;
+        };
+        return i;
+    }
+	else
+        return 0;
 }
 
 SLIST SLpush(SLIST slhead, SLIST slpush)
@@ -148,11 +157,10 @@ SLIST SLstralloc(const char* str)
     //printf("SLstralloc, str: %s\n", str);
 	SLIST LstPtr = SLalloc(str_length);
     SLIST Tmp = LstPtr;
-    char c; i = 0;
+    i = 0;
     do {
-        c = *(char*)(str+i);
         //printf("SLstralloc, c: %c\n", c);
-		Tmp->content = &c;
+		Tmp->content = (void *)(str+i);
         //printf("SLstralloc, Tmp->content: %c\n", SLread(LstPtr, i, char));
         Tmp->index = i;
         Tmp = Tmp->nextList;
@@ -168,6 +176,7 @@ void SLfree(SLIST slhead)
 
 	while ((sldel = slhead)) {
 		slhead = slhead->nextList;
+		free(sldel->content);
 		free(sldel);
 	}
 }

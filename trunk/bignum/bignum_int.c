@@ -8,12 +8,18 @@
 **********************************/
 BOOL BNIadd(BNI answer, BNI A, BNI B)
 {
-	if (A->sign == TRUE && B->sign == TRUE)
-		_do_add(answer, A, B);
-	else if (A->sign == FALSE && B->sign == FALSE)
-		_do_add(answer, A, B);
-	else if (A->sign == FALSE && B->sign == TRUE) {
+    // Assign memory to answer if it was passed as NULL pointer.
+    if (!answer) {
+        printf("Result container must be a BNI pointer!!\n");
+        exit(-1);
+    }
 
+    if (A->sign == TRUE && B->sign == TRUE)
+		BNI_do_add(answer, A, B);
+	else if (A->sign == FALSE && B->sign == FALSE)
+		BNI_do_add(answer, A, B);
+	else if (A->sign == FALSE && B->sign == TRUE) {
+        
 	}
 	else if (A->sign == TRUE && B->sign == FALSE) {
 
@@ -40,36 +46,28 @@ BOOL BNIdiv(BNI answer, BNI A, BNI B)
 	return TRUE;	
 }
 
-BOOL _do_add(BNI answer, BNI A, BNI B)
+BOOL BNI_do_add(BNI answer, BNI A, BNI B)
 {
-	LLONG i_answer = BNIlen(answer);
-	LLONG i_a = BNIlen(A);
-	LLONG i_b = BNIlen(B);
-	ULLONG i;
+    LLONG i_answer = BNIlen(answer)-1;
+	LLONG i_a = BNIlen(A)-1;
+	LLONG i_b = BNIlen(B)-1;
 	int rn;
 	int an;
 	int bn;
 	int carry = 0;
 
-	// Trimming answer
-	if (answer == NULL) {
-		answer = BNI_int(0);
-	}
-	if (i_answer < i_a) {
-		for (i = 0; i < (i_a - i_answer); i++) {
-			BNIpush(answer, 0);
-		}
-	}
-
 	do {
-		if (i_a < 0) {
+		if (i_a < 0 && i_b >= 0) {
 			an = 0;
 			bn = BNIread(B, i_b);
 		}
-		else if (i_b < 0) {
+		else if (i_b < 0 && i_a >= 0) {
 			an = BNIread(A, i_a);
 			bn = 0;
 		}
+        else if (i_a < 0 && i_b < 0) {
+            break;
+        }
 		else {
 			an = BNIread(A, i_a);
 			bn = BNIread(B, i_b);
@@ -81,28 +79,78 @@ BOOL _do_add(BNI answer, BNI A, BNI B)
 			carry = rn/10;
 			rn = rn%10;
 		}
-		BNIset(answer, i_answer, rn);
-
-		i_answer--; i_a--; i_b--;
-	} while(i_a < 0 && i_b < 0);
+        else
+            carry = 0;
+        
+        if (i_answer < 0)
+            BNIpush(answer, rn);
+        else
+            BNIset(answer, i_answer, rn);
+        
+        //printf("_do_add, answer: ");
+        //BNIprint(answer);
+        //printf("at i_answer: %lld, i_a: %lld, i_b: %lld\n", i_answer, i_a, i_b);
+        i_answer--; i_a--; i_b--;
+	} while(1);
 
 	if (carry > 0)
 		BNIpush(answer, carry);
 
+    //BNIprint(answer);
 	return TRUE;
 }
 
-BOOL _do_sub(BNI answer, BNI A, BNI B)
+BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
+{
+    LLONG i_answer = BNIlen(answer)-1;
+    LLONG i_a = BNIlen(A)-1;
+    LLONG i_b = BNIlen(B)-1;
+    int rn;
+    int an;
+    int bn;
+    int carry = 0;
+    
+    do {
+        if (i_a < 0 && i_b >= 0) {
+            an = 0;
+            bn = BNIread(B, i_b);
+        }
+        else if (i_a >= 0 && i_b < 0) {
+            an = BNIread(A, i_a);
+            bn = 0;
+        }
+        else if (i_a < 0 && i_b < 0) {
+            break;
+        }
+        else {
+            an = BNIread(A, i_a);
+            bn = BNIread(B, i_b);
+        }
+        
+        rn = an - bn - carry;
+        if (rn < 0) {
+            carry = (rn*(-1))/10;
+            rn = (rn*(-1))%10;
+        }
+        else
+            carry = 0;
+        
+        int i;
+        for (i = 0; i < BNIlen(answer); i++) {
+            if (BNIread(answer, 0) == 0)
+                BNIpop(answer);
+        }
+    } while(1);
+    
+	return TRUE;
+}
+
+BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 {
 	return TRUE;
 }
 
-BOOL _do_mul(BNI answer, BNI A, BNI B)
-{
-	return TRUE;
-}
-
-BOOL _do_div(BNI answer, BNI A, BNI B)
+BOOL BNI_do_div(BNI answer, BNI A, BNI B)
 {
 	return TRUE;
 }
@@ -186,47 +234,40 @@ ULLONG BNIsprint(char* str, BNI A)
 	ULLONG i;
 	if (str != NULL) {
 		for (i = 0; i < BNIlen(A); i++) {
-			//*(str+i) = itoc(BNIread(A, i));
-            *(str+i) = itoc(SLread(A->num_list, i, char));
-            printf("BNIsprint, BNIread(A, i), *str, i: %d, %c, %llu\n", BNIread(A, i), *(str+i), i);
+            str[i] = SLread(A->num_list, i, char);
 		}
-		str = str - i - 1;
-        //printf("BNIsprint, str: %s\n", str);
 		return i;
 	}
-	else {
+	else
 		return 0;
-	}
 }
 
 ULLONG BNIlen(BNI A)
 {
-	return (ULLONG)SLlen(A->num_list);
+	return SLlen(A->num_list);
 }
 
 int BNIread(BNI A, ULLONG i)
 {
-    char tmpc = SLread(A->num_list, i, char);
-    //int tmp = ctoi(SLread(A->num_list, i, char));
-    printf("BNIread, tmpc: %c\n", tmpc);
-    
-	return ctoi(SLread(A->num_list, i, char));
+    return ctoi(SLread(A->num_list, i, char));
 }
 
 BOOL BNIset(BNI A, ULLONG index, int element)
 {
-	char char_num = itoc(element);
-	SLset(A->num_list, index, char_num);
+	char* char_num = (char*)malloc(sizeof(char)*1);
+	*char_num = itoc(element);
+	SLset(A->num_list, index, *char_num);
 
 	return TRUE;
 }
 
 void BNIpush(BNI A, int element)
 {
-	char char_num = itoc(element);
+	char* char_num = (char*)malloc(sizeof(char)*1);
+	*char_num = itoc(element);
 	SLIST Tmp = (SLIST)malloc(SLIST_SZ);
 	Tmp->index = 0;
-	Tmp->content = &char_num;
+	Tmp->content = char_num;
 	Tmp->nextList = NULL;
 	A->num_list = SLpush(A->num_list, Tmp);
 
@@ -235,7 +276,7 @@ void BNIpush(BNI A, int element)
 
 int BNIpop(BNI A)
 {
-	SLIST Tmp = SLpop(A->num_list);	
+	SLIST Tmp = SLpop(A->num_list);
 	return ctoi(*(char*)Tmp->content);
 }
 
@@ -247,10 +288,11 @@ void BNIpush_back(BNI A, int element)
         exit(-1);
     }
     
-	char char_num = itoc(element);
+    char* char_num = (char*)malloc(sizeof(char)*1);
+	*char_num = itoc(element);
 	SLIST Tmp = (SLIST)malloc(SLIST_SZ);
 	Tmp->index = 0;
-	Tmp->content = &char_num;
+	Tmp->content = char_num;
 	Tmp->nextList = NULL;
 	A->num_list = SLpush_back(A->num_list, Tmp);
 

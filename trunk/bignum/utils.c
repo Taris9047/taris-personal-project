@@ -45,7 +45,8 @@ char itoc(unsigned int i)
 {
 	if (i > 9) {
 		printf("itoc, input = %u, oops.. input was larger than two digits...\n", i);
-        exit(-1);
+        printf("Re-assigning i to zero\n");
+        return '0';
 	}
 	else {
 		return (char)(i + ((unsigned int)'0'));
