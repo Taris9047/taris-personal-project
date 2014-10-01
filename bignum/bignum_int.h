@@ -33,10 +33,10 @@ BOOL BNIsub(BNI answer, BNI A, BNI B);
 BOOL BNImul(BNI answer, BNI A, BNI B);
 BOOL BNIdiv(BNI answer, BNI A, BNI B);
 
-BOOL _do_add(BNI answer, BNI A, BNI B);
-BOOL _do_sub(BNI answer, BNI A, BNI B);
-BOOL _do_mul(BNI answer, BNI A, BNI B);
-BOOL _do_div(BNI answer, BNI A, BNI B);
+BOOL BNI_do_add(BNI answer, BNI A, BNI B);
+BOOL BNI_do_sub(BNI answer, BNI A, BNI B);
+BOOL BNI_do_mul(BNI answer, BNI A, BNI B);
+BOOL BNI_do_div(BNI answer, BNI A, BNI B);
 
 // Utilities
 BOOL BNIcomp(BNI A, BNI B); // returns TRUE if A > B
