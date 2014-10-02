@@ -34,10 +34,6 @@ unsigned int count_ullfs(unsigned long long n)
 
 unsigned int ctoi(char c)
 {
-//	char ch[1];
-//	ch[0] = c;
-//	return (unsigned int)atoi(ch);
-	//return (unsigned long long)strtol(c);
 	return (unsigned int)(c-((unsigned int)'0'));
 }
 
@@ -67,7 +63,6 @@ char* ulltobnt(unsigned long long num)
 
 		} while (num);
 	}
-	//printf("ulltobnt: ret = %s\n", ret);
 	return ret;
 }
 
