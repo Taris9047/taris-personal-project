@@ -287,8 +287,10 @@ BOOL BNIabscomp(BNI A, BNI B)
 		for (i = 0; i < BNIlen(A); i++) {
 			if (BNIread(A, i) > BNIread(B, i))
 				return TRUE;
-			else
+			else if (BNIread(A, i) < BNIread(B, i))
 				return FALSE;
+			else
+				continue;
 		}
 	}
 	return FALSE;
