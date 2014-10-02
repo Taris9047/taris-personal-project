@@ -53,7 +53,7 @@ void BNIpush(BNI A, int element);
 int BNIpop(BNI A);
 void BNIpush_back(BNI A, int element);
 int BNIpop_back(BNI A);
-BNI BNIabs(BNI A);
+BNI BNIcpy(BNI A); // returns a copied bignum_int pointer. 
 
 // Constructors and Destructors
 BNI BNI_int(int num);
