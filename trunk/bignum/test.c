@@ -9,7 +9,7 @@
 
 int main(int argc, char* argv[])
 {
-	BNI numA = BNI(-300);
+	BNI numA = BNI(300);
 	BNI numB = BNICC("25000");
     BNI result = BNI(0);
     //BNI result = NULL;

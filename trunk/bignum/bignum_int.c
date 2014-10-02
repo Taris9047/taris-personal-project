@@ -53,11 +53,60 @@ BOOL BNIadd(BNI answer, BNI A, BNI B)
 
 BOOL BNIsub(BNI answer, BNI A, BNI B)
 {
+	// Assign memory to answer if it was passed as NULL pointer.
+    if (!answer) {
+        printf("Result container must be a BNI pointer!!\n");
+        exit(-1);
+    }
+
+    if (BNIabseq(A, B)) {
+    	answer = BNI(0);
+    	return TRUE;
+    }
+
+    if (A->sign == TRUE && B->sign == FALSE) {
+    	BNI_do_add(answer, A, B);
+    	answer->sign = TRUE;
+    }
+    else if (A->sign == FALSE && B->sign == TRUE) {
+    	BNI_do_add(answer, A, B);
+    	answer->sign = FALSE;
+    }
+    else if (A->sign == TRUE && B->sign == TRUE) {
+    	if (BNIabscomp(A, B)) {
+    		BNI_do_sub(answer, A, B);
+    		answer->sign = TRUE;
+    	}
+    	else {
+    		BNI_do_sub(answer, B, A);
+    		answer->sign = FALSE;
+    	}
+    }
+    else if (A->sign == FALSE && B->sign == FALSE) {
+    	if (BNIabscomp(A, B)) {
+    		BNI_do_sub(answer, A, B);
+    		answer->sign = FALSE;
+    	}
+    	else {
+    		BNI_do_sub(answer, B, A);
+    		answer->sign = TRUE;
+    	}
+    }
+
 	return TRUE;
 }
 
 BOOL BNImul(BNI answer, BNI A, BNI B)
 {
+	if (BNIabseq(A, BNI(0)) || BNIabseq(B, BNI(0))) {
+		answer = BNI(0);
+		return TRUE;
+	}
+
+	if (BNIabseq(A, BNI(1))) {
+
+	}
+
 	return TRUE;
 }
 
@@ -146,12 +195,12 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
             an = BNIread(A, i_a);
             bn = BNIread(B, i_b);
         }
-        printf("BNI_do_sub, i_a: %lld, i_b: %lld, i_answer: %lld\n", i_a, i_b, i_answer);
+        //printf("BNI_do_sub, i_a: %lld, i_b: %lld, i_answer: %lld\n", i_a, i_b, i_answer);
         rn = an - bn - carry;
-        printf("BNI_do_sub, rn: %lld, an: %lld, bn: %lld, carry: %lld\n", an, bn, carry);
+        //printf("BNI_do_sub, rn: %d, an: %d, bn: %d, carry: %d\n", an, bn, carry);
         if (rn < 0) {
-            carry = (rn*(-1))/10;
-            rn = (rn*(-1))%10;
+        	carry = 1;
+        	rn = rn + 10;
         }
         else
             carry = 0;
@@ -321,7 +370,7 @@ ULLONG BNIlen(BNI A)
 
 int BNIread(BNI A, ULLONG i)
 {
-    return ctoi(SLread(A->num_list, i, char));
+    return (int)ctoi(SLread(A->num_list, i, char));
 }
 
 BOOL BNIset(BNI A, ULLONG index, int element)
@@ -389,12 +438,20 @@ int BNIpop_back(BNI A)
 	return ctoi(*(char*)Tmp->content);
 }
 
-BNI BNIabs(BNI A)
+BNI BNIcpy(BNI A)
 {
-	BNI BNITmp = (BNI)malloc(sizeof(BNI));
-	BNITmp->sign = TRUE;
-	BNITmp->num_list = A->num_list;
-	return BNITmp;
+	BNI Tmp = BNI_INIT;
+	int tmp_int;
+	ULLONG i;
+	if (!Tmp) {
+		for (i = 0; i < BNIlen(A); i++) {
+			tmp_int = BNIread(A, i);
+			BNIpush_back(Tmp, tmp_int);
+			//BNIset(Tmp, i, tmp_int);
+		}
+		Tmp->sign = A->sign;
+	}
+	return Tmp;
 }
 
 
