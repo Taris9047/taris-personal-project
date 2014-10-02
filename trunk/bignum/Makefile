@@ -44,8 +44,8 @@ test: test.c $(LIBBIGNUMNAME) *.c *.h
 	$(CC) $(CFLAGS) -o $(TARGET) test.c -I. -L. -lbignum
 
 clean:
-	rm -rvf ./$(TARGET) *.exe
-	rm -rvf *.pyc *.o *.so
+	rm -rvf ./$(TARGET) *.exe *.stackdump
+	rm -rvf *.pyc *.o *.so *.dll
 	rm -rvf *.a
 	rm -rvf *.dSYM
 	rm -rvf *.txt

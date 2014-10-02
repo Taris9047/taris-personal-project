@@ -26,6 +26,7 @@ typedef bignum_int* BNI;
 #define BNICC(str) BNI_cchar(str)
 #define BNIC(str) BNI_char(str)
 #define BNIeqcomp(A, B) (BNIcomp(A, B) || BNIeq(A, B))
+#define BNIabseqcomp(A, B) (BNIabscomp(A, B) || BNIabseq(A, B))
 
 // Operations
 BOOL BNIadd(BNI answer, BNI A, BNI B);
@@ -40,7 +41,9 @@ BOOL BNI_do_div(BNI answer, BNI A, BNI B);
 
 // Utilities
 BOOL BNIcomp(BNI A, BNI B); // returns TRUE if A > B
+BOOL BNIabscomp(BNI A, BNI B); // returns TRUE if abs(A) > abs(B)
 BOOL BNIeq(BNI A, BNI B); // returns TRUE if A == B
+BOOL BNIabseq(BNI A, BNI B); // returns TRUE if abs(A) == abs(B)
 void BNIprint(BNI A);
 ULLONG BNIsprint(char* str, BNI A); // similar to sprintf: updates str to BNI content list. 
 ULLONG BNIlen(BNI A); // returns the length of digits, not regarding sign
