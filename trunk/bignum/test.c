@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 	}
 	else {
 		numA = BNICC("21391");
-		numB = BNICC("23490");
+		numB = BNICC("-23490");
 	}
 	BNI result = BNI(0);
 
@@ -57,9 +57,19 @@ int main(int argc, char* argv[])
 		BNIadd(answer, numA, answer);
 		BNIadd(Index, Index, unit_index);
 	} while(!BNIeq(Index, numB));
+	BNIfree(Index);
 	char* str_answer = (char*)malloc(sizeof(char)*(BNIlen(answer)+1));
 	BNIsprint(str_answer, answer);
 	printf("%s * %s = %s\n", str_numA, str_numB, str_answer);
+
+	printf("\n");
+
+	printf("Performing BNImul\n");
+	BNI answermul = BNI(0);
+	BNImul(answermul, numA, numB);
+	char* str_answer_domul = (char*)malloc(sizeof(char)*(BNIlen(answermul)+1));
+	BNIsprint(str_answer_domul, answermul);
+	printf("%s * %s = %s\n", str_numA, str_numB, str_answer_domul);
 
 	printf("\n");
 	printf("Press enter key to finish\n");

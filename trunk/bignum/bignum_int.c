@@ -234,6 +234,9 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
 
 BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 {
+	BNI Tmp = BNI(0);
+	LLONG i;
+	LLONG i_Tmp = BNIlen(Tmp)-1;
     LLONG i_answer = BNIlen(answer)-1;
     LLONG i_a = BNIlen(A)-1;
     LLONG i_b = BNIlen(B)-1;
@@ -242,11 +245,32 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
     int bn;
     int carry = 0;
 
-    do {
-    	// TODO: Ok, continue here.
+    for (; i_b >= 0; i_b--) {
+    	bn = BNIread(B, i_b);
+    	for (; i_a >= 0; i_a--) {
+    		an = BNIread(A, i_a);
+    		rn = an * bn + carry;
+    		if (rn > 9) {
+    			carry = rn/10;
+    			rn = rn%10;
+    		}
+    		else
+    			carry = 0;
 
-    	i_answer--; i_a--; i_b--;
-    } while(1);
+    		if (i_Tmp < 0)
+    			BNIpush(Tmp, rn);
+    		else
+    			BNIset(Tmp, i_answer, rn);
+
+    		i_Tmp--;
+    	}
+
+    	for (i = 0; i < BNIlen(B)-1-i_b; i++) {
+    		BNIpush_back(Tmp, 0);
+    	}
+
+    	BNI_do_add(answer, Tmp, answer);
+    }
 
 	return TRUE;
 }
