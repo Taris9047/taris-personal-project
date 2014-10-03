@@ -46,7 +46,9 @@ int main(int argc, char* argv[])
 
 	BNIsprint(str_result, result);
 	printf("%s - %s = %s\n", str_numA, str_numB, str_result);
+	
 	printf("\n");
+	
 	printf("Performing hardcoded multiplication...\n");
 	BNI Index = BNI(0);
 	BNI answer = BNI(0);
@@ -56,6 +58,7 @@ int main(int argc, char* argv[])
 		BNIadd(Index, Index, unit_index);
 	} while(!BNIeq(Index, numB));
 	char* str_answer = (char*)malloc(sizeof(char)*(BNIlen(answer)+1));
+	BNIsprint(str_answer, answer);
 	printf("%s * %s = %s\n", str_numA, str_numB, str_answer);
 
 	printf("\n");

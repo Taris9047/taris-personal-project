@@ -104,7 +104,19 @@ BOOL BNImul(BNI answer, BNI A, BNI B)
 	}
 
 	if (BNIabseq(A, BNI(1))) {
+		answer = BNIcpy(B);
+	}
+	else if (BNIabseq(B, BNI(1))) {
+		answer = BNIcpy(A);
+	}
 
+	if (A->sign == B->sign) {
+		BNI_do_mul(answer, A, B);
+		answer->sign = TRUE;
+	}
+	else {
+		BNI_do_mul(answer, A, B);
+		answer->sign = FALSE;
 	}
 
 	return TRUE;
@@ -212,20 +224,30 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
 
         i_answer--; i_a--; i_b--;
     } while(1);
-    
-	int i;
-	for (i = 0; i < BNIlen(answer); i++) {
-        if (BNIread(answer, i) == 0) {
-            BNIprint(answer);
-            BNIpop(answer);
-            BNIprint(answer);
-        }
-	}
+
+	if (BNIread(answer, 0) == 0) {
+	    BNIpop(answer);
+    }
+
 	return TRUE;
 }
 
 BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 {
+    LLONG i_answer = BNIlen(answer)-1;
+    LLONG i_a = BNIlen(A)-1;
+    LLONG i_b = BNIlen(B)-1;
+    int rn;
+	int an;
+    int bn;
+    int carry = 0;
+
+    do {
+    	// TODO: Ok, continue here.
+
+    	i_answer--; i_a--; i_b--;
+    } while(1);
+
 	return TRUE;
 }
 
@@ -329,8 +351,9 @@ BOOL BNIeq(BNI A, BNI B)
 				if (BNIread(A, i) != BNIread(B, i))
 					return FALSE;
 				else
-					return TRUE;
+					continue;
 			}
+			return TRUE;
 		}
 	}
 	return FALSE;
@@ -359,8 +382,8 @@ ULLONG BNIsprint(char* str, BNI A)
 		}
 		else {
 			str[0] = '-';
-			for (i = 1; i < BNIlen(A)+1; i++) {
-				str[i] = SLread(A->num_list, i-1, char);
+			for (i = 0; i < BNIlen(A); i++) {
+				str[i+1] = SLread(A->num_list, i, char);
 			}
 		}
 		return i;
@@ -415,7 +438,13 @@ void BNIpush(BNI A, int element)
 
 int BNIpop(BNI A)
 {
+	if (!A) {
+		printf("BNIpop requires a valid BNI input!!\n");
+		exit(-1);
+	}
+
 	SLIST Tmp = SLpop(A->num_list);
+	A->num_list = A->num_list->nextList;
 	return ctoi(*(char*)Tmp->content);
 }
 
