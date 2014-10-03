@@ -58,11 +58,20 @@ SLIST SLpush_back(SLIST slhead, SLIST slpush)
 
 SLIST SLpop(SLIST slhead)
 {
-	SLIST Tmp = slhead;
-	slhead = slhead->nextList;
-	Tmp->nextList = NULL;
+    // TODO: gotta fix here. manipulating Tmp destroys slhead as well.
+    SLIST Tmp;
+    if (slhead) {
+        Tmp = slhead;
+        slhead = slhead->nextList;
+        Tmp->nextList = NULL;
+    }
+    else {
+        printf("SLpop, cannot process a null pointer\n");
+        exit(-1);
+    }
 
 	SLupdateindex(slhead);
+    SLupdateindex(Tmp);
 	return Tmp;
 }
 

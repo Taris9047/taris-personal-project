@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	BNIsprint(str_result, result);
 	printf("%s + %s = %s\n", str_numA, str_numB, str_result);
 
-	free(result);
+	result = NULL;
 	result = BNI(0);
 	BNIsub(result, numA, numB);
 

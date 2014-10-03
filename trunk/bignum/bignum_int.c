@@ -215,8 +215,11 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
     
 	int i;
 	for (i = 0; i < BNIlen(answer); i++) {
-		if (BNIread(answer, 0) == 0)
-			BNIpop(answer);
+        if (BNIread(answer, i) == 0) {
+            BNIprint(answer);
+            BNIpop(answer);
+            BNIprint(answer);
+        }
 	}
 	return TRUE;
 }
@@ -289,7 +292,7 @@ BOOL BNIabscomp(BNI A, BNI B)
 				return TRUE;
 			else if (BNIread(A, i) < BNIread(B, i))
 				return FALSE;
-			else
+			else if (BNIread(A, i) == BNIread(B, i))
 				continue;
 		}
 	}
@@ -306,8 +309,9 @@ BOOL BNIabseq(BNI A, BNI B)
 			if (BNIread(A, i) != BNIread(B, i))
 				return FALSE;
 			else
-				return TRUE;
+				continue;
 		}
+        return TRUE;
 	}
 	return FALSE;
 }

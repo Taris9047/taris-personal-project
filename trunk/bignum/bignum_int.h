@@ -25,6 +25,7 @@ typedef bignum_int* BNI;
 #define BNI(n) BNI_int(n)
 #define BNICC(str) BNI_cchar(str)
 #define BNIC(str) BNI_char(str)
+#define BNIfree(bni_num) BNI_free(bni_num)
 #define BNIeqcomp(A, B) (BNIcomp(A, B) || BNIeq(A, B))
 #define BNIabseqcomp(A, B) (BNIabscomp(A, B) || BNIabseq(A, B))
 
