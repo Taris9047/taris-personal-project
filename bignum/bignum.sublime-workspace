@@ -77,6 +77,9 @@
 			]
 		]
 	},
+	"buffers":
+	[
+	],
 	"build_system": "Packages/Makefile/Make.sublime-build",
 	"command_palette":
 	{
@@ -184,6 +187,14 @@
 		"whole_word": false,
 		"wrap": true
 	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
 	"incremental_find":
 	{
 		"height": 23.0
@@ -223,6 +234,7 @@
 	{
 		"height": 0.0
 	},
+	"project": "bignum.sublime-project",
 	"replace":
 	{
 		"height": 42.0
@@ -252,6 +264,7 @@
 		],
 		"width": 0.0
 	},
+	"selected_group": 0,
 	"settings":
 	{
 	},
