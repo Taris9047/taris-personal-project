@@ -16,9 +16,13 @@ int main(int argc, char* argv[])
 		numA = BNICC(argv[1]);
 		numB = BNICC(argv[2]);
 	}
+    else if (argc == 2) {
+        numA = BNICC(argv[1]);
+        numB = BNICC("0");
+    }
 	else {
 		numA = BNICC("10");
-		numB = BNICC("-20");
+		numB = BNICC("0");
 	}
 	BNI result = BNI(0);
 
@@ -29,7 +33,6 @@ int main(int argc, char* argv[])
 
 	printf("%s + %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(result));
 
-	result = NULL;
 	result = BNI(0);
 	BNIsub(result, numA, numB);
 
@@ -69,6 +72,8 @@ int main(int argc, char* argv[])
 BNI factorial(BNI n)
 {
 	BNI factN = BNI(1);
+    BNI Tmp = BNI(0);
+    BNI TmpIndex = BNI(0);
 	BNI Index = BNI(1);
 	BNI one = BNI(1);
 	if (n->sign == FALSE)
@@ -77,11 +82,19 @@ BNI factorial(BNI n)
 	if (BNIeq(n, BNI(0)))
 		return factN;
 
-	while(!BNIeq(n, Index)) {
-		printf("Index: %s, factN: %s\n", BNItostr(Index), BNItostr(factN));
-		BNImul(factN, factN, Index);
-		BNIadd(Index, Index, one);
-	}
+	while(BNIeq(n, Index) == FALSE) {
+        BNIfree(Tmp);
+        Tmp = BNIcpy(factN);
+		BNImul(Tmp, factN, Index);
+        BNIfree(factN);
+        factN = BNIcpy(Tmp);
+        
+        BNIfree(TmpIndex);
+        TmpIndex = BNIcpy(Index);
+        BNIadd(TmpIndex, Index, one);
+        BNIfree(Index);
+        Index = BNIcpy(TmpIndex);
+    }
 
 	return factN;
 }

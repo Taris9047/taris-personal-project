@@ -52,7 +52,7 @@ SLIST SLpush_back(SLIST slhead, SLIST slpush)
 	while(Tmp->nextList) Tmp = Tmp->nextList;
 	Tmp->nextList = slpush;
 
-	SLupdateindex(slhead);
+	//SLupdateindex(slhead);
 	return slhead;
 }
 
