@@ -63,6 +63,16 @@ BOOL BNIsub(BNI answer, BNI A, BNI B)
     	answer = BNI(0);
     	return TRUE;
     }
+    if (BNIabseq(A, BNI(0)) && !BNIabseq(B, BNI(0))) {
+    	answer = BNIcpy(B);
+    	answer->sign = FALSE;
+    	return TRUE;
+    }
+    else if (BNIabseq(B, BNI(0)) && !BNIabseq(A, BNI(0))) {
+    	answer = BNIcpy(A);
+    	printf("%s\n", BNItostr(answer));
+    	return TRUE;
+    }
 
     if (A->sign == TRUE && B->sign == FALSE) {
     	BNI_do_add(answer, A, B);
@@ -103,22 +113,14 @@ BOOL BNImul(BNI answer, BNI A, BNI B)
 		return TRUE;
 	}
 
-	if (BNIabseq(A, BNI(1))) {
-		answer = BNIcpy(B);
-	}
-	else if (BNIabseq(B, BNI(1))) {
-		answer = BNIcpy(A);
-	}
+	BNI_do_mul(answer, A, B);
 
 	if (A->sign == B->sign) {
-		BNI_do_mul(answer, A, B);
 		answer->sign = TRUE;
 	}
 	else {
-		BNI_do_mul(answer, A, B);
 		answer->sign = FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -240,7 +242,6 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 	BNI Tmp = BNI(0);
 	LLONG i;
 	LLONG i_Tmp = BNIlen(Tmp)-1;
-    //LLONG i_answer = BNIlen(answer)-1;
     LLONG i_a;
     LLONG i_b;
     int rn;
@@ -273,13 +274,10 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 	    else {
 	    	continue;
 	    }
-    	//printf("BNI_do_add, answer: %s\n", answer);
     	for (i = 0; i < (BNIlen(B)-1-i_b); i++) {
     		BNIpush_back(Tmp, 0);
     	}
-    	//printf("BNI_do_add, Tmp: %s\n", BNItostr(Tmp));
     	BNI_do_add(answer, Tmp, answer);
-    	//printf("BNI_do_add, answer: %s\n", BNItostr(answer));
     }
 
 	return TRUE;
@@ -537,15 +535,17 @@ int BNIpop_back(BNI A)
 BNI BNIcpy(BNI A)
 {
 	BNI Tmp = BNI_INIT;
+	Tmp->sign = A->sign;
+	Tmp->num_list = SLIST(BNIlen(A));
+	printf("%s\n", BNItostr(Tmp));
 	int tmp_int;
 	ULLONG i;
-	if (!Tmp) {
+	if (Tmp != NULL) {
 		for (i = 0; i < BNIlen(A); i++) {
 			tmp_int = BNIread(A, i);
 			BNIpush_back(Tmp, tmp_int);
 			//BNIset(Tmp, i, tmp_int);
 		}
-		Tmp->sign = A->sign;
 	}
 	return Tmp;
 }
