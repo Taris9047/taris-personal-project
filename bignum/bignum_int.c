@@ -234,21 +234,30 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
 
 BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 {
+	if (!answer) {
+		printf("BNI_do_mul, answer must be a vaild BNI type.\n");
+		exit(-1);
+	}
+
 	BNI Tmp = BNI(0);
 	LLONG i;
 	LLONG i_Tmp = BNIlen(Tmp)-1;
     LLONG i_answer = BNIlen(answer)-1;
-    LLONG i_a = BNIlen(A)-1;
-    LLONG i_b = BNIlen(B)-1;
+    LLONG i_a;
+    LLONG i_b;
     int rn;
 	int an;
     int bn;
     int carry = 0;
 
-    for (; i_b >= 0; i_b--) {
+    for (i_b = BNIlen(B) - 1; i_b >= 0; i_b--) {
     	bn = BNIread(B, i_b);
-    	for (; i_a >= 0; i_a--) {
+    	for (i_a = BNIlen(A) - 1; i_a >= 0; i_a--) {
     		an = BNIread(A, i_a);
+    		
+    		if (an == 0)
+    			break;
+    		
     		rn = an * bn + carry;
     		if (rn > 9) {
     			carry = rn/10;
@@ -257,19 +266,23 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
     		else
     			carry = 0;
 
+    		printf("BNI_do_mul, rn: %d, carry: %d\n", rn, carry);
+
     		if (i_Tmp < 0)
     			BNIpush(Tmp, rn);
     		else
-    			BNIset(Tmp, i_answer, rn);
+    			BNIset(Tmp, i_Tmp, rn);
 
     		i_Tmp--;
     	}
 
-    	for (i = 0; i < BNIlen(B)-1-i_b; i++) {
+    	//printf("BNI_do_add, answer: %s\n", answer);
+    	for (i = 0; i < (BNIlen(B)-1-i_b); i++) {
     		BNIpush_back(Tmp, 0);
     	}
-
+    	printf("BNI_do_add, Tmp: %s\n", BNItostr(Tmp));
     	BNI_do_add(answer, Tmp, answer);
+    	printf("BNI_do_add, answer: %s\n", BNItostr(answer));
     }
 
 	return TRUE;
@@ -414,6 +427,33 @@ ULLONG BNIsprint(char* str, BNI A)
 	}
 	else
 		return 0;
+}
+
+char* BNItostr(BNI A)
+{
+	ULLONG i;
+	char* ret;
+	if (!A->sign) {
+		ret = (char*)malloc(sizeof(char)*(BNIlen(A)+1));
+		if (ret == NULL) {
+			printf("BNItostr, malloc failed!!\n");
+			exit(-1);
+		}
+		ret[0] = '-';
+		for (i = 0; i < BNIlen(A); i++)
+			ret[i+1] = SLread(A->num_list, i, char);
+	}
+	else {
+		ret = (char*)malloc(sizeof(char)*(BNIlen(A)));
+		if (ret == NULL) {
+			printf("BNItostr, malloc failed!!\n");
+			exit(-1);
+		}
+		for (i = 0; i < BNIlen(A); i++)
+			ret[i] = SLread(A->num_list, i, char);
+	}
+
+	return ret;
 }
 
 ULLONG BNIlen(BNI A)

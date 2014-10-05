@@ -17,38 +17,26 @@ int main(int argc, char* argv[])
 		numB = BNICC(argv[2]);
 	}
 	else {
-		numA = BNICC("21391");
-		numB = BNICC("-23490");
+		numA = BNICC("100");
+		numB = BNICC("-200");
 	}
 	BNI result = BNI(0);
 
-    char* str_numA = (char*)malloc(sizeof(char)*(BNIlen(numA)+1));
-    char* str_numB = (char*)malloc(sizeof(char)*(BNIlen(numB)+1));
-
-	BNIsprint(str_numA, numA);
-	BNIsprint(str_numB, numB);
-	printf("numA: %s\n", str_numA);
-	printf("numB: %s\n", str_numB);
+	printf("numA: %s\n", BNItostr(numA));
+	printf("numB: %s\n", BNItostr(numB));
 
 	BNIadd(result, numA, numB);
 
-	char* str_result = (char*)malloc(sizeof(char)*(BNIlen(result)+1));
-	
-	BNIsprint(str_result, result);
-	printf("%s + %s = %s\n", str_numA, str_numB, str_result);
+	printf("%s + %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(result));
 
 	result = NULL;
 	result = BNI(0);
 	BNIsub(result, numA, numB);
 
-	free(str_result);
-	str_result = (char*)malloc(sizeof(char)*(BNIlen(result)+1));
-
-	BNIsprint(str_result, result);
-	printf("%s - %s = %s\n", str_numA, str_numB, str_result);
+	printf("%s - %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(result));
 	
 	printf("\n");
-	
+	/*
 	printf("Performing hardcoded multiplication...\n");
 	BNI Index = BNI(0);
 	BNI answer = BNI(0);
@@ -56,20 +44,16 @@ int main(int argc, char* argv[])
 	do {
 		BNIadd(answer, numA, answer);
 		BNIadd(Index, Index, unit_index);
+		printf("At %s, answer: %s\n", BNItostr(Index), BNItostr(answer));
 	} while(!BNIeq(Index, numB));
-	BNIfree(Index);
-	char* str_answer = (char*)malloc(sizeof(char)*(BNIlen(answer)+1));
-	BNIsprint(str_answer, answer);
-	printf("%s * %s = %s\n", str_numA, str_numB, str_answer);
-
+	printf("%s * %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(answer));
+	
 	printf("\n");
-
+	*/
 	printf("Performing BNImul\n");
 	BNI answermul = BNI(0);
 	BNImul(answermul, numA, numB);
-	char* str_answer_domul = (char*)malloc(sizeof(char)*(BNIlen(answermul)+1));
-	BNIsprint(str_answer_domul, answermul);
-	printf("%s * %s = %s\n", str_numA, str_numB, str_answer_domul);
+	printf("%s * %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(answermul));
 
 	printf("\n");
 	printf("Press enter key to finish\n");

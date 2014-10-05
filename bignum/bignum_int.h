@@ -47,6 +47,7 @@ BOOL BNIeq(BNI A, BNI B); // returns TRUE if A == B
 BOOL BNIabseq(BNI A, BNI B); // returns TRUE if abs(A) == abs(B)
 void BNIprint(BNI A);
 ULLONG BNIsprint(char* str, BNI A); // similar to sprintf: updates str to BNI content list. 
+char* BNItostr(BNI A); // Returns string of current BNI input.
 ULLONG BNIlen(BNI A); // returns the length of digits, not regarding sign
 int BNIread(BNI A, ULLONG i); // returns the number at the designated position
 BOOL BNIset(BNI A, ULLONG index, int element);
