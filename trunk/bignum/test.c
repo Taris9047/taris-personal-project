@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "bignum.h"
 
-//BNI factorial(BNI n);
+BNI factorial(BNI n);
 
 int main(int argc, char* argv[])
 {
@@ -17,8 +17,8 @@ int main(int argc, char* argv[])
 		numB = BNICC(argv[2]);
 	}
 	else {
-		numA = BNICC("100");
-		numB = BNICC("-200");
+		numA = BNICC("10");
+		numB = BNICC("-20");
 	}
 	BNI result = BNI(0);
 
@@ -54,6 +54,9 @@ int main(int argc, char* argv[])
 	BNI answermul = BNI(0);
 	BNImul(answermul, numA, numB);
 	printf("%s * %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(answermul));
+	printf("\n");
+	printf("Performing factorial!!\n");
+	printf("%s! = %s\n", BNItostr(numA), BNItostr(factorial(numA)));
 
 	printf("\n");
 	printf("Press enter key to finish\n");
@@ -62,13 +65,26 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-/*
+
 BNI factorial(BNI n)
 {
-	factN = BNI_cchar("1");
+	BNI factN = BNI(1);
+	BNI Index = BNI(1);
+	BNI one = BNI(1);
+	if (n->sign == FALSE)
+		return factN;
+
+	if (BNIeq(n, BNI(0)))
+		return factN;
+
+	while(!BNIeq(n, Index)) {
+		printf("Index: %s, factN: %s\n", BNItostr(Index), BNItostr(factN));
+		BNImul(factN, factN, Index);
+		BNIadd(Index, Index, one);
+	}
+
 	return factN;
 }
 
-*/
 
 #endif
