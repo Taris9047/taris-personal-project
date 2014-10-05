@@ -207,9 +207,7 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B)
             an = BNIread(A, i_a);
             bn = BNIread(B, i_b);
         }
-        //printf("BNI_do_sub, i_a: %lld, i_b: %lld, i_answer: %lld\n", i_a, i_b, i_answer);
         rn = an - bn - carry;
-        //printf("BNI_do_sub, rn: %d, an: %d, bn: %d, carry: %d\n", an, bn, carry);
         if (rn < 0) {
         	carry = 1;
         	rn = rn + 10;
@@ -242,7 +240,7 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 	BNI Tmp = BNI(0);
 	LLONG i;
 	LLONG i_Tmp = BNIlen(Tmp)-1;
-    LLONG i_answer = BNIlen(answer)-1;
+    //LLONG i_answer = BNIlen(answer)-1;
     LLONG i_a;
     LLONG i_b;
     int rn;
@@ -252,37 +250,36 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 
     for (i_b = BNIlen(B) - 1; i_b >= 0; i_b--) {
     	bn = BNIread(B, i_b);
-    	for (i_a = BNIlen(A) - 1; i_a >= 0; i_a--) {
-    		an = BNIread(A, i_a);
-    		
-    		if (an == 0)
-    			break;
-    		
-    		rn = an * bn + carry;
-    		if (rn > 9) {
-    			carry = rn/10;
-    			rn = rn%10;
-    		}
-    		else
-    			carry = 0;
+    	if (bn) {
+	    	for (i_a = BNIlen(A) - 1; i_a >= 0; i_a--) {
+	    		an = BNIread(A, i_a);    		
+	    		rn = an * bn + carry;
+	    		if (rn > 9) {
+	    			carry = rn/10;
+	    			rn = rn%10;
+	    		}
+	    		else {
+	    			carry = 0;
+	    		}
 
-    		printf("BNI_do_mul, rn: %d, carry: %d\n", rn, carry);
+	    		if (i_Tmp < 0)
+	    			BNIpush(Tmp, rn);
+	    		else
+	    			BNIset(Tmp, i_Tmp, rn);
 
-    		if (i_Tmp < 0)
-    			BNIpush(Tmp, rn);
-    		else
-    			BNIset(Tmp, i_Tmp, rn);
-
-    		i_Tmp--;
-    	}
-
+	    		i_Tmp--;
+	    	}
+	    }
+	    else {
+	    	continue;
+	    }
     	//printf("BNI_do_add, answer: %s\n", answer);
     	for (i = 0; i < (BNIlen(B)-1-i_b); i++) {
     		BNIpush_back(Tmp, 0);
     	}
-    	printf("BNI_do_add, Tmp: %s\n", BNItostr(Tmp));
+    	//printf("BNI_do_add, Tmp: %s\n", BNItostr(Tmp));
     	BNI_do_add(answer, Tmp, answer);
-    	printf("BNI_do_add, answer: %s\n", BNItostr(answer));
+    	//printf("BNI_do_add, answer: %s\n", BNItostr(answer));
     }
 
 	return TRUE;
