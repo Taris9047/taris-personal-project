@@ -12,30 +12,31 @@ BOOL BNIadd(BNI answer, BNI A, BNI B)
         printf("Result container must be a BNI pointer!!\n");
         exit(-1);
     }
-    
-    if (answer == A)
-        answer = BNIcpy(A);
-    else if (answer == B)
-        answer = BNIcpy(B);
 
+    if (answer == A)
+        BNIcpy(answer, A);
+    else if (answer == B)
+        BNIcpy(answer, B);
+
+    /*
     if (BNIeq(A, BNI(0)) == TRUE && BNIeq(B, BNI(0)) == TRUE) {
-        answer = BNI(0);
+        BNIassign_int(A, 0);
         return TRUE;
     }
     
     if (BNIeq(A, BNI(0)) == FALSE && BNIeq(B, BNI(0)) == TRUE) {
-        answer = BNIcpy(A);
+        BNIcpy(answer, A);
         return TRUE;
     }
     else if (BNIeq(A, BNI(0)) == TRUE && BNIeq(B, BNI(0)) == FALSE) {
-        answer = BNIcpy(B);
+        BNIcpy(answer, B);
         if (answer->sign == TRUE)
             answer->sign = FALSE;
         else
             answer->sign = TRUE;
         return TRUE;
     }
-    
+*/
     if (A->sign == TRUE && B->sign == TRUE)
 		BNI_do_add(answer, A, B);
 	else if (A->sign == FALSE && B->sign == FALSE) {
@@ -48,7 +49,7 @@ BOOL BNIadd(BNI answer, BNI A, BNI B)
 			answer->sign = FALSE;
 		}
         else if (BNIabseq(A, B)) {
-            answer = BNI(0);
+            BNIassign_int(answer, 0);
         }
 		else if(!BNIabscomp(A, B)) {
 			BNI_do_sub(answer, B, A);
@@ -57,7 +58,7 @@ BOOL BNIadd(BNI answer, BNI A, BNI B)
 	}
 	else if (A->sign == TRUE && B->sign == FALSE) {
         if(BNIabseq(A, B)) {
-            answer = BNI(0);
+            BNIassign_int(answer, 0);
         }
 		else if (BNIabscomp(A, B)) {
 			BNI_do_sub(answer, A, B);
@@ -82,27 +83,30 @@ BOOL BNIsub(BNI answer, BNI A, BNI B)
         exit(-1);
     }
     
+    /*
     if (answer == A)
-        answer = BNIcpy(A);
+        BNIcpy(answer, A);
     else if (answer == B)
-        answer = BNIcpy(B);
-
+        BNIcpy(answer, B);
+    */
+    /*
     if (BNIabseq(A, B) == TRUE) {
         answer = BNI(0);
     	return TRUE;
     }
     
     if (BNIabseq(A, BNI(0)) == TRUE && BNIabseq(B, BNI(0)) == FALSE) {
-        answer = BNIcpy(B);
+        BNIcpy(answer, B);
     	answer->sign = FALSE;
         //printf("BNIsub, answer: %s\n", BNItostr(answer));
     	return TRUE;
     }
     else if (BNIabseq(B, BNI(0)) == TRUE && BNIabseq(A, BNI(0)) == FALSE) {
-        answer = BNIcpy(A);
+        BNIcpy(answer, A);
     	//printf("BNIsub, answer: %s\n", BNItostr(answer));
     	return TRUE;
     }
+    */
 
     if (A->sign == TRUE && B->sign == FALSE) {
     	BNI_do_add(answer, A, B);
@@ -138,21 +142,18 @@ BOOL BNIsub(BNI answer, BNI A, BNI B)
 
 BOOL BNImul(BNI answer, BNI A, BNI B)
 {
-    // Assigning a new pointer to passed pointer doesn't work well. Thus, we better trim the reference
-    // itself to make the calculation in effect. This also works for add, sub. So, we gotta implement
-    // refrenece manipulation function.
-    
     if (!answer) {
         printf("Result container must be a BNI pointer!!\n");
         exit(-1);
     }
     
+    /*
     if (answer == A)
-        answer = BNIcpy(A);
+        BNIcpy(answer, A);
     else if (answer == B)
-        answer = BNIcpy(B);
+        BNIcpy(answer, B);
     else if (answer == A && answer == B)
-        answer = BNIcpy(A);
+        BNIcpy(answer, A);
     
     if (BNIabseq(A, BNI(0)) == TRUE || BNIabseq(B, BNI(0)) == TRUE) {
         answer = BNI(0);
@@ -166,18 +167,18 @@ BOOL BNImul(BNI answer, BNI A, BNI B)
         return TRUE;
     }
     else if (BNIeq(A, BNI(1)) == TRUE && BNIeq(B, BNI(1)) == FALSE) {
-        answer = BNIcpy(B);
+        BNIcpy(answer, B);
         printf("BNImul, A: %s, B: %s, answer: %s\n", BNItostr(A), BNItostr(B), BNItostr(answer));
         return TRUE;
     }
     else if (BNIeq(A, BNI(1)) == FALSE && BNIeq(B, BNI(1)) == TRUE) {
-        answer = BNIcpy(A);
+        BNIcpy(answer, A);
         printf("BNImul, A: %s, B: %s, answer: %s\n", BNItostr(A), BNItostr(B), BNItostr(answer));
         return TRUE;
     }
+     */
     
 	BNI_do_mul(answer, A, B);
-    printf("BNImul, A: %s, B: %s, answer: %s\n", BNItostr(A), BNItostr(B), BNItostr(answer));
     
 	if (A->sign == B->sign) {
 		answer->sign = TRUE;
@@ -185,6 +186,7 @@ BOOL BNImul(BNI answer, BNI A, BNI B)
 	else {
 		answer->sign = FALSE;
 	}
+    //printf("BNImul, A: %s, B: %s, answer: %s\n", BNItostr(A), BNItostr(B), BNItostr(answer));
 	return TRUE;
 }
 
@@ -241,6 +243,7 @@ BOOL BNI_do_add(BNI answer, BNI A, BNI B)
 	if (carry > 0)
 		BNIpush(answer, carry);
 
+    //printf("BNI_do_add, answer: %s\n", BNItostr(answer));
 	return TRUE;
 }
 
@@ -303,24 +306,28 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 		printf("BNI_do_mul, answer must be a vaild BNI type.\n");
 		exit(-1);
 	}
-    //printf("BNI_do_mul, A: %s, B: %s\n", BNItostr(A), BNItostr(B));
     
-	BNI Tmp = BNI(0);
+    BNI Tmp = NULL;
+    BNI Milestone = BNI(0);
+    BNI MilestoneTmp = BNI(0);
 	LLONG i;
-	LLONG i_Tmp = BNIlen(Tmp)-1;
+	LLONG i_Tmp;
     LLONG i_a;
     LLONG i_b;
     ULLONG A_len = BNIlen(A);
     ULLONG B_len = BNIlen(B);
+    //ULLONG Tmp_len;
     
     int rn;
 	int an;
     int bn;
     int carry = 0;
 
-    for (i_b = BNIlen(B) - 1; i_b >= 0; i_b--) {
+    for (i_b = B_len - 1; i_b >= 0; i_b--) {
     	bn = BNIread(B, i_b);
-    	if (bn) {
+        BNIfree(Tmp);
+        Tmp = BNI(0); i_Tmp = BNIlen(Tmp) - 1;
+        if (bn != 0) {
 	    	for (i_a = A_len - 1; i_a >= 0; i_a--) {
 	    		an = BNIread(A, i_a);    		
 	    		rn = an * bn + carry;
@@ -343,16 +350,26 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
             for (i = 0; i < (B_len-1-i_b); i++) {
                 BNIpush_back(Tmp, 0);
             }
-            //printf("BNI_do_mul, Tmp: %s\n", BNItostr(Tmp));
-            BNI_do_add(answer, Tmp, answer);
-            //printf("BNI_do_mul, answer: %s\n", BNItostr(answer));
+            printf("BNI_do_mul, Tmp, Milestone: %s, %s\n", BNItostr(Tmp), BNItostr(Milestone));
+            BNI_do_add(MilestoneTmp, Tmp, Milestone);
+            BNIcpy(Milestone, MilestoneTmp);
+            BNIfree(MilestoneTmp);
+            //printf("BNI_do_mul, Milestone: %s\n", BNItostr(Milestone));
 	    }
 	    else {
-	    	continue;
+            continue;
 	    }
     }
-
-	return TRUE;
+    
+    if (carry != 0) {
+        BNIpush(Milestone, carry);
+        carry = 0;
+    }
+    
+    BNIfree(Tmp);
+    BNIcpy(answer, Milestone);
+    //printf("BNI_do_mul, answer: %s\n", BNItostr(answer));
+    return TRUE;
 }
 
 BOOL BNI_do_div(BNI answer, BNI A, BNI B)
@@ -475,6 +492,7 @@ BOOL BNIeq(BNI A, BNI B)
 	return FALSE;
 }
 
+/*
 void BNIprint(BNI A)
 {
     ULLONG A_len = BNIlen(A);
@@ -484,10 +502,11 @@ void BNIprint(BNI A)
 	else
 		str_num = (char*)malloc(sizeof(char)*(A_len));
 
-	BNIsprint(str_num, A);
 	printf("BNIprint output: %s\n", str_num);
 }
+*/
 
+/*
 ULLONG BNIsprint(char* str, BNI A)
 {
     ULLONG A_len = BNIlen(A);
@@ -510,6 +529,7 @@ ULLONG BNIsprint(char* str, BNI A)
 	else
 		return 0;
 }
+*/
 
 char* BNItostr(BNI A)
 {
@@ -607,7 +627,7 @@ void BNIpush_back(BNI A, int element)
 		*char_num = itoc(element);
 		SLIST Tmp = (SLIST)malloc(SLIST_SZ);
 		Tmp->index = BNIlen(A);
-		Tmp->content = char_num;
+		Tmp->content = (void *)char_num;
 		Tmp->nextList = NULL;
 		A->num_list = SLpush_back(A->num_list, Tmp);
 	}
@@ -620,28 +640,42 @@ int BNIpop_back(BNI A)
 	return ctoi(*(char*)Tmp->content);
 }
 
-BNI BNIcpy(BNI A)
+BOOL BNIcpy(BNI target, BNI A)
 {
-	BNI Tmp = BNI_INIT;
-    ULLONG A_len = BNIlen(A);
-    int tmp_int;
-    ULLONG i = 0;
-    
-	Tmp->sign = A->sign;
-	Tmp->num_list = SLIST(A_len);
-	
-    if (Tmp != NULL) {
-		for (i = 0; i < A_len; i++) {
-			tmp_int = BNIread(A, i);
-            if (i > (A_len-1)) BNIpush_back(Tmp, tmp_int);
-			else BNIset(Tmp, i, tmp_int);
-		}
+    if (!target || !A)
+        return FALSE;
+    else {
+        //printf("BNIcpy, target(before update): %s\n", BNItostr(target));
+        SLIST TmpList = SLISTC(BNItostr(A));
+        
+        target->sign = A->sign;
+        SLfree(target->num_list);
+        target->num_list = TmpList;
+        
+        //printf("BNIcpy, target(after update): %s\n", BNItostr(target));
+        return TRUE;
     }
-    
-    //printf("BNIcpy, Tmp: %s\n", BNItostr(Tmp));
-	return Tmp;
+    return FALSE;
 }
 
+BOOL BNIassign_int(BNI A, int number)
+{
+    char* num_char_ary = itobnt(number);
+    
+    if (number >= 0) {
+        SLfree(A->num_list);
+        A->num_list = SLISTC(num_char_ary);
+        A->sign = TRUE;
+        return TRUE;
+    }
+    else {
+        SLfree(A->num_list);
+        A->num_list = SLISTC(++num_char_ary);
+        A->sign = FALSE;
+        return TRUE;
+    }
+    return FALSE;
+}
 
 
 
@@ -695,9 +729,13 @@ BNI BNI_char(char* str)
 // free bignum_int
 BOOL BNI_free(BNI A)
 {
-	SLfree(A->num_list);
-	free(A);
-	return TRUE;
+    if (A != NULL) {
+        SLfree(A->num_list);
+        free(A);
+        return TRUE;
+    }
+    else
+        return FALSE;
 }
 
 
