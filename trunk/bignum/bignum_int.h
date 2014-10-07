@@ -40,14 +40,18 @@ BOOL BNI_do_sub(BNI answer, BNI A, BNI B);
 BOOL BNI_do_mul(BNI answer, BNI A, BNI B);
 BOOL BNI_do_div(BNI answer, BNI A, BNI B);
 
-// Utilities
+// Logical Operations
 BOOL BNIcomp(BNI A, BNI B); // returns TRUE if A > B
 BOOL BNIabscomp(BNI A, BNI B); // returns TRUE if abs(A) > abs(B)
 BOOL BNIeq(BNI A, BNI B); // returns TRUE if A == B
 BOOL BNIabseq(BNI A, BNI B); // returns TRUE if abs(A) == abs(B)
-void BNIprint(BNI A);
-ULLONG BNIsprint(char* str, BNI A); // similar to sprintf: updates str to BNI content list. 
+
+// Input and Output
+//void BNIprint(BNI A);
+//ULLONG BNIsprint(char* str, BNI A); // similar to sprintf: updates str to BNI content list.
 char* BNItostr(BNI A); // Returns string of current BNI input.
+
+// Manipulations and Reading out
 ULLONG BNIlen(BNI A); // returns the length of digits, not regarding sign
 int BNIread(BNI A, ULLONG i); // returns the number at the designated position
 BOOL BNIset(BNI A, ULLONG index, int element);
@@ -55,7 +59,8 @@ void BNIpush(BNI A, int element);
 int BNIpop(BNI A);
 void BNIpush_back(BNI A, int element);
 int BNIpop_back(BNI A);
-BNI BNIcpy(BNI A); // returns a copied bignum_int pointer. 
+BOOL BNIcpy(BNI target, BNI A); // returns a copied bignum_int pointer.
+BOOL BNIassign_int(BNI A, int number); // Assign a new number to A
 
 // Constructors and Destructors
 BNI BNI_int(int num);

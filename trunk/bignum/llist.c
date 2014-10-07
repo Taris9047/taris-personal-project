@@ -184,13 +184,15 @@ SLIST SLstralloc(const char* str)
 
 void SLfree(SLIST slhead)
 {
-	SLIST sldel;
+    if (!slhead) {
+        SLIST sldel;
 
-	while ((sldel = slhead)) {
-		slhead = slhead->nextList;
-		free(sldel->content);
-		free(sldel);
-	}
+        while ((sldel = slhead)) {
+            slhead = slhead->nextList;
+            free(sldel->content);
+            free(sldel);
+        }
+    }
 }
 
 #endif

@@ -21,8 +21,8 @@ int main(int argc, char* argv[])
         numB = BNICC("0");
     }
 	else {
-		numA = BNICC("10");
-		numB = BNICC("0");
+		numA = BNICC("11");
+		numB = BNICC("10");
 	}
 	BNI result = BNI(0);
 
@@ -39,20 +39,6 @@ int main(int argc, char* argv[])
 	printf("%s - %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(result));
 	
 	printf("\n");
-	/*
-	printf("Performing hardcoded multiplication...\n");
-	BNI Index = BNI(0);
-	BNI answer = BNI(0);
-	BNI unit_index = BNI(1);
-	do {
-		BNIadd(answer, numA, answer);
-		BNIadd(Index, Index, unit_index);
-		printf("At %s, answer: %s\n", BNItostr(Index), BNItostr(answer));
-	} while(!BNIeq(Index, numB));
-	printf("%s * %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(answer));
-	
-	printf("\n");
-	*/
 	printf("Performing BNImul\n");
 	BNI answermul = BNI(0);
 	BNImul(answermul, numA, numB);
@@ -82,19 +68,16 @@ BNI factorial(BNI n)
 	if (BNIeq(n, BNI(0)))
 		return factN;
 
-	while(BNIeq(n, Index) == FALSE) {
-        BNIfree(Tmp);
-        Tmp = BNIcpy(factN);
-		BNImul(Tmp, factN, Index);
-        BNIfree(factN);
-        factN = BNIcpy(Tmp);
-        
-        BNIfree(TmpIndex);
-        TmpIndex = BNIcpy(Index);
+    char* index;
+	do {
+        //BNIfree(Tmp); BNIfree(TmpIndex);
         BNIadd(TmpIndex, Index, one);
-        BNIfree(Index);
-        Index = BNIcpy(TmpIndex);
-    }
+        BNIcpy(Index, TmpIndex);
+        index = BNItostr(Index);
+        BNImul(Tmp, factN, Index);
+        BNIcpy(factN, Tmp);
+        printf("factorial, %s! = %s\n", index, BNItostr(factN));
+    } while(!BNIeq(n, Index));
 
 	return factN;
 }
