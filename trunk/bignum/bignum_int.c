@@ -307,7 +307,7 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 		exit(-1);
 	}
     
-    BNI Tmp = NULL;
+    BNI Tmp = BNI(0);
     BNI Milestone = BNI(0);
     BNI MilestoneTmp = BNI(0);
 	LLONG i;
@@ -316,7 +316,7 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
     LLONG i_b;
     ULLONG A_len = BNIlen(A);
     ULLONG B_len = BNIlen(B);
-    //ULLONG Tmp_len;
+    //ULLONG Tmp_len = BNIlen(Tmp);
     
     int rn;
 	int an;
@@ -326,7 +326,7 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
     for (i_b = B_len - 1; i_b >= 0; i_b--) {
     	bn = BNIread(B, i_b);
         BNIfree(Tmp);
-        Tmp = BNI(0); i_Tmp = BNIlen(Tmp) - 1;
+        Tmp = BNI(0); i_Tmp = 0;
         if (bn != 0) {
 	    	for (i_a = A_len - 1; i_a >= 0; i_a--) {
 	    		an = BNIread(A, i_a);    		
@@ -350,12 +350,11 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
             for (i = 0; i < (B_len-1-i_b); i++) {
                 BNIpush_back(Tmp, 0);
             }
-            printf("BNI_do_mul, Tmp, Milestone: %s, %s\n", BNItostr(Tmp), BNItostr(Milestone));
             BNI_do_add(MilestoneTmp, Tmp, Milestone);
             BNIcpy(Milestone, MilestoneTmp);
-            BNIfree(MilestoneTmp);
-            //printf("BNI_do_mul, Milestone: %s\n", BNItostr(Milestone));
-	    }
+            BNIfree(MilestoneTmp); MilestoneTmp = BNI(0);
+            printf("BNI_do_mul, Tmp, Milestone: %s, %s\n", BNItostr(Tmp), BNItostr(Milestone));
+        }
 	    else {
             continue;
 	    }
@@ -368,6 +367,7 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
     
     BNIfree(Tmp);
     BNIcpy(answer, Milestone);
+    BNIfree(Milestone);
     //printf("BNI_do_mul, answer: %s\n", BNItostr(answer));
     return TRUE;
 }
@@ -542,10 +542,10 @@ char* BNItostr(BNI A)
 			printf("BNItostr, malloc failed!!\n");
 			exit(-1);
 		}
-		ret[0] = '-';
+        ret[0] = '-'; ret++;
 		for (i = 0; i < A_len; i++)
 			ret[i+1] = SLread(A->num_list, i, char);
-	}
+    }
 	else {
 		ret = (char*)malloc(sizeof(char)*(A_len));
 		if (ret == NULL) {
@@ -554,14 +554,16 @@ char* BNItostr(BNI A)
 		}
 		for (i = 0; i < A_len; i++)
 			ret[i] = SLread(A->num_list, i, char);
-	}
-
+    }
 	return ret;
 }
 
 ULLONG BNIlen(BNI A)
 {
-	return SLlen(A->num_list);
+    if (A != NULL)
+        return SLlen(A->num_list);
+    else
+        return 0;
 }
 
 int BNIread(BNI A, ULLONG i)
@@ -626,7 +628,7 @@ void BNIpush_back(BNI A, int element)
 	    char* char_num = (char*)malloc(sizeof(char)*1);
 		*char_num = itoc(element);
 		SLIST Tmp = (SLIST)malloc(SLIST_SZ);
-		Tmp->index = BNIlen(A);
+		Tmp->index = 0;
 		Tmp->content = (void *)char_num;
 		Tmp->nextList = NULL;
 		A->num_list = SLpush_back(A->num_list, Tmp);
@@ -642,6 +644,9 @@ int BNIpop_back(BNI A)
 
 BOOL BNIcpy(BNI target, BNI A)
 {
+    if (target == A) // Nothing to copy. Two inputs are identical!
+        return TRUE;
+    
     if (!target || !A)
         return FALSE;
     else {
