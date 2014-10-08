@@ -17,6 +17,7 @@ SLIST SLfind(SLIST slhead, ULLONG index)
     
 	for (i = 0; i < index; i++) {
 		Tmp = Tmp->nextList;
+		//printf("Slfind, Tmp->content: %c\n", *(char*)Tmp->content);
 	}
 	return Tmp;
 }
@@ -38,9 +39,17 @@ ULLONG SLlen(SLIST slhead)
 
 SLIST SLpush(SLIST slhead, SLIST slpush)
 {
-	SLIST Tmp = slpush;
+	if (slhead == NULL)
+        return slpush;
+    if (slpush == NULL)
+        return slhead;
+    
+    SLIST Tmp = slpush;
 	while(Tmp->nextList) Tmp = Tmp->nextList;
-	Tmp->nextList = slhead;
+	if (Tmp != NULL)
+		Tmp->nextList = slhead;
+	else
+		slhead = slpush;
 
 	SLupdateindex(slpush);
 	return slpush;
@@ -48,11 +57,17 @@ SLIST SLpush(SLIST slhead, SLIST slpush)
 
 SLIST SLpush_back(SLIST slhead, SLIST slpush)
 {
-	SLIST Tmp = slhead;
+    if (slhead == NULL)
+        return slpush;
+    
+    if (slpush == NULL)
+        return slhead;
+    
+    SLIST Tmp = slhead;
+	ULLONG head_len = SLlen(slhead);
 	while(Tmp->nextList) Tmp = Tmp->nextList;
+	slpush->index = head_len;
 	Tmp->nextList = slpush;
-
-	//SLupdateindex(slhead);
 	return slhead;
 }
 
@@ -129,10 +144,10 @@ void SLupdateindex(SLIST slhead)
 {
 	SLIST Tmp = slhead;
 	ULLONG i = 0;
-	while (Tmp->nextList) {
+	do {
 		Tmp->index = i++;
 		Tmp = Tmp->nextList;
-	}
+	} while(Tmp);
 }
 
 //////////////////////////////////
@@ -143,7 +158,9 @@ SLIST SLalloc(ULLONG nodesize)
 	ULLONG i;
 	SLIST LstPtr = NULL;
 
-	if (nodesize == 0) return LstPtr;
+    if (nodesize == 0) {
+        return NULL;
+    }
 	else {
 		LstPtr = (SLIST)malloc(SLIST_SZ);
 		SLIST FirstPtr = LstPtr;
@@ -151,15 +168,16 @@ SLIST SLalloc(ULLONG nodesize)
 			LstPtr->index = i;
 			if (i == nodesize - 1) {
 				LstPtr->nextList = NULL;
-				break;
+                return FirstPtr;
 			}
 			else {
 				LstPtr->nextList = (SLIST)malloc(SLIST_SZ);
 				LstPtr = LstPtr->nextList;
 			}
 		}
-		return FirstPtr;
+		//return FirstPtr;
 	}
+    return NULL;
 }
 
 SLIST SLstralloc(const char* str)
@@ -174,9 +192,9 @@ SLIST SLstralloc(const char* str)
         //printf("SLstralloc, c: %c\n", c);
 		Tmp->content = (void *)(str+i);
         //printf("SLstralloc, Tmp->content: %c\n", SLread(LstPtr, i, char));
-        Tmp->index = i;
+        Tmp->index = i; i++;
         Tmp = Tmp->nextList;
-        i++;
+        //i++;
     } while (Tmp);
     
 	return LstPtr;
@@ -184,15 +202,16 @@ SLIST SLstralloc(const char* str)
 
 void SLfree(SLIST slhead)
 {
-    if (!slhead) {
+    if (slhead != NULL) {
         SLIST sldel;
-
         while ((sldel = slhead)) {
             slhead = slhead->nextList;
-            free(sldel->content);
+            if (sldel->content != NULL)
+                free(sldel->content);
             free(sldel);
         }
     }
+    return;
 }
 
 #endif
