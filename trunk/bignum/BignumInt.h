@@ -3,9 +3,15 @@
 
 #include <vector>
 #include <cstdlib>
-//#include <cstring>
+#include <algorithm>
+#include <exception>
+#include <stdexcept>
+#include <cstring>
+#include <iostream>
+#include <string>
 
 typedef std::vector<int> SVI;
+typedef std::string STR;
 
 class BignumInt
 {
@@ -27,7 +33,7 @@ public:
 	BignumInt operator*(const BignumInt& other);
 	BignumInt operator/(const BignumInt& other);
 
-	char* c_str(); // print out current BignumInt as a cstring.
+	STR str(); // print out current BignumInt as a cstring.
 	void SetList(SVI input_list);
 	SVI GetList();
 	void SetSign(bool input_sign);

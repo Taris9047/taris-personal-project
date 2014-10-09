@@ -22,8 +22,14 @@ int main (int argc, char* argv[])
 		numB.Set(11);
 	}
 
-	cout << numA.c_str() << " + " << numB.c_str() \
-		<< " = " << (numA+numB).c_str() << endl;
+	cout << numA.str() << " + " << numB.str() \
+		<< " = " << (numA+numB).str() << endl;
+
+	cout << numA.str() << " - " << numB.str() \
+		<< " = " << (numA-numB).str() << endl;
+
+	cout << numA.str() << " * " << numB.str() \
+		<< " = " << (numA*numB).str() << endl;
 
 /*
 	cout << "numA: " << numA.c_str() << endl;

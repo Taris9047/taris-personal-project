@@ -16,16 +16,17 @@ SVI BignumInt::_do_add(SVI A, SVI B)
 	int carry = 0;
 
 	while(1) {
+		an = 0; bn = 0; rn = 0;
 		if (i_A >= 0 && i_B >= 0) {
 			an = A.at(i_A);
 			bn = B.at(i_B);
 		}
 		else if (i_A >= 0 && i_B < 0) {
 			an = A.at(i_A);
-			bn = 0;
+			//bn = 0;
 		}
 		else if (i_A < 0 && i_B >= 0) {
-			an = 0;
+			//an = 0;
 			bn = B.at(i_B);
 		}
 		else if (i_A <= -1 || i_B <= -1)
@@ -63,25 +64,27 @@ SVI BignumInt::_do_sub(SVI A, SVI B)
 	int carry = 0;
 
 	while (1) {
+		an = 0; bn = 0; rn = 0;
 		if (i_A >= 0 && i_B >= 0) {
 			an = A.at(i_A);
 			bn = B.at(i_B);
 		}
 		else if (i_A >= 0 && i_B < 0) {
 			an = A.at(i_A);
-			bn = 0;
+			//bn = 0;
 		}
 		else if (i_A < 0 && i_B >= 0) {
-			an = 0;
+			//an = 0;
 			bn = B.at(i_B);
 		}
 		else if (i_A <= -1 || i_B <= -1)
 			break;
 
 		rn = an - bn - carry;
+
 		if (rn < 0) {
 			carry = 1;
-			rn = rn*(-1)%10;
+			rn = 10 + rn;
 		}
 		else
 			carry = 0;
@@ -90,6 +93,8 @@ SVI BignumInt::_do_sub(SVI A, SVI B)
 			ret.push_back(rn);
 		else
 			ret.insert(ret.begin(), rn);
+
+		i_A--; i_B--;
 	}
 
 	if (ret.at(0) == 0)
@@ -100,7 +105,53 @@ SVI BignumInt::_do_sub(SVI A, SVI B)
 
 SVI BignumInt::_do_mul(SVI A, SVI B)
 {
-	SVI ret;
+	SVI ret; ret.push_back(0);
+	SVI temp;
+	int an; int bn; int rn; int carry = 0;
+	int i_A = A.size() - 1;
+	int i_B = B.size() - 1;
+	unsigned int i;
+	
+	while (i_B >= 0) {
+		bn = B.at(i_B);
+		if (bn > 0) {
+			while(i_A >= 0) {
+				an = A.at(i_A);
+
+				rn = an*bn + carry;
+				if (rn > 9) {
+					carry = rn/10;
+					rn = rn%10;
+				}
+				else
+					carry = 0;
+
+				if (temp.size() == 0)
+					temp.push_back(rn);
+				else
+					temp.insert(temp.begin(), rn);
+
+				i_A--;
+			}
+
+			if (carry > 0) {
+				temp.insert(temp.begin(), carry);
+				carry = 0;
+			}
+		}
+		else {
+			// do nothing
+		}
+
+		for (i = 0; i < (B.size() - 1 - i_B); i++)
+			temp.push_back(0);
+		
+		ret = this->_do_add(ret, temp);
+		temp.clear();
+
+		i_B--;
+	}
+
 	return ret;
 }
 
@@ -143,24 +194,26 @@ bool BignumInt::SVIcomp(SVI A, SVI B)
 /******************************************
                 Utilities
 *******************************************/
-char* BignumInt::c_str()
+STR BignumInt::str()
 {
-	char* ret;
+	//char* ret;
+	STR ret;
 	int num_list_len = num_list.size();
 	int i;
 
 	if (num_list_len) {
 		if (sign) {
-			ret = new char[num_list_len];
+			//ret = new char[num_list_len];
 			for (i = 0; i < num_list_len; i++)
-				ret[i] = (char)(num_list.at(i) + (int)'0');
+				ret.push_back((char)(num_list.at(i) + (int)'0'));
 		}
 		else {
-			ret = new char[num_list_len+1];
-			ret[0] = '-';
+			//ret = new char[num_list_len+1];
+			ret.push_back('-');
 			for (i = 0; i < num_list_len; i++)
-				ret[i+1] = (char)(num_list.at(i) + (int)'0');
+				ret.push_back((char)(num_list.at(i) + (int)'0'));
 		}
+		//ret[strlen(ret)] = '\0';
 		return ret;
 	}
 	else {
@@ -367,10 +420,28 @@ BignumInt BignumInt::operator+(const BignumInt& other)
 		ret.SetSign(false);
 	}
 	else if (this->sign == true && other.sign == false) {
-
+		if (SVIcomp(this->num_list, other.num_list)) {
+			ret.SetList(_do_sub(this->num_list, other.num_list));
+			ret.SetSign(true);
+		}
+		else if (this->num_list == other.num_list)
+			ret.Set(0);
+		else {
+			ret.SetList(_do_sub(other.num_list, this->num_list));
+			ret.SetSign(false);
+		}
 	}
 	else if (this->sign == false && other.sign == true) {
-
+		if (SVIcomp(this->num_list, other.num_list)) {
+			ret.SetList(_do_sub(this->num_list, other.num_list));
+			ret.SetSign(false);
+		}
+		else if (this->num_list == other.num_list)
+			ret.Set(0);
+		else {
+			ret.SetList(_do_sub(other.num_list, this->num_list));
+			ret.SetSign(true);
+		}
 	}
 
 	return ret;
@@ -380,12 +451,70 @@ BignumInt BignumInt::operator-(const BignumInt& other)
 {
 	BignumInt ret(0);
 
+	if (this->sign == true && other.sign == false) {
+		ret.SetList(_do_add(this->num_list, other.num_list));
+		ret.SetSign(true);
+	}
+	if (this->sign == false && other.sign == true) {
+		ret.SetList(_do_add(this->num_list, other.num_list));
+		ret.SetSign(false);
+	}
+	if (this->sign == true && other.sign == true) {
+		if (SVIcomp(this->num_list, other.num_list)) {
+			ret.SetList(_do_sub(this->num_list, other.num_list));
+			ret.SetSign(true);
+		}
+		else if (this->num_list == other.num_list)
+			ret.Set(0);
+		else {
+			ret.SetList(_do_sub(other.num_list, this->num_list));
+			ret.SetSign(false);
+		}
+	}
+	if (this->sign == false && other.sign == false) {
+		if (SVIcomp(this->num_list, other.num_list)) {
+			ret.SetList(_do_sub(this->num_list, other.num_list));
+			ret.SetSign(false);
+		}
+		else if (this->num_list == other.num_list)
+			ret.Set(0);
+		else {
+			ret.SetList(_do_sub(other.num_list, this->num_list));
+			ret.SetSign(true);
+		}		
+	}
+
 	return ret;
 }
 
 BignumInt BignumInt::operator*(const BignumInt& other)
 {
 	BignumInt ret(0);
+	const int zero_ary[] = {0};
+	const int one_ary[] = {1};
+ 	SVI zero(zero_ary, zero_ary + sizeof(zero_ary)/sizeof(zero_ary[0]));
+	SVI one(one_ary, one_ary + sizeof(one_ary)/sizeof(one_ary[0]));
+
+	if (this->num_list == zero || other.num_list == zero)
+		ret.Set(0);
+	else if (this->num_list == one && other.num_list != one) {
+		ret.SetSign(other.sign);
+		ret.SetList(other.num_list);
+	}
+	else if (this->num_list != one && other.num_list == one) {
+		ret.SetSign(this->sign);
+		ret.SetList(this->num_list);
+	}
+	else if (this->num_list == one && other.num_list == one) {
+		ret.Set(1);
+	}
+	else {
+		ret.SetList(_do_mul(this->num_list, other.num_list));
+		if (this->sign == other.sign)
+			ret.SetSign(true);
+		else
+			ret.SetSign(false);
+	}
 
 	return ret;
 }
