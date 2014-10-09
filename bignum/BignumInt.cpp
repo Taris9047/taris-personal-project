@@ -39,7 +39,10 @@ SVI BignumInt::_do_add(SVI A, SVI B)
 		else
 			carry = 0;
 
-		ret.insert(ret.begin(), rn);
+		if (ret.size() == 0)
+			ret.push_back(rn);
+		else
+			ret.insert(ret.begin(), rn);
 
 		i_A--; i_B--;
 	}
@@ -83,8 +86,10 @@ SVI BignumInt::_do_sub(SVI A, SVI B)
 		else
 			carry = 0;
 
-		ret.insert(ret.begin(), rn);
-
+		if (ret.size() == 0)
+			ret.push_back(rn);
+		else
+			ret.insert(ret.begin(), rn);
 	}
 
 	if (ret.at(0) == 0)
