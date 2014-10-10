@@ -23,6 +23,7 @@ private:
 	SVI _do_sub(SVI A, SVI B);
 	SVI _do_mul(SVI A, SVI B);
 	SVI _do_div(SVI A, SVI B);
+	SVI _do_div_rem(SVI A, SVI B);
 
 	//bool SVIeq(SVI A, SVI B);
 	bool SVIcomp(SVI A, SVI B);
@@ -32,10 +33,12 @@ public:
 	BignumInt operator-(const BignumInt& other);
 	BignumInt operator*(const BignumInt& other);
 	BignumInt operator/(const BignumInt& other);
+	BignumInt operator%(const BignumInt& other);
 
 	STR str(); // print out current BignumInt as a cstring.
 	void SetList(SVI input_list);
 	SVI GetList();
+	bool GetSign();
 	void SetSign(bool input_sign);
 	void Set(int num);
 	void Set(char* num);
@@ -51,6 +54,8 @@ public:
 	BignumInt& operator=(int num);
 	BignumInt& operator=(char* num);
 	BignumInt& operator=(const char* num);
+
+	//void printSVI(SVI array);
 
 	BignumInt();
 	BignumInt(int num);

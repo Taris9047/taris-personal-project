@@ -117,7 +117,6 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 		if (bn > 0) {
 			while(i_A >= 0) {
 				an = A.at(i_A);
-
 				rn = an*bn + carry;
 				if (rn > 9) {
 					carry = rn/10;
@@ -130,9 +129,9 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 					temp.push_back(rn);
 				else
 					temp.insert(temp.begin(), rn);
-
 				i_A--;
 			}
+			i_A = A.size() - 1;
 
 			if (carry > 0) {
 				temp.insert(temp.begin(), carry);
@@ -145,7 +144,7 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 
 		for (i = 0; i < (B.size() - 1 - i_B); i++)
 			temp.push_back(0);
-		
+
 		ret = this->_do_add(ret, temp);
 		temp.clear();
 
@@ -233,6 +232,11 @@ SVI BignumInt::GetList()
 	return this->num_list;
 }
 
+bool BignumInt::GetSign()
+{
+	return this->sign;
+}
+
 void BignumInt::SetSign(bool input_sign)
 {
 	this->sign = input_sign;
@@ -306,11 +310,15 @@ void BignumInt::Set(const char* num)
 }
 
 /*
-BignumInt BignumInt::abs()
+void BignumInt::printSVI(SVI array)
 {
-	BignumInt ret(this->c_str());
-	ret.sign = true;
-	return ret;
+	unsigned long long i;
+	unsigned long long a_size = array.size();
+
+	for (i = 0; i < a_size; i++) {
+		std::cout << array.at(i);
+	}
+	std::cout<<std::endl;
 }
 */
 
@@ -526,7 +534,12 @@ BignumInt BignumInt::operator/(const BignumInt& other)
 	return ret;
 }
 
+BignumInt BignumInt::operator%(const BignumInt& other)
+{
+	BignumInt ret(0);
 
+	return ret;
+}
 
 
 /******************************************
