@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
 #include "BignumInt.h"
 
 using namespace std;
@@ -33,14 +34,14 @@ int main (int argc, char* argv[])
 	cout << numA.str() << " * " << numB.str() \
 		<< " = " << (numA*numB).str() << endl;
 
-/*
-	cout << "numA: " << numA.c_str() << endl;
-	cout << "numB: " << numB.c_str() << endl;
-	cout << "numA > numB: " << (numA > numB) << endl;
-	cout << "numA < numB: " << (numA < numB) << endl;
-*/
-
+	clock_t start, end;
+	start = clock();
 	cout<< numA.str() << "! = " << fact_BNI(numA).str() << endl;
+	end = clock();
+
+	cout << numA.str() << "! took " \
+		<< (double)(end-start)/CLOCKS_PER_SEC \
+		<< " seconds." << endl;
 
 	return 0;
 }
