@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
 
 		num = num + One;
 	}
-
+    
+    time_table.close();
 	return 0;
 }
