@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <ctime>
 #include "BignumInt.h"
@@ -46,6 +47,7 @@ int main (int argc, char* argv[])
 	end = clock();
 
 	cout << numA.str() << "! took " \
+		<< setprecision(6) << fixed \
 		<< (double)(end-start)/CLOCKS_PER_SEC \
 		<< " seconds." << endl;
 
