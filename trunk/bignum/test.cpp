@@ -34,6 +34,12 @@ int main (int argc, char* argv[])
 	cout << numA.str() << " * " << numB.str() \
 		<< " = " << (numA*numB).str() << endl;
 
+	cout << numA.str() << " / " << numB.str() \
+		<< " = " << (numA/numB).str() << endl;
+
+	cout << numA.str() << " % " << numB.str() \
+		<< " = " << (numA%numB).str() << endl;
+
 	clock_t start, end;
 	start = clock();
 	cout<< numA.str() << "! = " << fact_BNI(numA).str() << endl;

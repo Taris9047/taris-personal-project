@@ -108,14 +108,16 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 	SVI ret; ret.push_back(0);
 	SVI temp;
 	int an; int bn; int rn; int carry = 0;
-	int i_A = A.size() - 1;
-	int i_B = B.size() - 1;
+	int i_A;
+	int i_B;
+	int A_len = A.size();
+	int B_len = B.size();
 	unsigned int i;
 	
-	while (i_B >= 0) {
+	for (i_B = B_len - 1; i_B >= 0; i_B--) {
 		bn = B.at(i_B);
 		if (bn > 0) {
-			while(i_A >= 0) {
+			for (i_A = A_len - 1; i_A >= 0; i_A--) {
 				an = A.at(i_A);
 				rn = an*bn + carry;
 				if (rn > 9) {
@@ -129,10 +131,7 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 					temp.push_back(rn);
 				else
 					temp.insert(temp.begin(), rn);
-				i_A--;
 			}
-			i_A = A.size() - 1;
-
 			if (carry > 0) {
 				temp.insert(temp.begin(), carry);
 				carry = 0;
@@ -142,13 +141,11 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 			// do nothing
 		}
 
-		for (i = 0; i < (B.size() - 1 - i_B); i++)
+		for (i = 0; i < (B_len - 1 - i_B); i++)
 			temp.push_back(0);
 
 		ret = this->_do_add(ret, temp);
 		temp.clear();
-
-		i_B--;
 	}
 
 	return ret;
@@ -156,8 +153,43 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 
 SVI BignumInt::_do_div(SVI A, SVI B)
 {
-	SVI ret;
-	return ret;
+	//SVI ret; ret.push_back(0);
+	//int i_A; int i_B;
+	//int A_len = A.size(); int B_len = B.size();
+	//int an, bn, rn;
+	//int carry = 0;
+	SVI zero(1); zero[0] = 0;
+	SVI one(1); one[0] = 1;
+	SVI Index; Index.push_back(0);
+
+	if (B == zero) {
+		throw std::invalid_argument("Divide by zero!!\n");
+	}
+
+	while (SVIcomp(A, B) || A == B) {
+		A = _do_sub(A, B);
+		Index = _do_add(Index, one);
+	}
+
+	return Index;
+}
+
+SVI BignumInt::_do_div_rem(SVI A, SVI B)
+{
+	SVI zero(1); zero[0] = 0;
+	SVI one(1); one[0] = 1;
+	SVI Index; Index.push_back(0);
+
+	if (B == zero) {
+		throw std::invalid_argument("Divide by zero!!\n");
+	}
+
+	while (SVIcomp(A, B) || A == B) {
+		A = _do_sub(A, B);
+		Index = _do_add(Index, one);
+	}
+
+	return A;
 }
 
 /*
@@ -530,14 +562,52 @@ BignumInt BignumInt::operator*(const BignumInt& other)
 BignumInt BignumInt::operator/(const BignumInt& other)
 {
 	BignumInt ret(0);
+	const int zero_ary[] = {0};
+	SVI zero(zero_ary, zero_ary + sizeof(zero_ary)/sizeof(zero_ary[0]));
+	const int one_ary[] = {1};
+	SVI one(one_ary, one_ary + sizeof(one_ary)/sizeof(one_ary[0]));
 
+	if (other.num_list == zero)
+		throw std::invalid_argument("Divide by zero!!!\n");
+
+	if (this->num_list == zero)
+		return ret;
+	else if (other.num_list == one)
+		return *this;
+	else {
+		ret.SetList(_do_div(this->num_list, other.num_list));
+		if (this->sign == other.sign)
+			ret.SetSign(true);
+		else
+			ret.SetSign(false);
+		return ret;
+	}
 	return ret;
 }
 
 BignumInt BignumInt::operator%(const BignumInt& other)
 {
 	BignumInt ret(0);
+	const int zero_ary[] = {0};
+	SVI zero(zero_ary, zero_ary + sizeof(zero_ary)/sizeof(zero_ary[0]));
+	const int one_ary[] = {1};
+	SVI one(one_ary, one_ary + sizeof(one_ary)/sizeof(one_ary[0]));
 
+	if (other.num_list == zero)
+		throw std::invalid_argument("Divide by zero!!!\n");
+
+	if (this->num_list == zero)
+		return ret;
+	else if (other.num_list == one)
+		return *this;
+	else {
+		ret.SetList(_do_div_rem(this->num_list, other.num_list));
+		if (this->sign == other.sign)
+			ret.SetSign(true);
+		else
+			ret.SetSign(false);
+		return ret;
+	}
 	return ret;
 }
 
