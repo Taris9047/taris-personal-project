@@ -71,7 +71,7 @@ def main():
 
 	print ('Writing result up to %d! to file\n' % (input_num))
 	file = open('factorial_benchmark.txt', 'w')
-	file.write('Fact_Num\tPBY\tBuilt-in\n')
+	file.write('Fact_Num\tPBN\tBuilt-in\n')
 	for i in range(input_num):
 		line_text = str(i+1)+'\t'+"%e"%(PBY_avg[i])+'\t'+"%e"%(builtin_avg[i])+'\t'+'\n'
 		file.write(line_text)
@@ -80,7 +80,7 @@ def main():
 
 	'''
 	print "Comparison:"
-	print "%d! in PBY vs. %d! in built-in\n" % (int(input_num), int(input_num))
+	print "%d! in PBN.py vs. %d! in built-in\n" % (int(input_num), int(input_num))
 	print "PBY average: %f, built-in average: %f" % (PBY_avg, builtin_avg)
 	print "PBY is %f slower than built-in math\n" % (PBY_avg/builtin_avg)
 	'''
