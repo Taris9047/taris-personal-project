@@ -112,7 +112,7 @@ SVI BignumInt::_do_mul(SVI A, SVI B)
 	int i_B;
 	int A_len = A.size();
 	int B_len = B.size();
-	unsigned int i;
+	int i;
 	
 	for (i_B = B_len - 1; i_B >= 0; i_B--) {
 		bn = B.at(i_B);
@@ -183,6 +183,9 @@ SVI BignumInt::_do_div_rem(SVI A, SVI B)
 	if (B == zero) {
 		throw std::invalid_argument("Divide by zero!!\n");
 	}
+
+	if (!SVIcomp(A, B) || A == B)
+		return zero;
 
 	while (SVIcomp(A, B) || A == B) {
 		A = _do_sub(A, B);
