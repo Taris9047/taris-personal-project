@@ -18,10 +18,10 @@ int main (int argc, char* argv[])
 	}
     else if (argc == 2) {
         numA.Set(argv[1]);
-        numB.Set(10);
+        numB.Set(11);
     }
 	else {
-		numA.Set(10);
+		numA.Set(32);
 		numB.Set(11);
 	}
 
@@ -48,6 +48,9 @@ int main (int argc, char* argv[])
 	cout << numA.str() << "! took " \
 		<< (double)(end-start)/CLOCKS_PER_SEC \
 		<< " seconds." << endl;
+
+	cout << "Press any key to continue\n";
+	cin.get();
 
 	return 0;
 }
