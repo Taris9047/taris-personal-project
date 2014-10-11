@@ -24,7 +24,7 @@ else ifneq (, $(findstring darwin, $(SYS)))
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
 endif
 
-all: test
+all: test factorial
 
 #utils.o: utils.c utils.h
 #	$(CXX) $(CFLAGS) -c -o $@ utils.c
@@ -44,8 +44,11 @@ $(LIBBIGNUMNAME): $(OBJBIGNUM)
 test: test.cpp $(LIBBIGNUMNAME) *.cpp *.h
 	$(CXX) $(CFLAGS) -o $(TARGET) test.cpp -I. -L. -lBignum
 
+factorial: factorial.cpp $(LIBBIGNUMNAME) *.cpp *.h
+	$(CXX) $(CFLAGS) -o factorial factorial.cpp -I. -L. -lBignum
+
 clean:
-	rm -rvf ./$(TARGET) *.exe *.stackdump
+	rm -rvf ./$(TARGET) *.exe *.stackdump ./factorial
 	rm -rvf *.pyc *.o *.so *.dll
 	rm -rvf *.a
 	rm -rvf *.dSYM
