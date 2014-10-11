@@ -71,6 +71,7 @@ BignumInt fact_BNI(BignumInt num)
 		do {
 			Index = Index + One;
 			factN = factN*Index;
+			cout << Index.str() << "! finished!" << endl;
 		} while(Index <= num);
 		return factN;
 	}
