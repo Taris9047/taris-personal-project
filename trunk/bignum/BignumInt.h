@@ -13,6 +13,10 @@
 typedef std::vector<int> SVI;
 typedef std::string STR;
 
+#define INIT_VECTOR(type, name, ...) \
+static const type name##_a[] = __VA_ARGS__; \
+std::vector<type> name(name##_a, name##_a + sizeof(name##_a) / sizeof(*name##_a))
+
 class BignumInt
 {
 private:

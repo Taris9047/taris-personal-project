@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "BignumInt.h"
+#include "BignumMoney.h"
 
 using namespace std;
 
@@ -10,6 +11,14 @@ BignumInt fact_BNI(BignumInt num);
 
 int main (int argc, char* argv[])
 {
+	BignumMoney priceA;
+	BignumMoney priceB;
+	priceA.Set(100);
+	priceB.Set(1000);
+
+	cout << "Price of A: " << priceA.str() << endl;
+	cout << "Price of B: " << priceB.str() << endl;
+	/*
 	BignumInt numA;
 	BignumInt numB;
 
@@ -54,6 +63,7 @@ int main (int argc, char* argv[])
 	cout << "Press any key to continue\n";
 	cin.get();
 
+	*/
 	return 0;
 }
 

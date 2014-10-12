@@ -7,7 +7,7 @@ SRCDIR=./src
 TARGET=test
 #OBJDATASTR=llist.o utils.o
 OBJDATASTR=
-OBJBIGNUM=BignumInt.o $(OBJDATASTR)
+OBJBIGNUM=BignumInt.o BignumMoney.o $(OBJDATASTR)
 
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
@@ -37,6 +37,9 @@ all: test factorial
 
 BignumInt.o: BignumInt.cpp BignumInt.h
 	$(CXX) $(CFLAGS) -c -o $@ BignumInt.cpp
+
+BignumMoney.o: BignumMoney.cpp BignumMoney.h
+	$(CXX) $(CFLAGS) -c -o $@ BignumMoney.cpp
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)
 	$(CXX) $(CFLAGS) -shared -o $@ $(OBJBIGNUM)
