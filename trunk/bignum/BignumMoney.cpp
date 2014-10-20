@@ -10,6 +10,7 @@
 STR BignumMoney::str()
 {
 	STR money_str;
+
 	if (!this->sign)
 		money_str.push_back('-');
 
@@ -21,28 +22,34 @@ STR BignumMoney::str()
 		else if (i >= 6 && i%3 == 0)
 			money_str.insert(money_str.begin(), ',');
 		else {
-			money_str.insert(money_str.begin(), \
-				(char)(num_list.at(j) + (int)'0'));
+			//std::cout << money_str.size() << std::endl;
+			if (money_str.size() > 0) {
+				money_str.insert(money_str.begin(), \
+					(char)(num_list.at(j) + (int)'0'));
+			}
+			else {
+				money_str.push_back((char)(num_list.at(j) + (int)'0'));
+			}
 			j++;
-			//std::cout << j << std::endl;
+		
 		}
 		i++;
-	} while(j < num_list.size());
+
+	} while(j < this->num_list.size());
 
 	if (money_str.at(0) == ',') {
 		money_str.erase(money_str.at(0));
 	}
 
 	if (money_str.size() < 4) {
-		
+				
 	}
 
 	money_str = money_str + " " + this->currency;
 	return money_str;
-
 }
 
-void BignumMoney::SetNum(int num)
+void BignumMoney::Set(int num)
 {
 	if (num >= 0)
 		sign = true;
@@ -56,7 +63,7 @@ void BignumMoney::SetNum(int num)
 		for (; num; num /= 10) {
 			num_list.push_back(num%10);
 		}
-		std::reverse(num_list.begin(), num_list.end());
+		//std::reverse(num_list.begin(), num_list.end());
 	}
 }
 
@@ -100,10 +107,10 @@ BignumMoney::BignumMoney(int num, STR currency_str)
 		num *= -1;
 	}
 	
-	if (num == 0) num_list.push_back(0);
+	if (num == 0) this->num_list.push_back(0);
 	else {
 		for (; num; num /= 10) {
-			num_list.push_back(num%10);
+			this->num_list.push_back(num%10);
 		}
 		std::reverse(num_list.begin(), num_list.end());
 	}
@@ -130,7 +137,7 @@ BignumMoney::BignumMoney(char* num, STR currency_str)
 	int i;
 
 	for (i = 0; i < num_len; i++) {
-		num_list.push_back((int)(num[i]-(int)'0'));
+		this->num_list.push_back((int)(num[i]-(int)'0'));
 	}
 
 }
@@ -156,7 +163,7 @@ BignumMoney::BignumMoney(const char* num, STR currency_str)
 	int i;
 
 	for (i = 0; i < num_len; i++) {
-		num_list.push_back((int)(num[i]-(int)'0'));
+		this->num_list.push_back((int)(num[i]-(int)'0'));
 	}
 
 }

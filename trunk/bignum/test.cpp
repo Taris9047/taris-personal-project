@@ -7,7 +7,7 @@
 
 using namespace std;
 
-BignumInt fact_BNI(BignumInt num);
+//BignumInt fact_BNI(BignumInt num);
 
 int main (int argc, char* argv[])
 {
@@ -15,7 +15,7 @@ int main (int argc, char* argv[])
 	BignumMoney priceB;
 	priceA.Set(100);
 	priceB.Set(1000);
-
+	
 	cout << "Price of A: " << priceA.str() << endl;
 	cout << "Price of B: " << priceB.str() << endl;
 	/*
@@ -67,6 +67,7 @@ int main (int argc, char* argv[])
 	return 0;
 }
 
+/*
 BignumInt fact_BNI(BignumInt num)
 {
 	BignumInt One(1);
@@ -86,3 +87,4 @@ BignumInt fact_BNI(BignumInt num)
 		return factN;
 	}
 }
+*/
