@@ -49,7 +49,7 @@ STR BignumMoney::str()
 	return money_str;
 }
 
-void BignumMoney::Set(int num)
+void BignumMoney::SetVal(int num)
 {
 	if (num >= 0)
 		sign = true;
@@ -64,6 +64,24 @@ void BignumMoney::Set(int num)
 			num_list.push_back(num%10);
 		}
 		//std::reverse(num_list.begin(), num_list.end());
+	}
+}
+
+void BignumMoney::SetVal(float num)
+{
+	if (num >= 0)
+		sign = true;
+	else {
+		sign = false;
+		num *= -1;
+	}
+
+	if (num == 0) num_list.push_back(0);
+	else {
+//		TODO: Finish float to str here.
+//		while (num >= 0.01) {
+//			num_list.push_back();
+//		}
 	}
 }
 

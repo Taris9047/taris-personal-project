@@ -13,8 +13,8 @@ int main (int argc, char* argv[])
 {
 	BignumMoney priceA;
 	BignumMoney priceB;
-	priceA.Set(100);
-	priceB.Set(1000);
+	priceA.SetVal(100);
+	priceB.SetVal(1000);
 	
 	cout << "Price of A: " << priceA.str() << endl;
 	cout << "Price of B: " << priceB.str() << endl;
