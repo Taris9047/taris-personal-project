@@ -13,7 +13,8 @@ private:
 
 public:
 	STR str(); // returns money value as string.
-	void Set(int num);
+	void SetVal(int num);
+	void SetVal(float num);
 	void SetSign(bool new_sign);
 	void SetCurrency(STR currency_str);
 	void SetComma(unsigned int commaloc);
