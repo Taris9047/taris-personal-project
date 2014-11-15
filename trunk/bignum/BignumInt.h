@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 typedef std::vector<int> SVI;

@@ -2,6 +2,7 @@
 #define BIGNUMMONEY_H
 
 #include "BignumInt.h"
+#include <sstream>
 
 class BignumMoney : public virtual BignumInt
 {
@@ -15,6 +16,7 @@ public:
 	STR str(); // returns money value as string.
 	void SetVal(int num);
 	void SetVal(float num);
+	void SetVal(const char* num);
 	void SetSign(bool new_sign);
 	void SetCurrency(STR currency_str);
 	void SetComma(unsigned int commaloc);
@@ -24,6 +26,7 @@ public:
 	BignumMoney(int num, STR currency_str);
 	BignumMoney(char* num, STR currency_str);
 	BignumMoney(const char* num, STR currency_str);
+	BignumMoney(float num, STR currency_str);
 
 };
 
