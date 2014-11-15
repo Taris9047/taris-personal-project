@@ -75,14 +75,42 @@ void BignumMoney::SetVal(float num)
 		sign = false;
 		num *= -1;
 	}
-
-	if (num == 0) num_list.push_back(0);
+	
+	std::ostringstream s;
+	std::string num_s;
+	int i;
+		
+	if (num == 0.00) num_list.push_back(0);
 	else {
-//		TODO: Finish float to str here.
-//		while (num >= 0.01) {
-//			num_list.push_back();
-//		}
+		s << std::fixed << std::setprecision(2) << num;
+		num_s = s.str();
+		for (i = 0; i < num_s.size(); i++) {
+			if (num_s[i] == '.') {}
+			else {
+				num_list.push_back((int)(num_s[i]-(int)'0'));
+			}
+		}
+		std::reverse(num_list.begin(), num_list.end());
 	}
+
+}
+
+void BignumMoney::SetVal(const char* num)
+{
+	if (*num != '-')
+		sign = true;
+	else {
+		sign = false;
+		num++;
+	}
+	// Gotta change here to determine the const char input. If it is integer format, add .00 automatically.
+	int num_len = strlen(num);
+	int i;
+
+	for (i = 0; i < num_len; i++) {
+		this->num_list.push_back((int)(num[i]-(int)'0'));
+	}
+
 }
 
 void BignumMoney::SetSign(bool new_sign)
@@ -130,7 +158,7 @@ BignumMoney::BignumMoney(int num, STR currency_str)
 		for (; num; num /= 10) {
 			this->num_list.push_back(num%10);
 		}
-		std::reverse(num_list.begin(), num_list.end());
+		//std::reverse(num_list.begin(), num_list.end());
 	}
 }
 
@@ -184,6 +212,14 @@ BignumMoney::BignumMoney(const char* num, STR currency_str)
 		this->num_list.push_back((int)(num[i]-(int)'0'));
 	}
 
+}
+
+BignumMoney::BignumMoney(float num, STR currency_str)
+{
+	currency = currency_str;
+	comma_separation = 3;
+
+	this->SetVal(num);
 }
 
 
