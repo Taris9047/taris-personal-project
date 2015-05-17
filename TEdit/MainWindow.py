@@ -28,6 +28,8 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.filename = False
+        self.edited = False
+        self.tabstop = 4
         self.setupUi()
 
     def setupUi(self):
@@ -56,8 +58,10 @@ class MainWindow(QtGui.QMainWindow):
         self.statusbar = QtGui.QStatusBar(self)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         self.setStatusBar(self.statusbar)
+
         self.actionOpen = QtGui.QAction(self)
         self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
+        self.actionOpen.triggered.connect(self.OpenFile)
         self.actionSave = QtGui.QAction(self)
         self.actionSave.setObjectName(_fromUtf8("actionSave"))
         self.actionSave_As = QtGui.QAction(self)
@@ -86,6 +90,7 @@ class MainWindow(QtGui.QMainWindow):
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
         self.actionManual = QtGui.QAction(self)
         self.actionManual.setObjectName(_fromUtf8("actionManual"))
+
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
@@ -119,7 +124,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menuEdit.setTitle(_translate("MainWindow", "Edit", None))
         self.menuPreferneces.setTitle(_translate("MainWindow", "Preferneces", None))
         self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
-        self.actionOpen.setText(_translate("MainWindow", "&Open", None))
+        self.actionOpen.setText(_translate("MainWindow", "Open", None))
         self.actionSave.setText(_translate("MainWindow", "Save", None))
         self.actionSave_As.setText(_translate("MainWindow", "Save As...", None))
         self.actionCopy.setText(_translate("MainWindow", "Copy", None))
@@ -134,4 +139,13 @@ class MainWindow(QtGui.QMainWindow):
         self.actionOptions.setText(_translate("MainWindow", "Options", None))
         self.actionAbout.setText(_translate("MainWindow", "About", None))
         self.actionManual.setText(_translate("MainWindow", "Manual", None))
+
+
+    def OpenFile(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File', './')
+        with open(filename, 'r') as fp:
+            self.plainTextEdit.setPlainText(\
+                fp.read().replace('\t',' '*self.tabstop))
+
+        self.filename = filename
 
