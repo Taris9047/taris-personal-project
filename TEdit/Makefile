@@ -5,6 +5,10 @@ DIST_NAME = TEdit
 DIST = ./dist
 BUILD = ./build
 
+
+all:
+	make run
+
 freeze:
 	$(PYINST) $(PYIOPTIONS) $(MAIN_FILE)
 
@@ -14,5 +18,3 @@ clean:
 run:
 	python ./TEdit.py
 
-all:
-	make run

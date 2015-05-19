@@ -30,71 +30,81 @@ class MainWindow(QtGui.QMainWindow):
         self.filename = False
         self.edited = False
         self.tabstop = 4
+        self.recent_files = []
+        self.recent_files_actions = []
+        self.word_wrap = False
+
         self.setupUi()
 
     def setupUi(self):
-        self.setObjectName(_fromUtf8("MainWindow"))
         self.resize(640, 700)
+        self.menubar = QtGui.QMenuBar(self)
         self.centralwidget = QtGui.QWidget(self)
-        self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_2 = QtGui.QGridLayout(self.centralwidget)
-        self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.plainTextEdit = QtGui.QPlainTextEdit(self.centralwidget)
-        self.plainTextEdit.setObjectName(_fromUtf8("plainTextEdit"))
         self.gridLayout_2.addWidget(self.plainTextEdit, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
-        self.menubar = QtGui.QMenuBar(self)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 22))
-        self.menubar.setObjectName(_fromUtf8("menubar"))
-        self.menuFile = QtGui.QMenu(self.menubar)
-        self.menuFile.setObjectName(_fromUtf8("menuFile"))
-        self.menuEdit = QtGui.QMenu(self.menubar)
-        self.menuEdit.setObjectName(_fromUtf8("menuEdit"))
-        self.menuPreferneces = QtGui.QMenu(self.menubar)
-        self.menuPreferneces.setObjectName(_fromUtf8("menuPreferneces"))
-        self.menuHelp = QtGui.QMenu(self.menubar)
-        self.menuHelp.setObjectName(_fromUtf8("menuHelp"))
-        self.setMenuBar(self.menubar)
+
         self.statusbar = QtGui.QStatusBar(self)
-        self.statusbar.setObjectName(_fromUtf8("statusbar"))
         self.setStatusBar(self.statusbar)
 
-        self.actionOpen = QtGui.QAction(self)
-        self.actionOpen.setObjectName(_fromUtf8("actionOpen"))
-        self.actionOpen.triggered.connect(self.OpenFile)
-        self.actionSave = QtGui.QAction(self)
-        self.actionSave.setObjectName(_fromUtf8("actionSave"))
-        self.actionSave_As = QtGui.QAction(self)
-        self.actionSave_As.setObjectName(_fromUtf8("actionSave_As"))
-        self.actionCopy = QtGui.QAction(self)
-        self.actionCopy.setObjectName(_fromUtf8("actionCopy"))
-        self.actionPaste = QtGui.QAction(self)
-        self.actionPaste.setObjectName(_fromUtf8("actionPaste"))
-        self.actionFind = QtGui.QAction(self)
-        self.actionFind.setObjectName(_fromUtf8("actionFind"))
-        self.actionFind_and_Replace = QtGui.QAction(self)
-        self.actionFind_and_Replace.setObjectName(_fromUtf8("actionFind_and_Replace"))
-        self.actionDisplayFonts = QtGui.QAction(self)
-        self.actionDisplayFonts.setObjectName(_fromUtf8("actionDisplayFonts"))
-        self.actionWord_Wrap = QtGui.QAction(self)
-        self.actionWord_Wrap.setObjectName(_fromUtf8("actionWord_Wrap"))
-        self.actionIndent_Selection = QtGui.QAction(self)
-        self.actionIndent_Selection.setObjectName(_fromUtf8("actionIndent_Selection"))
-        self.actionUnindent_Selection = QtGui.QAction(self)
-        self.actionUnindent_Selection.setObjectName(_fromUtf8("actionUnindent_Selection"))
-        self.actionTabs_to_Space = QtGui.QAction(self)
-        self.actionTabs_to_Space.setObjectName(_fromUtf8("actionTabs_to_Space"))
-        self.actionOptions = QtGui.QAction(self)
-        self.actionOptions.setObjectName(_fromUtf8("actionOptions"))
-        self.actionAbout = QtGui.QAction(self)
-        self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
-        self.actionManual = QtGui.QAction(self)
-        self.actionManual.setObjectName(_fromUtf8("actionManual"))
+        self.refresh_main_menu()
 
+        #QtCore.QMetaObject.connectSlotsByName(self)
+
+        self.show()
+
+    # refresh main menu
+    def refresh_main_menu(self):
+        # Menubar definition
+        self.menubar.clear()
+#        self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 22))
+        self.menuFile = QtGui.QMenu(r'&File', self.menubar)
+        self.menuEdit = QtGui.QMenu(r'&Edit',self.menubar)
+        self.menuPreferneces = QtGui.QMenu(r'&Preferences',self.menubar)
+        self.menuHelp = QtGui.QMenu(r'&Help',self.menubar)
+        self.setMenuBar(self.menubar)
+
+        # Actions
+        self.actionOpen = QtGui.QAction(r'&Open',self)
+        self.actionOpen.setShortcut('Ctrl+O')
+        self.actionOpen.triggered.connect(self.OpenFile)
+        self.actionSave = QtGui.QAction(r'&Save',self)
+        self.actionSave.setShortcut('Ctrl+S')
+        self.actionSave.triggered.connect(self.SaveFile)
+        self.actionSave_As = QtGui.QAction(r'Save &As...',self)
+        self.actionSave_As.setShortcut('Ctrl+Shift+S')
+        self.actionSave_As.triggered.connect(self.SaveAs)
+        self.actionQuit = QtGui.QAction(r'&Quit',self)
+        self.actionQuit.setShortcut('Ctrl+Q')
+        #self.actionQuit.triggered.connect(self.eventClose)
+
+        self.actionCopy = QtGui.QAction(r'&Copy',self)
+        self.actionPaste = QtGui.QAction(r'&Paste',self)
+        self.actionFind = QtGui.QAction(r'&Find',self)
+        self.actionFind_and_Replace = QtGui.QAction(r'Find and &Replace',self)
+        self.actionDisplayFonts = QtGui.QAction(r'Fon&ts',self)
+        self.actionWord_Wrap = QtGui.QAction(r'&Word Wrap',self)
+        self.actionIndent_Selection = QtGui.QAction(r'&Indent',self)
+        self.actionUnindent_Selection = QtGui.QAction(r'&Unindent',self)
+        self.actionTabs_to_Space = QtGui.QAction(r'&Tabs to Space',self)
+        
+        self.actionOptions = QtGui.QAction(r'&Options',self)
+        self.actionAbout = QtGui.QAction(r'Abo&ut',self)
+        self.actionManual = QtGui.QAction(r'&Manual',self)
+
+        # File Menu
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
         self.menuFile.addSeparator()
+        if len(self.recent_files_actions) > 0:
+            for i, ra in enumerate(self.recent_files_actions):
+                self.menuFile.addAction(ra)
+            self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionQuit)
+
+        # Edit Menu
         self.menuEdit.addAction(self.actionCopy)
         self.menuEdit.addAction(self.actionPaste)
         self.menuEdit.addAction(self.actionFind)
@@ -103,49 +113,69 @@ class MainWindow(QtGui.QMainWindow):
         self.menuEdit.addAction(self.actionIndent_Selection)
         self.menuEdit.addAction(self.actionUnindent_Selection)
         self.menuEdit.addAction(self.actionTabs_to_Space)
+        
+        # Preference Menu
         self.menuPreferneces.addAction(self.actionDisplayFonts)
         self.menuPreferneces.addAction(self.actionWord_Wrap)
         self.menuPreferneces.addAction(self.actionOptions)
+        
+        # Help Menu
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionManual)
+
+        
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuPreferneces.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
-        self.retranslateUi()
-        QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.show()
+    # updates recent files
+    def update_recent_files(self, filename):
+        repeated = False
+        for rf in self.recent_files:
+            if filename == rf:
+                repeated = True
 
-    def retranslateUi(self):
-        self.setWindowTitle(_translate("MainWindow", "MainWindow", None))
-        self.menuFile.setTitle(_translate("MainWindow", "File", None))
-        self.menuEdit.setTitle(_translate("MainWindow", "Edit", None))
-        self.menuPreferneces.setTitle(_translate("MainWindow", "Preferneces", None))
-        self.menuHelp.setTitle(_translate("MainWindow", "Help", None))
-        self.actionOpen.setText(_translate("MainWindow", "Open", None))
-        self.actionSave.setText(_translate("MainWindow", "Save", None))
-        self.actionSave_As.setText(_translate("MainWindow", "Save As...", None))
-        self.actionCopy.setText(_translate("MainWindow", "Copy", None))
-        self.actionPaste.setText(_translate("MainWindow", "Paste", None))
-        self.actionFind.setText(_translate("MainWindow", "Find", None))
-        self.actionFind_and_Replace.setText(_translate("MainWindow", "Find and Replace", None))
-        self.actionDisplayFonts.setText(_translate("MainWindow", "Display Fonts", None))
-        self.actionWord_Wrap.setText(_translate("MainWindow", "Word Wrap", None))
-        self.actionIndent_Selection.setText(_translate("MainWindow", "Indent Selection", None))
-        self.actionUnindent_Selection.setText(_translate("MainWindow", "Unindent Selection", None))
-        self.actionTabs_to_Space.setText(_translate("MainWindow", "Tabs to Space", None))
-        self.actionOptions.setText(_translate("MainWindow", "Options", None))
-        self.actionAbout.setText(_translate("MainWindow", "About", None))
-        self.actionManual.setText(_translate("MainWindow", "Manual", None))
+        if repeated:
+            pass
+        else:
+            self.recent_files.append(filename)
+            self.recent_files_actions.append(QtGui.QAction(filename, self))
 
-
-    def OpenFile(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File', './')
+    # reads in file contents and sets up parameters for current window
+    def __openfile(self, filename):
         with open(filename, 'r') as fp:
             self.plainTextEdit.setPlainText(\
                 fp.read().replace('\t',' '*self.tabstop))
-
         self.filename = filename
+        self.edited = False
+        self.update_recent_files(self.filename)
+        self.refresh_main_menu()
 
+    # Saves file and sets up stuff 
+    def __savefile(self, filename):
+        with open(filename, 'w') as fp:
+            fp.write(self.plainTextEdit.toPlainText())
+        self.filename = filename
+        self.edited = False
+
+    # Open file method
+    def OpenFile(self):
+        filename = QtGui.QFileDialog.getOpenFileName(self, 'Open File', './')
+        self.__openfile(filename)
+
+    # Save file method
+    def SaveFile(self):
+        if self.filename == False:
+            filename = QtGui.QFileDialog.getSaveFileName(self, 'Save File', './')
+            self.__savefile(filename)
+        else:
+            self.__savefile(self.filename)
+
+    # Save As
+    def SaveAs(self):
+        filename = QtGui.QFileDialog.getSaveFileName(self, 'Save File', './')
+        self.__savefile(filename)
+
+        
