@@ -10,7 +10,7 @@
 
 from PyQt4 import QtCore, QtGui
 
-version = '0.0.0.2'
+version = '0.0.0.3'
 Title = 'TEdit '+version
 
 try:
@@ -44,9 +44,21 @@ class MainWindow(QtGui.QMainWindow):
         self.font = QtGui.QFont("Courier New")
         self.font.setPointSize(14)
         self.font.setStyleHint(QtGui.QFont.Monospace)
+        self.__setupSettings()
+        self.__loadSettings()
 
         self.setupUi()
 
+    def __setupSettings(self):
+        self.settings = QtCore.QSettings(Title, 'Taylor Shin')
+
+    def __loadSettings(self):
+        self.recent_files = self.settings.value('recent list',\
+            type=list)
+        self.recent_files_actions = \
+            [[] for x in len(range(self.recent_files))]
+        for i, r in enumerate(self.recent_files):
+            self.recent_files_actions[i] = r
 
     ## setupUi
     #
@@ -150,7 +162,6 @@ class MainWindow(QtGui.QMainWindow):
         # Help Menu
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionManual)
-
         
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
@@ -187,7 +198,7 @@ class MainWindow(QtGui.QMainWindow):
         self.edited = False
         self.update_recent_files(self.filename)
         self.refresh_main_menu()
-        self.__updateWinTitle(self.filename, self.edited)
+        self.__updateWinTitle()
 
     ## __savefile
     #
@@ -198,20 +209,22 @@ class MainWindow(QtGui.QMainWindow):
             fp.write(self.plainTextEdit.toPlainText())
         self.filename = filename
         self.edited = False
-        self.__updateWinTitle(self.filename, self.edited)
+        self.__updateWinTitle()
 
     ## __updateWinTitle
     #
     # Update window title
     #
-    def __updateWinTitle(self, filename, unsaved=False):
-        if filename == False:
+    def __updateWinTitle(self):
+        if self.filename == False:
             filename = 'no file'
-        if unsaved:
+        else:
+            filename = self.filename
+        if self.edited:
             self.winTitle = Title + ' - *' + filename
         else:
             self.winTitle = Title + ' - ' + filename
-        #print(self.winTitle)
+
         self.setWindowTitle(self.winTitle)
 
 
@@ -231,7 +244,8 @@ class MainWindow(QtGui.QMainWindow):
         filename = QtGui.QFileDialog.\
             getOpenFileName(self, 'Open File', './')
         if filename:
-            self.__openfile(filename)
+            self.filename = filename
+            self.__openfile(self.filename)
             return filename
         else:
             return False
@@ -245,7 +259,8 @@ class MainWindow(QtGui.QMainWindow):
             filename = QtGui.QFileDialog.\
                 getSaveFileName(self, 'Save File', './')
             if filename:
-                self.__savefile(filename)
+                self.filename = filename
+                self.__savefile(self.filename)
                 return True
             else:
                 return False
@@ -261,7 +276,8 @@ class MainWindow(QtGui.QMainWindow):
         filename = QtGui.QFileDialog.\
             getSaveFileName(self, 'Save File', './')
         if filename:
-            self.__savefile(filename)
+            self.filename = filename
+            self.__savefile(self.filename)
             return filename
         else:
             return False
@@ -303,6 +319,8 @@ class MainWindow(QtGui.QMainWindow):
             self.UnSaved()
             e.ignore()
         else:
+            self.settings.setValue('recent files',\
+                self.recent_files)
             exit()
 
 
@@ -312,7 +330,7 @@ class MainWindow(QtGui.QMainWindow):
     #
     def TextEdited(self):
         self.edited = True
-        self.__updateWinTitle(self.filename, self.edited)
+        self.__updateWinTitle()
 
 
 
