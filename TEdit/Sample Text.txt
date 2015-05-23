@@ -1,0 +1,14 @@
+#######################################
+#                                     #
+#     Sample Text                     #
+#                                     #
+#     Woot Woot Woot!!                #
+#                                     #
+#######################################
+
+Test text document!!
+
+We can set up fonts now!!!
+
+Oki Doki
+
