@@ -11,7 +11,7 @@
 from PyQt4 import QtCore, QtGui
 from functools import partial
 
-Debug_Mode = False
+Debug_Mode = True
 
 version = '0.0.0.4'
 Title = 'TEdit '+version
@@ -57,24 +57,34 @@ class MainWindow(QtGui.QMainWindow):
     # Establishes setting management system using QSettings
     #
     def __setupSettings(self):
-        self.settings = QtCore.QSettings(Title, 'Taylor Shin')
+        self.settings = QtCore.QSettings('./TEdit.conf', QtCore.QSettings.NativeFormat)
+
+    ## __saveSettings
+    #
+    # Saves QSettings variables.
+    def __saveSettings(self):
+        self.settings.setValue('recent list', self.recent_files)
+        self.settings.setValue('plainTextEditFont', self.font)
 
     ## __loadSettings
     #
     # reads in settings
     #
     def __loadSettings(self):
+        # Read in recent files
         self.recent_files = self.settings.value('recent list',\
             type=list)
         self.recent_files_actions = \
             [[] for x in range(len(list(self.recent_files)))]
         for i, rf in enumerate(self.recent_files):
-            self.recent_files_actions[i] = QtGui.QAction(str(rf), self)
+            if Debug_Mode == True:
+                print('__loadSettings, rf: ', rf)
+            self.recent_files_actions[i] = QtGui.QAction(rf, self)
 
+        # Read in fonts
+        self.font = self.settings.value('plainTextEditFont', type=QtGui.QFont)
         if Debug_Mode == True:
-            print('__loadSettings')
-            print('rf', self.recent_files)
-            print('rfa', self.recent_files_actions)
+            print('__loadSettings, font: ', self.font.toString())
 
     ## setupUi
     #
@@ -98,8 +108,6 @@ class MainWindow(QtGui.QMainWindow):
         self.refresh_main_menu()
 
         self.setWindowTitle(self.winTitle)
-
-        self.show()
 
     ## refresh_main_menu
     #
@@ -193,7 +201,6 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuPreferneces.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
-
 
     ## __updates_recent_files
     #
@@ -352,8 +359,7 @@ class MainWindow(QtGui.QMainWindow):
             self.UnSaved()
             e.ignore()
         else:
-            self.settings.setValue('recent files',\
-                self.recent_files)
+            self.__saveSettings()
             exit()
 
 

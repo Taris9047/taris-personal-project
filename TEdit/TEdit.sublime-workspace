@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 10412,
+				"buffer_size": 11900,
 				"line_ending": "Unix"
 			}
 		},
@@ -155,7 +155,7 @@
 			"file": "TEdit.py",
 			"settings":
 			{
-				"buffer_size": 280,
+				"buffer_size": 293,
 				"line_ending": "Unix"
 			}
 		},
@@ -163,7 +163,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 247,
+				"buffer_size": 246,
 				"line_ending": "Unix"
 			}
 		}
@@ -213,16 +213,17 @@
 		[
 			[
 				"",
-				"Build: Clean"
+				"Anaconda: Set Python interpreter"
 			]
 		],
-		"width": 404.0
+		"width": 467.0
 	},
 	"console":
 	{
 		"height": 126.0,
 		"history":
 		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
 		]
 	},
 	"distraction_free":
@@ -236,6 +237,9 @@
 	},
 	"file_history":
 	[
+		"/Users/Taris/workshop/TEdit/TEdit.spec",
+		"/Users/Taris/workshop/TEdit/Sample Text.txt",
+		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Users/Taris/workshop/TEdit/MainWindow.py",
 		"/Users/Taris/workshop/TEdit/TEdit.py",
 		"/Users/Taris/workshop/TEdit/Makefile",
@@ -286,7 +290,6 @@
 		"/home/taris/Documents/workshop/Monte_Carlo/Converters.hpp",
 		"/home/taris/Documents/workshop/Monte_Carlo/plot.gp",
 		"/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/c++/v1/vector",
-		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
 		"/Users/Taris/workshop/Monte_Carlo/Molecule.sublime-project",
 		"/Users/Taris/temp/Molecule.cpp",
@@ -303,7 +306,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -317,6 +320,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"update_recent_files",
 			"result",
 			"1",
 			"NULL",
@@ -347,7 +351,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -356,15 +360,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10412,
+						"buffer_size": 11900,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								2541,
+								2541
 							]
 						],
 						"settings":
@@ -374,10 +378,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 979.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -386,15 +390,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 280,
+						"buffer_size": 293,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								152,
-								152
+								257,
+								257
 							]
 						],
 						"settings":
@@ -405,7 +409,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -414,15 +418,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 247,
+						"buffer_size": 246,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								108,
+								108
 							]
 						],
 						"settings":
@@ -433,7 +437,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
@@ -445,7 +449,7 @@
 	},
 	"input":
 	{
-		"height": 0.0
+		"height": 31.0
 	},
 	"layout":
 	{
@@ -478,7 +482,7 @@
 	{
 		"height": 0.0
 	},
-	"pinned_build_system": "Packages/Makefile/Make.sublime-build",
+	"pinned_build_system": "Anaconda Python Builder",
 	"project": "TEdit.sublime-project",
 	"replace":
 	{
