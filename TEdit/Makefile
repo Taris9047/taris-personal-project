@@ -5,7 +5,6 @@ DIST_NAME = TEdit
 DIST = ./dist
 BUILD = ./build
 
-
 all:
 	make run
 

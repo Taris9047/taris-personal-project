@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 8466,
+				"buffer_size": 10412,
 				"line_ending": "Unix"
 			}
 		},
@@ -156,6 +156,14 @@
 			"settings":
 			{
 				"buffer_size": 280,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Makefile",
+			"settings":
+			{
+				"buffer_size": 247,
 				"line_ending": "Unix"
 			}
 		}
@@ -339,7 +347,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -348,15 +356,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8466,
+						"buffer_size": 10412,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5796,
-								5796
+								0,
+								0
 							]
 						],
 						"settings":
@@ -366,10 +374,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2272.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -392,6 +400,34 @@
 						"settings":
 						{
 							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Makefile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 247,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Makefile/Makefile.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -443,7 +479,7 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "Packages/Makefile/Make.sublime-build",
-	"project": "",
+	"project": "TEdit.sublime-project",
 	"replace":
 	{
 		"height": 42.0

@@ -9,8 +9,11 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from functools import partial
 
-version = '0.0.0.3'
+Debug_Mode = False
+
+version = '0.0.0.4'
 Title = 'TEdit '+version
 
 try:
@@ -49,16 +52,29 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setupUi()
 
+    ## __setupSettings
+    #
+    # Establishes setting management system using QSettings
+    #
     def __setupSettings(self):
         self.settings = QtCore.QSettings(Title, 'Taylor Shin')
 
+    ## __loadSettings
+    #
+    # reads in settings
+    #
     def __loadSettings(self):
         self.recent_files = self.settings.value('recent list',\
             type=list)
         self.recent_files_actions = \
-            [[] for x in len(range(self.recent_files))]
-        for i, r in enumerate(self.recent_files):
-            self.recent_files_actions[i] = r
+            [[] for x in range(len(list(self.recent_files)))]
+        for i, rf in enumerate(self.recent_files):
+            self.recent_files_actions[i] = QtGui.QAction(str(rf), self)
+
+        if Debug_Mode == True:
+            print('__loadSettings')
+            print('rf', self.recent_files)
+            print('rfa', self.recent_files_actions)
 
     ## setupUi
     #
@@ -138,10 +154,20 @@ class MainWindow(QtGui.QMainWindow):
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
         self.menuFile.addSeparator()
+
         if len(self.recent_files_actions) > 0:
-            for i, ra in enumerate(self.recent_files_actions):
-                self.menuFile.addAction(ra)
+            for i, rfa in enumerate(self.recent_files_actions):
+                self.recent_files_actions[i].triggered.connect(\
+                    partial(self.__openfile, filename=self.recent_files[i]))
+                self.menuFile.addAction(self.recent_files_actions[i])
             self.menuFile.addSeparator()
+
+            if Debug_Mode == True:
+                print('rf at refresh main menu')
+                print('rf: ', self.recent_files)
+                print('rfa at refresh main menu')
+                print('rfa', self.recent_files_actions)
+            
         self.menuFile.addAction(self.actionQuit)
 
         # Edit Menu
@@ -169,22 +195,23 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar.addAction(self.menuHelp.menuAction())
 
 
-    ## updates_recent_files
+    ## __updates_recent_files
     #
     # Update recent file in the main menu.
     #
-    def update_recent_files(self, filename):
+    def __update_recent_files(self):
         repeated = False
         for rf in self.recent_files:
-            if filename == rf:
+            if self.filename == rf:
                 repeated = True
 
         if repeated:
-            pass
+            return False
         else:
-            self.recent_files.append(filename)
+            self.recent_files.append(self.filename)
             self.recent_files_actions.\
-                append(QtGui.QAction(filename, self))
+                append(QtGui.QAction(self.filename, self))
+            return True
 
     ## __openfile
     #
@@ -196,9 +223,11 @@ class MainWindow(QtGui.QMainWindow):
                 fp.read().replace('\t',' '*self.tabstop))
         self.filename = filename
         self.edited = False
-        self.update_recent_files(self.filename)
-        self.refresh_main_menu()
+        self.__update_recent_files()
         self.__updateWinTitle()
+
+        if Debug_Mode == True:
+            print('__openfile is opening: ', self.filename)
 
     ## __savefile
     #
@@ -233,22 +262,25 @@ class MainWindow(QtGui.QMainWindow):
     # New File method
     #
     def NewFile(self):
-        self.plainTextEdit.clear()
-        self.filename = False
+        if self.UnSaved() != True:
+            self.plainTextEdit.clear()
+            self.filename = False
 
     ## OpenFile
     #
     # Open file method
     #
     def OpenFile(self):
-        filename = QtGui.QFileDialog.\
-            getOpenFileName(self, 'Open File', './')
-        if filename:
-            self.filename = filename
-            self.__openfile(self.filename)
-            return filename
-        else:
-            return False
+        if self.UnSaved() != True:
+            filename = QtGui.QFileDialog.\
+                getOpenFileName(self, 'Open File', './')
+            if filename:
+                self.filename = filename
+                self.__openfile(self.filename)
+                self.refresh_main_menu()
+                return filename
+            else:
+                return False
 
     ## SaveFile
     #
@@ -297,18 +329,19 @@ class MainWindow(QtGui.QMainWindow):
     # Detects the un-saved states and pops up dialog
     #
     def UnSaved(self):
-        answer = QtGui.QMessageBox.question(self,
-            "Unsaved changes detected!!",
-            "Would you save unsaved changes now?",
-            QtGui.MessageBox.Yes|QMessageBox.No|
-            QMessageBox.Cancel)
+        if self.edited == True:
+            answer = QtGui.QMessageBox.question(self,
+                "Unsaved changes detected!!",
+                "Would you save unsaved changes now?",
+                QtGui.QMessageBox.Yes|QtGui.QMessageBox.No|
+                QtGui.QMessageBox.Cancel)
 
-        if answer == QMessageBox.Cancel:
-            return True
-        elif answer == QMessageBox.No:
-            return False
-        elif answer == QmessageBox.Yes:
-            return self.SaveFile()
+            if answer == QtGui.QMessageBox.Cancel:
+                return True
+            elif answer == QtGui.QMessageBox.No:
+                return False
+            elif answer == QtGui.QmessageBox.Yes:
+                return self.SaveFile()
 
     ## eventClose
     #
