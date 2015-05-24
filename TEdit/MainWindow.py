@@ -15,7 +15,7 @@ import os
 
 Debug_Mode = True
 
-version = '0.0.0.6-1'
+version = '0.0.0.6-2'
 Title = 'TEdit '+version
 
 try:
@@ -358,6 +358,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.UnSaved() == True:
                 e.ignore()
             else:
+                self.__saveSettings()
                 e.accept()
         else:
             self.__saveSettings()

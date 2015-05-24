@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 11762,
+				"buffer_size": 11856,
 				"line_ending": "Unix"
 			}
 		},
@@ -155,7 +155,7 @@
 			"file": "TEdit.py",
 			"settings":
 			{
-				"buffer_size": 293,
+				"buffer_size": 321,
 				"line_ending": "Unix"
 			}
 		},
@@ -351,7 +351,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -360,15 +360,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11762,
+						"buffer_size": 11856,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								8239,
-								8239
+								396,
+								396
 							]
 						],
 						"settings":
@@ -378,10 +378,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5158.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -390,15 +390,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 293,
+						"buffer_size": 321,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								236,
-								236
+								321,
+								321
 							]
 						],
 						"settings":
@@ -409,7 +409,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -437,7 +437,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
