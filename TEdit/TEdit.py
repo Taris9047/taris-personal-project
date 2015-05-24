@@ -8,6 +8,7 @@ import sys
 
 def main():
 	app = QtGui.QApplication(sys.argv)
+	#app.setStyle('plastique')
 	main = MainWindow()
 	main.show()
 	sys.exit(app.exec_())

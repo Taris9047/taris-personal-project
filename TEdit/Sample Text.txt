@@ -14,3 +14,5 @@ Testing Save-Load
 
 Recent files works!!
 
+Ok, let's continue to implement other functions!!
+

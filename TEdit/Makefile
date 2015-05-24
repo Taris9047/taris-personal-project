@@ -8,7 +8,8 @@ BUILD = ./build
 all:
 	make run
 
-freeze:
+freeze: TEdit.py MainWindow.py
+	make clean
 	$(PYINST) $(PYIOPTIONS) $(MAIN_FILE)
 
 clean:

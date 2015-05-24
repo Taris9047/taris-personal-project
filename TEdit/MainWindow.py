@@ -15,7 +15,7 @@ import os
 
 Debug_Mode = True
 
-version = '0.0.0.5'
+version = '0.0.0.6-1'
 Title = 'TEdit '+version
 
 try:
@@ -64,7 +64,7 @@ class MainWindow(QtGui.QMainWindow):
     # Establishes setting management system using QSettings
     #
     def __setupSettings(self):
-        self.settings = QtCore.QSettings(self.curr_path+'/'+'TEdit.conf', QtCore.QSettings.NativeFormat)
+        self.settings = QtCore.QSettings(Title, 'Taylor Shin')
 
     ## __saveSettings
     #
@@ -98,7 +98,8 @@ class MainWindow(QtGui.QMainWindow):
     #
     def setupUi(self):
         self.resize(640, 700)
-        self.menubar = QtGui.QMenuBar(self)
+        self.menubar = QtGui.QMenuBar()
+        #self.menubar = self.menuBar()
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.plainTextEdit = QtGui.QPlainTextEdit(self.centralwidget)
@@ -345,7 +346,7 @@ class MainWindow(QtGui.QMainWindow):
                 return True
             elif answer == QtGui.QMessageBox.No:
                 return False
-            elif answer == QtGui.QmessageBox.Yes:
+            elif answer == QtGui.QMessageBox.Yes:
                 return self.SaveFile()
 
     ## closeEvent
@@ -354,8 +355,10 @@ class MainWindow(QtGui.QMainWindow):
     #
     def closeEvent(self, e):
         if self.edited == True:
-            self.UnSaved()
-            e.ignore()
+            if self.UnSaved() == True:
+                e.ignore()
+            else:
+                e.accept()
         else:
             self.__saveSettings()
             e.accept()

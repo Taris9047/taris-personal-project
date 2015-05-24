@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 11900,
+				"buffer_size": 11762,
 				"line_ending": "Unix"
 			}
 		},
@@ -163,7 +163,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 246,
+				"buffer_size": 288,
 				"line_ending": "Unix"
 			}
 		}
@@ -360,15 +360,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 11900,
+						"buffer_size": 11762,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2541,
-								2541
+								8239,
+								8239
 							]
 						],
 						"settings":
@@ -378,10 +378,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 979.0,
+						"translation.y": 5158.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -397,8 +397,8 @@
 						"selection":
 						[
 							[
-								257,
-								257
+								236,
+								236
 							]
 						],
 						"settings":
@@ -418,15 +418,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 246,
+						"buffer_size": 288,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								108,
-								108
+								156,
+								156
 							]
 						],
 						"settings":
@@ -437,7 +437,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
