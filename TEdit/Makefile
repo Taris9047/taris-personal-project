@@ -12,7 +12,7 @@ freeze:
 	$(PYINST) $(PYIOPTIONS) $(MAIN_FILE)
 
 clean:
-	rm -rfv $(BUILD) $(DIST) ./__pycache__
+	rm -rfv $(BUILD) $(DIST) ./__pycache__ *.conf
 
 run:
 	python ./TEdit.py

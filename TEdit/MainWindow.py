@@ -10,10 +10,12 @@
 
 from PyQt4 import QtCore, QtGui
 from functools import partial
+from pickle import dump, loads
+import os
 
 Debug_Mode = True
 
-version = '0.0.0.4'
+version = '0.0.0.5'
 Title = 'TEdit '+version
 
 try:
@@ -32,12 +34,17 @@ except AttributeError:
         return QtGui.QApplication.\
             translate(context, text, disambig)
 
+## MainWindow
+#
+# Main window of TEdit program.
+#
 class MainWindow(QtGui.QMainWindow):
     ## Constructor
     #
     def __init__(self):
         super(MainWindow, self).__init__()
         self.filename = False
+        self.curr_path = os.path.dirname(os.path.realpath(__file__))
         self.edited = False
         self.tabstop = 4
         self.recent_files = []
@@ -57,13 +64,14 @@ class MainWindow(QtGui.QMainWindow):
     # Establishes setting management system using QSettings
     #
     def __setupSettings(self):
-        self.settings = QtCore.QSettings('./TEdit.conf', QtCore.QSettings.NativeFormat)
+        self.settings = QtCore.QSettings(self.curr_path+'/'+'TEdit.conf', QtCore.QSettings.NativeFormat)
 
     ## __saveSettings
     #
     # Saves QSettings variables.
     def __saveSettings(self):
-        self.settings.setValue('recent list', self.recent_files)
+        joined_rf = ';'.join(self.recent_files)
+        self.settings.setValue('recent files', str(joined_rf))
         self.settings.setValue('plainTextEditFont', self.font)
 
     ## __loadSettings
@@ -72,19 +80,17 @@ class MainWindow(QtGui.QMainWindow):
     #
     def __loadSettings(self):
         # Read in recent files
-        self.recent_files = self.settings.value('recent list',\
-            type=list)
+        rf_loaded = self.settings.value('recent files', type=str)
+        if rf_loaded:
+            self.recent_files = rf_loaded.split(';')
+        
         self.recent_files_actions = \
             [[] for x in range(len(list(self.recent_files)))]
         for i, rf in enumerate(self.recent_files):
-            if Debug_Mode == True:
-                print('__loadSettings, rf: ', rf)
             self.recent_files_actions[i] = QtGui.QAction(rf, self)
 
         # Read in fonts
         self.font = self.settings.value('plainTextEditFont', type=QtGui.QFont)
-        if Debug_Mode == True:
-            print('__loadSettings, font: ', self.font.toString())
 
     ## setupUi
     #
@@ -170,12 +176,6 @@ class MainWindow(QtGui.QMainWindow):
                 self.menuFile.addAction(self.recent_files_actions[i])
             self.menuFile.addSeparator()
 
-            if Debug_Mode == True:
-                print('rf at refresh main menu')
-                print('rf: ', self.recent_files)
-                print('rfa at refresh main menu')
-                print('rfa', self.recent_files_actions)
-            
         self.menuFile.addAction(self.actionQuit)
 
         # Edit Menu
@@ -233,9 +233,6 @@ class MainWindow(QtGui.QMainWindow):
         self.__update_recent_files()
         self.__updateWinTitle()
 
-        if Debug_Mode == True:
-            print('__openfile is opening: ', self.filename)
-
     ## __savefile
     #
     # Saves file and sets up stuff 
@@ -262,7 +259,6 @@ class MainWindow(QtGui.QMainWindow):
             self.winTitle = Title + ' - ' + filename
 
         self.setWindowTitle(self.winTitle)
-
 
     ## NewFile
     #
@@ -329,6 +325,8 @@ class MainWindow(QtGui.QMainWindow):
         self.font, status = QtGui.QFontDialog.getFont()
         if status:
             self.plainTextEdit.setFont(self.font)
+            if Debug_Mode == True:
+                print('Font has set to: ', self.font.toString())
 
 
     ## UnSaved
@@ -350,18 +348,17 @@ class MainWindow(QtGui.QMainWindow):
             elif answer == QtGui.QmessageBox.Yes:
                 return self.SaveFile()
 
-    ## eventClose
+    ## closeEvent
     #
     # Deals what happens when closing the program.
     #
-    def eventClose(self, e):
+    def closeEvent(self, e):
         if self.edited == True:
             self.UnSaved()
             e.ignore()
         else:
             self.__saveSettings()
-            exit()
-
+            e.accept()
 
     ## TextEdited
     #
