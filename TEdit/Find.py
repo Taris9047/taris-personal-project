@@ -19,26 +19,17 @@ class Find(QtGui.QDialog):
         self.findButton = QtGui.QPushButton("Find", self)
         self.findButton.clicked.connect(self.find)
 
-        #self.normalRadio = QtGui.QRadioButton("Normal", self)
-        #self.normalRadio.toggled.connect(self.normalMode)
-
-        #self.regexRadio = QtGui.QRadioButton("RegEx", self)
-        #self.regexRadio.toggled.connect(self.regexMode)
-
         self.findField = QtGui.QTextEdit(self)
         self.findField.resize(250, 15)
 
         layout = QtGui.QGridLayout()
 
         layout.addWidget(self.findField, 1, 0, 1, 4)
-        #layout.addWidget(self.normalRadio, 2, 2)
-        #layout.addWidget(self.regexRadio, 2, 3)
         layout.addWidget(self.findButton, 2, 0, 1, 2)
 
         self.setGeometry(300, 300, 360, 50)
         self.setWindowTitle("Find")
         self.setLayout(layout)
-        #self.normalRadio.setChecked(True)
 
     def find(self):
         # Grab parent's text
@@ -46,13 +37,6 @@ class Find(QtGui.QDialog):
 
         # And the text to find as well
         query = self.findField.toPlainText()
-
-        # Whole Words mode
-        #if self.wholeWords.isChecked():
-        #    query = r'\W' + query + r'\W'
-
-        # detect if regEx is on
-        #flags = 0 if self.caseSens.isChecked() else re.I
         flags = re.I
 
         # Compile the pattern
@@ -72,22 +56,6 @@ class Find(QtGui.QDialog):
 
         else:
             self.parent.text.moveCursor(QtGui.QTextCursor.End)
-
-    #def regexMode(self):
-
-        # First uncheck the checkboxes
-        #self.caseSens.setChecked(False)
-        #self.wholeWords.setChecked(False)
-
-        # Then disable them (gray them out)
-        #self.caseSens.setEnabled(False)
-        #self.wholeWords.setEnabled(False)
-
-    #def normalMode(self):
-
-        # Enable checkboxes (un-gray them)
-        #self.caseSens.setEnabled(True)
-        #self.wholeWords.setEnabled(True)
 
     def moveCursor(self, start, end):
 
