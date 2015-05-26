@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python
 
 # Form implementation generated from reading ui file './TEditUI.ui'
 #
@@ -9,14 +8,14 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from Find import *
 from functools import partial
-from pickle import dump, loads
 import os
 
 Debug_Mode = True
 
-version = '0.0.0.6-2'
-Title = 'TEdit '+version
+version = '0.0.0.7'
+Title = 'TEdit ' + version
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -26,6 +25,7 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.\
             translate(context, text, disambig, _encoding)
@@ -34,13 +34,15 @@ except AttributeError:
         return QtGui.QApplication.\
             translate(context, text, disambig)
 
-## MainWindow
+
+# MainWindow
 #
 # Main window of TEdit program.
 #
 class MainWindow(QtGui.QMainWindow):
-    ## Constructor
+    # Constructor
     #
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.filename = False
@@ -59,22 +61,22 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setupUi()
 
-    ## __setupSettings
+    # __setupSettings
     #
     # Establishes setting management system using QSettings
     #
     def __setupSettings(self):
         self.settings = QtCore.QSettings(Title, 'Taylor Shin')
 
-    ## __saveSettings
+    # __saveSettings
     #
     # Saves QSettings variables.
     def __saveSettings(self):
         joined_rf = ';'.join(self.recent_files)
         self.settings.setValue('recent files', str(joined_rf))
-        self.settings.setValue('plainTextEditFont', self.font)
+        self.settings.setValue('textFont', self.font)
 
-    ## __loadSettings
+    # __loadSettings
     #
     # reads in settings
     #
@@ -83,16 +85,16 @@ class MainWindow(QtGui.QMainWindow):
         rf_loaded = self.settings.value('recent files', type=str)
         if rf_loaded:
             self.recent_files = rf_loaded.split(';')
-        
+
         self.recent_files_actions = \
             [[] for x in range(len(list(self.recent_files)))]
         for i, rf in enumerate(self.recent_files):
             self.recent_files_actions[i] = QtGui.QAction(rf, self)
 
         # Read in fonts
-        self.font = self.settings.value('plainTextEditFont', type=QtGui.QFont)
+        self.font = self.settings.value('textFond', type=QtGui.QFont)
 
-    ## setupUi
+    # setupUi
     #
     # establish UI for the editor
     #
@@ -102,11 +104,11 @@ class MainWindow(QtGui.QMainWindow):
         #self.menubar = self.menuBar()
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.plainTextEdit = QtGui.QPlainTextEdit(self.centralwidget)
-        self.plainTextEdit.setFont(self.font)
-        self.gridLayout.addWidget(self.plainTextEdit, 0, 0, 1, 1)
+        self.text = QtGui.QPlainTextEdit(self.centralwidget)
+        self.text.setFont(self.font)
+        self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
-        self.plainTextEdit.document()\
+        self.text.document()\
             .modificationChanged.connect(self.TextEdited)
 
         self.statusbar = QtGui.QStatusBar(self)
@@ -116,7 +118,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle(self.winTitle)
 
-    ## refresh_main_menu
+    # refresh_main_menu
     #
     # refreshes main menubar to update recent file.
     #
@@ -124,44 +126,48 @@ class MainWindow(QtGui.QMainWindow):
         # Menubar definition
         self.menubar.clear()
         self.menuFile = QtGui.QMenu(r'&File', self.menubar)
-        self.menuEdit = QtGui.QMenu(r'&Edit',self.menubar)
-        self.menuPreferneces = QtGui.QMenu(r'&Preferences',self.menubar)
-        self.menuHelp = QtGui.QMenu(r'&Help',self.menubar)
+        self.menuEdit = QtGui.QMenu(r'&Edit', self.menubar)
+        self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
+        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
         self.setMenuBar(self.menubar)
 
         # Actions
-        self.actionNew = QtGui.QAction(r'&New',self)
+        self.actionNew = QtGui.QAction(r'&New', self)
         self.actionNew.setShortcut('Ctrl+N')
         self.actionNew.triggered.connect(self.NewFile)
-        self.actionOpen = QtGui.QAction(r'&Open',self)
+        self.actionOpen = QtGui.QAction(r'&Open', self)
         self.actionOpen.setShortcut('Ctrl+O')
         self.actionOpen.triggered.connect(self.OpenFile)
-        self.actionSave = QtGui.QAction(r'&Save',self)
+        self.actionSave = QtGui.QAction(r'&Save', self)
         self.actionSave.setShortcut('Ctrl+S')
         self.actionSave.triggered.connect(self.SaveFile)
-        self.actionSave_As = QtGui.QAction(r'Save &As...',self)
+        self.actionSave_As = QtGui.QAction(r'Save &As...', self)
         self.actionSave_As.setShortcut('Ctrl+Shift+S')
         self.actionSave_As.triggered.connect(self.SaveAs)
-        self.actionQuit = QtGui.QAction(r'&Quit',self)
+        self.actionQuit = QtGui.QAction(r'&Quit', self)
         self.actionQuit.setShortcut('Ctrl+Q')
         self.actionQuit.triggered.connect(self.close)
 
-        self.actionCopy = QtGui.QAction(r'&Copy',self)
-        self.actionPaste = QtGui.QAction(r'&Paste',self)
-        self.actionFind = QtGui.QAction(r'&Find',self)
+        self.actionCopy = QtGui.QAction(r'&Copy', self)
+        self.actionPaste = QtGui.QAction(r'&Paste', self)
+        self.actionFind = QtGui.QAction(r'&Find', self)
+        self.actionFind.setShortcut('Ctrl+F')
+        self.actionFind.triggered.connect(self.Find_)
         self.actionFind_and_Replace = \
-            QtGui.QAction(r'Find and &Replace',self)
-        self.actionDisplayFonts = QtGui.QAction(r'Fon&ts',self)
+            QtGui.QAction(r'Find and &Replace', self)
+        self.actionFind_and_Replace.setShortcut('Ctrl+Shift+F')
+        self.actionFind_and_Replace.triggered.connect(self.Find_and_Replace)
+        self.actionDisplayFonts = QtGui.QAction(r'Fon&ts', self)
         self.actionDisplayFonts.setShortcut('Ctrl+F5')
         self.actionDisplayFonts.triggered.connect(self.setFont)
-        self.actionWord_Wrap = QtGui.QAction(r'&Word Wrap',self)
-        self.actionIndent_Selection = QtGui.QAction(r'&Indent',self)
-        self.actionUnindent_Selection = QtGui.QAction(r'&Unindent',self)
-        self.actionTabs_to_Space = QtGui.QAction(r'&Tabs to Space',self)
-        
-        self.actionOptions = QtGui.QAction(r'&Options',self)
-        self.actionAbout = QtGui.QAction(r'Abo&ut',self)
-        self.actionManual = QtGui.QAction(r'&Manual',self)
+        self.actionWord_Wrap = QtGui.QAction(r'&Word Wrap', self)
+        self.actionIndent_Selection = QtGui.QAction(r'&Indent', self)
+        self.actionUnindent_Selection = QtGui.QAction(r'&Unindent', self)
+        self.actionTabs_to_Space = QtGui.QAction(r'&Tabs to Space', self)
+
+        self.actionOptions = QtGui.QAction(r'&Options', self)
+        self.actionAbout = QtGui.QAction(r'Abo&ut', self)
+        self.actionManual = QtGui.QAction(r'&Manual', self)
 
         # File Menu
         self.menuFile.addAction(self.actionNew)
@@ -172,7 +178,7 @@ class MainWindow(QtGui.QMainWindow):
 
         if len(self.recent_files_actions) > 0:
             for i, rfa in enumerate(self.recent_files_actions):
-                self.recent_files_actions[i].triggered.connect(\
+                self.recent_files_actions[i].triggered.connect(
                     partial(self.__openfile, filename=self.recent_files[i]))
                 self.menuFile.addAction(self.recent_files_actions[i])
             self.menuFile.addSeparator()
@@ -188,22 +194,22 @@ class MainWindow(QtGui.QMainWindow):
         self.menuEdit.addAction(self.actionIndent_Selection)
         self.menuEdit.addAction(self.actionUnindent_Selection)
         self.menuEdit.addAction(self.actionTabs_to_Space)
-        
+
         # Preference Menu
         self.menuPreferneces.addAction(self.actionDisplayFonts)
         self.menuPreferneces.addAction(self.actionWord_Wrap)
         self.menuPreferneces.addAction(self.actionOptions)
-        
+
         # Help Menu
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionManual)
-        
+
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuPreferneces.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
-    ## __updates_recent_files
+    # __updates_recent_files
     #
     # Update recent file in the main menu.
     #
@@ -221,36 +227,36 @@ class MainWindow(QtGui.QMainWindow):
                 append(QtGui.QAction(self.filename, self))
             return True
 
-    ## __openfile
+    # __openfile
     #
     # reads in file contents and sets up parameters for current window
     #
     def __openfile(self, filename):
         with open(filename, 'r') as fp:
-            self.plainTextEdit.setPlainText(\
-                fp.read().replace('\t',' '*self.tabstop))
+            self.text.setPlainText(
+                fp.read().replace('\t', ' ' * self.tabstop))
         self.filename = filename
         self.edited = False
         self.__update_recent_files()
         self.__updateWinTitle()
 
-    ## __savefile
+    # __savefile
     #
-    # Saves file and sets up stuff 
+    # Saves file and sets up stuff
     #
     def __savefile(self, filename):
         with open(filename, 'w') as fp:
-            fp.write(self.plainTextEdit.toPlainText())
+            fp.write(self.text.toPlainText())
         self.filename = filename
         self.edited = False
         self.__updateWinTitle()
 
-    ## __updateWinTitle
+    # __updateWinTitle
     #
     # Update window title
     #
     def __updateWinTitle(self):
-        if self.filename == False:
+        if not self.filename:
             filename = 'no file'
         else:
             filename = self.filename
@@ -261,16 +267,16 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle(self.winTitle)
 
-    ## NewFile
+    # NewFile
     #
     # New File method
     #
     def NewFile(self):
         if self.UnSaved() != True:
-            self.plainTextEdit.clear()
+            self.text.clear()
             self.filename = False
 
-    ## OpenFile
+    # OpenFile
     #
     # Open file method
     #
@@ -286,12 +292,12 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 return False
 
-    ## SaveFile
+    # SaveFile
     #
     # Save file method
     #
     def SaveFile(self):
-        if self.filename == False:
+        if not self.filename:
             filename = QtGui.QFileDialog.\
                 getSaveFileName(self, 'Save File', './')
             if filename:
@@ -304,7 +310,7 @@ class MainWindow(QtGui.QMainWindow):
             self.__savefile(self.filename)
             return True
 
-    ## SaveAs
+    # SaveAs
     #
     # Save As function
     #
@@ -318,28 +324,43 @@ class MainWindow(QtGui.QMainWindow):
         else:
             return False
 
-    ## setFont
+    # Find_
+    #
+    # call out Find
+    #
+    def Find_(self):
+        find_ = Find(self)
+        find_.show()
+
+    # Find_and_Replace
+    #
+    # call out find and replace
+    #
+    def Find_and_Replace(self):
+        find_and_replace = FindnReplace(self)
+        find_and_replace.show()
+
+    # setFont
     #
     # Opens up font dialog
     #
     def setFont(self):
         self.font, status = QtGui.QFontDialog.getFont()
         if status:
-            self.plainTextEdit.setFont(self.font)
-            if Debug_Mode == True:
+            self.text.setFont(self.font)
+            if Debug_Mode:
                 print('Font has set to: ', self.font.toString())
 
-
-    ## UnSaved
+    # UnSaved
     #
     # Detects the un-saved states and pops up dialog
     #
     def UnSaved(self):
-        if self.edited == True:
-            answer = QtGui.QMessageBox.question(self,
-                "Unsaved changes detected!!",
+        if self.edited:
+            answer = QtGui.QMessageBox.question(
+                self, "Unsaved changes detected!!",
                 "Would you save unsaved changes now?",
-                QtGui.QMessageBox.Yes|QtGui.QMessageBox.No|
+                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No |
                 QtGui.QMessageBox.Cancel)
 
             if answer == QtGui.QMessageBox.Cancel:
@@ -349,12 +370,12 @@ class MainWindow(QtGui.QMainWindow):
             elif answer == QtGui.QMessageBox.Yes:
                 return self.SaveFile()
 
-    ## closeEvent
+    # closeEvent
     #
     # Deals what happens when closing the program.
     #
     def closeEvent(self, e):
-        if self.edited == True:
+        if self.edited:
             if self.UnSaved() == True:
                 e.ignore()
             else:
@@ -364,15 +385,10 @@ class MainWindow(QtGui.QMainWindow):
             self.__saveSettings()
             e.accept()
 
-    ## TextEdited
+    # TextEdited
     #
     # Update window title when the textedit was edited.
     #
     def TextEdited(self):
         self.edited = True
         self.__updateWinTitle()
-
-
-
-
-        
