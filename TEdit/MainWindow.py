@@ -8,15 +8,16 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from Find import *
+from Find import Find, FindnReplace
 from functools import partial
-import os, sys
+import os
+import sys
 import ntpath
 ntpath.basename("a/b/c")
 
 Debug_Mode = True
 
-version = '0.0.0.11'
+version = '0.0.0.12'
 Title = 'TEdit ' + version
 
 try:
@@ -45,7 +46,7 @@ class MainWindow(QtGui.QMainWindow):
     # Constructor
     #
 
-    def __init__(self):
+    def __init__(self, clipboard=None):
         super(MainWindow, self).__init__()
         self.filename = False
         self.currdir = False
@@ -59,11 +60,12 @@ class MainWindow(QtGui.QMainWindow):
         self.word_wrap = False
         self.winTitle = Title
 
+        self.clipboard = clipboard
+
         self.setupUi()
 
         self.__setupSettings()
         self.__loadSettings()
-
 
     # __setupSettings
     #
@@ -72,10 +74,10 @@ class MainWindow(QtGui.QMainWindow):
     def __setupSettings(self):
         if sys.platform == 'darwin':
             self.homedir = os.path.expanduser("~")
-            setfile_location = self.homedir+'/.config/'
+            setfile_location = self.homedir + '/.config/'
 
         self.settings = QtCore.QSettings(
-            setfile_location+'TEdit.conf',
+            setfile_location + 'TEdit.conf',
             QtCore.QSettings.IniFormat)
 
     # __saveSettings
@@ -140,6 +142,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.centralwidget)
         self.text.document()\
             .modificationChanged.connect(self.TextEdited)
+        self.textCursor = self.text.textCursor()
 
         self.statusbar = QtGui.QStatusBar(self)
         self.setStatusBar(self.statusbar)
@@ -171,7 +174,11 @@ class MainWindow(QtGui.QMainWindow):
         self.actionQuit.triggered.connect(self.close)
 
         self.actionCopy = QtGui.QAction(r'&Copy', self)
+        self.actionCopy.setShortcut('Ctrl+C')
+        self.actionCopy.triggered.connect(self.copyText)
         self.actionPaste = QtGui.QAction(r'&Paste', self)
+        self.actionPaste.setShortcut('Ctrl+P')
+        self.actionPaste.triggered.connect(self.pasteText)
         self.actionFind = QtGui.QAction(r'&Find', self)
         self.actionFind.setShortcut('Ctrl+F')
         self.actionFind.triggered.connect(self.Find_)
@@ -190,7 +197,6 @@ class MainWindow(QtGui.QMainWindow):
         self.actionOptions = QtGui.QAction(r'&Options', self)
         self.actionAbout = QtGui.QAction(r'Abo&ut', self)
         self.actionManual = QtGui.QAction(r'&Manual', self)
-       
 
     # refresh_main_menu
     #
@@ -204,7 +210,6 @@ class MainWindow(QtGui.QMainWindow):
         self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
         self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
         self.setMenuBar(self.menubar)
-
 
         # File Menu
         self.menuFile.addAction(self.actionNew)
@@ -321,8 +326,8 @@ class MainWindow(QtGui.QMainWindow):
     def OpenFile(self):
         if self.UnSaved() != True:
             filename = QtGui.QFileDialog.\
-                getOpenFileName(self, 'Open File', 
-                    self.homedir if not self.currdir else self.currdir)
+                getOpenFileName(self, 'Open File',
+                self.homedir if not self.currdir else self.currdir)
             if filename:
                 self.filename = filename
                 self.__openfile(self.filename)
@@ -355,8 +360,8 @@ class MainWindow(QtGui.QMainWindow):
     #
     def SaveAs(self):
         filename = QtGui.QFileDialog.\
-            getSaveFileName(self, 'Save File', 
-                self.homedir if not self.currdir else self.currdir)
+            getSaveFileName(self, 'Save File',
+            self.homedir if not self.currdir else self.currdir)
         if filename:
             self.filename = filename
             self.__savefile(self.filename)
@@ -379,6 +384,20 @@ class MainWindow(QtGui.QMainWindow):
     def Find_and_Replace(self):
         find_and_replace = FindnReplace(self)
         find_and_replace.show()
+
+    # copyText
+    #
+    # copy text into clipboard
+    #
+    def copyText(self):
+        textSelected = self.textCursor.selectedText()
+        self.clipboard.setText(textSelected)
+
+    # pasteText
+    def pasteText(self):
+        textToPaste = self.clipboard.text
+        self.textCursor.insertText(textToPaste)
+
 
     # setFont
     #
