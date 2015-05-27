@@ -6,13 +6,12 @@
 #                                     #
 #######################################
 
-Test text document!!
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tortor sem, molestie non quam sed, malesuada mattis enim. Vivamus egestas urna vel malesuada consectetur. Morbi mollis urna id libero pulvinar faucibus. Cras gravida augue sit amet tellus vulputate, eget vulputate ligula posuere. Fusce dignissim quis quam eget facilisis. In vestibulum quam dui, vel porta sapien interdum in. Sed fermentum suscipit ipsum nec gravida. Proin rutrum sapien vel velit fringilla, in consectetur ipsum sagittis. Suspendisse iaculis rhoncus tempus. Praesent maximus ligula nec dui blandit commodo. Fusce enim ex, vehicula a velit ac, imperdiet bibendum lacus. Cras aliquet vitae lacus vel ultricies.
 
-We can set up fonts now!!!
+Aenean commodo enim quis lacus tristique, eget pulvinar lorem tristique. Etiam ut sem non nisl feugiat tristique a at nunc. Nam in accumsan leo. In euismod nibh at tortor dignissim, non eleifend nunc fermentum. Praesent tempor ex ut mi suscipit maximus. Vivamus bibendum cursus aliquam. Nulla ut gravida nulla, vitae sagittis orci. Sed est mi, pretium a neque in, dignissim aliquam turpis. Proin non nisi et ipsum rhoncus pharetra ullamcorper vel justo. Ut magna purus, pellentesque id lectus sit amet, accumsan convallis orci. Suspendisse sit amet tellus quam. Duis elementum nunc sit amet nulla vulputate, ac malesuada lectus rhoncus. In ipsum elit, hendrerit at condimentum in, iaculis at felis. Ut nec lorem vitae ante consectetur egestas. Donec fringilla dui mollis ex scelerisque convallis.
 
-Testing Save-Load
+Vivamus dignissim nisl sed mi ornare facilisis. In eu enim dignissim, sollicitudin libero sit amet, molestie lorem. In hac habitasse platea dictumst. Donec imperdiet ligula dapibus, consectetur sapien ac, auctor nisl. Fusce eleifend arcu ac porttitor accumsan. Donec fermentum ante ac tristique vulputate. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris sed erat arcu.
 
-Recent files works!!
+Maecenas feugiat enim eu faucibus lobortis. Maecenas nec massa nibh. Nullam fermentum imperdiet velit, et auctor eros congue nec. Nulla sed libero orci. Curabitur commodo nec lectus eget molestie. Aliquam id orci ex. Pellentesque nec luctus odio. Proin tincidunt risus vitae neque aliquet aliquam. Mauris elementum purus enim, ut elementum nulla bibendum ac. Nulla nec ipsum ex. Sed lobortis ultrices faucibus.
 
-Ok, let's continue to implement other functions!!
-
+Etiam dictum lacus vel urna auctor, quis facilisis dolor vestibulum. Suspendisse pharetra scelerisque dui, id tempor diam dictum eget. Aliquam et pulvinar urna. Phasellus a mattis mauris. Donec sollicitudin justo non erat laoreet tincidunt. Fusce vitae augue sit amet dui gravida euismod at nec justo. Etiam arcu eros, bibendum a tristique blandit, aliquet sit amet ante. Nulla sagittis nisl quis nibh mattis eleifend. Praesent felis ex, vulputate id sapien tincidunt, lobortis condimentum tellus. Duis porttitor nisl ac magna ullamcorper interdum.

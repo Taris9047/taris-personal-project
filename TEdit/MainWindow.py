@@ -10,11 +10,13 @@
 from PyQt4 import QtCore, QtGui
 from Find import *
 from functools import partial
-import os
+import os, sys
+import ntpath
+ntpath.basename("a/b/c")
 
 Debug_Mode = True
 
-version = '0.0.0.7'
+version = '0.0.0.11'
 Title = 'TEdit ' + version
 
 try:
@@ -46,35 +48,47 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.filename = False
+        self.currdir = False
+        self.fn = False
         self.curr_path = os.path.dirname(os.path.realpath(__file__))
         self.edited = False
         self.tabstop = 4
         self.recent_files = []
         self.recent_files_actions = []
+        self.last_file = []
         self.word_wrap = False
         self.winTitle = Title
-        self.font = QtGui.QFont("Courier New")
-        self.font.setPointSize(14)
-        self.font.setStyleHint(QtGui.QFont.Monospace)
+
+        self.setupUi()
+
         self.__setupSettings()
         self.__loadSettings()
 
-        self.setupUi()
 
     # __setupSettings
     #
     # Establishes setting management system using QSettings
     #
     def __setupSettings(self):
-        self.settings = QtCore.QSettings(Title, 'Taylor Shin')
+        if sys.platform == 'darwin':
+            self.homedir = os.path.expanduser("~")
+            setfile_location = self.homedir+'/.config/'
+
+        self.settings = QtCore.QSettings(
+            setfile_location+'TEdit.conf',
+            QtCore.QSettings.IniFormat)
 
     # __saveSettings
     #
     # Saves QSettings variables.
     def __saveSettings(self):
         joined_rf = ';'.join(self.recent_files)
-        self.settings.setValue('recent files', str(joined_rf))
-        self.settings.setValue('textFont', self.font)
+        if joined_rf:
+            self.settings.setValue('recent files', joined_rf)
+        if self.font:
+            self.settings.setValue('textFont', self.font.toString())
+        if self.filename:
+            self.settings.setValue('lastFile', self.filename)
 
     # __loadSettings
     #
@@ -92,7 +106,21 @@ class MainWindow(QtGui.QMainWindow):
             self.recent_files_actions[i] = QtGui.QAction(rf, self)
 
         # Read in fonts
-        self.font = self.settings.value('textFond', type=QtGui.QFont)
+        self.font = QtGui.QFont(
+            self.settings.value('textFont', type=str))
+        if self.font:
+            self.text.setFont(self.font)
+        else:
+            self.font = QtGui.QFont("Courier New")
+            self.font.setPointSize(14)
+            self.font.setStyleHint(QtGui.QFont.Monospace)
+            self.text.setFont(self.font)
+
+        # reading last file
+        self.lastfile = self.settings.value('lastFile', type=str)
+        print(self.lastfile)
+        if self.lastfile and self.lastfile != 'False':
+            self.__openfile(self.lastfile)
 
     # setupUi
     #
@@ -100,12 +128,14 @@ class MainWindow(QtGui.QMainWindow):
     #
     def setupUi(self):
         self.resize(640, 700)
+
+        self.setupActions()
+
         self.menubar = QtGui.QMenuBar()
         #self.menubar = self.menuBar()
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.text = QtGui.QPlainTextEdit(self.centralwidget)
-        self.text.setFont(self.font)
         self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.text.document()\
@@ -118,20 +148,12 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle(self.winTitle)
 
-    # refresh_main_menu
+    # setupActions
     #
-    # refreshes main menubar to update recent file.
+    # establishes actions for TEdit MainWindow
     #
-    def refresh_main_menu(self):
-        # Menubar definition
-        self.menubar.clear()
-        self.menuFile = QtGui.QMenu(r'&File', self.menubar)
-        self.menuEdit = QtGui.QMenu(r'&Edit', self.menubar)
-        self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
-        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
-        self.setMenuBar(self.menubar)
-
-        # Actions
+    def setupActions(self):
+         # Actions
         self.actionNew = QtGui.QAction(r'&New', self)
         self.actionNew.setShortcut('Ctrl+N')
         self.actionNew.triggered.connect(self.NewFile)
@@ -168,6 +190,21 @@ class MainWindow(QtGui.QMainWindow):
         self.actionOptions = QtGui.QAction(r'&Options', self)
         self.actionAbout = QtGui.QAction(r'Abo&ut', self)
         self.actionManual = QtGui.QAction(r'&Manual', self)
+       
+
+    # refresh_main_menu
+    #
+    # refreshes main menubar to update recent file.
+    #
+    def refresh_main_menu(self):
+        # Menubar definition
+        self.menubar.clear()
+        self.menuFile = QtGui.QMenu(r'&File', self.menubar)
+        self.menuEdit = QtGui.QMenu(r'&Edit', self.menubar)
+        self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
+        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
+        self.setMenuBar(self.menubar)
+
 
         # File Menu
         self.menuFile.addAction(self.actionNew)
@@ -236,6 +273,7 @@ class MainWindow(QtGui.QMainWindow):
             self.text.setPlainText(
                 fp.read().replace('\t', ' ' * self.tabstop))
         self.filename = filename
+        self.currdir, self.fn = ntpath.split(self.filename)
         self.edited = False
         self.__update_recent_files()
         self.__updateWinTitle()
@@ -283,7 +321,8 @@ class MainWindow(QtGui.QMainWindow):
     def OpenFile(self):
         if self.UnSaved() != True:
             filename = QtGui.QFileDialog.\
-                getOpenFileName(self, 'Open File', './')
+                getOpenFileName(self, 'Open File', 
+                    self.homedir if not self.currdir else self.currdir)
             if filename:
                 self.filename = filename
                 self.__openfile(self.filename)
@@ -299,7 +338,7 @@ class MainWindow(QtGui.QMainWindow):
     def SaveFile(self):
         if not self.filename:
             filename = QtGui.QFileDialog.\
-                getSaveFileName(self, 'Save File', './')
+                getSaveFileName(self, 'Save File', self.homedir)
             if filename:
                 self.filename = filename
                 self.__savefile(self.filename)
@@ -316,7 +355,8 @@ class MainWindow(QtGui.QMainWindow):
     #
     def SaveAs(self):
         filename = QtGui.QFileDialog.\
-            getSaveFileName(self, 'Save File', './')
+            getSaveFileName(self, 'Save File', 
+                self.homedir if not self.currdir else self.currdir)
         if filename:
             self.filename = filename
             self.__savefile(self.filename)
