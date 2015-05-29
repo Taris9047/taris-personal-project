@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 13365,
+				"buffer_size": 13975,
 				"line_ending": "Unix"
 			}
 		},
@@ -163,7 +163,7 @@
 			"file": "TEdit.py",
 			"settings":
 			{
-				"buffer_size": 243,
+				"buffer_size": 267,
 				"line_ending": "Unix"
 			}
 		},
@@ -241,7 +241,7 @@
 		[
 			[
 				"",
-				"Anaconda: Next lint error"
+				"Package Control: Install Package"
 			]
 		],
 		"width": 449.0
@@ -265,6 +265,7 @@
 	},
 	"file_history":
 	[
+		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
 		"/Users/Taris/workshop/TEdit/setup.py",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/SublimePythonIDE/SublimePython.sublime-settings",
@@ -384,7 +385,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -393,15 +394,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 13365,
+						"buffer_size": 13975,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								12920,
-								12920
+								428,
+								428
 							]
 						],
 						"settings":
@@ -411,10 +412,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 3201.0,
+						"translation.y": 18.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -430,20 +431,22 @@
 						"selection":
 						[
 							[
-								725,
-								725
+								2136,
+								2136
 							]
 						],
 						"settings":
 						{
 							"auto_name": "",
-							"syntax": "Packages/Python/Python.tmLanguage"
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1091.0,
+						"translation.y": 1085.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -452,15 +455,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 243,
+						"buffer_size": 267,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								86,
-								86
+								267,
+								267
 							]
 						],
 						"settings":
@@ -471,7 +474,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -499,7 +502,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -557,6 +560,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"",
+				"~/workshop/TEdit/MainWindow.py"
+			]
 		],
 		"width": 0.0
 	},
