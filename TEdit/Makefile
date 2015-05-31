@@ -1,4 +1,5 @@
 PYIOPTIONS = -F -w
+PYTHON = python3 -u 
 PYINST = pyinstaller
 MAIN_FILE = TEdit.py
 DIST_NAME = TEdit
@@ -17,8 +18,8 @@ py2app: TEdit.py MainWindow.py Find.py setup.py
 	python setup.py py2app -A
 
 clean:
-	rm -rfv $(BUILD) $(DIST) ./__pycache__ *.conf *.pyc
+	rm -rfv $(BUILD) $(DIST) ./__pycache__/ *.conf *.pyc ./.config/
 
 run:
-	python ./TEdit.py
+	$(PYTHON) ./TEdit.py
 

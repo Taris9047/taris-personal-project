@@ -5,9 +5,11 @@ from PyQt4 import QtGui
 import sys
 
 
+ver = '0.0.0.13'
+
 def main():
     app = QtGui.QApplication(sys.argv)
-    main = MainWindow(app.clipboard())
+    main = MainWindow(app.clipboard(), ver)
     main.show()
     sys.exit(app.exec_())
 

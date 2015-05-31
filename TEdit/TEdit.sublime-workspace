@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 13975,
+				"buffer_size": 14315,
 				"line_ending": "Unix"
 			}
 		},
@@ -163,7 +163,7 @@
 			"file": "TEdit.py",
 			"settings":
 			{
-				"buffer_size": 267,
+				"buffer_size": 290,
 				"line_ending": "Unix"
 			}
 		},
@@ -171,7 +171,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 390,
+				"buffer_size": 402,
 				"line_ending": "Unix"
 			}
 		}
@@ -265,9 +265,10 @@
 	},
 	"file_history":
 	[
+		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
+		"/usr/local/Cellar/python/2.7.10/Frameworks/Python.framework/Versions/2.7/lib/python2.7/ntpath.py",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
 		"/Users/Taris/workshop/TEdit/setup.py",
-		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/SublimePythonIDE/SublimePython.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
 		"/Users/Taris/workshop/TEdit/TEdit.spec",
@@ -353,6 +354,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"python_interpreter",
+			"self.winTitle",
 			"plainTextEdit",
 			"update_recent_files",
 			"result",
@@ -394,15 +397,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 13975,
+						"buffer_size": 14315,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								428,
-								428
+								13046,
+								13046
 							]
 						],
 						"settings":
@@ -412,7 +415,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 18.0,
+						"translation.y": 5495.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -431,8 +434,8 @@
 						"selection":
 						[
 							[
-								2136,
-								2136
+								23,
+								23
 							]
 						],
 						"settings":
@@ -443,7 +446,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 1085.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
@@ -455,15 +458,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 267,
+						"buffer_size": 290,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								267,
-								267
+								224,
+								224
 							]
 						],
 						"settings":
@@ -483,15 +486,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 390,
+						"buffer_size": 402,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								388,
-								388
+								351,
+								351
 							]
 						],
 						"settings":
