@@ -15,6 +15,7 @@ import sys
 import ntpath
 ntpath.basename("a/b/c")
 
+
 Debug_Mode = True
 
 try:
@@ -42,7 +43,6 @@ except AttributeError:
 class MainWindow(QtGui.QMainWindow):
     ## Constructor
     #
-
     def __init__(self, clipboard=None, ver='0.0.0.0'):
         super(MainWindow, self).__init__()
         self.filename = False
@@ -121,9 +121,6 @@ class MainWindow(QtGui.QMainWindow):
         for i, rf in enumerate(self.recent_files):
             self.recent_files_actions[i] = QtGui.QAction(rf, self)
 
-        # refresh main menu to add actions into File menu.
-        self.refresh_main_menu()
-
         # Read in fonts
         self.font = QtGui.QFont(
             self.settings.value('textFont', type=str))
@@ -143,6 +140,9 @@ class MainWindow(QtGui.QMainWindow):
 
         self.word_wrap = self.settings.value('Option_WordWrap', type=bool)
         self.setTextWrap()
+
+        # refresh main menu to add actions into File menu.
+        self.refresh_main_menu()
 
     ## setupUi
     #
@@ -179,15 +179,19 @@ class MainWindow(QtGui.QMainWindow):
         self.actionNew = QtGui.QAction(r'&New', self)
         self.actionNew.setShortcut('Ctrl+N')
         self.actionNew.triggered.connect(self.NewFile)
+        
         self.actionOpen = QtGui.QAction(r'&Open', self)
         self.actionOpen.setShortcut('Ctrl+O')
         self.actionOpen.triggered.connect(self.OpenFile)
+        
         self.actionSave = QtGui.QAction(r'&Save', self)
         self.actionSave.setShortcut('Ctrl+S')
         self.actionSave.triggered.connect(self.SaveFile)
+        
         self.actionSave_As = QtGui.QAction(r'Save &As...', self)
         self.actionSave_As.setShortcut('Ctrl+Shift+S')
         self.actionSave_As.triggered.connect(self.SaveAs)
+        
         self.actionQuit = QtGui.QAction(r'&Quit', self)
         self.actionQuit.setShortcut('Ctrl+Q')
         self.actionQuit.triggered.connect(self.close)
@@ -195,25 +199,25 @@ class MainWindow(QtGui.QMainWindow):
         self.actionCopy = QtGui.QAction(r'&Copy', self)
         self.actionCopy.setShortcut('Ctrl+C')
         self.actionCopy.triggered.connect(self.copyText)
+        
         self.actionPaste = QtGui.QAction(r'&Paste', self)
         self.actionPaste.setShortcut('Ctrl+P')
         self.actionPaste.triggered.connect(self.pasteText)
+        
         self.actionFind = QtGui.QAction(r'&Find', self)
         self.actionFind.setShortcut('Ctrl+F')
         self.actionFind.triggered.connect(self.Find_)
+        
         self.actionFind_and_Replace = \
             QtGui.QAction(r'Find and &Replace', self)
         self.actionFind_and_Replace.setShortcut('Ctrl+Shift+F')
         self.actionFind_and_Replace.triggered.connect(self.Find_and_Replace)
+        
         self.actionDisplayFonts = QtGui.QAction(r'Fon&ts', self)
         self.actionDisplayFonts.setShortcut('Ctrl+F5')
         self.actionDisplayFonts.triggered.connect(self.setFont)
-        if self.word_wrap == True:
-            self.actionWord_Wrap = QtGui.QAction(r'Set &Word Wrap Off', self)
-        elif self.word_wrap == False:
-            self.actionWord_Wrap = QtGui.QAction(r'Set &Word Wrap On', self)
-        else:
-            self.actionWord_Wrap = QtGui.QAction(r'Word Wrap', self)
+
+        self.actionWord_Wrap = QtGui.QAction(r'Toggle Word Wrap', self)
         self.actionWord_Wrap.setShortcut('Ctrl+Alt+W')
         self.actionWord_Wrap.triggered.connect(self.toggleTextWrap)
 
@@ -225,8 +229,13 @@ class MainWindow(QtGui.QMainWindow):
         self.actionTabs_to_Space.triggered.connect(self.TabsToSpace)
 
         self.actionOptions = QtGui.QAction(r'&Options', self)
+        self.actionOptions.setShortcut('F4')
+
         self.actionAbout = QtGui.QAction(r'Abo&ut', self)
+
         self.actionManual = QtGui.QAction(r'&Manual', self)
+        self.actionManual.setShortcut('F1')
+
 
     ## refresh_main_menu
     #
@@ -238,8 +247,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menuFile = QtGui.QMenu(r'&File', self.menubar)
         self.menuEdit = QtGui.QMenu(r'&Edit', self.menubar)
         self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
-        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
-        self.setMenuBar(self.menubar)
+        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)        
 
         # File Menu
         self.menuFile.addAction(self.actionNew)
@@ -276,10 +284,13 @@ class MainWindow(QtGui.QMainWindow):
         self.menuHelp.addAction(self.actionAbout)
         self.menuHelp.addAction(self.actionManual)
 
+        # Generating Main Menu
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuPreferneces.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
+
+        self.setMenuBar(self.menubar)
 
     ## __updates_recent_files
     #

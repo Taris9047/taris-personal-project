@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 16604,
+				"buffer_size": 16570,
 				"line_ending": "Unix"
 			}
 		},
@@ -357,6 +357,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"currdir",
 			"statusbar",
 			"python",
 			"python_interpreter",
@@ -393,7 +394,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -402,15 +403,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 16604,
+						"buffer_size": 16570,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								6641,
-								6641
+								7050,
+								7050
 							]
 						],
 						"settings":
@@ -419,11 +420,11 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 2846.0,
+						"translation.x": 17.0,
+						"translation.y": 3126.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -439,8 +440,8 @@
 						"selection":
 						[
 							[
-								23,
-								23
+								272,
+								272
 							]
 						],
 						"settings":
@@ -470,8 +471,8 @@
 						"selection":
 						[
 							[
-								289,
-								289
+								288,
+								288
 							]
 						],
 						"settings":
@@ -482,7 +483,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -498,8 +499,8 @@
 						"selection":
 						[
 							[
-								36,
-								36
+								146,
+								146
 							]
 						],
 						"settings":
@@ -601,7 +602,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 173.0,
+	"side_bar_width": 119.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
