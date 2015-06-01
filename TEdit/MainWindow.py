@@ -9,6 +9,8 @@
 
 from PyQt4 import QtCore, QtGui
 from Find import Find, FindnReplace
+from OptionDialog import OptionDialog
+from LineTextEdit import LineTextEdit
 from functools import partial
 import os
 import sys
@@ -16,7 +18,7 @@ import ntpath
 ntpath.basename("a/b/c")
 
 
-Debug_Mode = True
+Debug_Mode = False
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -156,7 +158,9 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar = QtGui.QMenuBar()
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.text = QtGui.QTextEdit(self.centralwidget)
+        #self.text = QtGui.QTextEdit(self.centralwidget)
+        self.editor = LineTextEdit(self.centralwidget)
+        self.text = self.editor.textedit
         self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.text.document().modificationChanged.connect(self.TextEdited)
@@ -230,6 +234,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.actionOptions = QtGui.QAction(r'&Options', self)
         self.actionOptions.setShortcut('F4')
+        self.actionOptions.triggered.connect(self.openOptionDialog)
 
         self.actionAbout = QtGui.QAction(r'Abo&ut', self)
 
@@ -277,8 +282,9 @@ class MainWindow(QtGui.QMainWindow):
 
         # Preference Menu
         self.menuPreferneces.addAction(self.actionDisplayFonts)
-        self.menuPreferneces.addAction(self.actionWord_Wrap)
         self.menuPreferneces.addAction(self.actionOptions)
+        self.menuPreferneces.addAction(self.actionWord_Wrap)
+        
 
         # Help Menu
         self.menuHelp.addAction(self.actionAbout)
@@ -323,6 +329,7 @@ class MainWindow(QtGui.QMainWindow):
             self.edited = False
             self.__update_recent_files()
             self.__updateWinTitle()
+            self.refresh_main_menu()
 
     ## __savefile
     #
@@ -372,7 +379,6 @@ class MainWindow(QtGui.QMainWindow):
                 self.homedir if not self.currdir else self.currdir)
             if filename:
                 self.__openfile(filename)
-                self.refresh_main_menu()
                 return filename
             else:
                 return False
@@ -451,6 +457,14 @@ class MainWindow(QtGui.QMainWindow):
             self.text.setFont(self.font)
             if Debug_Mode:
                 print('Font has set to: ', str(self.font.toString()))
+
+    ## open Options
+    #
+    # Opens up options dialog
+    #
+    def openOptionDialog(self):
+        self.optionDialog = OptionDialog(self)
+        self.optionDialog.show()
 
     ## UnSaved
     #

@@ -5,7 +5,7 @@ from PyQt4 import QtGui
 import sys
 
 
-ver = '0.0.1.3'
+ver = '0.0.2.0'
 
 def main():
     app = QtGui.QApplication(sys.argv)

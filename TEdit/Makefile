@@ -19,6 +19,7 @@ py2app: $(MAIN_FILE) MainWindow.py Find.py setup.py
 
 clean:
 	rm -rfv $(BUILD) $(DIST) ./__pycache__/ *.conf *.pyc ./.config/
+	rm -rfv ~/.config/$(DIST_NAME).conf
 
 run:
 	$(PYTHON) ./$(MAIN_FILE)

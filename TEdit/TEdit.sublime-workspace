@@ -147,15 +147,23 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 16570,
+				"buffer_size": 16992,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "Find.py",
+			"file": "LineTextEdit.py",
 			"settings":
 			{
-				"buffer_size": 7482,
+				"buffer_size": 2454,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "OptionDialog.py",
+			"settings":
+			{
+				"buffer_size": 4436,
 				"line_ending": "Unix"
 			}
 		},
@@ -168,10 +176,18 @@
 			}
 		},
 		{
+			"file": "Find.py",
+			"settings":
+			{
+				"buffer_size": 7482,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 439,
+				"buffer_size": 476,
 				"line_ending": "Unix"
 			}
 		}
@@ -265,6 +281,7 @@
 	},
 	"file_history":
 	[
+		"/Users/Taris/workshop/TEdit/OptionWindow.py",
 		"/Users/Taris/workshop/TEdit/TEdit.py",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/Anaconda.sublime-settings",
@@ -394,7 +411,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -403,15 +420,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 16570,
+						"buffer_size": 16992,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								7050,
-								7050
+								485,
+								485
 							]
 						],
 						"settings":
@@ -420,15 +437,101 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 17.0,
-						"translation.y": 3126.0,
+						"translation.x": 0.0,
+						"translation.y": 2209.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "LineTextEdit.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2454,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1761,
+								1761
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1088.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "OptionDialog.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4436,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4425,
+								4425
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1058.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 1,
+					"buffer": 3,
+					"file": "TEdit.pyw",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 289,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								178,
+								178
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
 					"file": "Find.py",
 					"semi_transient": false,
 					"settings":
@@ -440,8 +543,8 @@
 						"selection":
 						[
 							[
-								272,
-								272
+								3498,
+								3498
 							]
 						],
 						"settings":
@@ -455,52 +558,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "TEdit.pyw",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 289,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								288,
-								288
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
+					"buffer": 5,
 					"file": "Makefile",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 439,
+						"buffer_size": 476,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								146,
-								146
+								442,
+								442
 							]
 						],
 						"settings":
