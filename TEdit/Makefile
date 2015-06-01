@@ -1,7 +1,7 @@
 PYIOPTIONS = -F -w
 PYTHON = python3 -u 
 PYINST = pyinstaller
-MAIN_FILE = TEdit.py
+MAIN_FILE = TEdit.pyw
 DIST_NAME = TEdit
 DIST = ./dist
 BUILD = ./build
@@ -9,11 +9,11 @@ BUILD = ./build
 all:
 	make run
 
-freeze: TEdit.py MainWindow.py Find.py
+freeze: $(MAIN_FILE) MainWindow.py Find.py
 	make clean
 	$(PYINST) $(PYIOPTIONS) $(MAIN_FILE)
 
-py2app: TEdit.py MainWindow.py Find.py setup.py
+py2app: $(MAIN_FILE) MainWindow.py Find.py setup.py
 	make clean
 	python setup.py py2app -A
 
@@ -21,5 +21,5 @@ clean:
 	rm -rfv $(BUILD) $(DIST) ./__pycache__/ *.conf *.pyc ./.config/
 
 run:
-	$(PYTHON) ./TEdit.py
+	$(PYTHON) ./$(MAIN_FILE)
 

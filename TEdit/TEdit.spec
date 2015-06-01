@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['TEdit.py'],
+a = Analysis(['TEdit.pyw'],
              pathex=['/Users/Taris/workshop/TEdit'],
              hiddenimports=[],
              hookspath=None,

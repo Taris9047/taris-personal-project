@@ -147,7 +147,7 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 14315,
+				"buffer_size": 16604,
 				"line_ending": "Unix"
 			}
 		},
@@ -160,10 +160,10 @@
 			}
 		},
 		{
-			"file": "TEdit.py",
+			"file": "TEdit.pyw",
 			"settings":
 			{
-				"buffer_size": 290,
+				"buffer_size": 289,
 				"line_ending": "Unix"
 			}
 		},
@@ -171,7 +171,7 @@
 			"file": "Makefile",
 			"settings":
 			{
-				"buffer_size": 426,
+				"buffer_size": 439,
 				"line_ending": "Unix"
 			}
 		}
@@ -265,6 +265,7 @@
 	},
 	"file_history":
 	[
+		"/Users/Taris/workshop/TEdit/TEdit.py",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/Anaconda.sublime-settings",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/Package Control.sublime-settings",
@@ -278,7 +279,6 @@
 		"/Users/Taris/workshop/TEdit/Sample Text.txt",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Users/Taris/workshop/TEdit/MainWindow.py",
-		"/Users/Taris/workshop/TEdit/TEdit.py",
 		"/Users/Taris/workshop/TEdit/Makefile",
 		"/Users/Taris/workshop/TEdit/README",
 		"/Users/Taris/.bash_profile",
@@ -357,6 +357,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"statusbar",
 			"python",
 			"python_interpreter",
 			"self.winTitle",
@@ -401,15 +402,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14315,
+						"buffer_size": 16604,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								174,
-								174
+								6641,
+								6641
 							]
 						],
 						"settings":
@@ -419,10 +420,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 2846.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -458,11 +459,11 @@
 				},
 				{
 					"buffer": 2,
-					"file": "TEdit.py",
+					"file": "TEdit.pyw",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 290,
+						"buffer_size": 289,
 						"regions":
 						{
 						},
@@ -490,15 +491,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 426,
+						"buffer_size": 439,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								324,
-								324
+								36,
+								36
 							]
 						],
 						"settings":
@@ -509,7 +510,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]

@@ -61,6 +61,7 @@ class MainWindow(QtGui.QMainWindow):
         self.clipboard = clipboard
 
         self.setupUi()
+        self.setTextWrap()
 
         self.__setupSettings()
         self.__loadSettings()
@@ -87,16 +88,15 @@ class MainWindow(QtGui.QMainWindow):
             
         self.recent_files = list(self.recent_files)
 
-        if Debug_Mode:
-            print(self.recent_files)
-
         joined_rf = ';'.join(self.recent_files)
         if joined_rf:
             self.settings.setValue('recent files', str(joined_rf))
         if self.font:
             self.settings.setValue('textFont', str(self.font.toString()))
         if self.filename:
-            self.settings.setValue('lastFile', self.filename)
+            self.settings.setValue('lastFile', str(self.filename))
+
+        self.settings.setValue('Option_WordWrap', self.word_wrap)
 
     ## __loadSettings
     #
@@ -106,13 +106,22 @@ class MainWindow(QtGui.QMainWindow):
         # Read in recent files
         rf_loaded = str(self.settings.value('recent files', type=str))
         if rf_loaded:
-            self.recent_files = rf_loaded.split(';')
+            recent_files = rf_loaded.split(';')
 
+            # Check if the files are actually there
+            self.recent_files = []
+            for rf in recent_files:
+                rf = str(rf)
+                if os.path.isfile(rf):
+                    self.recent_files.append(rf)
+
+        # Update GUI actions to open file via recent files menu.
         self.recent_files_actions = \
             [[] for x in range(len(list(self.recent_files)))]
         for i, rf in enumerate(self.recent_files):
             self.recent_files_actions[i] = QtGui.QAction(rf, self)
 
+        # refresh main menu to add actions into File menu.
         self.refresh_main_menu()
 
         # Read in fonts
@@ -132,6 +141,9 @@ class MainWindow(QtGui.QMainWindow):
         if self.lastfile and self.lastfile != 'False':
             self.__openfile(self.lastfile)
 
+        self.word_wrap = self.settings.value('Option_WordWrap', type=bool)
+        self.setTextWrap()
+
     ## setupUi
     #
     # establish UI for the editor
@@ -142,22 +154,21 @@ class MainWindow(QtGui.QMainWindow):
         self.setupActions()
 
         self.menubar = QtGui.QMenuBar()
-        #self.menubar = self.menuBar()
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.text = QtGui.QPlainTextEdit(self.centralwidget)
+        self.text = QtGui.QTextEdit(self.centralwidget)
         self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
-        self.text.document()\
-            .modificationChanged.connect(self.TextEdited)
+        self.text.document().modificationChanged.connect(self.TextEdited)
         self.textCursor = self.text.textCursor()
+        self.text.cursorPositionChanged.connect(self.textCursorPosition)
 
         self.statusbar = QtGui.QStatusBar(self)
         self.setStatusBar(self.statusbar)
 
-        self.refresh_main_menu()
-
         self.setWindowTitle(self.winTitle)
+
+        self.refresh_main_menu()
 
     ## setupActions
     #
@@ -197,10 +208,21 @@ class MainWindow(QtGui.QMainWindow):
         self.actionDisplayFonts = QtGui.QAction(r'Fon&ts', self)
         self.actionDisplayFonts.setShortcut('Ctrl+F5')
         self.actionDisplayFonts.triggered.connect(self.setFont)
-        self.actionWord_Wrap = QtGui.QAction(r'&Word Wrap', self)
+        if self.word_wrap == True:
+            self.actionWord_Wrap = QtGui.QAction(r'Set &Word Wrap Off', self)
+        elif self.word_wrap == False:
+            self.actionWord_Wrap = QtGui.QAction(r'Set &Word Wrap On', self)
+        else:
+            self.actionWord_Wrap = QtGui.QAction(r'Word Wrap', self)
+        self.actionWord_Wrap.setShortcut('Ctrl+Alt+W')
+        self.actionWord_Wrap.triggered.connect(self.toggleTextWrap)
+
         self.actionIndent_Selection = QtGui.QAction(r'&Indent', self)
         self.actionUnindent_Selection = QtGui.QAction(r'&Unindent', self)
+        
         self.actionTabs_to_Space = QtGui.QAction(r'&Tabs to Space', self)
+        self.actionTabs_to_Space.setShortcut('Ctrl+Alt+T')
+        self.actionTabs_to_Space.triggered.connect(self.TabsToSpace)
 
         self.actionOptions = QtGui.QAction(r'&Options', self)
         self.actionAbout = QtGui.QAction(r'Abo&ut', self)
@@ -460,3 +482,57 @@ class MainWindow(QtGui.QMainWindow):
     def TextEdited(self):
         self.edited = True
         self.__updateWinTitle()
+
+
+    ## setTextWrap
+    #
+    # Set wrap mode for textedit 
+    #
+    def setTextWrap(self):
+        if self.word_wrap:
+            self.text.setWordWrapMode(
+                QtGui.QTextOption.WordWrap)
+        else:
+            self.text.setWordWrapMode(
+                QtGui.QTextOption.NoWrap)
+
+        self.refresh_main_menu()
+
+    ## toggleTextWrap
+    #
+    # Toggles Word Wrap
+    #
+    def toggleTextWrap(self):
+        if self.word_wrap:
+            self.word_wrap = False
+        else:
+            self.word_wrap = True
+        
+        self.setTextWrap()
+
+
+    ## TabsToSpace
+    #
+    # Change Tabs to space in the main text form
+    #
+    def TabsToSpace(self):
+        curr_text = self.text.toPlainText()
+        curr_text = curr_text.replace('\t', ' '*self.tabstop)
+        self.text.setPlainText(curr_text)
+
+    ## textCursorPosition
+    #
+    # display current position at statusbar
+    #
+    def textCursorPosition(self):
+        self.textcursor = self.text.textCursor()
+
+        line = self.textcursor.blockNumber() + 1
+        col = self.textcursor.columnNumber()
+
+        if Debug_Mode:
+            print("Cursor Location: ", line, col)
+        
+        self.statusbar.showMessage(
+            "Cursor@(line {}, column {})".format(line, col))
+
