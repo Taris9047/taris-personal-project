@@ -61,6 +61,7 @@ class MainWindow(QtGui.QMainWindow):
         self.winTitle = self.Title
 
         self.clipboard = clipboard
+        self.setfile_location = './'
 
         self.setupUi()
         self.setTextWrap()
@@ -75,10 +76,10 @@ class MainWindow(QtGui.QMainWindow):
     def __setupSettings(self):
         if sys.platform == 'darwin':
             self.homedir = os.path.expanduser("~")
-            setfile_location = self.homedir + '/.config/'
+            self.setfile_location = self.homedir + '/.config/'
 
         self.settings = QtCore.QSettings(
-            setfile_location + 'TEdit.conf',
+            self.setfile_location + 'TEdit.conf',
             QtCore.QSettings.IniFormat)
 
     ## __saveSettings
@@ -158,9 +159,9 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar = QtGui.QMenuBar()
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        #self.text = QtGui.QTextEdit(self.centralwidget)
-        self.editor = LineTextEdit(self.centralwidget)
-        self.text = self.editor.textedit
+        self.text = QtGui.QTextEdit(self.centralwidget)
+        #self.editor = LineTextEdit(self.centralwidget)
+        #self.text = self.editor.edit
         self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.text.document().modificationChanged.connect(self.TextEdited)

@@ -1,108 +1,141 @@
-# -*- coding: utf-8 -*-
+'''
+Text widget with support for line numbers
 
-from PyQt4 import QtGui
+Imported from:
+https://john.nachtimwald.com/2009/08/19/better-qplaintextedit-with-line-numbers/
 
-
-class LineTextEdit(QtGui.QFrame):
-
-	class NumberBar(QtGui.QWidget):
-		def __init__(self, *args):
-			QtGui.QWidget.__init__(self, *args)
-			self.textedit = None
-			self.highest_line = 0
-
-		def setTextEdit(self, textedit):
-			self.textedit = textedit
-
-		def update(self, *args):
-			width = self.fontMetrics().width(str(self.highest_line))
-
-			if self.width() != width:
-				self.setFixedWidth(width)
-			QtGui.QWidget.update(self, *args)
-
-		def paintEvent(self, event):
-			contents_y = self.textedit.verticalScrollBar().value()
-			page_bottom = contents_y + \
-				self.textedit.viewport().height()
-			font_metrics = self.fontMetrics()
-			current_block = \
-				self.textedit.document().\
-					findBlock(self.textedit.textCursor().position())
-
-			painter = QtGui.QPainter(self)
-
-			line_count = 0
-
-			block = self.textedit.document().begin()
-			while block.isValid():
-				line_count += 1
-
-				position = \
-					self.textedit.document().documentLayout().\
-					blockBoundingRect(block).topLeft()
-
-				if position.y() > page_bottom:
-					break
-
-				bold = False
-				if block == current_block:
-					bold = True
-					font = painter.font()
-					font.setBold(True)
-					painter.setFont(font)
-
-				painter.drawText(\
-					self.width() - font_metrics.width(str(line_count)) - 3,\
-						round(position.y()) - contents_y + \
-						font_metrics.ascent(), str(line_count))
-
-				if bold:
-					font = painter.font()
-					font.setBold(False)
-					painter.setFont(font)
-
-				block = block.next()
-
-			self.highest_line = line_count
-			painter.end()
-
-			QtGui.QWidget.paintEvent(self, event)
-
-
-	def __init__(self, *args):
-		QtGui.QFrame.__init__(self, *args)
-
-		self.setFrameStyle(\
-			QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
-
-		self.textedit = QtGui.QTextEdit()
-		self.textedit.setFrameStyle(QtGui.QFrame.NoFrame)
-		self.textedit.setAcceptRichText(False)
-
-		self.number_bar = self.NumberBar()
-		self.number_bar.setTextEdit(self.textedit)
-
-		hbox = QtGui.QHBoxLayout(self)
-		hbox.setSpacing(0)
-		hbox.setMargin(0)
-		hbox.addWidget(self.number_bar)
-		hbox.addWidget(self.textedit)
-
-		self.textedit.installEventFilter(self)
-		self.textedit.viewport().installEventFilter(self)
-
-	def eventFilter(self, object, event):
-		if object in (self.textedit, self.textedit.viewport()):
-			self.number_bar.update()
-			return False
-		return QtGui.QFrame.eventFilter(object, event)
-
-	def getTextEdit(self):
-		return self.textedit
-
-
-
-
-
-
+'''
+ 
+from PyQt4.Qt import QFrame
+from PyQt4.Qt import QHBoxLayout
+from PyQt4.Qt import QPainter
+from PyQt4.Qt import QPlainTextEdit
+from PyQt4.Qt import QRect
+from PyQt4.Qt import QTextEdit
+from PyQt4.Qt import QTextFormat
+from PyQt4.Qt import QVariant
+from PyQt4.Qt import QWidget
+from PyQt4.Qt import Qt
+ 
+class LineTextEdit(QFrame):
+ 
+    class NumberBar(QWidget):
+ 
+        def __init__(self, edit):
+            QWidget.__init__(self, edit)
+ 
+            self.edit = edit
+            self.adjustWidth(1)
+ 
+        def paintEvent(self, event):
+            self.edit.numberbarPaint(self, event)
+            QWidget.paintEvent(self, event)
+ 
+        def adjustWidth(self, count):
+            width = self.fontMetrics().width(str(count))
+            if self.width() != width:
+                self.setFixedWidth(width)
+ 
+        def updateContents(self, rect, scroll):
+            if scroll:
+                self.scroll(0, scroll)
+            else:
+                # It would be nice to do
+                # self.update(0, rect.y(), self.width(), rect.height())
+                # But we can't because it will not remove the bold on the
+                # current line if word wrap is enabled and a new block is
+                # selected.
+                self.update()
+ 
+ 
+    class PlainTextEdit(QPlainTextEdit):
+ 
+        def __init__(self, *args):
+            QPlainTextEdit.__init__(self, *args)
+ 
+            #self.setFrameStyle(QFrame.NoFrame)
+ 
+            self.setFrameStyle(QFrame.NoFrame)
+            self.highlight()
+            #self.setLineWrapMode(QPlainTextEdit.NoWrap)
+ 
+            self.cursorPositionChanged.connect(self.highlight)
+ 
+        def highlight(self):
+            hi_selection = QTextEdit.ExtraSelection()
+ 
+            hi_selection.format.setBackground(self.palette().alternateBase())
+            hi_selection.format.setProperty(QTextFormat.FullWidthSelection, True)
+            hi_selection.cursor = self.textCursor()
+            hi_selection.cursor.clearSelection()
+ 
+            self.setExtraSelections([hi_selection])
+ 
+        def numberbarPaint(self, number_bar, event):
+            font_metrics = self.fontMetrics()
+            current_line = self.document().findBlock(self.textCursor().position()).blockNumber() + 1
+ 
+            block = self.firstVisibleBlock()
+            line_count = block.blockNumber()
+            painter = QPainter(number_bar)
+            painter.fillRect(event.rect(), self.palette().base())
+ 
+            # Iterate over all visible text blocks in the document.
+            while block.isValid():
+                line_count += 1
+                block_top = self.blockBoundingGeometry(block).translated(self.contentOffset()).top()
+ 
+                # Check if the position of the block is out side of the visible
+                # area.
+                if not block.isVisible() or block_top <= event.rect().bottom():
+                    break
+ 
+                # We want the line number for the selected line to be bold.
+                if line_count == current_line:
+                    font = painter.font()
+                    font.setBold(True)
+                    painter.setFont(font)
+                else:
+                    font = painter.font()
+                    font.setBold(False)
+                    painter.setFont(font)
+ 
+                # Draw the line number right justified at the position of the line.
+                paint_rect = QRect(0, block_top, number_bar.width(), font_metrics.height())
+                painter.drawText(paint_rect, Qt.AlignRight, unicode(line_count))
+ 
+                block = block.next()
+ 
+            painter.end()
+ 
+    def __init__(self, *args):
+        QFrame.__init__(self, *args)
+ 
+        self.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
+ 
+        self.edit = self.PlainTextEdit()
+        self.number_bar = self.NumberBar(self.edit)
+ 
+        hbox = QHBoxLayout(self)
+        hbox.setSpacing(0)
+        hbox.setMargin(0)
+        hbox.addWidget(self.number_bar)
+        hbox.addWidget(self.edit)
+ 
+        self.edit.blockCountChanged.connect(self.number_bar.adjustWidth)
+        self.edit.updateRequest.connect(self.number_bar.updateContents)
+ 
+    def getText(self):
+        return unicode(self.edit.toPlainText())
+ 
+    def setText(self, text):
+        self.edit.setPlainText(text)
+ 
+    def isModified(self):
+        return self.edit.document().isModified()
+ 
+    def setModified(self, modified):
+        self.edit.document().setModified(modified)
+ 
+    def setLineWrapMode(self, mode):
+        self.edit.setLineWrapMode(mode)
