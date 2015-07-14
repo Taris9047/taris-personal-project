@@ -38,10 +38,10 @@ def cpu_type(OS_type):
 		import os
 		os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
 		command ="sysctl -n machdep.cpu.brand_string"
-		return subprocess.check_output(command, shell=True).strip()
+		return str(subprocess.check_output(command, shell=True).strip())
 	elif OS_type == 'Linux':
 		command = "cat /proc/cpuinfo"
-		all_info = subprocess.check_output(command, shell=True).strip()
+		all_info = str(subprocess.check_output(command, shell=True).strip())
 		for line in all_info.split("\n"):
 			if "model name" in line:
 				return re.sub( ".*model name.*:", "", line,1)

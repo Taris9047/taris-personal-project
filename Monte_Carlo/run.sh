@@ -9,6 +9,7 @@ fi
 
 echo "Running the brownian movement simulator with arguments."
 if [ -z $1 ]; then
+        LD_LIBRARY_PATH=./ \  
 	./brownian 
 else
 	./brownian $1 1 $2

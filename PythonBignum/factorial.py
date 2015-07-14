@@ -63,7 +63,7 @@ def main():
 	PBY_avg = [0]*input_num
 	builtin_avg = [0]*input_num
 	for i in range(input_num):
-		print "Running estimation for %d!" % (i+1)
+		print("Running estimation for %d!" % (i+1))
 		PBY_result = factorial_statistics(i+1, 100)
 		builtin_result = mfactorial_statistics(i+1, 100)
 		PBY_avg[i] = reduce(lambda x, y: x + y, PBY_result)/len(PBY_result)
