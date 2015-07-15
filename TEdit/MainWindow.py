@@ -11,12 +11,12 @@ from PyQt4 import QtCore, QtGui
 from Find import Find, FindnReplace
 from OptionDialog import OptionDialog
 from LineTextEdit import LineTextEdit
+from SyntaxHighlight import Syntax
 from functools import partial
 import os
 import sys
 import ntpath
 ntpath.basename("a/b/c")
-
 
 Debug_Mode = False
 
@@ -43,6 +43,10 @@ except AttributeError:
 # Main window of TEdit program.
 #
 class MainWindow(QtGui.QMainWindow):
+    file_types = {
+        'python':['.py', '.pyw']
+    }
+
     ## Constructor
     #
     def __init__(self, clipboard=None, ver='0.0.0.0'):
@@ -51,6 +55,7 @@ class MainWindow(QtGui.QMainWindow):
         self.currdir = False
         self.fn = False
         self.curr_path = os.path.dirname(os.path.realpath(__file__))
+        self.homedir = self.curr_path
         self.edited = False
         self.tabstop = 4
         self.recent_files = []
@@ -152,7 +157,7 @@ class MainWindow(QtGui.QMainWindow):
     # establish UI for the editor
     #
     def setupUi(self):
-        self.resize(640, 700)
+        self.resize(640, 640)
 
         self.setupActions()
 
@@ -331,6 +336,23 @@ class MainWindow(QtGui.QMainWindow):
             self.__update_recent_files()
             self.__updateWinTitle()
             self.refresh_main_menu()
+
+            syntaxHL = Syntax(self.__filetype(filename))
+            if syntaxHL != None:
+                syntaxHL(self.text.document())
+         
+
+    ## __filetype
+    #
+    # returns filetype from file extension
+    #
+    def __filetype(self, filename):
+        file_ext = filename.split('.')[-1]
+        for ft in self.file_types.keys():
+            if file_ext in self.file_types[ft]:
+                return ft
+        return 'default'
+
 
     ## __savefile
     #

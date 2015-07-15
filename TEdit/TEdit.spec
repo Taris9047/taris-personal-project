@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['TEdit.pyw'],
-             pathex=['/Users/Taris/workshop/TEdit'],
+a = Analysis(['./TEdit.pyw'],
+             pathex=['/home/taris/Documents/workshop/TEdit'],
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None,
@@ -21,8 +21,4 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=True,
-          console=False )
-app = BUNDLE(exe,
-             name='TEdit.app',
-             icon=None,
-             bundle_identifier=None)
+          console=True )
