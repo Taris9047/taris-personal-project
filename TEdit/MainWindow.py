@@ -142,7 +142,6 @@ class MainWindow(QtGui.QMainWindow):
 
         # reading last file
         self.lastfile = self.settings.value('lastFile', type=str)
-        print(self.lastfile)
         if self.lastfile and self.lastfile != 'False':
             self.__openfile(self.lastfile)
 
@@ -330,16 +329,16 @@ class MainWindow(QtGui.QMainWindow):
         with open(filename, 'r') as fp:
             self.text.setPlainText(
                 fp.read().replace('\t', ' ' * self.tabstop))
-            self.filename = str(filename)
+            self.filename = os.path.normpath(filename)
             self.currdir, self.fn = ntpath.split(self.filename)
             self.edited = False
             self.__update_recent_files()
             self.__updateWinTitle()
             self.refresh_main_menu()
 
-            syntaxHL = Syntax(self.__filetype(filename))
-            if syntaxHL != None:
-                syntaxHL(self.text.document())
+            # Highlight syntax if possible.
+            syntaxHL = Syntax(self.__filetype(self.filename), self.text)
+
          
 
     ## __filetype
@@ -347,7 +346,7 @@ class MainWindow(QtGui.QMainWindow):
     # returns filetype from file extension
     #
     def __filetype(self, filename):
-        file_ext = filename.split('.')[-1]
+        file_ext = os.path.splitext(filename)[-1]
         for ft in self.file_types.keys():
             if file_ext in self.file_types[ft]:
                 return ft

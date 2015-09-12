@@ -5,11 +5,13 @@
 			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
 			"name": "Anaconda Python Builder",
 			"selector": "source.python",
-			"shell_cmd": "/usr/local/bin/python3 -u \"$file\""
+			"shell_cmd": "python -u TEdit.pyw"
 		}
 	],
-	"settings":
-	{
-		"python_interpreter": "/usr/local/bin/python3"
-	}
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	]
 }

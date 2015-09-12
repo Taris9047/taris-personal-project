@@ -147,16 +147,16 @@
 			"file": "MainWindow.py",
 			"settings":
 			{
-				"buffer_size": 17036,
-				"line_ending": "Unix"
+				"buffer_size": 17610,
+				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "LineTextEdit.py",
+			"file": "TEdit.pyw",
 			"settings":
 			{
-				"buffer_size": 4693,
-				"line_ending": "Unix"
+				"buffer_size": 288,
+				"line_ending": "Windows"
 			}
 		},
 		{
@@ -164,31 +164,7 @@
 			"settings":
 			{
 				"buffer_size": 4436,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "TEdit.pyw",
-			"settings":
-			{
-				"buffer_size": 289,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "Find.py",
-			"settings":
-			{
-				"buffer_size": 7482,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "Makefile",
-			"settings":
-			{
-				"buffer_size": 476,
-				"line_ending": "Unix"
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -251,16 +227,20 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 392.0,
-		"last_filter": "",
+		"height": 490.0,
+		"last_filter": "Package Control: ",
 		"selected_items":
 		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
 			[
 				"",
 				"Package Control: Install Package"
 			]
 		],
-		"width": 449.0
+		"width": 571.0
 	},
 	"console":
 	{
@@ -279,8 +259,19 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/TEdit"
+	],
 	"file_history":
 	[
+		"/C/Users/talez/AppData/Roaming/Sublime Text 3/Packages/User/SublimeLinter.sublime-settings",
+		"/C/Users/talez/AppData/Roaming/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+		"/C/Users/talez/AppData/Roaming/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
+		"/C/Users/talez/AppData/Roaming/Sublime Text 3/Packages/Git/Git.sublime-settings",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/TEdit/TEdit.sublime-project",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/TEdit/LineTextEdit.py",
+		"/C/Users/talez/AppData/Roaming/Sublime Text 3/Packages/User/Anaconda.sublime-settings",
 		"/Users/Taris/workshop/TEdit/OptionWindow.py",
 		"/Users/Taris/workshop/TEdit/TEdit.py",
 		"/Users/Taris/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
@@ -360,7 +351,7 @@
 	],
 	"find":
 	{
-		"height": 35.0
+		"height": 43.0
 	},
 	"find_in_files":
 	{
@@ -411,7 +402,7 @@
 	"groups":
 	[
 		{
-			"selected": 3,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -420,15 +411,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 17036,
+						"buffer_size": 17610,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1876,
+								1876
 							]
 						],
 						"settings":
@@ -438,40 +429,38 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2209.0,
+						"translation.y": 1140.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "LineTextEdit.py",
+					"file": "TEdit.pyw",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4693,
+						"buffer_size": 288,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								110,
+								110
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/Python/Python.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 1088.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -487,8 +476,8 @@
 						"selection":
 						[
 							[
-								3174,
-								3174
+								2864,
+								2864
 							]
 						],
 						"settings":
@@ -503,100 +492,13 @@
 					},
 					"stack_index": 2,
 					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "TEdit.pyw",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 289,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								112,
-								112
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Python/Python.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "Find.py",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7482,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3498,
-								3498
-							]
-						],
-						"settings":
-						{
-							"auto_name": "",
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "Makefile",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 476,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								442,
-								442
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Makefile/Makefile.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
 				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -633,11 +535,11 @@
 	{
 		"height": 0.0
 	},
-	"pinned_build_system": "Packages/Python/Python.sublime-build",
+	"pinned_build_system": "Anaconda Python Builder",
 	"project": "TEdit.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -679,7 +581,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 119.0,
+	"side_bar_width": 212.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
