@@ -1,0 +1,16 @@
+go atlas
+
+set sample_variable = 100.0
+set sample_text = "Sample Text"
+
+go deckbuild
+
+go athena
+
+go atlas
+
+# comment
+
+model srh conmob
+
+quit

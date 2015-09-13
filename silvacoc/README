@@ -1,0 +1,4 @@
+Silvaco input deck compiler.
+
+: Compiles deckbuild instruction to command line scripts (bash) and 
+Atlas input deck files.
