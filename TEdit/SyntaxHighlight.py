@@ -23,21 +23,7 @@ def Syntax(filetype='text', document=None):
     if file_type_map[filetype] == 'python':
         return PythonSyntax(document)
     else:
-        return NoSyntax(document)
-
-
-## NoSyntax(document)
-#
-# Syntax highlighter for general text (dummy)
-#
-class NoSyntax(QSyntaxHighlighter):
-    def __init__(self, document):
-        QSyntaxHighlighter.__init__(self, document)
-
-    def highlightBlock(self, text):
-        self.setCurrentBlockState(0)
-
-
+        return None
 
 ## PythonSyntax
 #
