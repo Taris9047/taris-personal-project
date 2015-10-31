@@ -3,7 +3,8 @@
 CC=gcc
 CXX=g++
 CFLAGS=-g -O3 -Wall -fPIC
-SRCDIR=./src
+LDFLAGS=
+SRCDIR=./
 TARGET=test
 #OBJDATASTR=llist.o utils.o
 OBJDATASTR=
@@ -12,7 +13,7 @@ OBJBIGNUM=BignumInt.o BignumMoney.o $(OBJDATASTR)
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
 	LIBBIGNUMNAME=libBignum.so
-	RPATH=-Wl,-rpath=$(SRCDIR)
+	LDFLAGS=-Wl,-rpath=$(SRCDIR)
 	CYGCOMMAND=
 else ifneq (, $(findstring cygwin, $(SYS)))
 	LIBBIGNUMNAME=cygBignum.dll
@@ -45,10 +46,10 @@ $(LIBBIGNUMNAME): $(OBJBIGNUM)
 	$(CXX) $(CFLAGS) -shared -o $@ $(OBJBIGNUM)
 
 test: test.cpp $(LIBBIGNUMNAME) *.cpp *.h
-	$(CXX) $(CFLAGS) -o $(TARGET) test.cpp -I. -L. -lBignum
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(TARGET) test.cpp -I. -L. -lBignum
 
 factorial: factorial.cpp $(LIBBIGNUMNAME) *.cpp *.h
-	$(CXX) $(CFLAGS) -o factorial factorial.cpp -I. -L. -lBignum
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o factorial factorial.cpp -I. -L. -lBignum
 
 clean:
 	rm -rvf ./$(TARGET) *.exe *.stackdump ./factorial
