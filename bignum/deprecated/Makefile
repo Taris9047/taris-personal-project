@@ -3,7 +3,7 @@
 CC=gcc
 CXX=g++
 CFLAGS=-g -O3 -Wall -fPIC
-SRCDIR=./src
+SRCDIR=./
 TARGET=test
 OBJDATASTR=llist.o utils.o
 OBJBIGNUM=bignum_int.o $(OBJDATASTR)
@@ -35,13 +35,13 @@ libdatastr.a: $(OBJDATASTR)
 	ar r $@ $(OBJDATASTR) utils.o
 
 bignum_int.o: bignum_int.c bignum_int.h
-	$(CC) $(CFLAGS) -c -o $@ bignum_int.c 
+	$(CC) $(CFLAGS) -c -o $@ bignum_int.c
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)
 	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM)
 
 test: test.c $(LIBBIGNUMNAME) *.c *.h
-	$(CC) $(CFLAGS) -o $(TARGET) test.c -I. -L. -lbignum
+	$(CC) $(CFLAGS) $(RPATH) -o $(TARGET) test.c -I. -L. -lbignum
 
 clean:
 	rm -rvf ./$(TARGET) *.exe *.stackdump
