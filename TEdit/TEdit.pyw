@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from MainWindow import MainWindow
@@ -5,6 +6,7 @@ from PyQt4 import QtGui
 import sys
 
 ver = '0.0.2.3'
+
 
 def main():
     app = QtGui.QApplication(sys.argv)
