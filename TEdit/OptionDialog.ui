@@ -26,50 +26,11 @@
    <string>TEdit - Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="LBGroupBox">
-     <property name="title">
-      <string>Linebreak Options</string>
+   <item row="0" column="0">
+    <widget class="QRadioButton" name="showLineNumberRadioButton">
+     <property name="text">
+      <string>Show Line Number</string>
      </property>
-     <widget class="QRadioButton" name="LBMacRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>21</y>
-        <width>111</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Mac OS X (CR)</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="LBLinuxRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>140</x>
-        <y>20</y>
-        <width>81</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Linux (LF)</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="LBDOSRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>39</y>
-        <width>151</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Windows (CR/LF)</string>
-      </property>
-     </widget>
     </widget>
    </item>
    <item row="1" column="0">
@@ -77,6 +38,52 @@
      <property name="text">
       <string>Word Wrap</string>
      </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="LBGroupBox">
+     <property name="title">
+      <string>Linebreak Options</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="0" colspan="2">
+       <widget class="QRadioButton" name="LBDOSRadioButton">
+        <property name="text">
+         <string>Windows (CR/LF)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QRadioButton" name="LBMacRadioButton">
+        <property name="text">
+         <string>Mac OS X (CR)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QRadioButton" name="LBLinuxRadioButton">
+        <property name="text">
+         <string>Linux (LF)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="TabStopGroupBox">
+     <property name="title">
+      <string>Tabstop</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QSpinBox" name="tabstopSpinBox">
+        <property name="value">
+         <number>4</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="4" column="0">
@@ -87,33 +94,6 @@
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QRadioButton" name="showLineNumberRadioButton">
-     <property name="text">
-      <string>Show Line Number</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="TabStopGroupBox">
-     <property name="title">
-      <string>Tabstop</string>
-     </property>
-     <widget class="QSpinBox" name="tabstopSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>231</width>
-        <height>24</height>
-       </rect>
-      </property>
-      <property name="value">
-       <number>4</number>
-      </property>
-     </widget>
     </widget>
    </item>
   </layout>

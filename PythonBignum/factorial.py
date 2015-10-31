@@ -4,6 +4,7 @@ from PBN import Bignum
 import math
 import time
 import subprocess as sp
+from functools import reduce
 
 def factorial(num):
 	bignum = Bignum(1)
@@ -63,13 +64,13 @@ def main():
 	PBY_avg = [0]*input_num
 	builtin_avg = [0]*input_num
 	for i in range(input_num):
-		print("Running estimation for %d!" % (i+1))
+		print(("Running estimation for %d!" % (i+1)))
 		PBY_result = factorial_statistics(i+1, 100)
 		builtin_result = mfactorial_statistics(i+1, 100)
 		PBY_avg[i] = reduce(lambda x, y: x + y, PBY_result)/len(PBY_result)
 		builtin_avg[i] = reduce(lambda x, y: x + y, builtin_result)/len(builtin_result)
 
-	print ('Writing result up to %d! to file\n' % (input_num))
+	print(('Writing result up to %d! to file\n' % (input_num)))
 	file = open('factorial_benchmark.txt', 'w')
 	file.write('Fact_Num\tPBN\tBuilt-in\n')
 	for i in range(input_num):

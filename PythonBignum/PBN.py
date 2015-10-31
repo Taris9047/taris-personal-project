@@ -65,7 +65,8 @@ class Bignum:
 			return lstN, sign
 
 	""" 
-	Operator Overloading 
+	Operator Overloading
+
 	"""
 	# +
 	def __add__(self, other):
@@ -138,17 +139,29 @@ class Bignum:
 
 		return answer
 
-	def __div__(self, other):
+	# //
+	def __floordiv__(self, other):
 		answer = Bignum()
 		if self.sign == other.sign:
 			answer.sign = ''
 		else:
 			answer.sign = '-'
 
-		answer.lstN = self.div(self.lstN, other.lstN)
+		answer.lstN = self.floordiv(self.lstN, other.lstN)
 
 		return answer
 
+	# %
+	def __mod__(self, other):
+		answer = Bignum()
+		if self.sign == other.sign:
+			answer.sign = ''
+		else:
+			answer.sign = '-'
+
+		answer.lstN = self.moddiv(self.lstN, other.lstN)
+
+		return answer
 
 	# ==
 	def __eq__(self, other):
@@ -173,7 +186,7 @@ class Bignum:
 		indexMain = max(indexA, indexB)
 		ret = [0]*max(len(A), len(B))
 
-		for i in reversed(range(len(ret))):
+		for i in reversed(list(range(len(ret)))):
 			if indexA >= 0 and indexB >= 0:
 				ret[indexMain], cn = self.full_adder(A[indexA], B[indexB], cn)
 			elif indexA >= 0 and indexB < 0:
@@ -268,7 +281,7 @@ class Bignum:
 			carry = 0
 			for i in range(len(A)):
 				rn = A[i] * B[indexB] + carry
-				carry = rn/10
+				carry = rn//10
 				mul_residual[i] = rn%10
 
 			if carry != 0:
@@ -283,8 +296,8 @@ class Bignum:
 		return answer
 
 
-	""" Division """
-	def div(self, A, B):
+	""" Division (floor) """
+	def floordiv(self, A, B):
 		if isinstance(A, list) != True:
 			raise ValueError("add, A is not a list!!")
 		if isinstance(B, list) != True:
@@ -302,13 +315,36 @@ class Bignum:
 			index = [1]
 			while True:
 				answer = self.sub(answer, B)
-				#print answer, B, index
 				if len(answer) <= len(B) and answer < B:
 					break
 				index = self.add(index, [1])
 			return index
 
+	""" Division (mod, remainder) """
+	def moddiv(self, A, B):
+		if isinstance(A, list) != True:
+			raise ValueError("add, A is not a list!!")
+		if isinstance(B, list) != True:
+			raise ValueError("add, B is not a list!!")
 
+		if A == B:
+			return [0]
+		elif B == [0]:
+			raise ValueError("Oops, divide by zero!!")
+		elif A == [0]:
+			return [0]
+		else:
+			# Performing division
+			answer = A
+			while True:
+				answer = self.sub(answer, B)
+				if len(answer) <= len(B) and answer < B:
+					break
+
+			if answer[0] == 0:
+				answer = answer[1:]
+
+			return answer
 
 	"""
 
@@ -320,7 +356,7 @@ class Bignum:
 		rn = an + bn + cn
 
 		if rn >= 10:
-			cn_out = rn/10;
+			cn_out = rn//10;
 			rn = rn%10;
 		else:
 			cn_out = 0;
@@ -354,7 +390,7 @@ class Bignum:
 			position = len(A) - 1
 
 		if A[i] == 0:
-			for i in reversed(range(0, position)):
+			for i in reversed(list(range(0, position))):
 				if A[i] == 0:
 					A[i] == 9
 				elif A[i] > 0:
@@ -370,12 +406,12 @@ class Bignum:
 	""" Utilities """
 	def print_N(self):
 		""" Prints the lstN into integer format. """
-		print self.sign+''.join(str(x) for x in self.lstN)
+		print(self.sign+''.join([str(x) for x in self.lstN]))
 	
 	def N(self):
 		if self.sign == '-':
 			self.lstN = [x for x in self.lstN]
 		""" Returns lstN into an integer. """
-		return int(self.sign+''.join(str(x) for x in self.lstN))
+		return int(self.sign+''.join([str(x) for x in self.lstN]))
 
 
