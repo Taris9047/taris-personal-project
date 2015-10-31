@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 #
-# Python Bignum Library, written by Taylor Shin. 
+# Python Bignum Library, written by Taylor Shin.
 #
 
-class Bignum:
+class Bignum(object):
 	""" Initialization """
 	def __init__(self, N = []):
 		# Constructing from Integer input
@@ -64,7 +64,7 @@ class Bignum:
 
 			return lstN, sign
 
-	""" 
+	"""
 	Operator Overloading
 
 	"""
@@ -216,7 +216,7 @@ class Bignum:
 		indexB = len(B) - 1
 		indexMain = max(indexA, indexB)
 		ret = [0]*len(A)
-		
+
 		borrow = 0
 		for i in range(0, len(ret)):
 			if indexB >= 0 and indexA >= 0:
@@ -347,7 +347,6 @@ class Bignum:
 			return answer
 
 	"""
-
 	a full adder: just adds A, B, and Carry and returns its result and
 	the next Carry
 
@@ -364,7 +363,6 @@ class Bignum:
 		return rn, cn_out
 
 	"""
-
 	full_subtractor: subtracts with A, B and borrow digit and return its result
 
 	"""
@@ -389,7 +387,7 @@ class Bignum:
 		elif position > len(A)-1:
 			position = len(A) - 1
 
-		if A[i] == 0:
+		if A[position] == 0:
 			for i in reversed(list(range(0, position))):
 				if A[i] == 0:
 					A[i] == 9
@@ -407,11 +405,9 @@ class Bignum:
 	def print_N(self):
 		""" Prints the lstN into integer format. """
 		print(self.sign+''.join([str(x) for x in self.lstN]))
-	
+
 	def N(self):
 		if self.sign == '-':
 			self.lstN = [x for x in self.lstN]
 		""" Returns lstN into an integer. """
 		return int(self.sign+''.join([str(x) for x in self.lstN]))
-
-
