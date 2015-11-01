@@ -3,14 +3,18 @@
 block_cipher = None
 
 
-a = Analysis(['./TEdit.pyw'],
-             pathex=['/home/taris/Documents/workshop/TEdit'],
+a = Analysis(['TEdit.py'],
+             pathex=['/home/taris/workshop/TEdit'],
+             binaries=None,
+             datas=None,
              hiddenimports=[],
              hookspath=None,
              runtime_hooks=None,
              excludes=None,
+             win_no_prefer_redirects=None,
+             win_private_assemblies=None,
              cipher=block_cipher)
-pyz = PYZ(a.pure,
+pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
@@ -21,4 +25,4 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=True,
-          console=True )
+          console=False )

@@ -3,14 +3,14 @@
 from PBN import Bignum
 
 def factorial_bignum(num):
-	if num <= 0:
-		return Bignum(1)
-	else:
-		fact = Bignum(num)
-		for i in range(1, num)[::-1]:
-			fact = fact*Bignum(i)
+    if num <= 0:
+        return Bignum(1)
+    else:
+        fact = Bignum(num)
+        for i in range(1, num)[::-1]:
+            fact = fact*Bignum(i)
 
-		return fact
+        return fact
 
 # Test here
 a = Bignum(1241900)
