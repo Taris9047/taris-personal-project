@@ -18,7 +18,7 @@ factorial: factorial.py
 	$(CC) $(CFLAGS) $@.py
 
 clean:
-	rm -rfv ./build ./dist ./*.eps ./*.pyc ./*.txt ./__pycache__ ./*.so
+	rm -rfv ./build ./dist ./*.eps ./*.pyc ./*.txt ./__pycache__ ./*.so ./*.c
 
 run_test:
 	$(PYTHON) ./test.py

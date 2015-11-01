@@ -14,8 +14,8 @@ typedef int BOOL;
 #include "utils.h"
 
 typedef struct bignum_int {
-	BOOL sign;
-	SLIST num_list;
+    BOOL sign;
+    SLIST num_list;
 } bignum_int;
 
 typedef bignum_int* BNI;

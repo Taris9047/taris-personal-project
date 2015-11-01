@@ -59,7 +59,7 @@ def main():
     if len(sys.argv) >= 2:
         input_num = int(sys.argv[1])
     else:
-        input_num = 10
+        input_num = 50
 
     PBY_avg = [0]*input_num
     builtin_avg = [0]*input_num

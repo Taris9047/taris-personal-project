@@ -8,24 +8,24 @@
 ///////////////////////////////////////////////
 SLIST SLfind(SLIST slhead, ULLONG index)
 {
-	ULLONG i;
-	SLIST Tmp = slhead;
-    
+    ULLONG i;
+    SLIST Tmp = slhead;
+
     if (index >= SLlen(slhead)) {
         printf("Invalid access!!\n");
     }
-    
-	for (i = 0; i < index; i++) {
-		Tmp = Tmp->nextList;
-		//printf("Slfind, Tmp->content: %c\n", *(char*)Tmp->content);
-	}
-	return Tmp;
+
+    for (i = 0; i < index; i++) {
+        Tmp = Tmp->nextList;
+        //printf("Slfind, Tmp->content: %c\n", *(char*)Tmp->content);
+    }
+    return Tmp;
 }
 
 ULLONG SLlen(SLIST slhead)
 {
-	ULLONG i = 1;
-	SLIST Tmp = slhead;
+    ULLONG i = 1;
+    SLIST Tmp = slhead;
     if (Tmp != NULL) {
         while (Tmp->nextList) {
             Tmp = Tmp->nextList;
@@ -33,42 +33,42 @@ ULLONG SLlen(SLIST slhead)
         };
         return i;
     }
-	else
+    else
         return 0;
 }
 
 SLIST SLpush(SLIST slhead, SLIST slpush)
 {
-	if (slhead == NULL)
+    if (slhead == NULL)
         return slpush;
     if (slpush == NULL)
         return slhead;
-    
-    SLIST Tmp = slpush;
-	while(Tmp->nextList) Tmp = Tmp->nextList;
-	if (Tmp != NULL)
-		Tmp->nextList = slhead;
-	else
-		slhead = slpush;
 
-	SLupdateindex(slpush);
-	return slpush;
+    SLIST Tmp = slpush;
+    while(Tmp->nextList) Tmp = Tmp->nextList;
+    if (Tmp != NULL)
+        Tmp->nextList = slhead;
+    else
+        slhead = slpush;
+
+    SLupdateindex(slpush);
+    return slpush;
 }
 
 SLIST SLpush_back(SLIST slhead, SLIST slpush)
 {
     if (slhead == NULL)
         return slpush;
-    
+
     if (slpush == NULL)
         return slhead;
-    
+
     SLIST Tmp = slhead;
-	ULLONG head_len = SLlen(slhead);
-	while(Tmp->nextList) Tmp = Tmp->nextList;
-	slpush->index = head_len;
-	Tmp->nextList = slpush;
-	return slhead;
+    ULLONG head_len = SLlen(slhead);
+    while(Tmp->nextList) Tmp = Tmp->nextList;
+    slpush->index = head_len;
+    Tmp->nextList = slpush;
+    return slhead;
 }
 
 SLIST SLpop(SLIST slhead)
@@ -88,66 +88,66 @@ SLIST SLpop(SLIST slhead)
         exit(-1);
     }
 
-	SLupdateindex(slhead);
+    SLupdateindex(slhead);
     SLupdateindex(Tmp);
-	return Tmp;
+    return Tmp;
 }
 
 SLIST SLpop_back(SLIST slhead)
 {
-	SLIST Tmp = slhead;
-	SLIST slpop;
-	//while(Tmp->nextList) Tmp = Tmp->nextList;
-	ULLONG i;
-	for (i = 0; i < (SLlen(slhead)-1); i++)
-		Tmp = Tmp->nextList;
+    SLIST Tmp = slhead;
+    SLIST slpop;
+    //while(Tmp->nextList) Tmp = Tmp->nextList;
+    ULLONG i;
+    for (i = 0; i < (SLlen(slhead)-1); i++)
+        Tmp = Tmp->nextList;
 
-	slpop = Tmp->nextList;
-	Tmp->nextList = NULL;
-	SLupdateindex(slpop);
-	return slpop;
+    slpop = Tmp->nextList;
+    Tmp->nextList = NULL;
+    SLupdateindex(slpop);
+    return slpop;
 }
 
 SLIST SLinsert(SLIST slhead, SLIST slinsert, ULLONG loc)
 {
-	SLIST TmpIns = slinsert;
-	SLIST TmpHead = slhead;
-	ULLONG i;
-	if (loc == 0) {
-		while(TmpIns->nextList) TmpIns = TmpIns->nextList;
-		TmpIns->nextList = slhead;
+    SLIST TmpIns = slinsert;
+    SLIST TmpHead = slhead;
+    ULLONG i;
+    if (loc == 0) {
+        while(TmpIns->nextList) TmpIns = TmpIns->nextList;
+        TmpIns->nextList = slhead;
 
-		SLupdateindex(slinsert);
-		return slinsert;
-	}
-	else if (loc >= SLlen(slhead)) {
-		while(TmpHead->nextList) TmpHead = TmpHead->nextList;
-		TmpHead->nextList = slinsert;
+        SLupdateindex(slinsert);
+        return slinsert;
+    }
+    else if (loc >= SLlen(slhead)) {
+        while(TmpHead->nextList) TmpHead = TmpHead->nextList;
+        TmpHead->nextList = slinsert;
 
-		SLupdateindex(slhead);
-		return slhead;
-	}
-	else {
-		TmpHead = slhead;
-		for (i = 0; i < loc; i++) TmpHead = TmpHead->nextList;
-		TmpHead->nextList = slinsert;
-		TmpHead = TmpHead->nextList;
-		while(TmpIns->nextList) TmpIns = TmpIns->nextList;
-		TmpIns->nextList = TmpHead;
+        SLupdateindex(slhead);
+        return slhead;
+    }
+    else {
+        TmpHead = slhead;
+        for (i = 0; i < loc; i++) TmpHead = TmpHead->nextList;
+        TmpHead->nextList = slinsert;
+        TmpHead = TmpHead->nextList;
+        while(TmpIns->nextList) TmpIns = TmpIns->nextList;
+        TmpIns->nextList = TmpHead;
 
-		SLupdateindex(slhead);
-		return slhead;
-	}
+        SLupdateindex(slhead);
+        return slhead;
+    }
 }
 
 void SLupdateindex(SLIST slhead)
 {
-	SLIST Tmp = slhead;
-	ULLONG i = 0;
-	do {
-		Tmp->index = i++;
-		Tmp = Tmp->nextList;
-	} while(Tmp);
+    SLIST Tmp = slhead;
+    ULLONG i = 0;
+    do {
+        Tmp->index = i++;
+        Tmp = Tmp->nextList;
+    } while(Tmp);
 }
 
 //////////////////////////////////
@@ -155,49 +155,49 @@ void SLupdateindex(SLIST slhead)
 //////////////////////////////////
 SLIST SLalloc(ULLONG nodesize)
 {
-	ULLONG i;
-	SLIST LstPtr = NULL;
+    ULLONG i;
+    SLIST LstPtr = NULL;
 
     if (nodesize == 0) {
         return NULL;
     }
-	else {
-		LstPtr = (SLIST)malloc(SLIST_SZ);
-		SLIST FirstPtr = LstPtr;
-		for (i = 0; i < nodesize; i++) {
-			LstPtr->index = i;
-			if (i == nodesize - 1) {
-				LstPtr->nextList = NULL;
+    else {
+        LstPtr = (SLIST)malloc(SLIST_SZ);
+        SLIST FirstPtr = LstPtr;
+        for (i = 0; i < nodesize; i++) {
+            LstPtr->index = i;
+            if (i == nodesize - 1) {
+                LstPtr->nextList = NULL;
                 return FirstPtr;
-			}
-			else {
-				LstPtr->nextList = (SLIST)malloc(SLIST_SZ);
-				LstPtr = LstPtr->nextList;
-			}
-		}
-		//return FirstPtr;
-	}
+            }
+            else {
+                LstPtr->nextList = (SLIST)malloc(SLIST_SZ);
+                LstPtr = LstPtr->nextList;
+            }
+        }
+        //return FirstPtr;
+    }
     return NULL;
 }
 
 SLIST SLstralloc(const char* str)
 {
-	ULLONG str_length = (ULLONG)strlen(str);
-	ULLONG i;
+    ULLONG str_length = (ULLONG)strlen(str);
+    ULLONG i;
     //printf("SLstralloc, str: %s\n", str);
-	SLIST LstPtr = SLalloc(str_length);
+    SLIST LstPtr = SLalloc(str_length);
     SLIST Tmp = LstPtr;
     i = 0;
     do {
         //printf("SLstralloc, c: %c\n", c);
-		Tmp->content = (void *)(str+i);
+        Tmp->content = (void *)(str+i);
         //printf("SLstralloc, Tmp->content: %c\n", SLread(LstPtr, i, char));
         Tmp->index = i; i++;
         Tmp = Tmp->nextList;
         //i++;
     } while (Tmp);
-    
-	return LstPtr;
+
+    return LstPtr;
 }
 
 void SLfree(SLIST slhead)
