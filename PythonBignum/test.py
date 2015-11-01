@@ -52,4 +52,4 @@ print(c.N(), "-", d.N(), "=", k.N())
 
 n = 130
 fact = factorial_bignum(n)
-print(n, "! = ", fact.N())
+print(n, " != ", fact.N())
