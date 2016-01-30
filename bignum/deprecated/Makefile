@@ -1,8 +1,4 @@
-#CC=gcc-4.9
-#CC=tcc
-CC=gcc
-CXX=g++
-CFLAGS=-g -O3 -Wall -fPIC
+CFLAGS=-g -O2 -Wall -fPIC
 SRCDIR=./
 TARGET=test
 OBJDATASTR=llist.o utils.o
@@ -13,14 +9,20 @@ ifneq (, $(findstring linux, $(SYS)))
 	LIBBIGNUMNAME=libbignum.so
 	RPATH=-Wl,-rpath=$(SRCDIR)
 	CYGCOMMAND=
+	CC=clang
+	CXX=clang++
 else ifneq (, $(findstring cygwin, $(SYS)))
 	LIBBIGNUMNAME=cygbignum.dll
 	RPATH=
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
+	CC=gcc
+	CXX=g++
 else ifneq (, $(findstring darwin, $(SYS)))
 	LIBBIGNUMNAME=libbignum.so
 	RPATH=
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
+	CC=gcc
+	CXX=g++
 endif
 
 all: test

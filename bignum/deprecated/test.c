@@ -72,10 +72,10 @@ BNI factorial(BNI n)
     do {
         //BNIfree(Tmp); BNIfree(TmpIndex);
         BNIadd(TmpIndex, Index, one);
-        BNIcpy(Index, TmpIndex); BNIfree(TmpIndex); TmpIndex = BNI(0);
+        BNIcpy(Index, TmpIndex); TmpIndex = BNI(0);
         index = BNItostr(Index);
         BNImul(Tmp, factN, Index);
-        BNIcpy(factN, Tmp); BNIfree(Tmp); Tmp = BNI(0);
+        BNIcpy(factN, Tmp); Tmp = BNI(0);
         printf("factorial, %s! = %s\n", index, BNItostr(factN));
     } while(!BNIeq(n, Index));
 

@@ -325,7 +325,7 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
 
     for (i_b = B_len - 1; i_b >= 0; i_b--) {
         bn = BNIread(B, i_b);
-        BNIfree(Tmp);
+        //BNIfree(Tmp);
         Tmp = BNI(0);
         i_Tmp = 0;
         if (bn != 0) {
@@ -353,8 +353,10 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
             }
             BNI_do_add(MilestoneTmp, Tmp, Milestone);
             BNIcpy(Milestone, MilestoneTmp);
-            BNIfree(MilestoneTmp); MilestoneTmp = BNI(0);
-            printf("BNI_do_mul, Tmp, Milestone: %s, %s\n", BNItostr(Tmp), BNItostr(Milestone));
+            printf("BNI_do_mul: Tmp, Milestone: %s, %s\n",
+                BNItostr(Tmp), BNItostr(Milestone));
+            //BNIfree(MilestoneTmp);
+            MilestoneTmp = BNI(0);
         }
         else {
             continue;
@@ -366,9 +368,9 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
         carry = 0;
     }
 
-    BNIfree(Tmp);
+    //BNIfree(Tmp);
     BNIcpy(answer, Milestone);
-    BNIfree(Milestone);
+    //BNIfree(Milestone);
     //printf("BNI_do_mul, answer: %s\n", BNItostr(answer));
     return TRUE;
 }
@@ -737,7 +739,7 @@ BOOL BNI_free(BNI A)
 {
     if (A != NULL) {
         SLfree(A->num_list);
-        free(A);
+        //free(A);
         return TRUE;
     }
     else
