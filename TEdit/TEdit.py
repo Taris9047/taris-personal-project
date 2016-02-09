@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from MainWindow import MainWindow
@@ -7,6 +8,7 @@ import sys
 import platform as plf
 
 ver = '0.0.2.4'
+
 
 
 def main():

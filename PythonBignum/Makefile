@@ -4,6 +4,9 @@ CFLAGS=-F
 
 all: test factorial
 
+lib:
+	python ./cythonize.py build_ext --inplace
+
 test: test.py
 	$(CC) $(CFLAGS) $@.py
 
@@ -15,13 +18,10 @@ factorial: factorial.py
 	$(CC) $(CFLAGS) $@.py
 
 clean:
-	rm -rfv ./build ./dist ./*.eps ./*.pyc ./*.txt ./__pycache__
+	rm -rfv ./build ./dist ./*.eps ./*.pyc ./*.txt ./__pycache__ ./*.so ./*.c
 
 run_test:
 	$(PYTHON) ./test.py
 
 run_factorial:
 	$(PYTHON) ./factorial.py
-
-
-

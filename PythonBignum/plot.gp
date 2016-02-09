@@ -15,5 +15,6 @@ set xrange [1:]
 set title 'Factorial performance comparison for PBY.py'
 set key top left
 
-plot IN_FILE using ($1):($2) title 'PBY.py' w l ls 1, \
+plot \
+    IN_FILE using ($1):($2) title 'PBY.py' w l ls 1, \
     IN_FILE using ($1):($3) title 'Built-in' w l ls 2

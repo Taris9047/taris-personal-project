@@ -1,9 +1,5 @@
-#CC=gcc-4.9
-#CC=tcc
-CC=gcc
-CXX=g++
-CFLAGS=-g -O3 -Wall -fPIC
-SRCDIR=./src
+CFLAGS=-g -O2 -Wall -fPIC
+SRCDIR=./
 TARGET=test
 OBJDATASTR=llist.o utils.o
 OBJBIGNUM=bignum_int.o $(OBJDATASTR)
@@ -13,14 +9,20 @@ ifneq (, $(findstring linux, $(SYS)))
 	LIBBIGNUMNAME=libbignum.so
 	RPATH=-Wl,-rpath=$(SRCDIR)
 	CYGCOMMAND=
+	CC=clang
+	CXX=clang++
 else ifneq (, $(findstring cygwin, $(SYS)))
 	LIBBIGNUMNAME=cygbignum.dll
 	RPATH=
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
+	CC=gcc
+	CXX=g++
 else ifneq (, $(findstring darwin, $(SYS)))
 	LIBBIGNUMNAME=libbignum.so
 	RPATH=
 	CYGCOMMAND=cp -vfr $(SRCDIR)/$(LIBNAME) ./
+	CC=gcc
+	CXX=g++
 endif
 
 all: test
@@ -35,13 +37,13 @@ libdatastr.a: $(OBJDATASTR)
 	ar r $@ $(OBJDATASTR) utils.o
 
 bignum_int.o: bignum_int.c bignum_int.h
-	$(CC) $(CFLAGS) -c -o $@ bignum_int.c 
+	$(CC) $(CFLAGS) -c -o $@ bignum_int.c
 
 $(LIBBIGNUMNAME): $(OBJBIGNUM)
 	$(CC) $(CFLAGS) -shared -o $@ $(OBJBIGNUM)
 
 test: test.c $(LIBBIGNUMNAME) *.c *.h
-	$(CC) $(CFLAGS) -o $(TARGET) test.c -I. -L. -lbignum
+	$(CC) $(CFLAGS) $(RPATH) -o $(TARGET) test.c -I. -L. -lbignum
 
 clean:
 	rm -rvf ./$(TARGET) *.exe *.stackdump

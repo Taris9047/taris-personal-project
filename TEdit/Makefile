@@ -1,7 +1,7 @@
 PYIOPTIONS = -F -w
-PYTHON = python3 -u 
+PYTHON = python -u 
 PYINST = pyinstaller
-MAIN_FILE = TEdit.pyw
+MAIN_FILE = TEdit.py
 DIST_NAME = TEdit
 DIST = ./dist
 BUILD = ./build

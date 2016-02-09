@@ -25,23 +25,23 @@ typedef unsigned int BOOL;
 
 // List node definitions
 typedef struct List {
-	void* content;
-	struct List* nextList;
-	ULLONG index;
+    void* content;
+    struct List* nextList;
+    ULLONG index;
 } List;
 
 typedef struct DList {
-	void* content;
-	struct DList* prevDList;
-	struct DList* nextDList;
-	ULLONG index;
+    void* content;
+    struct DList* prevDList;
+    struct DList* nextDList;
+    ULLONG index;
 } DList;
 
 typedef List* SLIST;
 typedef DList* DLIST;
 
 // Manip. utils (macro)
-#define SLread(SList, Index, Type) *(Type*)SLfind(SList, Index)->content	
+#define SLread(SList, Index, Type) *(Type*)SLfind(SList, Index)->content
 #define SLset(SList, Index, element) SLfind(SList, Index)->content = &(element)
 
 // Manipulation utilities

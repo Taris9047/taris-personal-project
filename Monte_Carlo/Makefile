@@ -12,6 +12,7 @@ OBJ=Molecule.o Physics.o Photon.o Random.o GnuplotGen.o Converters.o
 #
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
+	RPATH=-Wl,-rpath=$(LIBDIR)
 	SONAME=lib$(LIBNAME).so
 else ifneq (, $(findstring cygwin, $(SYS)))
 	SONAME=cyg$(LIBNAME).dll
@@ -26,7 +27,7 @@ run: brownian
 	./run.sh 
 
 brownian: brownian.cpp $(SONAME)
-	$(CXX) $(CFLAGS) -o $(TARGET) brownian.cpp -I$(INCLUDE_DIR) -L$(LIBDIR) -l$(LIBNAME)
+	$(CXX) $(CFLAGS) $(RPATH) -o $(TARGET) brownian.cpp -I$(INCLUDE_DIR) -L$(LIBDIR) -l$(LIBNAME)
 
 Molecule.o: Molecule.cpp Molecule.hpp
 	$(CXX) $(CFLAGS) -fPIC -o $@ -c Molecule.cpp
