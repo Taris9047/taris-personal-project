@@ -1,4 +1,5 @@
-CFLAGS=-g -O2 -Wall -fPIC
+#CFLAGS=-g -O2 -Wall -fPIC
+CFLAGS=-ggdb3
 SRCDIR=./
 TARGET=test
 OBJDATASTR=llist.o utils.o

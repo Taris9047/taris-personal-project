@@ -1,6 +1,3 @@
-#ifndef TEST_C
-#define TEST_C
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "bignum.h"
@@ -24,7 +21,7 @@ int main(int argc, char* argv[])
         numA = BNICC("11");
         numB = BNICC("10");
     }
-    BNI result = BNI(0);
+    BNI result = BNII(0);
 
     printf("numA: %s\n", BNItostr(numA));
     printf("numB: %s\n", BNItostr(numB));
@@ -33,14 +30,14 @@ int main(int argc, char* argv[])
 
     printf("%s + %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(result));
 
-    result = BNI(0);
+    result = BNII(0);
     BNIsub(result, numA, numB);
 
     printf("%s - %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(result));
 
     printf("\n");
     printf("Performing BNImul\n");
-    BNI answermul = BNI(0);
+    BNI answermul = BNII(0);
     BNImul(answermul, numA, numB);
     printf("%s * %s = %s\n", BNItostr(numA), BNItostr(numB), BNItostr(answermul));
     printf("\n");
@@ -57,30 +54,27 @@ int main(int argc, char* argv[])
 
 BNI factorial(BNI n)
 {
-    BNI factN = BNI(1);
-    BNI Tmp = BNI(0);
-    BNI TmpIndex = BNI(0);
-    BNI Index = BNI(1);
-    BNI one = BNI(1);
+    BNI factN = BNII(1);
+    BNI Tmp = BNII(0);
+    BNI TmpIndex = BNII(0);
+    BNI Index = BNII(1);
+    BNI one = BNII(1);
     if (n->sign == FALSE)
         return factN;
 
-    if (BNIeq(n, BNI(0)))
+    if (BNIeq(n, BNII(0)))
         return factN;
 
     char* index;
     do {
         //BNIfree(Tmp); BNIfree(TmpIndex);
         BNIadd(TmpIndex, Index, one);
-        BNIcpy(Index, TmpIndex); TmpIndex = BNI(0);
+        BNIcpy(Index, TmpIndex); TmpIndex = BNII(0);
         index = BNItostr(Index);
         BNImul(Tmp, factN, Index);
-        BNIcpy(factN, Tmp); Tmp = BNI(0);
+        BNIcpy(factN, Tmp); Tmp = BNII(0);
         printf("factorial, %s! = %s\n", index, BNItostr(factN));
     } while(!BNIeq(n, Index));
 
     return factN;
 }
-
-
-#endif

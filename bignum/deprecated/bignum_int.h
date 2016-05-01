@@ -20,6 +20,9 @@ typedef struct bignum_int {
 
 typedef bignum_int* BNI;
 
+/**
+ * Deprecated - Well, macros are EVIL!!!
+ *
 #define BNI_SZ sizeof(bignum_int)
 #define BNI_INIT (BNI)malloc(BNI_SZ)
 #define BNI(n) BNI_int(n)
@@ -28,6 +31,12 @@ typedef bignum_int* BNI;
 #define BNIfree(bni_num) BNI_free(bni_num)
 #define BNIeqcomp(A, B) (BNIcomp(A, B) || BNIeq(A, B))
 #define BNIabseqcomp(A, B) (BNIabscomp(A, B) || BNIabseq(A, B))
+ * --> Moved to bottom
+**/
+
+// get Size
+//size_t BNI_SZ() { return sizeof(bignum_int); }
+size_t BNI_SZ = sizeof(bignum_int);
 
 // Operations
 BOOL BNIadd(BNI answer, BNI A, BNI B);
@@ -67,5 +76,20 @@ BNI BNI_int(int num);
 BNI BNI_cchar(const char* str);
 BNI BNI_char(char* str);
 BOOL BNI_free(BNI BN);
+
+// Some utilities --> converted from macros
+// Assign memory for BNI
+BNI BNI_INIT() { return (BNI)malloc(BNI_SZ); }
+// Initializers
+BNI BNII(int n) { return BNI_int(n); }
+BNI BNICC(const char* numstr) { return BNI_cchar(numstr); }
+BNI BNIC(char* numstr) { return BNI_char(numstr); }
+// Destructors
+BNI BNIfree(BNI bni_num) { BNI_free(bni_num); }
+// Utilities
+// ==
+int BNIeqcomp(BNI A, BNI B) { return (BNIcomp(A, B)||BNIeq(A, B)); }
+// == with abs
+int BNIabseqcomp(BNI A, BNI B) { return (BNIabscomp(A,B)||BNIabseq(A,B)); }
 
 #endif

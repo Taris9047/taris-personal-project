@@ -1,6 +1,3 @@
-#ifndef UTILS_C
-#define UTILS_C
-
 #include "utils.h"
 
 int count_ifs(int n)
@@ -206,5 +203,3 @@ unsigned long long bntlen(char* str)
     while (*str) str++;
     return str - tmp;
 }
-
-#endif
