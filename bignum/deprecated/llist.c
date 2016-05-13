@@ -1,6 +1,3 @@
-#ifndef LLIST_C
-#define LLIST_C
-
 #include "llist.h"
 
 ///////////////////////////////////////////////
@@ -213,5 +210,3 @@ void SLfree(SLIST slhead)
     }
     return;
 }
-
-#endif

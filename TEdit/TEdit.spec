@@ -3,8 +3,8 @@
 block_cipher = None
 
 
-a = Analysis(['TEdit.py'],
-             pathex=['/home/taris/workshop/TEdit'],
+a = Analysis(['TEdit.pyw'],
+             pathex=['C:\\Users\\Taris\\Documents\\GitHub\\taris-personal-project\\TEdit'],
              binaries=None,
              datas=None,
              hiddenimports=[],
@@ -21,7 +21,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='TEdit',
+          name='TEdit.exe',
           debug=False,
           strip=None,
           upx=True,

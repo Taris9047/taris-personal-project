@@ -10,7 +10,7 @@
 from PyQt4 import QtCore, QtGui
 from Find import Find, FindnReplace
 from OptionDialog import OptionDialog
-from LineTextEdit import LineTextEdit
+# from LineTextEdit import LineTextEdit
 from SyntaxHighlight import Syntax
 from functools import partial
 import os
@@ -44,14 +44,18 @@ except AttributeError:
 #
 class MainWindow(QtGui.QMainWindow):
     file_types = {
-        'python':['.py', '.pyw']
+        'python': ['.py', '.pyw'],
     }
 
     ## Constructor
     #
-    def __init__(self, clipboard=None, ver='0.0.0.0'):
+    def __init__(self, clipboard=None, ver='0.0.0.0', arg_file=None):
         super(MainWindow, self).__init__()
-        self.filename = False
+        if arg_file:
+            self.filename = os.path.abspath(arg_file)
+        else:
+            self.filename = False
+
         self.currdir = False
         self.fn = False
         self.curr_path = os.path.dirname(os.path.realpath(__file__))
@@ -62,7 +66,7 @@ class MainWindow(QtGui.QMainWindow):
         self.recent_files_actions = []
         self.last_file = []
         self.word_wrap = False
-        self.Title = 'TEdit - '+str(ver)
+        self.Title = 'TEdit - ' + str(ver)
         self.winTitle = self.Title
 
         self.clipboard = clipboard
@@ -93,7 +97,7 @@ class MainWindow(QtGui.QMainWindow):
     def __saveSettings(self):
         for i, r in enumerate(self.recent_files):
             self.recent_files[i] = str(r)
-            
+
         self.recent_files = list(self.recent_files)
 
         joined_rf = ';'.join(self.recent_files)
@@ -164,8 +168,8 @@ class MainWindow(QtGui.QMainWindow):
         self.centralwidget = QtGui.QWidget(self)
         self.gridLayout = QtGui.QGridLayout(self.centralwidget)
         self.text = QtGui.QTextEdit(self.centralwidget)
-        #self.editor = LineTextEdit(self.centralwidget)
-        #self.text = self.editor.edit
+        # self.editor = LineTextEdit(self.centralwidget)
+        # self.text = self.editor.edit
         self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
         self.setCentralWidget(self.centralwidget)
         self.text.document().modificationChanged.connect(self.TextEdited)
@@ -184,23 +188,23 @@ class MainWindow(QtGui.QMainWindow):
     # establishes actions for TEdit MainWindow
     #
     def setupActions(self):
-         # Actions
+        # Actions
         self.actionNew = QtGui.QAction(r'&New', self)
         self.actionNew.setShortcut('Ctrl+N')
         self.actionNew.triggered.connect(self.NewFile)
-        
+
         self.actionOpen = QtGui.QAction(r'&Open', self)
         self.actionOpen.setShortcut('Ctrl+O')
         self.actionOpen.triggered.connect(self.OpenFile)
-        
+
         self.actionSave = QtGui.QAction(r'&Save', self)
         self.actionSave.setShortcut('Ctrl+S')
         self.actionSave.triggered.connect(self.SaveFile)
-        
+
         self.actionSave_As = QtGui.QAction(r'Save &As...', self)
         self.actionSave_As.setShortcut('Ctrl+Shift+S')
         self.actionSave_As.triggered.connect(self.SaveAs)
-        
+
         self.actionQuit = QtGui.QAction(r'&Quit', self)
         self.actionQuit.setShortcut('Ctrl+Q')
         self.actionQuit.triggered.connect(self.close)
@@ -208,20 +212,20 @@ class MainWindow(QtGui.QMainWindow):
         self.actionCopy = QtGui.QAction(r'&Copy', self)
         self.actionCopy.setShortcut('Ctrl+C')
         self.actionCopy.triggered.connect(self.copyText)
-        
+
         self.actionPaste = QtGui.QAction(r'&Paste', self)
         self.actionPaste.setShortcut('Ctrl+P')
         self.actionPaste.triggered.connect(self.pasteText)
-        
+
         self.actionFind = QtGui.QAction(r'&Find', self)
         self.actionFind.setShortcut('Ctrl+F')
         self.actionFind.triggered.connect(self.Find_)
-        
+
         self.actionFind_and_Replace = \
             QtGui.QAction(r'Find and &Replace', self)
         self.actionFind_and_Replace.setShortcut('Ctrl+Shift+F')
         self.actionFind_and_Replace.triggered.connect(self.Find_and_Replace)
-        
+
         self.actionDisplayFonts = QtGui.QAction(r'Fon&ts', self)
         self.actionDisplayFonts.setShortcut('Ctrl+F5')
         self.actionDisplayFonts.triggered.connect(self.setFont)
@@ -232,7 +236,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.actionIndent_Selection = QtGui.QAction(r'&Indent', self)
         self.actionUnindent_Selection = QtGui.QAction(r'&Unindent', self)
-        
+
         self.actionTabs_to_Space = QtGui.QAction(r'&Tabs to Space', self)
         self.actionTabs_to_Space.setShortcut('Ctrl+Alt+T')
         self.actionTabs_to_Space.triggered.connect(self.TabsToSpace)
@@ -246,7 +250,6 @@ class MainWindow(QtGui.QMainWindow):
         self.actionManual = QtGui.QAction(r'&Manual', self)
         self.actionManual.setShortcut('F1')
 
-
     ## refresh_main_menu
     #
     # refreshes main menubar to update recent file.
@@ -257,7 +260,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menuFile = QtGui.QMenu(r'&File', self.menubar)
         self.menuEdit = QtGui.QMenu(r'&Edit', self.menubar)
         self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
-        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)        
+        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
 
         # File Menu
         self.menuFile.addAction(self.actionNew)
@@ -289,7 +292,6 @@ class MainWindow(QtGui.QMainWindow):
         self.menuPreferneces.addAction(self.actionDisplayFonts)
         self.menuPreferneces.addAction(self.actionOptions)
         self.menuPreferneces.addAction(self.actionWord_Wrap)
-        
 
         # Help Menu
         self.menuHelp.addAction(self.actionAbout)
@@ -326,6 +328,9 @@ class MainWindow(QtGui.QMainWindow):
     # reads in file contents and sets up parameters for current window
     #
     def __openfile(self, filename):
+        if not os.path.exists(filename):
+            return None
+
         with open(filename, 'r') as fp:
             self.text.setPlainText(
                 fp.read().replace('\t', ' ' * self.tabstop))
@@ -339,7 +344,7 @@ class MainWindow(QtGui.QMainWindow):
             # Highlight syntax if possible.
             syntaxHL = Syntax(self.__filetype(self.filename), self.text)
 
-         
+        return filename
 
     ## __filetype
     #
@@ -351,7 +356,6 @@ class MainWindow(QtGui.QMainWindow):
             if file_ext in self.file_types[ft]:
                 return ft
         return 'default'
-
 
     ## __savefile
     #
@@ -398,7 +402,7 @@ class MainWindow(QtGui.QMainWindow):
         if self.UnSaved() != True:
             filename = QtGui.QFileDialog.\
                 getOpenFileName(self, 'Open File',
-                self.homedir if not self.currdir else self.currdir)
+                    self.homedir if not self.currdir else self.currdir)
             if filename:
                 self.__openfile(filename)
                 return filename
@@ -429,7 +433,7 @@ class MainWindow(QtGui.QMainWindow):
     def SaveAs(self):
         filename = QtGui.QFileDialog.\
             getSaveFileName(self, 'Save File',
-            self.homedir if not self.currdir else self.currdir)
+                self.homedir if not self.currdir else self.currdir)
         if filename:
             self.__savefile(filename)
             return filename
@@ -467,7 +471,6 @@ class MainWindow(QtGui.QMainWindow):
     def pasteText(self):
         textToPaste = self.clipboard.text
         self.textCursor.insertText(textToPaste)
-
 
     ## setFont
     #
@@ -530,10 +533,9 @@ class MainWindow(QtGui.QMainWindow):
         self.edited = True
         self.__updateWinTitle()
 
-
     ## setTextWrap
     #
-    # Set wrap mode for textedit 
+    # Set wrap mode for textedit
     #
     def setTextWrap(self):
         if self.word_wrap:
@@ -554,9 +556,7 @@ class MainWindow(QtGui.QMainWindow):
             self.word_wrap = False
         else:
             self.word_wrap = True
-        
         self.setTextWrap()
-
 
     ## TabsToSpace
     #
@@ -564,7 +564,7 @@ class MainWindow(QtGui.QMainWindow):
     #
     def TabsToSpace(self):
         curr_text = self.text.toPlainText()
-        curr_text = curr_text.replace('\t', ' '*self.tabstop)
+        curr_text = curr_text.replace('\t', ' ' * self.tabstop)
         self.text.setPlainText(curr_text)
 
     ## textCursorPosition
@@ -579,7 +579,6 @@ class MainWindow(QtGui.QMainWindow):
 
         if Debug_Mode:
             print("Cursor Location: ", line, col)
-        
+
         self.statusbar.showMessage(
             "Cursor@(line {}, column {})".format(line, col))
-
