@@ -19,7 +19,9 @@ typedef struct bintree_node {
 
     unsigned long depth;
 
+    unsigned long key;
     void *stuff;
+
 } BINode;
 
 
@@ -28,24 +30,38 @@ typedef struct bintree_node {
 /* Initializers */
 BINode* InitBITree();
 BINode* InitBITreeData(void* init_data);
+BINode* InitBITreeKeyData(unsigned int key, void* init_data);
+static BINode* MakeNode(void* init_data, unsigned int key, BINode* parent_node);
 
 /* Destructor */
-void FreeBITree(BINode* some_BINode);
+void FreeBITree(BINode* some_BIRoot);
 
 /* Getting some statistics */
-unsigned long LenBITree(BINode* some_BINode);
-unsigned long DepthBITree(BINode* some_BINode);
+unsigned long LenBITree(BINode* some_BIRoot);
+unsigned long DepthBITree(BINode* some_BIRoot);
+unsigned long DepthBITreeL(BINode* some_BIRoot);
 
 /* Insert and remove elements */
-short BITreeInsert(void* vpStuff, BINode* some_BINode);
-short BITreeRemove(void* vpStuff, BINode* some_BINode);
+short BITreeInsert(void* vpStuff, unsigned long key, BINode* some_BIRoot);
+short BITreeRemove(unsigned int key, BINode* some_BIRoot);
+short BITreeInsertL(void* vpStuff, BINode* some_BIRoot);
+short BITreeRemoveL(void* vpStuff, BINode* some_BIRoot);
 
 /* Get/set item from node */
-static void* GetItem(BINode* some_BINode);
-static short SetItem(void* vpStuff, BINode* some_BINode);
+// kinda pointless...
+void* BITreeGetItem(unsigned long key, BINode* some_BIRoot);
+short BITreeSetItem(unsigned long key, void* vpStuff, BINode* some_BIRoot);
 
 /* Search node for specific item
    (Call it multiple times if duplicate values in the tree)*/
-BINode* BITreeSearch(void* vpStuff, BINode* some_BINode);
+BINode* BITreeSearch(unsigned int key, BINode* some_BIRoot);
+BINode* BITreeSearchL(void* vpStuff, BINode* some_BIRoot);
+
+/* Some utilities */
+/* Copy a node */
+static int Copy(BINode* orig, BINode* cpy);
+/* Swap two nodes */
+static int Swap(BINode* nodeA, BINode* nodeB);
+
 
 #endif /* Include guard */

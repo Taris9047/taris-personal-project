@@ -24,29 +24,29 @@ int main(int argc, char* argv[])
     BINode* Root = InitBITree();
 
     /* Running some craps with the BITree... */
-    double *some_array;
-
     int array_size;
     if (argc > 1)
         array_size = atoi(argv[1]);
     else
         array_size = TEST_ARY_SIZE;
 
-    some_array = (double*)malloc(sizeof(double)*array_size);
-
     int i = 0;
+    double* some_array;
+    some_array = (double*)malloc(sizeof(double)*array_size);
     printf("Populating tree with %d elements\n", array_size);
     for (i; i < array_size; ++i) {
-        some_array[i] = sqrt(pow(rand(),2.0));
-        BITreeInsert((void*)&some_array[i], Root);
+        some_array[i] = sqrt(pow(rand()%100,2.0));
+        //some_array[i] = (double)i;
+        BITreeInsert((void*)&some_array[i], i, Root);
     }
-
-    /* We don't need the array anymore */
-    free(some_array);
 
     /* Printing some stats */
     printf("Tree depth: %d\n", DepthBITree(Root));
     printf("Tree length: %d\n", LenBITree(Root));
+
+    printf("Tree member [%d] is %f\n", 0, *(double*)BITreeGetItem(0, Root));
+    printf("Tree member [%d] is %f\n", (unsigned int)array_size/2, *(double*)BITreeGetItem((unsigned int)array_size/2, Root));
+    printf("Tree member [%d] is %f\n", array_size-1, *(double*)BITreeGetItem(array_size-1, Root));
 
     FreeBITree(Root);
     return 0;
