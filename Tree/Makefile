@@ -1,5 +1,8 @@
 CC=gcc
 CFLAGS=-ggdb3 -fPIC
+LIBS=-lm
+
+TESTF_NAME=BITreeTest
 
 OBJS=bintree.o
 
@@ -7,9 +10,8 @@ OBJS=bintree.o
 	$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(OBJS) test.c
-	$(CC) $(CFLAGS) $< test.c -o test
+	$(CC) $(CFLAGS) $< test.c -o $(TESTF_NAME) $(LIBS)
 
 clean:
 	rm -rfv *.o
-	rm -rfv ./test
-
+	rm -rfv ./$(TESTF_NAME)
