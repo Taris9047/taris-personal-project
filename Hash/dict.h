@@ -14,6 +14,8 @@
 #ifndef __DICT_H__
 #define __DICT_H__
 
+#include "hash.h"
+
 /* Some constant defs */
 #define INIT_SIZE 10
 #define GROWTH_FACTOR 2
@@ -45,6 +47,11 @@ int DictDestroy(Dict* d);
 /* Manipulation */
 static int Grow(Dict* d);
 static int Insert(Dict* d, const char *key, void* stuff);
+static int Delete(Dict* d, const char *key);
+static void* Search(Dict* d, const char *key);
 
+int DictInsert(Dict* d, const char *key, void* stuff);
+int DictDelete(Dict* d, const char *key);
+void* DictSearch(Dict* d, const char *key);
 
 #endif /* Include guard */

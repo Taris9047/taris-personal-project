@@ -101,10 +101,11 @@ static int Insert(Dict* d, const char *key, void* stuff)
     if (!n) return -1;
 
     n->key = strdup(key);
-    stuff_size = sizeof(*n->stuff);
-    memcpy(stuff, n->stuff, stuff_size);
+    //stuff_size = sizeof(*n->stuff)+1;
+    //memcpy(n->stuff, stuff, stuff_size);
+    n->stuff = strdup(stuff);
 
-    h = 8; // Gotta implement hash function...
+    h = hash_mul(key) % d->size;
 
     n->next = d->table[h];
     d->table[h] = n;
@@ -113,4 +114,53 @@ static int Insert(Dict* d, const char *key, void* stuff)
     if (d->n >= d->size * MAX_LOAD_FACTOR) Grow(d);
 
     return 0;
+}
+
+/* Delete element */
+static int Delete(Dict* d, const char *key)
+{
+    Node** prev;          /* what to change when elt is deleted */
+    Node* e;              /* what to delete */
+
+    for(prev = &(d->table[hash_mul(key) % d->size]);
+        *prev != NULL;
+        prev = &((*prev)->next)) {
+        if(!strcmp((*prev)->key, key)) {
+            /* got it */
+            e = *prev;
+            *prev = e->next;
+
+            free(e->key);
+            free(e->stuff);
+            free(e);
+
+            return 0;
+        }
+    }
+}
+
+/* Search element */
+static void* Search(Dict* d, const char *key)
+{
+    Node* n;
+
+    for (n = d->table[hash_mul(key) % d->size]; n!=NULL; n=n->next) {
+        if(!strcmp(n->key, key)) return n->stuff;
+    }
+
+    return NULL;
+}
+
+/* Interfacing functions */
+int DictInsert(Dict* d, const char *key, void* stuff)
+{
+    return Insert(d, key, stuff);
+}
+int DictDelete(Dict* d, const char *key)
+{
+    return Delete(d, key);
+}
+void* DictSearch(Dict* d, const char *key)
+{
+    return Search(d, key);
 }

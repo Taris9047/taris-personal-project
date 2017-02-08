@@ -10,7 +10,7 @@ OBJS=hash.o dict.o
 	$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(OBJS) test.c
-	$(CC) $(CFLAGS) $< test.c -o $(TESTF_NAME) $(LIBS)
+	$(CC) $(CFLAGS) $(OBJS) test.c -o $(TESTF_NAME) $(LIBS)
 
 clean:
 	rm -rfv *.o
