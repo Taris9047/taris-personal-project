@@ -113,3 +113,19 @@ int GraphHasEdge(Graph g, int source, int sink)
         return 0;
     }
 }
+
+/* Foreach */
+int GraphForeach(Graph g, int source,
+    void (*f)(Graph g, int source, int sink, void *data),
+    void *data)
+{
+    int i;
+
+    if (!(source >= 0)) return -1;
+    if (!(source < g->nv)) return -1;
+
+    for(i = 0; i < g->alist[source]->d; i++) {
+        f(g, source, g->alist[source]->list[i], data);
+    }
+    return 0;
+}
