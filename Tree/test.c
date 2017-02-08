@@ -14,14 +14,16 @@
 #include <math.h>
 
 #include "bintree.h"
+#include "graph.h"
 
 #define TEST_ARY_SIZE 10000
+#define TEST_GRAPH_VERTICE_SIZE 3
 
 int main(int argc, char* argv[])
 {
-    printf("Test program for Binary tree.\n");
+    printf("Testing Binary tree...\n");
 
-    BINode* Root = InitBITree();
+    BINode Root = InitBITree();
 
     /* Running some craps with the BITree... */
     int array_size;
@@ -49,5 +51,11 @@ int main(int argc, char* argv[])
     printf("Tree member [%d] is %f\n", array_size-1, *(double*)BITreeGetItem(array_size-1, Root));
 
     FreeBITree(Root);
+
+    /* Graph tests */
+    printf("Testing Graph...\n");
+    Graph g = GraphInit(TEST_GRAPH_VERTICE_SIZE);
+
+
     return 0;
 }

@@ -4,13 +4,13 @@ LIBS=-lm
 
 TESTF_NAME=BITreeTest
 
-OBJS=bintree.o
+OBJS=bintree.o graph.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(OBJS) test.c
-	$(CC) $(CFLAGS) $< test.c -o $(TESTF_NAME) $(LIBS)
+	$(CC) $(CFLAGS) $(OBJS) test.c -o $(TESTF_NAME) $(LIBS)
 
 clean:
 	rm -rfv *.o
