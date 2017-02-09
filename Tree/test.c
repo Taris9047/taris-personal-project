@@ -20,7 +20,7 @@
 
 #define TEST_ARY_SIZE 100
 #define TEST_GRAPH_SIZE 5
-#define GRAPH_ONLY
+//#define GRAPH_ONLY
 
 int main(int argc, char* argv[])
 {
@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
         //some_array[i] = (double)i;
         BITreeInsert((void*)&some_array[i], i, Root);
     }
+    free(some_array);
 
     /* Printing some stats */
     printf("Tree depth: %d\n", DepthBITree(Root));
