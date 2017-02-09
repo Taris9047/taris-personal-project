@@ -22,10 +22,7 @@ typedef struct _bintree_node {
     unsigned long key;
     void *stuff;
 } bintree_node;
-
 typedef bintree_node* BINode;
-
-
 
 /* Methods */
 /* Initializers */

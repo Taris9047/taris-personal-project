@@ -8,6 +8,7 @@
 
  ***************************************/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,24 +16,36 @@
 
 #include "bintree.h"
 #include "graph.h"
+#include "search.h"
 
-#define TEST_ARY_SIZE 10000
-#define TEST_GRAPH_VERTICE_SIZE 3
+#define TEST_ARY_SIZE 100
+#define TEST_GRAPH_SIZE 5
+#define GRAPH_ONLY
 
 int main(int argc, char* argv[])
 {
+    int i = 0;
+
+    /* Running some craps with the BITree... */
+    int array_size, graph_size;
+    if (argc == 2) {
+        array_size = atoi(argv[1]);
+        graph_size = TEST_GRAPH_SIZE;
+    }
+    else if (argc == 3) {
+        array_size = atoi(argv[1]);
+        graph_size = atoi(argv[2]);
+    }
+    else {
+        array_size = TEST_ARY_SIZE;
+        graph_size = TEST_GRAPH_SIZE;
+    }
+
+#ifndef GRAPH_ONLY
     printf("Testing Binary tree...\n");
 
     BINode Root = InitBITree();
 
-    /* Running some craps with the BITree... */
-    int array_size;
-    if (argc > 1)
-        array_size = atoi(argv[1]);
-    else
-        array_size = TEST_ARY_SIZE;
-
-    int i = 0;
     double* some_array;
     some_array = (double*)malloc(sizeof(double)*array_size);
     printf("Populating tree with %d elements\n", array_size);
@@ -51,11 +64,28 @@ int main(int argc, char* argv[])
     printf("Tree member [%d] is %f\n", array_size-1, *(double*)BITreeGetItem(array_size-1, Root));
 
     FreeBITree(Root);
+#endif /* GRAPH_ONLY */
 
     /* Graph tests */
     printf("Testing Graph...\n");
-    Graph g = GraphInit(TEST_GRAPH_VERTICE_SIZE);
+    Graph g;
+    SearchInfo s;
 
+    g = GraphInit(graph_size);
+
+    for (i=0; i<graph_size; i++) {
+        GraphAddEdge(g, i, i);
+        //GraphAddEdge(g, i, i+1);
+    }
+
+    printf("GraphEdgeCount: %d\n", GraphEdgeCount(g));
+    assert(GraphVertexCount(g) == graph_size);
+    //assert(GraphEdgeCount(g) == (graph_size)*2);
+
+    s = SearchInfoInit(g);
+    SearchDFS(s,0);
+    SearchInfoDestroy(s);
+    GraphDestroy(g);
 
     return 0;
 }

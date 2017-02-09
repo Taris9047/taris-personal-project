@@ -4,7 +4,7 @@ LIBS=-lm
 
 TESTF_NAME=BITreeTest
 
-OBJS=bintree.o graph.o
+OBJS=bintree.o graph.o search.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
