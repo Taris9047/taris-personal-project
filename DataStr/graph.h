@@ -42,7 +42,6 @@ int GraphEdgeCount(Graph g);
 int GraphOutDegree(Graph g, int source);
 int GraphHasEdge(Graph g, int source, int sink);
 
-static int intcmp(const void* a, const void* b);
 int GraphForeach(
     Graph g, int source,
     int (*f)(Graph g, int source, int sink, void *data),

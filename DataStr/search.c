@@ -13,6 +13,22 @@
 
 #include "search.h"
 
+/* some local private(?) utilities */
+typedef struct _edge {
+	int u; int v; /* source and sink */
+} edge;
+typedef edge* Edge;
+
+typedef struct _queue {
+	Edge e;
+	int bottom;
+	int top;
+} queue;
+typedef queue Queue;
+
+static int* CreateEmptyArray(int n);
+static int Push(Graph g, int u, int v, void* data);
+static int Search(SearchInfo r, int root, int use_queue);
 
 /* Search Info. constructors */
 SearchInfo SearchInfoInit(Graph g)

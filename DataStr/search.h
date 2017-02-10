@@ -55,22 +55,4 @@ int SearchDFS(SearchInfo results, int root);
 /* Breadth-first search from root */
 int SearchBFS(SearchInfo results, int root);
 
-/* some local utilities */
-static int* CreateEmptyArray(int n);
-
-typedef struct _edge {
-	int u; int v; /* source and sink */
-} edge;
-typedef edge* Edge;
-
-typedef struct _queue {
-	Edge e;
-	int bottom;
-	int top;
-} queue;
-typedef queue Queue;
-
-static int Push(Graph g, int u, int v, void* data);
-static int Search(SearchInfo r, int root, int use_queue);
-
 #endif /* Include guard */

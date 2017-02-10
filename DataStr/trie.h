@@ -6,8 +6,9 @@
 
   Taylor Shin, Feb. 08 2017
 
-  Reference:
+  References:
   https://www.cs.bu.edu/teaching/c/tree/trie/
+  http://simplestcodings.blogspot.com/2012/11/trie-implementation-in-c.html
 
  ***************************************/
 
@@ -19,23 +20,27 @@ typedef struct TrieNodeTag {
     char key;
     pTrieValue value;
     struct TrieNodeTag* next;
+    struct TrieNodeTag* parent;
     struct TrieNodeTag* children;
-} TrieNodeT;
+} trienodetag;
+typedef trienodetag* TrieNode;
 
-typedef struct _TrieCDT {
-    TrieNodeT *root;
-} TrieCDT;
-typedef TrieCDT* TrieADT;
+typedef struct TrieNodeRoot {
+    char key;
+    struct TrieNodeTag* children;
+} trienoderoot;
+typedef trienoderoot* TrieRoot;
 
 /* Constructors */
-TrieADT TrieInit();
+TrieRoot TrieInit();
 /* Destructors */
-int TrieDestroy(TrieADT t);
+int TrieDestroy(TrieRoot t);
 
 /* Interaction methods */
-int TrieAdd(TrieADT t, const char* key, const pTrieValue value);
-int TrieIsMember(TrieADT t, const char* key);
-int TrieRemove(TrieADT t, const char* key);
+/* Add/Check Member/Remove methods */
+int TrieAdd(TrieRoot root, const char* key, const pTrieValue value);
+int TrieIsMember(TrieRoot root, const char* key);
+int TrieRemove(TrieRoot root, const char* key);
 
 
 #endif /* Include guard */

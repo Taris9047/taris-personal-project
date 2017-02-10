@@ -13,6 +13,14 @@
 
 #include "bintree.h"
 
+/* Some private methods */
+/* Some utilities */
+/* General Initializer */
+static BINode MakeNode(void* init_data, unsigned int key, BINode parent_node);
+/* Copy a node */
+static int Copy(BINode orig, BINode cpy);
+/* Swap two nodes */
+static int Swap(BINode nodeA, BINode nodeB);
 
 /* Initializers */
 BINode InitBITree()

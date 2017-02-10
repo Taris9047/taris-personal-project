@@ -29,7 +29,6 @@ typedef bintree_node* BINode;
 BINode InitBITree();
 BINode InitBITreeData(void* init_data);
 BINode InitBITreeKeyData(unsigned int key, void* init_data);
-static BINode MakeNode(void* init_data, unsigned int key, BINode parent_node);
 
 /* Destructor */
 void FreeBITree(BINode some_BIRoot);
@@ -54,12 +53,5 @@ short BITreeSetItem(unsigned long key, void* vpStuff, BINode some_BIRoot);
    (Call it multiple times if duplicate values in the tree)*/
 BINode BITreeSearch(unsigned int key, BINode some_BIRoot);
 BINode BITreeSearchL(void* vpStuff, BINode some_BIRoot);
-
-/* Some utilities */
-/* Copy a node */
-static int Copy(BINode orig, BINode cpy);
-/* Swap two nodes */
-static int Swap(BINode nodeA, BINode nodeB);
-
 
 #endif /* Include guard */

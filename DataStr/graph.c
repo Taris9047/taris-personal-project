@@ -14,6 +14,8 @@
 
 #include "graph.h"
 
+/* Static methods */
+static int intcmp(const void* a, const void* b);
 
 /* Constructor */
 Graph GraphInit(int n)

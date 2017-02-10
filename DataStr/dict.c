@@ -15,6 +15,12 @@
 
 #include "dict.h"
 
+/* Some private(?)... errr static functions */
+static void* Search(Dict* d, const char *key);
+static int Grow(Dict* d);
+static int Insert(Dict* d, const char *key, void* stuff);
+static int Delete(Dict* d, const char *key);
+
 /* Constructors */
 Dict* DictInit(void)
 {

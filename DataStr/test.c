@@ -17,6 +17,8 @@
 #include "bintree.h"
 #include "graph.h"
 #include "search.h"
+#include "trie.h"
+#include "dict.h"
 
 #define TEST_ARY_SIZE 100
 #define TEST_GRAPH_SIZE 5
@@ -61,7 +63,7 @@ int main(int argc, char* argv[])
     printf("Tree length: %d\n", LenBITree(Root));
 
     printf("Tree member [%d] is %f\n", 0, *(double*)BITreeGetItem(0, Root));
-    printf("Tree member [%d] is %f\n", (unsigned int)array_size/2, *(double*)BITreeGetItem((unsigned int)array_size/2, Root));
+    printf("Tree member [%u] is %f\n", (unsigned int)array_size/2, *(double*)BITreeGetItem((unsigned int)array_size/2, Root));
     printf("Tree member [%d] is %f\n", array_size-1, *(double*)BITreeGetItem(array_size-1, Root));
 
     FreeBITree(Root);
