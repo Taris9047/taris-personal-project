@@ -1,21 +1,23 @@
 CC=gcc
 CFLAGS=-ggdb3 -fPIC
-LIBS=-lm
+LIBS=-lm -L.
+AR=ar
 
 TESTF_NAME=DataStrTest
 
-OBJS=bintree.o graph.o search.o hash.o dict.o llist.o
+SOURCES=$(wildcard *.c)
+OBJS=$(SOURCES:.c=.o)
 
 LIBNAME=libdatastr.a
 
-.c.o:
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(LIBNAME) test.c
 	$(CC) $(CFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
 
 $(LIBNAME): $(OBJS)
-	ar r $@ $(OBJS)
+	$(AR) rcs $@ $(OBJS)
 
 clean:
 	rm -rfv *.o
