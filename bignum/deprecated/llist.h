@@ -20,33 +20,37 @@ typedef unsigned int BOOL;
 #define FALSE 0
 #endif
 
-#define SLIST_SZ sizeof(List)
-#define DLIST_SZ sizeof(DList)
+#define SLIST_SZ sizeof(Node)
+#define DLIST_SZ sizeof(DNode)
+#define NEW_SLIST (SLIST)malloc(SLIST_SZ)
+#define NEW_DLIST (DLIST)malloc(DLIST_SZ)
 
 // List node definitions
-typedef struct List {
+typedef struct Node {
     void* content;
-    struct List* nextList;
+    struct Node* nextNode;
     ULLONG index;
-} List;
+} Node;
 
-typedef struct DList {
+typedef struct DNode {
     void* content;
-    struct DList* prevDList;
-    struct DList* nextDList;
+    struct DNode* prevDNode;
+    struct DNode* nextDNode;
     ULLONG index;
-} DList;
+} DNode;
 
-typedef List* SLIST;
-typedef DList* DLIST;
+typedef Node* SLIST;
+typedef DNode* DLIST;
 
 // Manip. utils (macro)
-#define SLread(SList, Index, Type) *(Type*)SLfind(SList, Index)->content
-#define SLset(SList, Index, element) SLfind(SList, Index)->content = &(element)
+//#define SLread(SList, Index, Type) *(Type*)SLfind(SList, Index)->content
+//#define SLset(SList, Index, element) SLfind(SList, Index)->content = &(element)
 
 // Manipulation utilities
 SLIST SLfind(SLIST slhead, ULLONG index);
 ULLONG SLlen(SLIST slhead);
+void* SLread(SLIST slhead, ULLONG index);
+BOOL SLset(SLIST slhead, ULLONG index, void* element);
 SLIST SLpush(SLIST slhead, SLIST slpush);
 SLIST SLpush_back(SLIST slhead, SLIST slpush);
 SLIST SLpop(SLIST slhead);

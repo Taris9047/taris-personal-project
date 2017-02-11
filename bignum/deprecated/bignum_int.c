@@ -173,7 +173,7 @@ BOOL BNImul(BNI answer, BNI A, BNI B)
         printf("BNImul, A: %s, B: %s, answer: %s\n", BNItostr(A), BNItostr(B), BNItostr(answer));
         return TRUE;
     }
-     */
+    */
 
     BNI_do_mul(answer, A, B);
 
@@ -350,14 +350,11 @@ BOOL BNI_do_mul(BNI answer, BNI A, BNI B)
             }
             BNI_do_add(MilestoneTmp, Tmp, Milestone);
             BNIcpy(Milestone, MilestoneTmp);
-            printf("BNI_do_mul: Tmp, Milestone: %s, %s\n",
-                BNItostr(Tmp), BNItostr(Milestone));
+            //printf("BNI_do_mul: Tmp, Milestone: %s, %s\n", BNItostr(Tmp), BNItostr(Milestone));
             //BNIfree(MilestoneTmp);
             MilestoneTmp = BNII(0);
         }
-        else {
-            continue;
-        }
+        else continue;
     }
 
     if (carry != 0) {
@@ -544,7 +541,7 @@ char* BNItostr(BNI A)
         }
         ret[0] = '-'; ret++;
         for (i = 0; i < A_len; i++)
-            ret[i+1] = SLread(A->num_list, i, char);
+            ret[i+1] = *(char*)SLread(A->num_list, i);
     }
     else {
         ret = (char*)malloc(sizeof(char)*(A_len));
@@ -553,10 +550,11 @@ char* BNItostr(BNI A)
             exit(-1);
         }
         for (i = 0; i < A_len; i++)
-            ret[i] = SLread(A->num_list, i, char);
+            ret[i] = *(char*)SLread(A->num_list, i);
     }
     // attaching '\0' to the last
-    ret[A_len] = '\0';
+    if (!A->sign) ret[A_len+1] = '\0';
+    else ret[A_len] = '\0';
     return ret;
 }
 
@@ -570,20 +568,21 @@ ULLONG BNIlen(BNI A)
 
 int BNIread(BNI A, ULLONG i)
 {
-    return (int)ctoi(SLread(A->num_list, i, char));
+    return (int)ctoi(*(char*)SLread(A->num_list, i));
 }
 
 BOOL BNIset(BNI A, ULLONG index, int element)
 {
     if (element > 9 || element < 0) {
-        printf("BNIset, element: %d\n", element);
+        printf("Error at BNIset, index at %d\n", index);
+        printf("BNIset, input element: %d\n", element);
         printf("element must be one digit!\n");
         exit(-1);
     }
     else {
         char* char_num = (char*)malloc(sizeof(char));
         *char_num = itoc(element);
-        SLset(A->num_list, index, *char_num);
+        SLset(A->num_list, index, (void*)char_num);
     }
 
     return TRUE;
@@ -601,7 +600,7 @@ void BNIpush(BNI A, int element)
         SLIST Tmp = (SLIST)malloc(SLIST_SZ);
         Tmp->index = 0;
         Tmp->content = char_num;
-        Tmp->nextList = NULL;
+        Tmp->nextNode = NULL;
         A->num_list = SLpush(A->num_list, Tmp);
     }
     return;
@@ -615,7 +614,7 @@ int BNIpop(BNI A)
     }
 
     SLIST Tmp = SLpop(A->num_list);
-    A->num_list = A->num_list->nextList;
+    A->num_list = A->num_list->nextNode;
     return ctoi(*(char*)Tmp->content);
 }
 
@@ -632,7 +631,7 @@ void BNIpush_back(BNI A, int element)
         SLIST Tmp = (SLIST)malloc(SLIST_SZ);
         Tmp->index = 0;
         Tmp->content = (void *)char_num;
-        Tmp->nextList = NULL;
+        Tmp->nextNode = NULL;
         A->num_list = SLpush_back(A->num_list, Tmp);
     }
     return;

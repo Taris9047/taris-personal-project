@@ -59,11 +59,9 @@ BNI factorial(BNI n)
     BNI TmpIndex = BNII(0);
     BNI Index = BNII(1);
     BNI one = BNII(1);
-    if (n->sign == FALSE)
-        return factN;
+    if (n->sign == FALSE) return factN;
 
-    if (BNIeq(n, BNII(0)))
-        return factN;
+    if (BNIeq(n, BNII(0))) return factN;
 
     char* index;
     do {
@@ -73,7 +71,8 @@ BNI factorial(BNI n)
         index = BNItostr(Index);
         BNImul(Tmp, factN, Index);
         BNIcpy(factN, Tmp); Tmp = BNII(0);
-        printf("factorial, %s! = %s\n", index, BNItostr(factN));
+        printf("factorial, %s! = %s\n",
+            index, BNItostr(factN));
     } while(!BNIeq(n, Index));
 
     return factN;

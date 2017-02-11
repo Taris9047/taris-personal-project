@@ -88,8 +88,8 @@ BNI BNIC(char* numstr) { return BNI_char(numstr); }
 BNI BNIfree(BNI bni_num) { BNI_free(bni_num); }
 // Utilities
 // ==
-int BNIeqcomp(BNI A, BNI B) { return (BNIcomp(A, B)||BNIeq(A, B)); }
+BOOL BNIeqcomp(BNI A, BNI B) { return (BNIcomp(A, B)||BNIeq(A, B)); }
 // == with abs
-int BNIabseqcomp(BNI A, BNI B) { return (BNIabscomp(A,B)||BNIabseq(A,B)); }
+BOOL BNIabseqcomp(BNI A, BNI B) { return (BNIabscomp(A,B)||BNIabseq(A,B)); }
 
 #endif

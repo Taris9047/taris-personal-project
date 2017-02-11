@@ -141,81 +141,6 @@
 			]
 		]
 	},
-	"buffers":
-	[
-		{
-			"file": "llist.c",
-			"settings":
-			{
-				"buffer_size": 4816,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "llist.h",
-			"settings":
-			{
-				"buffer_size": 1722,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "test.c",
-			"settings":
-			{
-				"buffer_size": 1880,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "utils.c",
-			"settings":
-			{
-				"buffer_size": 4583,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "utils.h",
-			"settings":
-			{
-				"buffer_size": 937,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "bignum_int.c",
-			"settings":
-			{
-				"buffer_size": 16910,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "bignum_int.h",
-			"settings":
-			{
-				"buffer_size": 2077,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "bignum.h",
-			"settings":
-			{
-				"buffer_size": 67,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "Makefile",
-			"settings":
-			{
-				"buffer_size": 1136,
-				"line_ending": "Unix"
-			}
-		}
-	],
 	"build_system": "",
 	"build_system_choices":
 	[
@@ -316,12 +241,16 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
-	"expanded_folders":
-	[
-		"/home/taris/workshop/bignum/deprecated"
-	],
 	"file_history":
 	[
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/Makefile",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/llist.c",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/llist.h",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/utils.c",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/utils.h",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/bignum.h",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/bignum_int.h",
+		"/C/Users/talez/Documents/GitHub/taris-personal-project/bignum/deprecated/bignum_int.c",
 		"/home/taris/workshop/bignum/deprecated/bignum.sublime-project",
 		"/home/taris/workshop/PythonBignum/test.py",
 		"/home/taris/workshop/PythonBignum/plot.gp",
@@ -423,7 +352,7 @@
 	],
 	"find":
 	{
-		"height": 26.0
+		"height": 43.0
 	},
 	"find_in_files":
 	{
@@ -437,6 +366,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"BNIset",
 			"currdir",
 			"statusbar",
 			"python",
@@ -471,275 +401,6 @@
 		"whole_word": false,
 		"wrap": true
 	},
-	"groups":
-	[
-		{
-			"selected": 2,
-			"sheets":
-			[
-				{
-					"buffer": 0,
-					"file": "llist.c",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4816,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "llist.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1722,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								968,
-								968
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "test.c",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1880,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								266,
-								266
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 162.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "utils.c",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4583,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4064,
-								4064
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3006.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "utils.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 937,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "bignum_int.c",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 16910,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7323,
-								7323
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 5292.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "bignum_int.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2077,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "bignum.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 67,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "Makefile",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1136,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Makefile/Makefile.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				}
-			]
-		}
-	],
 	"incremental_find":
 	{
 		"height": 26.0
@@ -784,10 +445,9 @@
 		"height": 118.0
 	},
 	"pinned_build_system": "Packages/Gnuplot/gnuplot.sublime-build",
-	"project": "bignum_c.sublime-project",
 	"replace":
 	{
-		"height": 48.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -821,7 +481,6 @@
 		],
 		"width": 392.0
 	},
-	"selected_group": 0,
 	"settings":
 	{
 	},
