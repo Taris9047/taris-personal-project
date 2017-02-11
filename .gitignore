@@ -1,2 +1,15 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+# Specific ignores
 *.py#
 *.pyc
+*.o
+*.so
+*.exe

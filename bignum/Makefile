@@ -6,6 +6,7 @@ CFLAGS=-g -O3 -Wall -fPIC
 LDFLAGS=
 SRCDIR=./
 TARGET=test
+TARGET_MONEY=test_money
 #OBJDATASTR=llist.o utils.o
 OBJDATASTR=
 OBJBIGNUM=BignumInt.o BignumMoney.o $(OBJDATASTR)
@@ -49,13 +50,13 @@ test: test.cpp $(LIBBIGNUMNAME) *.cpp *.h
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(TARGET) test.cpp -I. -L. -lBignum
 
 test_money: test_money.cpp $(LIBBIGNUMNAME) *.cpp *.h
-	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ test_money.cpp -I. -L. -lBignum
+	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(TARGET_MONEY) test_money.cpp -I. -L. -lBignum
 
 factorial: factorial.cpp $(LIBBIGNUMNAME) *.cpp *.h
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o factorial factorial.cpp -I. -L. -lBignum
 
 clean:
-	rm -rvf ./$(TARGET) *.exe *.stackdump ./factorial
+	rm -rvf ./$(TARGET) ./$(TARGET_MONEY) *.exe *.stackdump ./factorial
 	rm -rvf *.pyc *.o *.so *.dll
 	rm -rvf *.a
 	rm -rvf *.dSYM
