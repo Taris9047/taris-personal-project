@@ -11,6 +11,7 @@
  ***************************************/
 
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,9 +24,11 @@ static int Destroy(TrieNode t);
 static TrieNode NewNode(const char key, const pTrieValue value);
 static TrieNode NewTrie(TrieNode parent);
 static TrieNode NewTrieCData(TrieNode parent, const char key, const pTrieValue value);
-static TrieNode New(TrieNode parent, TrieNode n, const char key, const pTrieValue value);
+static TrieNode New(TrieNode parent, TrieNode pre, TrieNode n, const char key, const pTrieValue value);
 static TrieNode Trav(TrieNode t);
+static TrieNode FindNext(TrieNode t, const char k);
 static int Push(TrieNode t, const char key);
+static void Draw(TrieNode t);
 
 
 /* Constructors */
@@ -33,6 +36,8 @@ TrieRoot TrieInit()
 {
     TrieRoot root = (TrieRoot)malloc(sizeof(trienoderoot));
     assert(root);
+    root->key = 'R';
+    root->children = NULL;
     return root;
 }
 
@@ -48,9 +53,6 @@ int TrieDestroy(TrieRoot t)
 
 static int Destroy(TrieNode t)
 {
-    /* Make sure given node is root */
-    assert(t->parent == NULL);
-
     if (t->next) Destroy(t->next);
     if (t->children) Destroy(t->children);
 
@@ -68,17 +70,17 @@ static int Destroy(TrieNode t)
 /* Make an independent node with key and value */
 static TrieNode NewNode(const char key, const pTrieValue value)
 {
-    return New(NULL, NULL, key, value);
+    return New(NULL, NULL, NULL, key, value);
 }
 /* Make a Trie node with a parent Trie node */
 static TrieNode NewTrie(TrieNode parent)
 {
-    return New(parent, NULL, '\0', NULL);
+    return New(parent, NULL, NULL, '\0', NULL);
 }
 /* Make a Trie node with a parent, key, and data */
 static TrieNode NewTrieCData(TrieNode parent, const char key, const pTrieValue value)
 {
-    return New(parent, NULL, key, value);
+    return New(parent, NULL, NULL, key, value);
 }
 
 /* Make a trie node .. generic function
@@ -88,7 +90,7 @@ static TrieNode NewTrieCData(TrieNode parent, const char key, const pTrieValue v
   put NULL if you don't want to assign...
 
 */
-static TrieNode New(TrieNode parent, TrieNode n, const char key, const pTrieValue value)
+static TrieNode New(TrieNode parent, TrieNode pre, TrieNode n, const char key, const pTrieValue value)
 {
     TrieNode nt = (TrieNode)malloc(sizeof(trienodetag));
     assert(nt);
@@ -96,6 +98,7 @@ static TrieNode New(TrieNode parent, TrieNode n, const char key, const pTrieValu
     nt->key = key;
     nt->value = value;
     nt->next = n;
+    nt->prev = pre;
     nt->parent = parent;
     nt->children = NULL;
 
@@ -126,6 +129,23 @@ static TrieNode Trav(TrieNode t)
     return tp;
 }
 
+/* Find given node at given level */
+/* Returns the node has given value if exists but returns NULL
+   if it can't be found. */
+static TrieNode Find(TrieNode t, const char k)
+{
+    assert(t);
+    TrieNode tp = t;
+
+    while (tp->next) {
+        if (tp->key == k) return tp;
+        tp = tp->next;
+    }
+
+    /* after traverse loop... */
+    return NULL;
+}
+
 /* Push into current level */
 static int Push(TrieNode t, const char key)
 {
@@ -133,7 +153,7 @@ static int Push(TrieNode t, const char key)
     assert(key != '\0');
 
     TrieNode tp = Trav(t);
-    tp->next = NewNode(key, NULL);
+    tp->next = New(t->parent, tp, NULL, key, NULL);
 
     return 0;
 }
@@ -149,27 +169,28 @@ int TrieAdd(TrieRoot root, const char* key, const pTrieValue value)
     /* Check if the root pointer is a valid one */
     assert(root);
     assert(strlen(key)>0);
+
     if (!root->children) \
-        root->children = New((TrieNode)root, NULL, key[0], NULL);
+        root->children = New((TrieNode)root, NULL, NULL, key[0], NULL);
     tp = root->children;
 
     /* Iterate by each element in key */
     for (i=0; i<keylen; ++i) {
         /* If current node's key is the same as current one, pass onto children */
-        if (tp->key != key[i]) {
-            if (tp->next) {
-                Push(tp, key[i]);
-                tp = Trav(tp);
-            }
+        if (tp->key != key[i] && tp->key != '\0') {
+            Push(tp, key[i]);
+            tp = Trav(tp);
         }
-        else {
-            if (!tp->children) tp->children = New(tp, NULL, '\0', NULL);
+        /* If current node is empty, fill it */
+        else if (tp->key == '\0') {
+            tp->key = key[i];
         }
+
+        if (!tp->children) tp->children = New(tp, NULL, NULL, '\0', NULL);
 
         /* Update tp for next stage */
-        if (tp->children) tp = tp->children;
+        tp = tp->children;
     }
-
     tp->value = value;
 
     return 0;
@@ -187,14 +208,14 @@ int TrieIsMember(TrieRoot root, const char* key)
     for (i=0; i<keylen; ++i) {
         if (key[i] == tp->key) tp = tp->children;
         else {
-            while(tp->next) {
-                tp = tp->next;
-                if (key[i] == tp->key) break;
-            }
+            tp = Find(tp, key[i]);
+            if (!tp) return 0;
+            else tp = tp->children;
         }
     }
 
-    return 0;
+    /* after the traverse loop, returns true */
+    return 1;
 }
 
 /* Remove given stuff */
@@ -205,3 +226,44 @@ int TrieRemove(TrieRoot root, const char* key)
     TrieNode tp = root->children;
     return 0;
 }
+
+/* Get value */
+pTrieValue TrieGet(TrieRoot root, const char* key)
+{
+    assert(root);
+    assert(strlen(key)>0);
+
+    int keylen = strlen(key);
+    int i;
+    TrieNode tp = root->children;
+
+    for (i=0; i<keylen; ++i) {
+        if (key[i] == tp->key) tp = tp->children;
+        else {
+            tp = Find(tp, key[i]);
+            if (!tp) return NULL;
+            else tp = tp->children;
+        }
+    }
+
+    return tp->value;
+}
+
+// /* Draw trie */
+// int TrieDraw(TrieRoot root)
+// {
+//     assert(root);
+//     TrieNode tp = root->children;
+//
+//     while (1) {
+//
+//     }
+//     return 0;
+// }
+//
+// static void Draw(TrieNode t)
+// {
+//     assert(t);
+//     printf("%c", t->key);
+//     if (t->next) printf("--")
+// }

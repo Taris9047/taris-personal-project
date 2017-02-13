@@ -19,9 +19,10 @@ typedef void* pTrieValue;
 typedef struct TrieNodeTag {
     char key;
     pTrieValue value;
-    struct TrieNodeTag* next;
-    struct TrieNodeTag* parent;
-    struct TrieNodeTag* children;
+    struct TrieNodeTag* next; /* next node at the same level */
+    struct TrieNodeTag* prev; /* points prev node from next */
+    struct TrieNodeTag* parent; /* parent of current node */
+    struct TrieNodeTag* children; /* child node */
 } trienodetag;
 typedef trienodetag* TrieNode;
 
@@ -41,6 +42,10 @@ int TrieDestroy(TrieRoot t);
 int TrieAdd(TrieRoot root, const char* key, const pTrieValue value);
 int TrieIsMember(TrieRoot root, const char* key);
 int TrieRemove(TrieRoot root, const char* key);
+pTrieValue TrieGet(TrieRoot root, const char* key);
+
+/* Some fancy stuff */
+//int TrieDraw(TrieRoot root);
 
 
 #endif /* Include guard */

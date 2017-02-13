@@ -24,26 +24,43 @@
 #define TEST_GRAPH_SIZE 5
 //#define GRAPH_ONLY
 
-int main(int argc, char* argv[])
+/* Some utilities */
+/* key generator */
+char* keygen(int length)
 {
-    int i = 0;
+    int i;
+    unsigned char c;
+    char* key = (char*)malloc(sizeof(char)*length);
+    assert(key);
 
-    /* Running some craps with the BITree... */
-    int array_size, graph_size;
-    if (argc == 2) {
-        array_size = atoi(argv[1]);
-        graph_size = TEST_GRAPH_SIZE;
+    for (i=0; i<length-1; ++i) {
+        c = 'a'+(unsigned char)rand()%26;
+        if (c != '\0') key[i] = (char)c;
     }
-    else if (argc == 3) {
-        array_size = atoi(argv[1]);
-        graph_size = atoi(argv[2]);
-    }
-    else {
-        array_size = TEST_ARY_SIZE;
-        graph_size = TEST_GRAPH_SIZE;
-    }
+    key[length-1] = '\0';
 
-#ifndef GRAPH_ONLY
+    return key;
+}
+
+/* Make keylist */
+char** make_keylist(int key_list_len, int keylen)
+{
+    int i;
+    char** key_list = \
+        (char**)malloc(sizeof(char)*key_list_len*sizeof(char*)*keylen);
+    assert(key_list);
+
+    for (i = 0; i<key_list_len; ++i)
+        key_list[i] = keygen(keylen);
+
+    return key_list;
+}
+
+/* Testing Binary tree */
+int test_binary_tree(int array_size)
+{
+    int i;
+
     printf("Testing Binary tree...\n");
 
     BINode Root = InitBITree();
@@ -67,7 +84,14 @@ int main(int argc, char* argv[])
     printf("Tree member [%d] is %f\n", array_size-1, *(double*)BITreeGetItem(array_size-1, Root));
 
     FreeBITree(Root);
-#endif /* GRAPH_ONLY */
+
+    return 0;
+}
+
+/* Testing Graph */
+int test_graph(int graph_size)
+{
+    int i;
 
     /* Graph tests */
     printf("Testing Graph...\n");
@@ -89,6 +113,76 @@ int main(int argc, char* argv[])
     SearchDFS(s,0);
     SearchInfoDestroy(s);
     GraphDestroy(g);
+
+    return 0;
+}
+
+/* Trie test */
+int test_trie(const char** key_list, int key_list_len)
+{
+    TrieRoot t = TrieInit();
+    int i;
+
+    printf("Testing Trie\n");
+    printf("Inserting some random numbers to Trie\n");
+    /* make up some random numbers */
+    double* some_numbers = \
+        (double*)malloc(sizeof(double)*key_list_len);
+    assert(some_numbers);
+
+    for (i=0; i<key_list_len; ++i) {
+        some_numbers[i] = (double)(rand()%100);
+        //printf("Inserting... %s:%f\n", key_list[i], some_numbers[i]);
+        TrieAdd(t, key_list[i], (void*)&some_numbers[i]);
+    }
+
+    /* let's pick up some random keys */
+    char* key1 = key_list[(int)rand()%key_list_len];
+    char* key2 = key_list[(int)rand()%key_list_len];
+    char* key3 = key_list[(int)rand()%key_list_len];
+    printf("Selecting keys: %s, %s, %s\n", key1, key2, key3);
+
+    printf("Checking key 1 (%s): ", key1);
+    if (TrieIsMember(t, key1)) printf("YES\n");
+    else printf("NO\n");
+    printf("Checking key 2 (%s): ", key2);
+    if (TrieIsMember(t, key2)) printf("YES\n");
+    else printf("NO\n");
+    printf("Checking key 3 (%s): ", key3);
+    if (TrieIsMember(t, key3)) printf("YES\n");
+    else printf("NO\n");
+
+    TrieDestroy(t);
+
+    return 0;
+}
+
+
+
+/* The main function */
+int main(int argc, char* argv[])
+{
+    /* Running some craps with the BITree... */
+    int array_size, graph_size;
+    if (argc == 2) {
+        array_size = atoi(argv[1]);
+        graph_size = TEST_GRAPH_SIZE;
+    }
+    else if (argc == 3) {
+        array_size = atoi(argv[1]);
+        graph_size = atoi(argv[2]);
+    }
+    else {
+        array_size = TEST_ARY_SIZE;
+        graph_size = TEST_GRAPH_SIZE;
+    }
+
+    test_binary_tree(array_size); printf("\n");
+    test_graph(graph_size); printf("\n");
+
+    char** key_list = make_keylist(array_size, 11);
+    test_trie(key_list, array_size); printf("\n");
+
 
     return 0;
 }
