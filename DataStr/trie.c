@@ -201,34 +201,19 @@ int TrieAdd(TrieRoot root, const char* key, const pTrieValue value)
                 Push(tp, key[i]);
                 tp = Trav(tp);
             }
+            /* If tpf already has children which will be most likely different...
+               We cannot insert the key. */
+            else if (tpf->next && tpf->children) return -1;
+
+            /* If next is empty, go to there... */
+            else if (!tpf->next && tpf->children) {
+                tpf->next = New(tpf->parent, tpf, NULL, '\0', NULL);
+                tp = tpf->next; ++i;
+                continue;
+            }
             /* If found, move to the point and assign key */
             else tp = tpf;
         }
-
-        // /* If current node's key is the same as
-        //    current one, pass onto children */
-        // if (tp->key != key[i] && tp->key != '\0') {
-        //     tpf = Find(tp, key[i]);
-        //     if (!tpf) {
-        //         Push(tp, key[i]);
-        //         tp = Trav(tp);
-        //     }
-        //     else tp = tpf;
-        // }
-        // /* If current node is empty, fill it */
-        // else if (tp->key == '\0' && key[i] != '\0') tp->key = key[i];
-        // /* If current node is the same as current key index,
-        //    do nothing */
-        // else if (tp->key == key[i]) { /* do nothing */ }
-        //
-        // /* If current node doesn't have any child to advance...
-        //    Make one. */
-        // if (!tp->children && key[i] != '\0') tp->children = New(tp, NULL, NULL, '\0', NULL);
-        //
-        // /* Update tp for next stage but if the index is the termination
-        //    character, assign the value at the node... */
-        // if (key[i] != '\0') tp = tp->children;
-        // else break;
 
         /* If children is empty, make it */
         if (!tp->children) tp->children = New(tp, NULL, NULL, '\0', NULL);

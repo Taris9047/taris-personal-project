@@ -134,7 +134,8 @@ int test_trie(const char** key_list, int key_list_len)
     for (i=0; i<key_list_len; ++i) {
         some_numbers[i] = (double)(rand()%100);
         //printf("Inserting... %s:%f\n", key_list[i], some_numbers[i]);
-        TrieAdd(t, key_list[i], (void*)&some_numbers[i]);
+        if (TrieAdd(t, key_list[i], (void*)&some_numbers[i]))
+            printf("Inserting %s failed\n", key_list[i]);
     }
 
     /* let's pick up some random keys */
