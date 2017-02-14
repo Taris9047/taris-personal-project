@@ -22,6 +22,7 @@
 
 #define TEST_ARY_SIZE 100
 #define TEST_GRAPH_SIZE 5
+#define TEST_KEY_LEN 6
 //#define GRAPH_ONLY
 
 /* Some utilities */
@@ -143,14 +144,11 @@ int test_trie(const char** key_list, int key_list_len)
     printf("Selecting keys: %s, %s, %s\n", key1, key2, key3);
 
     printf("Checking key 1 (%s): ", key1);
-    if (TrieIsMember(t, key1)) printf("YES\n");
-    else printf("NO\n");
+    TrieIsMemberVerbose(t, key1);
     printf("Checking key 2 (%s): ", key2);
-    if (TrieIsMember(t, key2)) printf("YES\n");
-    else printf("NO\n");
+    TrieIsMemberVerbose(t, key2);
     printf("Checking key 3 (%s): ", key3);
-    if (TrieIsMember(t, key3)) printf("YES\n");
-    else printf("NO\n");
+    TrieIsMemberVerbose(t, key3);
 
     TrieDestroy(t);
 
@@ -177,10 +175,13 @@ int main(int argc, char* argv[])
         graph_size = TEST_GRAPH_SIZE;
     }
 
+    int seed = time(NULL);
+    srand(seed);
+
     test_binary_tree(array_size); printf("\n");
     test_graph(graph_size); printf("\n");
 
-    char** key_list = make_keylist(array_size, 11);
+    char** key_list = make_keylist(array_size, TEST_KEY_LEN);
     test_trie(key_list, array_size); printf("\n");
 
 

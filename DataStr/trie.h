@@ -27,13 +27,14 @@ typedef struct TrieNodeTag {
 typedef trienodetag* TrieNode;
 
 typedef struct TrieNodeRoot {
-    char key;
-    struct TrieNodeTag* children;
+    char* name;
+    struct TrieNodeTag* head;
 } trienoderoot;
 typedef trienoderoot* TrieRoot;
 
 /* Constructors */
 TrieRoot TrieInit();
+TrieRoot TrieInitN(const char* root_name);
 /* Destructors */
 int TrieDestroy(TrieRoot t);
 
@@ -41,11 +42,10 @@ int TrieDestroy(TrieRoot t);
 /* Add/Check Member/Remove methods */
 int TrieAdd(TrieRoot root, const char* key, const pTrieValue value);
 int TrieIsMember(TrieRoot root, const char* key);
+/* debug purpose verbose function */
+int TrieIsMemberVerbose(TrieRoot root, const char* key);
 int TrieRemove(TrieRoot root, const char* key);
 pTrieValue TrieGet(TrieRoot root, const char* key);
-
-/* Some fancy stuff */
-//int TrieDraw(TrieRoot root);
 
 
 #endif /* Include guard */
