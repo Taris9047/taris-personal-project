@@ -1,6 +1,6 @@
 /***************************************
 
-  Practice coding for binary tree
+  Practice coding for Data Structures
 
   Test file
 
@@ -14,11 +14,13 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "list.h"
 #include "bintree.h"
 #include "graph.h"
 #include "search.h"
 #include "trie.h"
 #include "dict.h"
+#include "rwe_trie.h"
 
 #define TEST_ARY_SIZE 100
 #define TEST_GRAPH_SIZE 5

@@ -1,5 +1,15 @@
+# Detecting OS --> let's use clang!!
+CC=clang
+CXX=clang++
+
+UNAME := $(shell uname)
+ifeq ($(UNALE), darwin)
 CC=gcc
 CXX=g++
+endif
+
+#CC=gcc
+#CXX=g++
 #CC=clang
 #CXX=clang++
 CFLAGS=-ggdb3 -fPIC
