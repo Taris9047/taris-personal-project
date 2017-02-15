@@ -21,9 +21,9 @@
 /* Some static functions */
 static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value);
 static int Delete(rTrieNode node);
-static int AttachNode(rTrieNode me, const rTrieNode addon);
+static int AttachNode(rTrieNode me, rTrieNode addon);
 static LNode ChildSearch(LNode children, const char key);
-static rTrieNode Traverse(rTrieRoot root, const char* key);
+static rTrieNode Traverse(rTrieRoot root, char* key);
 
 
 /* Constructors and Destructors */
@@ -37,79 +37,81 @@ rTrieRoot rTrieInit()
     return root;
 }
 
-rTrieRoot rTrieInitN(const char* rtrie_name)
+rTrieRoot rTrieInitN(char* rtrie_name)
 {
     rTrieRoot root = rTrieInit();
     root->name = rtrie_name;
     return root;
 }
 
-int rTrieDelete(rTrieRoot root)
+int rTrieDestroy(rTrieRoot root)
 {
     assert(root);
+    LNode tmp;
 
-    if (root->head) Delete(root->head);
+    if (root->head) {
+        tmp = root->head;
+        while (tmp->next) {
+            Delete((rTrieNode)tmp->value);
+            tmp = tmp->next;
+        }
+    }
 
     return 0;
 }
 
 /* Utils */
-int rTrieInsert(rTrieRoot root, const char* key, rtrie_value_t value)
+int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
 {
     assert(root);
     assert(strlen(key)>0);
     assert(value);
 
     int keylen = strlen(key);
-    unsigned long i = 0;
+    unsigned long i;
     rTrieNode rtp;
-    rTrieNode tmp_rtp;
-    LNode tmp;
+    rTrieNode rtptmp;
+    LNode cc;
 
     /* if root is empty, make first node */
-    if (!root->head) root->head = New(root, '\0', NULL);
-    rtp = root->head;
-
-    while (1) {
-        /* last key always finishes with '\0' */
-        // if (key[i] == '\0') {
-        //     rtp->value = value;
-        //     break;
-        // }
-
-        /* If current key letter matches ... */
-        if (rtp->key == key[i]) {
-            if (i < keylen-2) {
-                tmp = ChildSearch(rtp->children, key[i+1]);
-                if (tmp) rtp = (rTrieNode)tmp->value;
-                else {
-                    tmp_rtp = New(rtp, key[i+1], NULL);
-                    AttachNode(rtp, tmp_rtp);
-                    rtp = tmp_rtp;
-                }
-            }
-            else {
-                /* if i >= keylen-1 --> last key letter which is always '\0' */
-                rtp->value = value;
-                break;
-            }
-        }
-        /* If current key letter doesn't match... */
-        /* Not sure if we reach this point, though */
+    if (!root->head) {
+        root->head = ListInit();
+        assert(root->head);
+        rtp = New((rTrieNode)root, key[0], NULL);
+        ListPush(&root->head, rtp);
+    }
+    /* if we already have first node, initialize rtp and cc */
+    else {
+        cc = ChildSearch(root->head, key[0]);
+        if (cc) rtp = cc->value;
         else {
-            /* backstep */
-            --i;
-            rtp = rtp->parent;
+            rtp = New((rTrieNode)root, key[0], NULL);
+            assert(rtp);
+            ListPush(&root->head, rtp);
+        }
+    }
+    //cc = rtp->children;
+    i = 0;
+
+    /* Ok, running the insertion from the 1st node */
+    while (i < keylen-1) {
+        cc = ChildSearch(rtp->children, key[i+1]);
+        if (cc) rtp = (rTrieNode)cc->value;
+        else {
+            rtptmp = New(rtp, key[i+1], NULL);
+            assert(rtptmp);
+            AttachNode(rtp, rtptmp);
+            rtp = rtptmp;
         }
         ++i;
     }
-
+    rtp->value = value;
     return 0;
 }
 
 /* Checking if given key string is a member of
    current R-Way Trie */
-int rTrieIsMember(rTrieRoot root, const char* key)
+int rTrieIsMember(rTrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key)>0);
@@ -119,7 +121,7 @@ int rTrieIsMember(rTrieRoot root, const char* key)
 }
 
 /* Remove given keystring and entry */
-int rTrieRemove(rTrieRoot root, const char* key)
+int rTrieRemove(rTrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key)>0);
@@ -140,7 +142,7 @@ int rTrieRemove(rTrieRoot root, const char* key)
 }
 
 /* Get and Set */
-rtrie_value_t rTrieGet(rTrieRoot root, const char* key)
+rtrie_value_t rTrieGet(rTrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key)>0);
@@ -150,7 +152,7 @@ rtrie_value_t rTrieGet(rTrieRoot root, const char* key)
     if (rtp) return rtp->value;
     else return NULL;
 }
-int rTrieSet(rTrieRoot root, const char* key, rtrie_value_t value)
+int rTrieSet(rTrieRoot root, char* key, rtrie_value_t value)
 {
     assert(root);
     assert(strlen(key)>0);
@@ -173,7 +175,10 @@ static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value)
     rt->parent = parent;
     rt->key = key;
     LNode ch = ListInit();
+    assert(ch);
     rt->children = ch;
+
+    return rt;
 }
 
 static int Delete(rTrieNode node)
@@ -182,7 +187,7 @@ static int Delete(rTrieNode node)
     LNode cld = node->children;
 
     while (cld->next) {
-        Delete(cld->next);
+        Delete((rTrieNode)cld->next);
         cld = cld->next;
     }
 
@@ -193,12 +198,12 @@ static int Delete(rTrieNode node)
     return 0;
 }
 
-static int AttachNode(rTrieNode me, const rTrieNode addon)
+static int AttachNode(rTrieNode me, rTrieNode addon)
 {
     assert(me);
     assert(addon);
 
-    if(ListPush(me->children, addon)) return -1;
+    if(ListPush(&me->children, addon)) return -1;
 
     return 0;
 }
@@ -218,31 +223,36 @@ static LNode ChildSearch(LNode children, const char key)
 
 /* Traverse into the R-Way Existence Trie with given
    keystring... */
-static rTrieNode Traverse(rTrieRoot root, const char* key)
+static rTrieNode Traverse(rTrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key)>0);
 
     unsigned long i = 0;
     int keylen = strlen(key);
-    rTrieNode rtp = root->head;
+    rTrieNode rtp;
     LNode lntmp;
 
     /* Root is empty? */
     if (!root->head) return 0;
 
+    /* Assign initial point to rtp */
+    lntmp = ChildSearch(root->head, key[0]);
+    if (!lntmp) return NULL;
+    else rtp = (rTrieNode)lntmp->value;
+
+    i = 0;
     while (1) {
-        if (i < keylen-2) {
-            if (rtp->key == key[i]) {
-                lntmp = ChildSearch(rtp->children, key[i+1]);
-                if (lntmp) rtp = (rTrieNode)lntmp->value;
-                else return NULL;
-            }
-            else return NULL;
+        if (i < keylen-1) {
+            lntmp = ChildSearch(rtp->children, key[i+1]);
+            if (!lntmp) return NULL;
+            else rtp = (rTrieNode)lntmp->value;
         }
         else {
-            /* Last Node.. must be same('\0') for all keys */
-            return rtp;
+            /* Get Last Node.. must be same('\0') for all keys */
+            lntmp = ChildSearch(rtp->children, key[i+1]);
+            if (!lntmp) return NULL;
+            else return (rTrieNode)lntmp->value;
         }
         ++i;
     }

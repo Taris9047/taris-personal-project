@@ -31,7 +31,7 @@ int ListDestroy(LNode l);
 int ListPush(LNode* l, list_data_t value);
 list_data_t ListPop(LNode* l);
 LNode ListSearch(LNode l, list_data_t value);
-int ListAssign(LNode* l, list_data_t* values, const unsigned long values_len);
+int ListAssign(LNode l, list_data_t* values, const unsigned long values_len);
 
 /* Some more utils */
 unsigned long ListLen(LNode l);

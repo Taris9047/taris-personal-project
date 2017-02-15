@@ -41,7 +41,7 @@ TrieRoot TrieInit()
     return root;
 }
 
-TrieRoot TrieInitN(const char* root_name)
+TrieRoot TrieInitN(char* root_name)
 {
     TrieRoot root = TrieInit();
     root->name = root_name;
@@ -164,7 +164,7 @@ static int Push(TrieNode t, const char key)
 
 /* Add/Check Member/Remove methods */
 /* Add a stuff into Trie */
-int TrieAdd(TrieRoot root, const char* key, const pTrieValue value)
+int TrieAdd(TrieRoot root, char* key, const pTrieValue value)
 {
     /* Check if the root pointer is a valid one */
     assert(root);
@@ -228,7 +228,7 @@ int TrieAdd(TrieRoot root, const char* key, const pTrieValue value)
 }
 
 /* Check if given key belongs to current Trie */
-int TrieIsMember(TrieRoot root, const char* key)
+int TrieIsMember(TrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key) > 0);
@@ -252,7 +252,7 @@ int TrieIsMember(TrieRoot root, const char* key)
 
 /* Check if given key belongs to current Trie */
 /* verbose mode */
-int TrieIsMemberVerbose(TrieRoot root, const char* key)
+int TrieIsMemberVerbose(TrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key) > 0);
@@ -291,7 +291,7 @@ int TrieIsMemberVerbose(TrieRoot root, const char* key)
 }
 
 /* Remove given stuff */
-int TrieRemove(TrieRoot root, const char* key)
+int TrieRemove(TrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key) > 0);
@@ -301,7 +301,7 @@ int TrieRemove(TrieRoot root, const char* key)
 }
 
 /* Get value */
-pTrieValue TrieGet(TrieRoot root, const char* key)
+pTrieValue TrieGet(TrieRoot root, char* key)
 {
     assert(root);
     assert(strlen(key)>0);

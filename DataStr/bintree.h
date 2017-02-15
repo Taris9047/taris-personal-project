@@ -8,8 +8,8 @@
 
  ***************************************/
 
-#ifndef __BINTREE_H_
-#define __BINTREE_H_
+#ifndef __BINTREE_H__
+#define __BINTREE_H__
 
 /* Binary tree node */
 typedef struct _bintree_node {

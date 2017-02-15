@@ -30,22 +30,23 @@ typedef rwe_trie_node* rTrieNode;
 
 typedef struct _rwe_trie_root {
     char* name;
-    rTrieNode head;
+    LNode head;
+    //rTrieNode head;
 } rwe_trie_root;
 typedef rwe_trie_root* rTrieRoot;
 
 /* Constructors and destructors */
 rTrieRoot rTrieInit();
-rTrieRoot rTrieInitN(const char* rtrie_name);
-int rTrieDelete(rTrieRoot root);
+rTrieRoot rTrieInitN(char* rtrie_name);
+int rTrieDestroy(rTrieRoot root);
 
 /* Insert/check/remove */
-int rTrieInsert(rTrieRoot root, const char* key, rtrie_value_t value);
-int rTrieIsMember(rTrieRoot root, const char* key);
-int rTrieRemove(rTrieRoot root, const char* key);
+int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value);
+int rTrieIsMember(rTrieRoot root, char* key);
+int rTrieRemove(rTrieRoot root, char* key);
 
 /* Get and Set */
-rtrie_value_t rTrieGet(rTrieRoot root, const char* key);
-int rTrieSet(rTrieRoot root, const char* key, rtrie_value_t value);
+rtrie_value_t rTrieGet(rTrieRoot root, char* key);
+int rTrieSet(rTrieRoot root, char* key, rtrie_value_t value);
 
 #endif /* Include guard */

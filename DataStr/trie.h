@@ -34,18 +34,18 @@ typedef trienoderoot* TrieRoot;
 
 /* Constructors */
 TrieRoot TrieInit();
-TrieRoot TrieInitN(const char* root_name);
+TrieRoot TrieInitN(char* root_name);
 /* Destructors */
 int TrieDestroy(TrieRoot t);
 
 /* Interaction methods */
 /* Add/Check Member/Remove methods */
-int TrieAdd(TrieRoot root, const char* key, const pTrieValue value);
-int TrieIsMember(TrieRoot root, const char* key);
+int TrieAdd(TrieRoot root, char* key, const pTrieValue value);
+int TrieIsMember(TrieRoot root, char* key);
 /* debug purpose verbose function */
-int TrieIsMemberVerbose(TrieRoot root, const char* key);
-int TrieRemove(TrieRoot root, const char* key);
-pTrieValue TrieGet(TrieRoot root, const char* key);
+int TrieIsMemberVerbose(TrieRoot root, char* key);
+int TrieRemove(TrieRoot root, char* key);
+pTrieValue TrieGet(TrieRoot root, char* key);
 
 
 #endif /* Include guard */

@@ -89,16 +89,18 @@ LNode ListSearch(LNode l, list_data_t value)
 /* Pushing stuffs into a list from some array */
 /* It's kind of pointless in terms memory fragmentation issue
    but sometimes, stupid stuffs are needed. */
-int ListAssign(LNode* l, list_data_t* values, const unsigned long values_len)
+int ListAssign(LNode l, list_data_t* values, const unsigned long values_len)
 {
     assert(values);
     assert(values_len > 0);
 
     unsigned long i;
 
-    for (i=values_len-1; i>=0; --i) {
+    i = values_len-1;
+    do {
         ListPush(&l, values[i]);
-    }
+        --i;
+    } while(i);
 
     return 0;
 }

@@ -143,6 +143,7 @@ static int Delete(Dict* d, const char *key)
             return 0;
         }
     }
+    return -1;
 }
 
 /* Search element */

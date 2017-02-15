@@ -8,6 +8,7 @@
 
  ***************************************/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -274,7 +275,9 @@ short BITreeRemoveL(void* vpStuff, BINode some_BIRoot)
 /* Get/set item from node */
 void* BITreeGetItem(unsigned long key, BINode some_BIRoot)
 {
-    return BITreeSearch(key, some_BIRoot)->stuff;
+    BINode bi = BITreeSearch(key, some_BIRoot);
+    if (bi) return bi->stuff;
+    else return NULL;
 }
 
 short BITreeSetItem(unsigned long key, void* vpStuff, BINode some_BIRoot)
@@ -287,6 +290,9 @@ short BITreeSetItem(unsigned long key, void* vpStuff, BINode some_BIRoot)
 /* Uses recursive algorithm.. */
 BINode BITreeSearch(unsigned int key, BINode some_BIRoot)
 {
+    if (!some_BIRoot) return NULL;
+    //assert(some_BIRoot);
+
     if (key == some_BIRoot->key)
         return some_BIRoot;
 

@@ -60,6 +60,8 @@ int SearchInfoDestroy(SearchInfo s)
 	free(s->parent);
 	free(s->depth);
 	free(s);
+
+	return 0;
 }
 
 /* Search functions */
