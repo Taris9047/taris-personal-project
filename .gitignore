@@ -13,3 +13,8 @@
 *.o
 *.so
 *.exe
+bignum/cygBignum.dll
+TEdit/.idea/.name
+TEdit/.idea/misc.xml
+TEdit/.idea/TEdit.iml
+*.xml
