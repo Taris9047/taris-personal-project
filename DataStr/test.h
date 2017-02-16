@@ -161,7 +161,7 @@ int test_rwe_trie(char** key_list, int key_list_len)
 {
     int i;
     rTrieRoot rwe = rTrieInit();
-    double tmp = 0.0;
+    void* tmp;
 
     printf("Testing R-Way Existence Trie\n");
     printf("Inserting some random numbers to Trie\n");
@@ -184,14 +184,17 @@ int test_rwe_trie(char** key_list, int key_list_len)
     printf("Selecting keys: %s, %s, %s\n", key1, key2, key3);
 
     printf("Checking key 1 (%s): ", key1);
-    tmp = *(double*)rTrieGet(rwe, key1);
-    printf("Getting value: %f\n", tmp);
+    tmp = rTrieGet(rwe, key1);
+    if (tmp) printf("%f\n",  *(double*)tmp);
+    else printf("Something went wrong. Nothing returned.");
     printf("Checking key 2 (%s): ", key2);
-    tmp = *(double*)rTrieGet(rwe, key2);
-    printf("Getting value: %f\n", tmp);
+    tmp = rTrieGet(rwe, key2);
+    if (tmp) printf("%f\n",  *(double*)tmp);
+    else printf("Something went wrong. Nothing returned.");
     printf("Checking key 3 (%s): ", key3);
-    tmp = *(double*)rTrieGet(rwe, key3);
-    printf("Getting value: %f\n", tmp);
+    tmp = rTrieGet(rwe, key3);
+    if (tmp) printf("%f\n",  *(double*)tmp);
+    else printf("Something went wrong. Nothing returned.");
 
     rTrieDestroy(rwe);
 

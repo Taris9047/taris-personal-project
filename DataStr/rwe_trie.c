@@ -20,9 +20,10 @@
 
 /* Some static functions */
 static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value);
-static int Delete(rTrieNode node);
+static int Destroy(rTrieNode node);
 static int AttachNode(rTrieNode me, rTrieNode addon);
 static LNode ChildSearch(LNode children, const char key);
+static int ChildDestroy(LNode children);
 static rTrieNode Traverse(rTrieRoot root, char* key);
 
 
@@ -51,8 +52,8 @@ int rTrieDestroy(rTrieRoot root)
 
     if (root->head) {
         tmp = root->head;
-        while (tmp->next) {
-            Delete((rTrieNode)tmp->value);
+        while (tmp) {
+            Destroy((rTrieNode)tmp->value);
             tmp = tmp->next;
         }
     }
@@ -105,7 +106,11 @@ int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
         }
         ++i;
     }
-    rtp->value = value;
+
+    /* lastly, attach the termination character */
+    rtptmp = New(rtp, key[i+1], value);
+    AttachNode(rtp, rtptmp);
+
     return 0;
 }
 
@@ -174,6 +179,8 @@ static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value)
     assert(rt);
     rt->parent = parent;
     rt->key = key;
+    rt->value = value;
+
     LNode ch = ListInit();
     assert(ch);
     rt->children = ch;
@@ -181,18 +188,18 @@ static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value)
     return rt;
 }
 
-static int Delete(rTrieNode node)
+static int Destroy(rTrieNode node)
 {
-    assert(node);
-    LNode cld = node->children;
+    if (!node) return 0;
 
-    while (cld->next) {
-        Delete((rTrieNode)cld->next);
-        cld = cld->next;
+    LNode cld;
+    if (node->children) {
+        cld = node->children;
+        ChildDestroy(cld);
+
     }
 
-    ListDestroy(node->children);
-    free(node->value);
+    if (node->value) free(node->value);
     free(node);
 
     return 0;
@@ -219,6 +226,21 @@ static LNode ChildSearch(LNode children, const char key)
     }
 
     return NULL;
+}
+
+static int ChildDestroy(LNode children)
+{
+    if (!children) return 0;
+
+    LNode tmp;
+    while (children) {
+        if (children->value) Destroy((rTrieNode)children->value);
+        tmp = children;
+        children = children->next;
+        free(tmp);
+    }
+
+    return 0;
 }
 
 /* Traverse into the R-Way Existence Trie with given

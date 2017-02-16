@@ -37,8 +37,8 @@ int ListDestroy(LNode l)
 {
     assert(l);
     LNode tl;
-    while (l->next) {
-        free(l->value);
+    while (l) {
+        if (l->value) free(l->value);
         tl = l;
         l = l->next;
         free(tl);
@@ -57,10 +57,10 @@ int ListPush(LNode* l, list_data_t value)
 
     LNode new = ListInit();
     new->value = value;
-    new->next = *l;
+    new->next = (*l);
     new->prev = NULL;
-    (*l)->prev = new;
 
+    (*l)->prev = new;
     (*l) = new;
 
     return 0;
