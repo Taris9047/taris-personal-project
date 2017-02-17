@@ -1,19 +1,11 @@
 # Detecting OS --> let's use clang!!
 CC=clang
-
 UNAME := $(shell uname)
 ifeq ($(UNALE), darwin)
 CC=gcc
 endif
-
-#CC=gcc
-#CXX=g++
-#CC=clang
-#CXX=clang++
 CFLAGS=-ggdb3 -fPIC
-CXXFLAGS=-ggdb3 -fPIC
 RCFLAGS=-O3 -fPIC
-RCXXFLAGS=-O3 -fPIC
 LIBS=-lm -L.
 AR=ar
 
@@ -28,10 +20,10 @@ LIBNAME=libmesh.a
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(LIBNAME) test.c test.cpp
+all: $(LIBNAME) test.c
 	$(CC) $(CFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
 
-release: $(LIBNAME) test.c test.cpp
+release: $(LIBNAME) test.c
 	$(CC) $(RCFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
 
 $(LIBNAME): $(OBJS)

@@ -1,3 +1,10 @@
+/**
+* @Author: Taylor Shin <kshin>
+* @Date:   2017-02-16T13:34:12-06:00
+* @Email:  kshin@aps.anl.gov
+* @Last modified by:   kshin
+* @Last modified time: 2017-02-17T14:06:03-06:00
+*/
 /***************************************
 
   Mesh Generation Library
@@ -22,21 +29,22 @@ typedef void* mesh_data_t;
 typedef struct _mesh_node {
     mesh_data_t data; /* Make a custom struct to store a data set for each node */
 
-    unsigned int i; /* Index for horizontal axis */
-    unsigned int j; /* Index for vertical axis */
-
     struct _mesh_node* rh; /* Right hand side */
     struct _mesh_node* lh; /* Left hand side */
     struct _mesh_node* dn; /* Down side */
     struct _mesh_node* up; /* upper side */
+    struct _mesh_node* rd; /* right-down side */
+    struct _mesh_node* ul; /* upper-left side */
 
 } mesh_node;
 typedef mesh_node* MNode;
 
 /* Constructors and Destructors */
 MNode NewMesh();
+MNode NewMeshData(mesh_data_t data);
 MNode MeshInit();
-int MeshDestroy();
+int MeshDestroy(MNode m);
+int MeshDestroyAll(MNode m);
 
 /* Simple methods to grow mesh... */
 int PushH(MNode* r, MNode n); /* Push from left side */
@@ -46,14 +54,15 @@ int AppendV(MNode r, MNode n); /* Attach at the bottom */
 
 /* Some statistics utils */
 unsigned long MeshNodes(MNode m);
-void MeshNodesXY(unsigned long* xsize, unsigned long* ysize, MNode m);
+void MeshNodesXY(MNode m, unsigned long* xsize, unsigned long* ysize);
 
 /* Traverse Utils */
-int MeshTravH(MNode m); /* Horizontal traverse */
-int MeshTravV(MNode m); /* Vertical traverse */
-int MeshTrav(MNode m); /* X, Y traverse */
+int MeshTravH(MNode* m); /* Horizontal traverse */
+int MeshTravV(MNode* m); /* Vertical traverse */
+int MeshTrav(MNode* m, unsigned long* i, unsigned long* j); /* X, Y traverse */
+int MeshTravAll(MNode* m, unsigned long* n_tot); /* Complete traverse */
 
-/* Find me index */
-
+/* Find stuff */
+MNode Find(mesh_data_t stuff);
 
 #endif /* Include guard */

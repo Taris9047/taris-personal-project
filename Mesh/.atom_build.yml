@@ -1,0 +1,4 @@
+cmd: "C:\\msys64\\usr\\bin\\make.exe"
+name: "all"
+sh: true,
+cwd: "C:\\Users\\kshin.SHINLT\\Documents\\GitHub\\pworkshop\\Mesh"
