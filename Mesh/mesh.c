@@ -19,7 +19,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "list.h"
 #include "mesh.h"
+
+/* Static functions */
+static int MeshIsFound(MNode* m, MNode** mlist, int listlen);
 
 /* Constructors and Destructors */
 MNode NewMesh()
@@ -124,6 +128,11 @@ int AppendH(MNode r, MNode n)
     e->rh = n;
     n->lh = e;
 
+    if (n->lh->up) {
+        n->ul = n->lh->up;
+        n->lh->up->rd = n;
+    }
+
     return 0;
 }
 
@@ -158,6 +167,11 @@ int AppendV(MNode r, MNode n)
     MeshTravV(&e);
     e->dn = n;
     n->up = e;
+
+    if (n->up->lh) {
+        n->ul = n->up->lh;
+        n->up->lh->rd = n;
+    }
 
     return 0;
 }
@@ -256,37 +270,76 @@ int MeshTravAll(MNode* m, unsigned long* n_tot)
 {
     assert(*m);
 
-    unsigned long rcnt = 0;
-    unsigned long dncnt = 0;
-    unsigned long rdncnt = 0;
+    MNode tmp = (*m);
+    (*n_tot) = 1; /* self */
+    LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
+    ListPush(&ml, tmp); /* Push in first node */
 
-    (*n_tot) = 1; /* the root node... */
-    MNode tmp;
+    /* The search algorithm...
+       1st rh
+       2nd rd
+       3rd dn
+       4th lh
+       5th up
+    */
+    while (1) {
+        if (tmp->rh && !ListFind(ml, tmp->rh)) {
+            ListPush(&ml, tmp->rh);
+            tmp = tmp->rh;
+            ++(*n_tot);
+            continue;
+        }
 
-    /* Let's try recursive stuff */
-    /* Assuming *m is the root... the top-left node */
-    tmp = (*m);
+        if (tmp->rd && !ListFind(ml, tmp->rd)) {
+            ListPush(&ml, tmp->rd);
+            tmp = tmp->rd;
+            ++(*n_tot);
+            continue;
+        }
 
-    if(tmp->rh) {
-        MeshTravAll(&tmp->rh, &rcnt);
-        ++rcnt;
+        if (tmp->dn && !ListFind(ml, tmp->dn)) {
+            ListPush(&ml, tmp->dn);
+            tmp = tmp->dn;
+            ++(*n_tot);
+            continue;
+        }
+
+        if (tmp->lh && !ListFind(ml, tmp->lh)) {
+            ListPush(&ml, tmp->lh);
+            tmp = tmp->lh;
+            ++(*n_tot);
+            continue;
+        }
+
+        if (tmp->up && !ListFind(ml, tmp->up)) {
+            ListPush(&ml, tmp->up);
+            tmp = tmp->up;
+            ++(*n_tot);
+            continue;
+        }
+
+        (*m) = tmp;
+        break;
     }
-    if(tmp->dn) {
-        MeshTravAll(&tmp->dn, &dncnt);
-        ++dncnt;
-    }
-    if(tmp->rd) {
-        MeshTravAll(&tmp->rd, &rdncnt);
-        ++rdncnt;
-    }
-    
-    (*n_tot) += (rcnt+dncnt+rdncnt);
 
+    ListDestroy(ml);
     return 0;
 }
 
-/* Find by index */
+/* Find by data */
 MNode Find(mesh_data_t stuff)
 {
     return NULL;
+}
+
+/* find given mesh from mesh list */
+static int MeshIsFound(MNode* m, MNode** mlist, int listlen)
+{
+    assert(m);
+    int i;
+
+    if (!mlist) return 0;
+    for (i=0; i<listlen; ++i) if (m == mlist[i]) return 1;
+
+    return 0;
 }
