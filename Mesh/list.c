@@ -38,7 +38,7 @@ int ListDestroy(LNode l)
     assert(l);
     LNode tl;
     while (l) {
-        if (l->value) free(l->value);
+        //if (l->value) free(l->value);
         tl = l;
         l = l->next;
         free(tl);

@@ -34,4 +34,9 @@ typedef data* Data;
 Data NewData();
 Data NewDataAt(const double x, const double y);
 
+/* Mesh Traverse Verbose */
+static int MeshTravAllVerbose(MNode* m, unsigned long* n_tot);
+static int ProgressBar(unsigned long curr, unsigned long all, const char* header_txt);
+static int ProgressNum(unsigned long curr, const char* header_txt);
+
 #endif /* Include guard */

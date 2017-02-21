@@ -21,6 +21,13 @@
 #include "mesh.h"
 #include "meshmanip.h"
 
+/* Make rectangular mesh */
+MNode MeshMakeRect(unsigned long i, unsigned long j);
+/* Make rectangular mesh with dataset */
+MNode MeshMakeRectData(unsigned long i, unsigned long j, mesh_data_t** data);
+/* Set data to current mesh */
+int MeshSetData(MNode r, mesh_data_t** data, unsigned long i, unsigned long j);
+
 
 
 #endif /* Include guard */

@@ -55,6 +55,12 @@ int ListPush(LNode* l, list_data_t value)
     assert(*l);
     assert(value);
 
+    /* If the first node is empty, no need to make another node */
+    if (!(*l)->value) {
+        (*l)->value = value;
+        return 0;
+    }
+
     LNode new = ListInit();
     new->value = value;
     new->next = (*l);
@@ -82,8 +88,12 @@ LNode ListSearch(LNode l, list_data_t value)
     assert(l);
     assert(value);
 
-    while (l->value != value) l = l->next;
-    return l;
+    while (l) {
+        if (l->value == value) return l;
+        else l = l->next;
+    }
+
+    return NULL;
 }
 
 /* Pushing stuffs into a list from some array */
@@ -123,6 +133,7 @@ unsigned long ListLen(LNode l)
 /* Alias for Search: Returns 1 for yes 0 for no... */
 int ListFind(LNode l, list_data_t value)
 {
+    assert(l);
     if (ListSearch(l, value)) return 1;
     else return 0;
 }

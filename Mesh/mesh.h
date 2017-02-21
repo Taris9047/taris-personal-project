@@ -63,6 +63,8 @@ int MeshTrav(MNode* m, unsigned long* i, unsigned long* j); /* X, Y traverse */
 int MeshTravAll(MNode* m, unsigned long* n_tot); /* Complete traverse */
 
 /* Find stuff */
-MNode Find(mesh_data_t stuff);
+MNode MeshFind(MNode* m, mesh_data_t stuff);
+/* Find Root (Assuning rectangular) */
+int MeshFindRoot(MNode* m);
 
 #endif /* Include guard */
