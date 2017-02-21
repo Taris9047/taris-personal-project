@@ -23,7 +23,7 @@
 #include "mesh.h"
 
 /* Static functions */
-static int MeshIsFound(MNode* m, MNode** mlist, int listlen);
+//static int MeshIsFound(MNode* m, MNode** mlist, int listlen);
 
 /* Constructors and Destructors */
 MNode NewMesh()
@@ -439,13 +439,13 @@ int MeshFindRoot(MNode *m)
 
 
 /* find given mesh from mesh list */
-static int MeshIsFound(MNode* m, MNode** mlist, int listlen)
-{
-    assert(m);
-    int i;
-
-    if (!mlist) return 0;
-    for (i=0; i<listlen; ++i) if (m == mlist[i]) return 1;
-
-    return 0;
-}
+// static int MeshIsFound(MNode* m, MNode** mlist, int listlen)
+// {
+//     assert(m);
+//     int i;
+//
+//     if (!mlist) return 0;
+//     for (i=0; i<listlen; ++i) if (m == mlist[i]) return 1;
+//
+//     return 0;
+// }

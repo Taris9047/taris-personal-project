@@ -36,6 +36,8 @@ int ListAssign(LNode l, list_data_t* values, const unsigned long values_len);
 /* Some more utils */
 unsigned long ListLen(LNode l);
 int ListFind(LNode l, list_data_t value);
+int ListFindRoot(LNode* l);
 int ListDelete(LNode l, list_data_t value);
+int ListIsEmpty(LNode l);
 
 #endif /* Include guard */

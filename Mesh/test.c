@@ -20,10 +20,11 @@
 
 #include "list.h"
 #include "meshgen.h"
+#include "graph.h"
 #include "test.h"
 
-#define NUM_HORIZONTAL 250
-#define NUM_VERTICAL 250
+#define NUM_HORIZONTAL 100
+#define NUM_VERTICAL 100
 
 /* Data constructors */
 Data NewData()
@@ -101,9 +102,7 @@ int main(int argc, char* argv[])
         d = NewDataAt((double)i, (double)0.0);
         tmp = NewMeshData(d);
         PushH(&tmp_root, tmp);
-        printf("First row %lu/%lu finished.",i+1,num_hor);
-        printf("\r");
-        fflush(stdout);
+        ProgressBar(i+1, num_hor, "First Row Progress");
     }
     printf("\n");
     /* update root since we pushed in a lot */
@@ -120,9 +119,8 @@ int main(int argc, char* argv[])
             tmp = NewMeshData(d);
             PushV(&tmp_root, tmp);
         }
-        printf("Column %lu finished. (%lu/%lu)", i, i, num_hor);
-        printf("\r");
-        fflush(stdout);
+        printf("[%lu] ", i);
+        ProgressBar(i, num_hor, "Column Progress");
         ++i;
         tmp_root = tmp_v->rh;
         tmp_v = tmp_v->rh;
@@ -145,13 +143,71 @@ int main(int argc, char* argv[])
     printf("Ok, destroying the mesh\n\n");
     MeshDestroy(root);
 
+    test_graph(num_hor, num_ver);
+
     printf("Test finished!!\n");
     printf("\n");
 
     return 0;
 }
 
+/* Test functions */
+void test_graph(unsigned long nh, unsigned long nv)
+{
+    printf("Testing graph generation\n");
 
+    GNode tgr = InitGraph();
+    GNode tmpgr;
+    Data** tmp_data_ary;
+    Data tmpd;
+    unsigned long i, j;
+    unsigned long num_g;
+
+    /* prepare data */
+    tmp_data_ary = (Data**)malloc(sizeof(Data*)*nh);
+    for (i=0; i<nh; ++i)
+        tmp_data_ary[i] = (Data*)malloc(sizeof(Data)*nv);
+    for (i=0; i<nh; ++i) {
+        for (j=0; j<nv; ++j) {
+            tmpd = NewDataAt((double)i, (double)j);
+            tmp_data_ary[i][j] = tmpd;
+        }
+    }
+
+    /* Make some crappy graph structure with the 2D dataset */
+    for (i=0; i<nh; ++i) {
+        for (j=0; j<nv; ++j) {
+            if (i==0 && j==0) {
+                tgr->data = tmp_data_ary[0][0];
+                continue;
+            }
+            tmpgr = InitGraphData(tmp_data_ary[i][j]);
+
+            if (i>=j) GraphAttach(tgr, tmpgr);
+            else GraphPush(&tgr, tmpgr);
+        }
+    }
+
+    printf("Testing graph traverse\n");
+    GraphTraverse(&tgr, &num_g);
+    printf("Found nodes during traverse: %lu\n", num_g);
+
+    printf("Destroying graph\n");
+    GraphDestroy(tgr);
+
+    printf("Cleaning up dummy data...\n");
+    for (i=0; i<nh; ++i) {
+        for (j=0; j<nv; ++j) {
+            free(tmp_data_ary[i][j]);
+        }
+    }
+    free(tmp_data_ary);
+
+}
+
+
+
+/* Static functions */
 /* Rectangular traverse */
 static int MeshTravAllVerbose(MNode* m, unsigned long* n_tot)
 {

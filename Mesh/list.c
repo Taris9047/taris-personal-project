@@ -76,9 +76,12 @@ list_data_t ListPop(LNode* l)
 {
     assert(*l);
 
+    LNode tmp = (*l);
+
     list_data_t p_val = (*l)->value;
     (*l) = (*l)->next;
     (*l)->prev = NULL;
+    free(tmp);
 
     return p_val;
 }
@@ -153,4 +156,27 @@ int ListDelete(LNode l, list_data_t value)
     free(found);
 
     return 0;
+}
+
+/* Find root node */
+int ListFindRoot(LNode* l)
+{
+    assert(*l);
+    LNode tmp = (*l);
+    while (tmp->prev) if (tmp->prev) tmp = tmp->prev;
+    (*l) = tmp;
+
+    if (*l) return 1;
+    else return 0;
+}
+
+/* Is Empty? */
+int ListIsEmpty(LNode l)
+{
+    assert(l);
+    /* make sure l is the root */
+    ListFindRoot(&l);
+
+    if (l->value || l->next) return 0;
+    else return 1;
 }

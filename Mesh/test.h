@@ -39,4 +39,7 @@ static int MeshTravAllVerbose(MNode* m, unsigned long* n_tot);
 static int ProgressBar(unsigned long curr, unsigned long all, const char* header_txt);
 static int ProgressNum(unsigned long curr, const char* header_txt);
 
+/* Test Functions */
+void test_graph(unsigned long nh, unsigned long nv);
+
 #endif /* Include guard */
