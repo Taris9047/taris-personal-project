@@ -1,9 +1,16 @@
 # Detecting OS --> let's use clang!!
-CC=clang
+
 WARNS=-Wall
 RWARNS=-Wall
 CFLAGS=-ggdb3 $(WARNS)
 RCFLAGS=-O3 $(RWARNS)
+
+CC_DETECT := `command -v clang`
+ifeq ($(CC_DETECT), "")
+CC=gcc
+else
+CC=clang
+endif
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)

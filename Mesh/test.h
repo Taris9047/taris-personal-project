@@ -41,5 +41,6 @@ static int ProgressNum(unsigned long curr, const char* header_txt);
 
 /* Test Functions */
 void test_graph(unsigned long nh, unsigned long nv);
+void test_mesh(unsigned long nh, unsigned long nv);
 
 #endif /* Include guard */

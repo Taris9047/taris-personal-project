@@ -65,12 +65,12 @@ void FreeBT(BTNode b)
     if (b->left) FreeBT(b->left);
     if (b->right) FreeBT(b->right);
 
-    if (!(b->left && b->right)) {
-        b->stuff = NULL;
-        b->parent = NULL;
-        b->depth = 0;
-        b->key = 0;
-    }
+    // if (!(b->left && b->right)) {
+    //     b->stuff = NULL;
+    //     b->parent = NULL;
+    //     b->depth = 0;
+    //     b->key = 0;
+    // }
 
     free(b);
 }
@@ -113,9 +113,8 @@ unsigned long DepthBT(BTNode b)
 /* Insert and remove elements */
 int BTInsert(BTNode b, btree_data_t vpStuff)
 {
-    //unsigned long key = (unsigned long)vpStuff;
     unsigned long key = Keygen(vpStuff);
-    
+
     /* If given key is same as root,
        just update root and be done with it. */
     if (key == b->key) {
@@ -140,8 +139,6 @@ int BTInsert(BTNode b, btree_data_t vpStuff)
 int BTRemove(BTNode b, btree_data_t vpStuff)
 {
     BTNode found_node = BTSearch(b, vpStuff);
-
-    //unsigned int key = (unsigned int)vpStuff;
     unsigned int key = Keygen(vpStuff);
 
     if (!found_node->left && !found_node->right) {
@@ -190,11 +187,9 @@ int BTSetItem(BTNode b, btree_data_t vpStuff)
 BTNode BTSearch(BTNode b, btree_data_t vpStuff)
 {
     if (!b) return NULL;
-    //assert(b);
 
-    //unsigned int key = (unsigned int)vpStuff;
     unsigned int key = Keygen(vpStuff);
-    
+
     if (key == b->key)
         return b;
 

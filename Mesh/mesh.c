@@ -47,7 +47,7 @@ MNode NewMesh()
 MNode NewMeshData(mesh_data_t data)
 {
     MNode nm = NewMesh();
-    nm->data = data;
+    if (data) nm->data = data;
     return nm;
 }
 
@@ -91,7 +91,7 @@ int MeshDestroyAll(MNode m)
     if (m->dn) MeshDestroyAll(m->dn);
     if (m->rd) MeshDestroyAll(m->rd);
 
-    free(m->data);
+    //free(m->data);
     free(m);
 
     return 0;

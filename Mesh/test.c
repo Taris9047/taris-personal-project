@@ -62,12 +62,10 @@ Data NewDataAt(const double x, const double y)
 /* The main function */
 int main(int argc, char* argv[])
 {
-    printf("Mesh generation test program\n");
+    printf("Mesh generation test program\n\n");
 
     unsigned long num_hor;
     unsigned long num_ver;
-    unsigned long i;
-    unsigned long j;
 
     /* Check inputs.. gets only two inputs */
     if (argc == 3) {
@@ -82,46 +80,73 @@ int main(int argc, char* argv[])
     int t = time(NULL);
     srand(t);
 
-    printf("Generating a rectangular mesh with X: %lu and Y: %lu nodes.\n\n", num_hor, num_ver);
+    /* test functions */
+    test_mesh(num_hor, num_ver);
+    test_graph(num_hor, num_ver);
 
+    printf("\n");
+    printf("Test finished!!\n");
+    printf("\n");
+
+    return 0;
+}
+
+/* Test functions */
+/* mesh test */
+void test_mesh(unsigned long nh, unsigned long nv)
+{
     /* Lets test it!! */
     MNode root;
     MNode tmp;
     MNode tmp_root;
     MNode tmp_v;
-    Data d;
+    Data** d;
+    unsigned long num_hor, num_ver;
+    num_hor = nh; num_ver = nv;
+    unsigned long i;
+    unsigned long j;
+
+    printf("[Mesh] *** 2D mesh test ***\n");
+    printf("[Mesh] Generating a rectangular mesh with X: %lu and Y: %lu nodes.\n\n", num_hor, num_ver);
 
     /* Making a rectangular mesh */
+    /* let's generate a data set */
+    d = (Data**)malloc(sizeof(Data*)*nh);
+    assert(d);
+    for (i=0; i<nh; ++i) {
+        d[i] = (Data*)malloc(sizeof(Data)*nv);
+        assert(d[i]);
+    }
+    for (i=0; i<nh; ++i) {
+        for (j=0; j<nv; ++j) {
+            d[i][j] = NewDataAt((double)i, (double)j);
+        }
+    }
+
     /* making the first node */
-    d = NewDataAt(0.0, 0.0);
-    root = NewMeshData(d);
+    root = NewMeshData(d[0][0]);
     /* make first row */
-    printf("Making first row...\n");
+    printf("[Mesh] Making first row...\n");
     tmp_root = root;
-    for (i=1; i<num_hor; ++i) {
-        d = NewDataAt((double)i, (double)0.0);
-        tmp = NewMeshData(d);
+    for (i=1; i<nh; ++i) {
+        tmp = NewMeshData(d[i][0]);
         PushH(&tmp_root, tmp);
-        ProgressBar(i+1, num_hor, "First Row Progress");
+        ProgressBar(i+1, nh, "First Row Progress");
     }
     printf("\n");
     /* update root since we pushed in a lot */
     MeshFindRoot(&root);
 
     /* Then extend them to vertical direction */
-    printf("Extending the first row vertically.\n");
+    printf("[Mesh] Extending the first row vertically.\n");
     tmp_root = root;
     tmp_v = root;
-    i = 1;
-    while (tmp_v) {
-        for (j=1; j<num_ver; ++j) {
-            d = NewDataAt((double)i, (double)j);
-            tmp = NewMeshData(d);
+    for (i=0; i<nh; ++i) {
+        for (j=1; j<nv; ++j) {
+            tmp = NewMeshData(d[i][j]);
             PushV(&tmp_root, tmp);
         }
-        printf("[%lu] ", i);
-        ProgressBar(i, num_hor, "Column Progress");
-        ++i;
+        ProgressBar(i+1, nh, "[Mesh] Column Progress");
         tmp_root = tmp_v->rh;
         tmp_v = tmp_v->rh;
     }
@@ -132,89 +157,106 @@ int main(int argc, char* argv[])
     unsigned long xlen;
     unsigned long ylen;
     MeshNodesXY(root, &xlen, &ylen);
-    printf("X direction: %lu nodes.\n", xlen);
-    printf("y direction: %lu nodes.\n", ylen);
-    printf("Total number of nodes: %lu\n", xlen*ylen);
+    printf("[Mesh] X direction: %lu nodes.\n", xlen);
+    printf("[Mesh] y direction: %lu nodes.\n", ylen);
+    printf("[Mesh] Total number of nodes: %lu\n", xlen*ylen);
 
     unsigned long cnt = 0;
     MeshTravAllVerbose(&root, &cnt);
-    printf("Traverse all method: %lu\n", cnt);
+    printf("[Mesh] Traverse all method: %lu\n", cnt);
 
-    printf("Ok, destroying the mesh\n\n");
+    printf("[Mesh] Ok, destroying the mesh\n\n");
     MeshDestroy(root);
 
-    test_graph(num_hor, num_ver);
+    /* free data array */
+    for (i=0; i<nh; ++i)
+        for (j=0; j<nv; ++j) free(d[i][j]);
+    for (i=0; i<nh; ++i) free(d[i]);
+    free(d);
 
-    printf("Test finished!!\n");
-    printf("\n");
-
-    return 0;
 }
 
-/* Test functions */
+
+/* Graph test */
 void test_graph(unsigned long nh, unsigned long nv)
 {
-    printf("Testing graph generation\n");
+    printf("*** Testing graph generation ***\n");
 
     GNode tgr = InitGraph();
-    GNode tmpgr;
+    GNode tgr_r_b = tgr;
+    GNode tmpgr_h;
+    GNode tmpgr_v;
     Data** tmp_data_ary;
-    Data tmpd;
     unsigned long i, j;
     unsigned long num_g;
 
     /* prepare data */
+    printf("[GTest] Assigning memory space for dummy data.\n");
     tmp_data_ary = (Data**)malloc(sizeof(Data*)*nh);
-    for (i=0; i<nh; ++i)
+    assert(tmp_data_ary);
+    for (i=0; i<nh; ++i) {
         tmp_data_ary[i] = (Data*)malloc(sizeof(Data)*nv);
+        assert(tmp_data_ary[i]);
+        ProgressBar(i+1, nh, "[GTest] Progress");
+    }
+    printf("\n");
+    printf("[GTest] Now assigning data to dummy data space.\n");
     for (i=0; i<nh; ++i) {
         for (j=0; j<nv; ++j) {
-            tmpd = NewDataAt((double)i, (double)j);
-            tmp_data_ary[i][j] = tmpd;
+            tmp_data_ary[i][j] = NewDataAt((double)i, (double)j);
         }
+        ProgressBar(i+1, nh, "[GTest] Progress");
     }
+    printf("\n");
 
     /* Make some crappy graph structure with the 2D dataset */
+    printf("[GTest] Making graph ...\n");
+    tmpgr_h = tgr;
     for (i=0; i<nh; ++i) {
-        for (j=0; j<nv; ++j) {
-            if (i==0 && j==0) {
-                tgr->data = tmp_data_ary[0][0];
-                continue;
-            }
-            tmpgr = InitGraphData(tmp_data_ary[i][j]);
-
-            if (i>=j) GraphAttach(tgr, tmpgr);
-            else GraphPush(&tgr, tmpgr);
+        if (i==0) tgr->data = tmp_data_ary[0][0];
+        else {
+            tmpgr_h = InitGraphData(tmp_data_ary[i][0]);
+            GraphAttach(tgr, tmpgr_h);
         }
+        if (i > 0) tgr = tmpgr_h;
+
+        for (j=1; j<nh; ++j) {
+            tmpgr_v = InitGraphData(tmp_data_ary[i][j]);
+            GraphAttach(tgr, tmpgr_v);
+            tgr = tmpgr_v;
+        }
+        tgr = tmpgr_h;
     }
+    tgr = tgr_r_b;
 
-    printf("Testing graph traverse\n");
+    printf("\n");
+
+    printf("[GTest] Testing graph traverse\n");
     GraphTraverse(&tgr, &num_g);
-    printf("Found nodes during traverse: %lu\n", num_g);
+    printf("[GTest] Found nodes during traverse: %lu\n", num_g);
 
-    printf("Destroying graph\n");
+    printf("[GTest] Destroying graph\n");
     GraphDestroy(tgr);
 
-    printf("Cleaning up dummy data...\n");
-    for (i=0; i<nh; ++i) {
-        for (j=0; j<nv; ++j) {
+    printf("[GTest] Cleaning up dummy data...\n");
+    for (i=0; i<nh; ++i)
+        for (j=0; j<nv; ++j)
             free(tmp_data_ary[i][j]);
-        }
-    }
+    for (i=0; i<nh; ++i) free(tmp_data_ary[i]);
     free(tmp_data_ary);
-
 }
 
 
 
 /* Static functions */
+
 /* Rectangular traverse */
 static int MeshTravAllVerbose(MNode* m, unsigned long* n_tot)
 {
     assert(*m);
 
     printf("\n");
-    const char* txt = "Mesh Traverse All Progress";
+    const char* txt = "[Mesh] Mesh Traverse All Progress";
 
     MNode tmp = (*m);
     (*n_tot) = 1; /* self */
@@ -281,7 +323,7 @@ static int MeshTravAllVerbose(MNode* m, unsigned long* n_tot)
 
 static int ProgressBar(unsigned long curr, unsigned long all, const char* header_txt)
 {
-    printf("%s: %lu/%lu (%.0f)", header_txt, curr, all, (double)(curr/all));
+    printf("%s: %lu/%lu (%d %%)", header_txt, curr, all, (int)(curr/all*100));
     printf("\r");
     fflush(stdout);
 

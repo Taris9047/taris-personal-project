@@ -55,8 +55,11 @@ int ListPush(LNode* l, list_data_t value)
     assert(*l);
     assert(value);
 
+    /* Make sure l is the first node */
+    if ((*l)->prev) ListFindRoot(l);
+
     /* If the first node is empty, no need to make another node */
-    if (!(*l)->value) {
+    if (ListIsEmpty(*l)) {
         (*l)->value = value;
         return 0;
     }
@@ -76,9 +79,23 @@ list_data_t ListPop(LNode* l)
 {
     assert(*l);
 
+    list_data_t p_val;
     LNode tmp = (*l);
 
-    list_data_t p_val = (*l)->value;
+    /* Make sure l is the first node */
+    if (tmp->prev) ListFindRoot(l);
+
+    /* If the list is empty just return NULL */
+    if (ListIsEmpty(tmp)) return NULL;
+
+    p_val = tmp->value;
+
+    /* If the list is a single node, pop the value only */
+    if (!tmp->next) {
+        tmp->value = NULL;
+        return p_val;
+    }
+
     (*l) = (*l)->next;
     (*l)->prev = NULL;
     free(tmp);

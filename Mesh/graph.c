@@ -32,8 +32,9 @@ int IsRoot(GNode r);
 GNode InitGraph()
 {
     GNode gn = (GNode)malloc(sizeof(graph_node)); assert(gn);
-    LNode lnks = (LNode)malloc(sizeof(list_node)); assert(lnks);
-    LNode prvs = (LNode)malloc(sizeof(list_node)); assert(prvs);
+    assert(gn);
+    LNode lnks = ListInit();
+    LNode prvs = ListInit();
 
     gn->data = NULL;
     gn->links = lnks;
@@ -67,6 +68,34 @@ int GraphDestroy(GNode r)
 {
     assert(r);
 
+    GNode tmp = r;
+    GNode ntmp;
+    BTNode history = InitBT();
+    LNode nxt_tmp = tmp->links;
+
+    /* Populate a list of graphs (In fact, a binary tree) */
+    while (1) {
+        /* If current node isn't included in the history ... */
+        if (!BTSearch(history, tmp))
+            BTInsert(history, tmp);
+        else break;
+
+        /* Now find a suitable next node */
+        while (nxt_tmp) {
+            if (nxt_tmp->value) {
+                ntmp = (GNode)nxt_tmp->value;
+                GraphDestroy(ntmp);
+                nxt_tmp = nxt_tmp->next;
+            }
+            else break;
+        }
+        ListDestroy(tmp->links);
+        ListDestroy(tmp->prevs);
+        free(tmp);
+    }
+
+    /* clean up history */
+    BTDestroy(history);
 
     return 0;
 }
@@ -77,18 +106,19 @@ int GraphDestroy(GNode r)
 /* Manipulatin methods */
 int GraphPush(GNode* r, GNode other)
 {
-    assert((*r)&&other);
+    assert((*r));
+    assert(other);
 
-    ListPush(&other->links, (*r));
     ListPush(&(*r)->prevs, other);
-
+    ListPush(&other->links, (*r));
     (*r) = other;
 
     return 0;
 }
 int GraphAttach(GNode r, GNode other)
 {
-    assert(r&&other);
+    assert(r);
+    assert(other);
 
     ListPush(&r->links, other);
     ListPush(&other->prevs, r);
@@ -107,9 +137,13 @@ int GraphTraverse(GNode* r, unsigned long* n_tot)
     assert(n_tot);
 
     GNode tmp = (*r);
+    GNode ntmp;
     unsigned long num_g = 0;
     BTNode history = InitBT();
     LNode nxt_tmp = tmp->links;
+
+    unsigned long p_num = 0;
+    unsigned long p_num_tmp;
 
     while (1) {
         /* If current node isn't included in the history ... */
@@ -119,15 +153,17 @@ int GraphTraverse(GNode* r, unsigned long* n_tot)
 
         /* Now find a suitable next node */
         while (nxt_tmp) {
-            if (BTSearch(history, nxt_tmp->value))
+            if (nxt_tmp->value) {
+                ntmp = (GNode)nxt_tmp->value;
+                GraphTraverse(&ntmp, &p_num_tmp);
+                p_num += p_num_tmp;
                 nxt_tmp = nxt_tmp->next;
-            else {
-                tmp = nxt_tmp->value;
-                break;
             }
+            else break;
         }
-        nxt_tmp = tmp->links;
+        //nxt_tmp = tmp->links;
         ++num_g;
+        num_g += p_num;
     }
 
     /* Update node numbers */
