@@ -30,5 +30,13 @@ typedef struct _mesh_3d {
 } mesh_3d;
 typedef mesh_3d* Mesh3D;
 
+/* Constructors and Destructors */
+Mesh3D Mesh3DInit();
+Mesh3D Mesh3DInitGraph(GNode g);
+
+int Mesh3DDestroy(Mesh3D m3d);
+
+/* Manipulation */
+
 
 #endif /* Include guard */

@@ -19,6 +19,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "btree.h"
 
@@ -26,6 +27,7 @@
 /* Some utilities */
 /* General Initializer */
 static BTNode MakeNode(btree_data_t init_data, BTNode parent_node);
+static unsigned int Keygen(btree_data_t data);
 /* Copy a node */
 //static int Copy(BTNode orig, BTNode cpy);
 /* Swap two nodes */
@@ -111,8 +113,9 @@ unsigned long DepthBT(BTNode b)
 /* Insert and remove elements */
 int BTInsert(BTNode b, btree_data_t vpStuff)
 {
-    unsigned long key = (unsigned long)vpStuff;
-
+    //unsigned long key = (unsigned long)vpStuff;
+    unsigned long key = Keygen(vpStuff);
+    
     /* If given key is same as root,
        just update root and be done with it. */
     if (key == b->key) {
@@ -137,7 +140,9 @@ int BTInsert(BTNode b, btree_data_t vpStuff)
 int BTRemove(BTNode b, btree_data_t vpStuff)
 {
     BTNode found_node = BTSearch(b, vpStuff);
-    unsigned int key = (unsigned int)vpStuff;
+
+    //unsigned int key = (unsigned int)vpStuff;
+    unsigned int key = Keygen(vpStuff);
 
     if (!found_node->left && !found_node->right) {
         if (key < found_node->parent->key) found_node->parent->left = NULL;
@@ -187,8 +192,9 @@ BTNode BTSearch(BTNode b, btree_data_t vpStuff)
     if (!b) return NULL;
     //assert(b);
 
-    unsigned int key = (unsigned int)vpStuff;
-
+    //unsigned int key = (unsigned int)vpStuff;
+    unsigned int key = Keygen(vpStuff);
+    
     if (key == b->key)
         return b;
 
@@ -231,7 +237,7 @@ BTNode BTSearch(BTNode b, btree_data_t vpStuff)
 // }
 
 
-
+/* Some static functions (mostly misc. utils) */
 static BTNode MakeNode(btree_data_t init_data, BTNode parent_node)
 {
     BTNode b = InitBT();
@@ -240,4 +246,13 @@ static BTNode MakeNode(btree_data_t init_data, BTNode parent_node)
     b->key = (unsigned int)init_data;
 
     return b;
+}
+
+static unsigned int Keygen(btree_data_t data)
+{
+    unsigned int k = 0;
+    uintptr_t idata = (uintptr_t)data;
+    k = (unsigned int)idata;
+
+    return k;
 }

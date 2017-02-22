@@ -29,7 +29,7 @@ typedef struct _bintree_node {
 
     unsigned long depth;
 
-    unsigned long key;
+    unsigned int key;
     btree_data_t stuff;
 } bintree_node;
 typedef bintree_node* BTNode;
