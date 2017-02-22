@@ -5,11 +5,17 @@ RWARNS=-Wall
 CFLAGS=-ggdb3 $(WARNS)
 RCFLAGS=-O3 $(RWARNS)
 
-UNAME := $(shell uname)
+UNAME_SH := $(shell uname)
+UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
 ifeq ($(UNAME), darwin)
 CC=gcc
 CFLAGS=-ggdb3 $(WARNS)
 RCFLAGS=-O3 $(RWARNS)
+endif
+
+ifeq ($(UNAME), linux)
+CFLAGS=-ggdb3 -fPIC $(WARNS)
+RCFLAGS=-O3 -fPIC $(WARNS)
 endif
 
 ifeq ($(CC), gcc)
