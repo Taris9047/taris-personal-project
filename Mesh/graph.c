@@ -24,7 +24,9 @@
 #include "graph.h"
 
 /* Some static methods */
-int IsRoot(GNode r);
+static int IsRoot(GNode r);
+static unsigned int Keygen(btree_data_t data);
+
 
 
 /* Constructors and Destructors */
@@ -72,12 +74,13 @@ int GraphDestroy(GNode r)
     GNode ntmp;
     BTNode history = InitBT();
     LNode nxt_tmp = tmp->links;
+    unsigned long key = Keygen(tmp);
 
     /* Populate a list of graphs (In fact, a binary tree) */
     while (1) {
         /* If current node isn't included in the history ... */
-        if (!BTSearch(history, tmp))
-            BTInsert(history, tmp);
+        if (!BTSearch(history, key))
+            BTInsert(history, tmp, key);
         else break;
 
         /* Now find a suitable next node */
@@ -145,10 +148,12 @@ int GraphTraverse(GNode* r, unsigned long* n_tot)
     unsigned long p_num = 0;
     unsigned long p_num_tmp;
 
+    unsigned long key = Keygen(tmp);
+
     while (1) {
         /* If current node isn't included in the history ... */
-        if (!BTSearch(history, tmp))
-            BTInsert(history, tmp);
+        if (!BTSearch(history, key))
+            BTInsert(history, tmp, key);
         else break;
 
         /* Now find a suitable next node */
@@ -180,14 +185,82 @@ int GraphFind(GNode* r, GNode* found, graph_data_t data)
 {
     assert(*r);
 
+    if (!IsRoot(*r)) {
+        (*found) = NULL;
+        return 1;
+    }
+
 
     return 0;
 }
 
-/* Static method implementations */
-int IsRoot(GNode r)
+
+/* Add/Sub/Multiply/Divide matrix data. We'll use integer.. So yea.. */
+void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) + (*b);
+    (**r) = result;
+}
+void MSubSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) - (*b);
+    (**r) = result;
+}
+void MMulSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) * (*b);
+    (**r) = result;
+}
+void MDivSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) / (*b);
+    (**r) = result;
+}
+void MRemSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) % (*b);
+    (**r) = result;
+}
+void MSetZero(matrix_data_t* r)
+{
+    assert(*r);
+    (**r) = (MATRIX_D_T)0;
+}
+
+
+
+
+
+/* Static functions */
+/* Check if it's root */
+static int IsRoot(GNode r)
 {
     assert(r);
     if (ListIsEmpty(r->prevs)) return 0;
     else return 1;
+}
+
+/* keygen for binary tree */
+static unsigned int Keygen(btree_data_t data)
+{
+    unsigned int k = 0;
+    uintptr_t idata = (uintptr_t)data;
+    k = (unsigned int)idata;
+
+    return k;
 }

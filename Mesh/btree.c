@@ -26,8 +26,8 @@
 /* Some private methods */
 /* Some utilities */
 /* General Initializer */
-static BTNode MakeNode(btree_data_t init_data, BTNode parent_node);
-static unsigned int Keygen(btree_data_t data);
+static BTNode MakeNode(btree_data_t init_data, BTNode parent_node, unsigned long key);
+
 /* Copy a node */
 //static int Copy(BTNode orig, BTNode cpy);
 /* Swap two nodes */
@@ -111,10 +111,8 @@ unsigned long DepthBT(BTNode b)
 
 
 /* Insert and remove elements */
-int BTInsert(BTNode b, btree_data_t vpStuff)
+int BTInsert(BTNode b, btree_data_t vpStuff, unsigned long key)
 {
-    unsigned long key = Keygen(vpStuff);
-
     /* If given key is same as root,
        just update root and be done with it. */
     if (key == b->key) {
@@ -125,21 +123,20 @@ int BTInsert(BTNode b, btree_data_t vpStuff)
     if (key < b->key) {
         /* key is smaller than current node:
            Put it into left */
-        if (!b->left) b->left = MakeNode(vpStuff, b);
-        else BTInsert(b->left, vpStuff);
+        if (!b->left) b->left = MakeNode(vpStuff, b, key);
+        else BTInsert(b->left, vpStuff, key);
     }
     else {
-        if (!b->right) b->right = MakeNode(vpStuff, b);
-        else BTInsert(b->right, vpStuff);
+        if (!b->right) b->right = MakeNode(vpStuff, b, key);
+        else BTInsert(b->right, vpStuff, key);
     }
 
     return 0;
 }
 
-int BTRemove(BTNode b, btree_data_t vpStuff)
+int BTRemove(BTNode b, btree_data_t vpStuff, unsigned long key)
 {
-    BTNode found_node = BTSearch(b, vpStuff);
-    unsigned int key = Keygen(vpStuff);
+    BTNode found_node = BTSearch(b, key);
 
     if (!found_node->left && !found_node->right) {
         if (key < found_node->parent->key) found_node->parent->left = NULL;
@@ -156,8 +153,8 @@ int BTRemove(BTNode b, btree_data_t vpStuff)
         found_node->right->depth--;
     }
     else {
-        if (key < found_node->parent->key) BTRemove(found_node->left, vpStuff);
-        else BTRemove(found_node->right, vpStuff);
+        if (key < found_node->parent->key) BTRemove(found_node->left, vpStuff, key);
+        else BTRemove(found_node->right, vpStuff, key);
     }
 
     free(found_node);
@@ -176,27 +173,25 @@ int BTRemove(BTNode b, btree_data_t vpStuff)
 //     else return NULL;
 // }
 
-int BTSetItem(BTNode b, btree_data_t vpStuff)
+int BTSetItem(BTNode b, btree_data_t vpStuff, unsigned long key)
 {
-    BTSearch(b, vpStuff)->stuff = vpStuff;
+    BTSearch(b, key)->stuff = vpStuff;
     return 0;
 }
 
 /* Search node for given item. Returns pointer to the node */
 /* Uses recursive algorithm.. */
-BTNode BTSearch(BTNode b, btree_data_t vpStuff)
+BTNode BTSearch(BTNode b, unsigned long key)
 {
     if (!b) return NULL;
-
-    unsigned int key = Keygen(vpStuff);
 
     if (key == b->key)
         return b;
 
     if (key < b->key)
-        return BTSearch(b->left, vpStuff);
+        return BTSearch(b->left, key);
     else
-        return BTSearch(b->right, vpStuff);
+        return BTSearch(b->right, key);
 }
 
 /* Copy a node */
@@ -233,21 +228,12 @@ BTNode BTSearch(BTNode b, btree_data_t vpStuff)
 
 
 /* Some static functions (mostly misc. utils) */
-static BTNode MakeNode(btree_data_t init_data, BTNode parent_node)
+static BTNode MakeNode(btree_data_t init_data, BTNode parent_node, unsigned long key)
 {
     BTNode b = InitBT();
     b->parent = parent_node;
     b->stuff = init_data;
-    b->key = (unsigned int)init_data;
+    b->key = key;
 
     return b;
-}
-
-static unsigned int Keygen(btree_data_t data)
-{
-    unsigned int k = 0;
-    uintptr_t idata = (uintptr_t)data;
-    k = (unsigned int)idata;
-
-    return k;
 }

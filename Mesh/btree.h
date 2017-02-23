@@ -48,16 +48,16 @@ unsigned long LenBT(BTNode b);
 unsigned long DepthBT(BTNode b);
 
 /* Insert and remove elements */
-int BTInsert(BTNode b, btree_data_t vpStuff);
-int BTRemove(BTNode b, btree_data_t vpStuff);
+int BTInsert(BTNode b, btree_data_t vpStuff, unsigned long key);
+int BTRemove(BTNode b, btree_data_t vpStuff, unsigned long key);
 
 /* Get/set item from node */
 // kinda pointless...
 // btree_data_t BTGetItem(BTNode b, unsigned long key);
-int BTSetItem(BTNode b, btree_data_t vpStuff);
+int BTSetItem(BTNode b, btree_data_t vpStuff, unsigned long key);
 
 /* Search node for specific item
    (Call it multiple times if duplicate values in the tree)*/
-BTNode BTSearch(BTNode b, btree_data_t vpStuff);
+BTNode BTSearch(BTNode b, unsigned long key);
 
 #endif /* Include guard */

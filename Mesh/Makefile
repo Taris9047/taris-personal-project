@@ -44,8 +44,17 @@ SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
 HEADERS=$(filter-out test.h, $(wildcard *.h))
 OBJS=$(SOURCES:.c=.o)
 
-LIBNAME=libmesh.a
-DLIBNAME=libmesh.so
+SYS := $(shell gcc -dumpmachine)
+ifneq (, $(findstring linux, $(SYS)))
+	LIBNAME=libmesh.a
+	DLIBNAME=libmesh.so
+else ifneq (, $(findstring cygwin, $(SYS)))
+	LIBNAME=libmesh.a.dll
+	DLIBNAME=cygmesh.dll
+else ifneq (, $(findstring darwin, $(SYS)))
+	LIBNAME=libmesh.a
+	DLIBNAME=libmesh.so
+endif
 
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
