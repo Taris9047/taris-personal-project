@@ -533,10 +533,11 @@ int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol)
     }
 
     /* If the new size is the same, do nothing */
-    if (nrow == (*M)->nrow && ncol == (*M)->ncol) return 0;
+    if (nrow == (*M)->rows && ncol == (*M)->cols) return 0;
 
     SMatrixNode sm_tmp;
     matrix_data_t zero;
+    matrix_data_t tmp_data;
 
     /* Loop loop */
     unsigned long i, j;
@@ -553,7 +554,26 @@ int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol)
     }
 
     /* now free up remaining stuff */
-    //if () 
+    if (nrow < (*M)->rows && ncol >= (*M)->cols) {
+        for (i=nrow; i<(*M)->rows; ++i) {
+            for (j=0; j<(*M)->cols; ++j) {
+                tmp_data = SMatrixGet((*M), i+1, j+1);
+                sm_tmp = SMatrixFind((*M), tmp_data);
+                free(tmp_data);
+                BTRemove((*M)->root, sm_tmp, Keygen(i,j));
+            }
+        }
+    }
+    else if (ncol < (*M)->cols && nrow >= (*M)->rows) {
+        for (i=0; i<(*M)->rows; ++i) {
+            for (j=ncol; (*M)->cols; ++j) {
+                tmp_data = SMatrixGet((*M), i+1, j+1);
+                sm_tmp = SMatrixFind((*M), tmp_data);
+                free(tmp_data);
+                BTRemove((*M)->root, sm_tmp, Keygen(i,j));     
+            }
+        }
+    }
 
     return 0;
 }
