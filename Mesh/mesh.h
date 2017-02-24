@@ -57,8 +57,8 @@ unsigned long MeshNodes(MNode m);
 void MeshNodesXY(MNode m, unsigned long* xsize, unsigned long* ysize);
 
 /* Traverse Utils */
-int MeshTravH(MNode* m); /* Horizontal traverse */
-int MeshTravV(MNode* m); /* Vertical traverse */
+unsigned long MeshTravH(MNode* m); /* Horizontal traverse */
+unsigned long MeshTravV(MNode* m); /* Vertical traverse */
 int MeshTrav(MNode* m, unsigned long* i, unsigned long* j); /* X, Y traverse */
 int MeshTravAll(MNode* m, unsigned long* n_tot); /* Complete traverse */
 
@@ -66,5 +66,11 @@ int MeshTravAll(MNode* m, unsigned long* n_tot); /* Complete traverse */
 MNode MeshFind(MNode* m, mesh_data_t stuff);
 /* Find Root (Assuning rectangular) */
 int MeshFindRoot(MNode* m);
+/* Swap meshes */
+int MeshSwap(MNode* a, MNode* b);
+/* Copy meshes (only works with rectangular mesh at this moment) */
+int MeshCpy(MNode* target, MNode a);
+/* Is root? (top left corner) */
+int MeshIsRoot(MNode a);
 
 #endif /* Include guard */

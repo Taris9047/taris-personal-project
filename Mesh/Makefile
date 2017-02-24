@@ -3,7 +3,6 @@
 WARNS=-Wall
 RWARNS=-Wall
 CFLAGS=-ggdb3 $(WARNS)
-RCFLAGS=-O3 $(RWARNS)
 
 CC_DETECT := `command -v clang`
 ifeq ($(CC_DETECT), "")
@@ -17,23 +16,11 @@ UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
 ifeq ($(UNAME), darwin)
 CC=gcc
 CFLAGS=-ggdb3 $(WARNS)
-RCFLAGS=-O3 $(RWARNS)
 endif
 
 ifeq ($(UNAME), linux)
 CFLAGS=-ggdb3 -fPIC $(WARNS)
-RCFLAGS=-O3 -fPIC $(WARNS)
 endif
-
-ifeq ($(CC), gcc)
-CFLAGS=-ggdb3
-RCFLAGS=-O3
-WARNS=-Wall
-RWARNS=-Wall
-CFLAGS=-ggdb3 $(WARNS)
-RCFLAGS=-O3 $(RWARNS)
-endif
-
 
 LIBS=-lm -L.
 AR=ar
@@ -61,9 +48,6 @@ endif
 
 all: $(LIBNAME) $(DLIBNAME) test.c test.h
 	$(CC) $(CFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
-
-release: $(LIBNAME) $(DLIBNAME) test.c test.h
-	$(CC) $(RCFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
 
 $(LIBNAME): $(OBJS)
 	$(AR) rcs $@ $(OBJS)

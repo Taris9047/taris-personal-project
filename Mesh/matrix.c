@@ -34,6 +34,14 @@ static void DestroySNode(SMatrixNode mn);
 /* Keygen for binary tree */
 static unsigned int Keygen(unsigned long A, unsigned long B);
 
+/* Add/Sub/Multiply/Divide matrix data */
+static void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
+static void MSubSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
+static void MMulSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
+static void MDivSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
+static void MRemSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
+/* Zero */
+static void MSetZero(matrix_data_t* r);
 
 
 /* Regular Matrix part */
@@ -95,12 +103,30 @@ void DestroyMatrix(Matrix M)
     assert(M);
 
     unsigned long i, j;
-    for (i=0; i<M->rows; ++i) {
-        for (j=0; j<M->cols; ++j) {
+
+    for (i=0; i<M->rows; ++i)
+        for (j=0; j<M->cols; ++j)
             DestroyNode(M->matrix[i][j]);
-        }
-    }
-    free(M->matrix[i]);
+
+    for (i=0; i<M->rows; ++i)
+        free(M->matrix[i]);
+    free(M->matrix);
+    free(M);
+}
+
+/* Free up Matrix only, leaves data. */
+void FreeMatrix(Matrix M)
+{
+    assert(M);
+
+    unsigned long i, j;
+
+    for (i=0; i<M->rows; ++i)
+        for(j=0; j<M->cols; ++j)
+            free(M->matrix[i][j]);
+
+    for(i=0; i<M->rows; ++i)
+        free(M->matrix[i]);
     free(M->matrix);
     free(M);
 }
@@ -742,4 +768,59 @@ static unsigned int Keygen(unsigned long A, unsigned long B)
     unsigned int key = (a+b)*(a+b+1)/2+a;
 
     return key;
+}
+
+
+
+
+
+
+
+
+
+/* Add/Sub/Multiply/Divide matrix data. We'll use integer.. So yea.. */
+static void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) + (*b);
+    (**r) = result;
+}
+static void MSubSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) - (*b);
+    (**r) = result;
+}
+static void MMulSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) * (*b);
+    (**r) = result;
+}
+static void MDivSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) / (*b);
+    (**r) = result;
+}
+static void MRemSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
+{
+    assert(a);
+    assert(b);
+    assert(*r);
+    MATRIX_D_T result = (*a) % (*b);
+    (**r) = result;
+}
+static void MSetZero(matrix_data_t* r)
+{
+    assert(*r);
+    (**r) = (MATRIX_D_T)0;
 }

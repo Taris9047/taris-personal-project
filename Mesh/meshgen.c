@@ -23,46 +23,57 @@
 
 /* Make rectangular mesh */
 /* Note i and j are actual element numbers, not index */
-MNode MeshMakeRect(unsigned long i, unsigned long j)
+MNode MeshMakeRect(unsigned long rows, unsigned long cols)
 {
     MNode rect_mesh = NewMesh();
     MNode tmp_new;
+    MNode tmp;
 
     unsigned long hi, vi;
-    for (hi=1; hi<i; ++hi) {
+
+    for (hi=1; hi<rows; ++hi) {
         tmp_new = NewMesh();
         PushH(&rect_mesh, tmp_new);
     }
-    for (vi=1; vi<j; ++vi) {
-        tmp_new = NewMesh();
-        PushV(&rect_mesh, tmp_new);
+    tmp = rect_mesh;
+    while (1) {
+        for (vi=1; vi<cols; ++vi) {
+            tmp_new = NewMesh();
+            PushV(&rect_mesh, tmp_new);
+        }
+        if (tmp->rh) rect_mesh = tmp->rh;
+        else break;
     }
 
-    return 0;
+    MeshFindRoot(&rect_mesh);
+
+    return rect_mesh;
 }
 
 /* Make rectangular mesh with dataset */
 /* Note i and j are actual element numbers, not index */
-MNode MeshMakeRectData(unsigned long i, unsigned long j, mesh_data_t** data)
+MNode MeshMakeRectData(unsigned long rows, unsigned long cols, mesh_data_t** data)
 {
-    MNode rect_mesh = MeshMakeRect(i, j);
+    MNode rect_mesh = MeshMakeRect(rows, cols);
 
-    if (!MeshSetData(rect_mesh, data, i, j)) return rect_mesh;
-    else return NULL;
+    if (!MeshSetData(rect_mesh, data, rows, cols))
+        return rect_mesh;
+    else
+        return NULL;
 }
 
 /* Set data to current mesh */
 /* Note i and j are actual element numbers, not index */
-int MeshSetData(MNode r, mesh_data_t** data, unsigned long i, unsigned long j)
+int MeshSetData(MNode r, mesh_data_t** data, unsigned long rows, unsigned long cols)
 {
     unsigned long ih, iv;
     MNode tmp;
     MNode tmp_h;
 
     tmp = r;
-    for (ih=0; ih<i; ++ih) {
+    for (ih=0; ih<rows; ++ih) {
         tmp_h = tmp;
-        for (iv=0; iv<j; ++iv) {
+        for (iv=0; iv<cols; ++iv) {
             tmp->data = data[ih][iv];
             tmp = tmp->dn;
         }
@@ -70,4 +81,47 @@ int MeshSetData(MNode r, mesh_data_t** data, unsigned long i, unsigned long j)
     }
 
     return 0;
+}
+
+/* Make mesh_data_t 2D array */
+void MeshDMalloc(mesh_data_t*** mesh_d_2D, unsigned long rows, unsigned long cols)
+{
+    /* It won't happen but sometimes people gets nuts. */
+    if (rows == 0 || cols == 0) {
+        (*mesh_d_2D) = NULL;
+        return;
+    }
+
+    unsigned long i;
+
+    mesh_data_t** t_md_2D;
+
+    t_md_2D = (mesh_data_t**)malloc(sizeof(mesh_data_t*)*rows);
+    assert(t_md_2D);
+    for (i=0; i<rows; ++i) {
+        t_md_2D[i] = (mesh_data_t*)malloc(sizeof(mesh_data_t)*cols);
+        assert(t_md_2D[i]);
+    }
+
+    (*mesh_d_2D) = t_md_2D;
+
+    return;
+}
+
+/* Free mesh_data_t 2D array */
+void MeshDFree(mesh_data_t** mesh_d_2D, unsigned long rows, unsigned long cols)
+{
+    assert(mesh_d_2D);
+
+    unsigned long i, j;
+
+    for (i=0; i<rows; ++i) {
+        for (j=0; j<cols; ++j) {
+            free(mesh_d_2D[i][j]);
+        }
+    }
+    for (i=0; i<rows; ++i) free(mesh_d_2D[i]);
+    free(mesh_d_2D);
+
+    return;
 }

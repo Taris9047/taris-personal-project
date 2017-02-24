@@ -64,36 +64,6 @@ typedef struct _smatrix_root {
 } smatrix_root;
 typedef smatrix_root* SMatrix;
 
-/*
-   Some extern stuffs: users must supply
-   those functions depending on their implementations
-
-   example for integer addition:
-   void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
-   {
-       assert(a);
-       assert(b);
-       assert(*r);
-       MATRIX_D_T result = (*a) + (*b);
-       (**r) = result;
-   }
-
-   example for zero set:
-   void MSetZero(matrix_data_t* r)
-   {
-       assert(*r);
-       (**r) = (MATRIX_D_T)0;
-   }
-
-*/
-/* Add/Sub/Multiply/Divide matrix data */
-extern void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-extern void MSubSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-extern void MMulSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-extern void MDivSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-extern void MRemSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-/* Zero */
-extern void MSetZero(matrix_data_t* r);
 
 
 
@@ -109,6 +79,7 @@ Matrix InitMatrix(unsigned long rows, unsigned long cols);
 /* Make a zero matrix with size (Use this...)*/
 Matrix InitZeroMatrix(unsigned long rows, unsigned long cols);
 void DestroyMatrix(Matrix M);
+void FreeMatrix(Matrix M); /* Doesn not destroy data */
 
 /* Set and get */
 int MatrixSet(Matrix M, unsigned long row, unsigned long col, matrix_data_t data);
@@ -133,6 +104,9 @@ Matrix MatrixRemSc(Matrix A, matrix_data_t sc);
 
 
 
+
+
+
 /* Sparse matrix */
 /* Constructors and destructors */
 /* Make an empty matrix */
@@ -140,6 +114,7 @@ SMatrix InitSMatrix(unsigned long rows, unsigned long cols);
 /* Make a zero matrix with size (Use this...)*/
 SMatrix InitZeroSMatrix(unsigned long rows, unsigned long cols);
 void DestroySMatrix(SMatrix M);
+void FreeSMatrix(SMatrix M); /* Doesn not destroy data */
 
 /* Set and get */
 int SMatrixSet(SMatrix M, unsigned long row, unsigned long col, matrix_data_t data);

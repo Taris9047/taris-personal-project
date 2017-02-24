@@ -131,7 +131,7 @@ void test_mesh(unsigned long nh, unsigned long nv)
     for (i=1; i<nh; ++i) {
         tmp = NewMeshData(d[i][0]);
         PushH(&tmp_root, tmp);
-        ProgressBar(i+1, nh, "First Row Progress");
+        ProgressBar(i+1, nh, "[Mesh] First Row Progress");
     }
     printf("\n");
     /* update root since we pushed in a lot */
@@ -180,7 +180,7 @@ void test_mesh(unsigned long nh, unsigned long nv)
 /* Graph test */
 void test_graph(unsigned long nh, unsigned long nv)
 {
-    printf("*** Testing graph generation ***\n");
+    printf("[GTest] *** Testing graph generation ***\n");
 
     GNode tgr = InitGraph();
     GNode tgr_r_b = tgr;

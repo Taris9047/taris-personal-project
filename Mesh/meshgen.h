@@ -22,12 +22,15 @@
 #include "meshmanip.h"
 
 /* Make rectangular mesh */
-MNode MeshMakeRect(unsigned long i, unsigned long j);
+MNode MeshMakeRect(unsigned long rows, unsigned long cols);
 /* Make rectangular mesh with dataset */
-MNode MeshMakeRectData(unsigned long i, unsigned long j, mesh_data_t** data);
+MNode MeshMakeRectData(unsigned long rows, unsigned long cols, mesh_data_t** data);
 /* Set data to current mesh */
-int MeshSetData(MNode r, mesh_data_t** data, unsigned long i, unsigned long j);
+int MeshSetData(MNode r, mesh_data_t** data, unsigned long rows, unsigned long cols);
 
-
+/* Make mesh_data_t 2D array */
+void MeshDMalloc(mesh_data_t*** mesh_d_2D, unsigned long rows, unsigned long cols);
+/* Free mesh_data_t 2D array */
+void MeshDFree(mesh_data_t** mesh_d_2D, unsigned long rows, unsigned long cols);
 
 #endif /* Include guard */

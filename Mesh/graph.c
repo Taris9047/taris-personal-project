@@ -196,56 +196,6 @@ int GraphFind(GNode* r, GNode* found, graph_data_t data)
 }
 
 
-/* Add/Sub/Multiply/Divide matrix data. We'll use integer.. So yea.. */
-void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
-{
-    assert(a);
-    assert(b);
-    assert(*r);
-    MATRIX_D_T result = (*a) + (*b);
-    (**r) = result;
-}
-void MSubSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
-{
-    assert(a);
-    assert(b);
-    assert(*r);
-    MATRIX_D_T result = (*a) - (*b);
-    (**r) = result;
-}
-void MMulSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
-{
-    assert(a);
-    assert(b);
-    assert(*r);
-    MATRIX_D_T result = (*a) * (*b);
-    (**r) = result;
-}
-void MDivSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
-{
-    assert(a);
-    assert(b);
-    assert(*r);
-    MATRIX_D_T result = (*a) / (*b);
-    (**r) = result;
-}
-void MRemSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b)
-{
-    assert(a);
-    assert(b);
-    assert(*r);
-    MATRIX_D_T result = (*a) % (*b);
-    (**r) = result;
-}
-void MSetZero(matrix_data_t* r)
-{
-    assert(*r);
-    (**r) = (MATRIX_D_T)0;
-}
-
-
-
-
 
 /* Static functions */
 /* Check if it's root */

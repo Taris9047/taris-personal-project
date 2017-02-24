@@ -249,7 +249,7 @@ void MeshNodesXY(MNode m, unsigned long* xsize, unsigned long* ysize)
 
 /* Traverse Utils */
 /* Warning!! they change given pointer!! */
-int MeshTravH(MNode* m)
+unsigned long MeshTravH(MNode* m)
 {
     assert(*m);
 
@@ -261,7 +261,7 @@ int MeshTravH(MNode* m)
     return i;
 }
 
-int MeshTravV(MNode* m)
+unsigned long MeshTravV(MNode* m)
 {
     assert(*m);
 
@@ -425,11 +425,23 @@ int MeshFindRoot(MNode *m)
 
     MNode tmp = (*m);
 
+    /* If it's root, just skip all the cruds */
+    if (MeshIsRoot(tmp)) return 0;
+
     /* Traverse back x */
     while (tmp->lh || tmp->ul || tmp->up) {
-        if (tmp->lh) tmp = tmp->lh;
-        if (tmp->ul) tmp = tmp->ul;
-        if (tmp->up) tmp = tmp->up;
+        if (tmp->lh) {
+            tmp = tmp->lh;
+            continue;
+        }
+        if (tmp->ul) {
+            tmp = tmp->ul;
+            continue;
+        }
+        if (tmp->up) {
+            tmp = tmp->up;
+            continue;
+        }
     }
 
     (*m) = tmp;
@@ -437,6 +449,92 @@ int MeshFindRoot(MNode *m)
     return 0;
 }
 
+/* Swap Meshes */
+int MeshSwap(MNode* a, MNode* b)
+{
+    assert(*a);
+    assert(*b);
+    /* If a and b are the same... just end this crap */
+    if ((*a) == (*b)) return 0;
+
+    MNode tmp;
+    tmp = (*a);
+    (*a) = (*b);
+    (*b) = tmp;
+
+    return 0;
+}
+
+/* Copy meshes */
+int MeshCpy(MNode* target, MNode a)
+{
+    assert(a);
+
+    unsigned long a_rows, a_cols;
+    unsigned long i, j;
+    mesh_data_t tmp_data;
+    MNode tmp_head;
+    MNode tmp_node;
+    MNode tmp_a;
+
+    /* make sure a is root */
+    if (!MeshIsRoot(a)) MeshFindRoot(&a);
+
+    /* Set up the first node */
+    tmp_data = a->data;
+    tmp_head = NewMeshData(tmp_data);
+
+    /* figure out size of a */
+    MeshNodesXY(a, &a_rows, &a_cols);
+
+    /* Ok, let's generate another mesh */
+    /* Generating the first row */
+    tmp_a = a;
+    /* Set tmp to lower right corner */
+    MeshTravH(&tmp_a);
+    MeshTravV(&tmp_a);
+    /* Generate lowest line */
+    for (i=1; i<a_rows; ++i) {
+        tmp_data = tmp_a->lh->data;
+        tmp_node = NewMeshData(tmp_data);
+        PushH(target, tmp_node);
+        tmp_a = tmp_a->lh;
+    }
+
+    /* Extending from first row */
+    /* Returning tmp_data to the rightmost one */
+    MeshTravH(&tmp_head);
+    /* Also a */
+    MeshTravH(&tmp_a);
+    tmp_a = tmp_a->up;
+    for (j=1; j<a_cols; ++j) {
+        tmp_node = NewMeshData(tmp_a->data);
+        PushV(&tmp_head, tmp_node);
+        for (i=1; i<a_rows; ++i) {
+            tmp_data = tmp_a->lh->data;
+            tmp_node = NewMeshData(tmp_data);
+            PushH(&tmp_head, tmp_node);
+            tmp_a = tmp_a->lh;
+        }
+        if (j<a_cols) {
+            MeshTravH(&tmp_head);
+            MeshTravH(&tmp_a);
+            tmp_a = tmp_a->up;
+        }
+    }
+
+    (*target) = tmp_head;
+
+    return 0;
+}
+
+/* Is root? (top left corner) */
+int MeshIsRoot(MNode a)
+{
+    assert(a);
+    if (!a->lh && !a->up && !a->ul) return 1;
+    else return 0;
+}
 
 /* find given mesh from mesh list */
 // static int MeshIsFound(MNode* m, MNode** mlist, int listlen)
