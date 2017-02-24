@@ -107,6 +107,8 @@ Matrix MatrixRemSc(Matrix A, matrix_data_t sc);
 
 
 
+
+
 /* Sparse matrix */
 /* Constructors and destructors */
 /* Make an empty matrix */
@@ -122,6 +124,8 @@ matrix_data_t SMatrixGet(SMatrix M, unsigned long row, unsigned long col);
 
 /* Find stuff */
 SMatrixNode SMatrixFind(SMatrix M, matrix_data_t data);
+/* Resize */
+int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol);
 
 /* Some arithmatic operations */
 SMatrix SMatrixAdd(SMatrix A, SMatrix B);

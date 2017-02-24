@@ -21,6 +21,7 @@
 
 #include "meshmanip.h"
 
+/* Get size macro */
 #define GET_SIZE \
     unsigned long root_rows, root_cols;\
     unsigned long other_rows, other_cols;\

@@ -520,6 +520,46 @@ SMatrixNode SMatrixFind(SMatrix M, matrix_data_t data)
     return NULL;
 }
 
+/* Resize */
+int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol)
+{
+    assert(*M);
+
+    /* if zero nrow or ncol are given
+       free up the matrix...*/
+    if (!nrow || !ncol) {
+        DestroySMatrix(*M);
+        return 1;
+    }
+
+    /* If the new size is the same, do nothing */
+    if (nrow == (*M)->nrow && ncol == (*M)->ncol) return 0;
+
+    SMatrixNode sm_tmp;
+    matrix_data_t zero;
+
+    /* Loop loop */
+    unsigned long i, j;
+    for (i=0; i<nrow; ++i) {
+        for (j=0; j<ncol; ++j) {
+            /* Passing expanded region */
+            if (i >= (*M)->rows || j >= (*M)->cols) {
+                /* Assign zero to new nodes */
+                zero = (matrix_data_t)malloc(sizeof(MATRIX_D_T));
+                assert(zero); MSetZero(&zero);
+                sm_tmp = NewSNode(i+1, j+1, zero);
+            }
+        }
+    }
+
+    /* now free up remaining stuff */
+    //if () 
+
+    return 0;
+}
+
+
+
 /* Some arithmatic operations */
 SMatrix SMatrixAdd(SMatrix A, SMatrix B)
 {

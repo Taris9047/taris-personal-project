@@ -1,7 +1,5 @@
 /***************************************
 
-  Practice coding for Simple linked list
-
   Header file
 
   Taylor Shin, Feb. 14 2017

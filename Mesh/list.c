@@ -1,7 +1,5 @@
 /***************************************
 
-  Practice coding for Simple linked list
-
   Implementation file
 
   Taylor Shin, Feb. 14 2017
