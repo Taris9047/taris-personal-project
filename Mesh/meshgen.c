@@ -21,6 +21,12 @@
 
 #include "meshgen.h"
 
+/* Some extern functions */
+/* ID Generator */
+extern inline unsigned long MeshIDGen(unsigned long a, unsigned long b);
+
+/* Some static functions */
+
 /* Make rectangular mesh */
 /* Note i and j are actual element numbers, not index */
 MNode MeshMakeRect(unsigned long rows, unsigned long cols)
@@ -32,14 +38,17 @@ MNode MeshMakeRect(unsigned long rows, unsigned long cols)
 
     unsigned long hi, vi;
 
+    rect_mesh->id = MeshIDGen(0, 0);
     for (hi=1; hi<rows; ++hi) {
         tmp_new = NewMesh();
+        tmp_new->id = MeshIDGen(hi, 0);
         PushH(&rect_mesh, tmp_new);
     }
     tmp_v = tmp_h = rect_mesh;
     while (1) {
         for (vi=1; vi<cols; ++vi) {
             tmp_new = NewMesh();
+            tmp_new->id = MeshIDGen(hi, vi);
             PushV(&tmp_v, tmp_new);
         }
         tmp_v = tmp_h;

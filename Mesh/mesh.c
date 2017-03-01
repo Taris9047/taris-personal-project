@@ -44,7 +44,7 @@ static const int lefty_matrix[6][5] = \
 
 /* Static functions */
 
-/* Update adjacent node information 
+/* Update adjacent node information
    Returns 1 if nowhere to go */
 static int AdjNodeInfo(MNode m, LNode ml, int nxt_found[6], int nxt_exist[6]);
 
@@ -77,6 +77,7 @@ MNode NewMesh()
     assert(nm);
 
     nm->data = NULL;
+    nm->id = 0;
     nm->rh = NULL;
     nm->lh = NULL;
     nm->dn = NULL;
@@ -92,6 +93,14 @@ MNode NewMeshData(mesh_data_t data)
 {
     MNode nm = NewMesh();
     if (data) nm->data = data;
+    return nm;
+}
+
+/* New mesh with data and id */
+MNode NewMeshDataID(mesh_data_t data, unsigned long id)
+{
+    MNode nm = NewMeshData(data);
+    nm->id = id;
     return nm;
 }
 
@@ -360,7 +369,7 @@ int MeshTravAll(MNode* m, unsigned long* n_tot)
     MNode tmp_prev = NULL;
     (*n_tot) = 1; /* self */
     LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
-    
+
     int dead_end = 0;
 
     ListPush(&ml, tmp); /* Push in first node */
@@ -389,61 +398,75 @@ int MeshTravAll(MNode* m, unsigned long* n_tot)
 }
 
 /* Find by data */
-MNode MeshFind(MNode* m, mesh_data_t stuff)
+MNode MeshFind(MNode m, mesh_data_t stuff)
 {
-    assert(*m);
+    assert(m);
 
-    MNode tmp = (*m);
+    MNode tmp = m;
+    MNode tmp_prev = NULL;
     LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
+
+    int dead_end = 0;
+
     ListPush(&ml, tmp); /* Push in first node */
-
-    /* The search algorithm...
-       1st rh
-       2nd rd
-       3rd dn
-       4th lh
-       5th up
-    */
     while (1) {
-        if (tmp->data != stuff) {
-            if (tmp->rh && !ListFind(ml, tmp->rh)) {
-                ListPush(&ml, tmp->rh);
-                tmp = tmp->rh;
-                continue;
-            }
+        /* update adjacent node existence in history */
+        dead_end = FindLeft(&tmp, &tmp_prev, ml);
 
-            if (tmp->rd && !ListFind(ml, tmp->rd)) {
-                ListPush(&ml, tmp->rd);
-                tmp = tmp->rd;
-                continue;
-            }
+        if (tmp->data == stuff) break;
 
-            if (tmp->dn && !ListFind(ml, tmp->dn)) {
-                ListPush(&ml, tmp->dn);
-                tmp = tmp->dn;
-                continue;
-            }
-
-            if (tmp->lh && !ListFind(ml, tmp->lh)) {
-                ListPush(&ml, tmp->lh);
-                tmp = tmp->lh;
-                continue;
-            }
-
-            if (tmp->up && !ListFind(ml, tmp->up)) {
-                ListPush(&ml, tmp->up);
-                tmp = tmp->up;
-                continue;
-            }
+        if (!dead_end) {
+            ListPush(&ml, tmp);
         }
+        /* Dead end case */
         else {
-            (*m) = tmp;
-            break;
+            /* try to escape */
+            if (!Escape(&tmp, ml)) break;
+            else { /* Escaped!! */
+                ListPush(&ml, tmp);
+                tmp_prev = NULL;
+            }
         }
     }
 
     ListDestroy(ml);
-    return 0;
+    return tmp;
+}
+
+/* Find by ID */
+MNode MeshFindID(MNode m, unsigned long id)
+{
+    assert(m);
+
+    MNode tmp = m;
+    MNode tmp_prev = NULL;
+    LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
+
+    int dead_end = 0;
+
+    ListPush(&ml, tmp); /* Push in first node */
+    while (1) {
+        /* update adjacent node existence in history */
+        dead_end = FindLeft(&tmp, &tmp_prev, ml);
+
+        if (tmp->id == id) break;
+
+        if (!dead_end) {
+            ListPush(&ml, tmp);
+        }
+        /* Dead end case */
+        else {
+            /* try to escape */
+            if (!Escape(&tmp, ml)) break;
+            else { /* Escaped!! */
+                ListPush(&ml, tmp);
+                tmp_prev = NULL;
+            }
+        }
+    }
+
+    ListDestroy(ml);
+    return tmp;
 }
 
 /* Find Root */
@@ -619,7 +642,7 @@ static int AdjNodeInfo(MNode m, LNode ml, int nxt_found[6], int nxt_exist[6])
     for (i=0; i<6; ++i) {
         if (nxt_exist[i] && !nxt_found[i]) return 0;
     }
-    /* If history list has all the adjacent nodes, 
+    /* If history list has all the adjacent nodes,
        this is a dead end...
        return true...
     */
@@ -658,7 +681,7 @@ static int FindLeft(MNode* m, MNode* p, LNode ml)
 
     if (prev == curr) return 1;
 
-    /* If we don't have previous node ... 
+    /* If we don't have previous node ...
        Just redirect to any node we can see. */
     if (!prev) {
         tmp = curr;
@@ -762,8 +785,8 @@ static int Escape(MNode* m, LNode h)
 
     while (tmp_h) {
         while (curr) {
-            /* 
-               If we found unpassed node 
+            /*
+               If we found unpassed node
                during search, update *m and escape!
             */
             if (!ListFind(h, curr)) {
@@ -788,7 +811,7 @@ static LNode TravAll(MNode m)
     MNode tmp = m;
     MNode tmp_prev = NULL;
     LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
-    
+
     int dead_end = 0;
 
     ListPush(&ml, tmp); /* Push in first node */
@@ -813,7 +836,6 @@ static LNode TravAll(MNode m)
     return ml;
 }
 
-
 #ifdef TEST_PROGRAM
 /* for debug */
 /* Rectangular traverse */
@@ -828,7 +850,7 @@ int MeshTravAllVerbose(MNode* m, unsigned long* n_tot)
     MNode tmp_prev = NULL;
     (*n_tot) = 1; /* self */
     LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
-    
+
     int dead_end = 0;
 
     ListPush(&ml, tmp); /* Push in first node */

@@ -25,6 +25,7 @@
 #include "graph.h"
 #include "test.h"
 #include "utils.h"
+#include "vertice.h"
 
 #define NUM_HORIZONTAL 200
 #define NUM_VERTICAL 150

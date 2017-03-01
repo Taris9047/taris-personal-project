@@ -31,6 +31,8 @@ typedef void* mesh_data_t;
 typedef struct _mesh_node {
     mesh_data_t data; /* Make a custom struct to store a data set for each node */
 
+    unsigned int id; /* Some identification number */
+
     struct _mesh_node* rh; /* Right hand side */
     struct _mesh_node* lh; /* Left hand side */
     struct _mesh_node* dn; /* Down side */
@@ -46,6 +48,7 @@ typedef mesh_node* MNode;
 /* Constructors and Destructors */
 MNode NewMesh();
 MNode NewMeshData(mesh_data_t data);
+MNode NewMeshDataID(mesh_data_t data, unsigned long id);
 MNode MeshInit();
 int MeshDestroy(MNode m, unsigned long nh, unsigned long nv);
 int MeshDestroyAll(MNode m);
@@ -67,7 +70,8 @@ int MeshTrav(MNode* m, unsigned long* i, unsigned long* j); /* X, Y traverse */
 int MeshTravAll(MNode* m, unsigned long* n_tot); /* Complete traverse */
 
 /* Find stuff */
-MNode MeshFind(MNode* m, mesh_data_t stuff);
+MNode MeshFind(MNode m, mesh_data_t stuff);
+MNode MeshFindID(MNode m, unsigned long id);
 /* Find Root (Assuning rectangular) */
 int MeshFindRoot(MNode* m);
 /* Swap meshes */
@@ -76,6 +80,10 @@ int MeshSwap(MNode* a, MNode* b);
 int MeshCpy(MNode* target, MNode a);
 /* Is root? (top left corner) */
 int MeshIsRoot(MNode a);
+
+/* ID generation */
+inline unsigned long MeshIDGen(unsigned long a, unsigned long b)
+{ return (a+b)*(a+b+1)/2+a; }
 
 /* for test program */
 #ifdef TEST_PROGRAM

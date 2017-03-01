@@ -21,6 +21,10 @@
 
 #include "meshmanip.h"
 
+/* Some extern functions */
+/* ID Generator */
+//extern inline unsigned long MeshIDGen(unsigned long a, unsigned long b);
+
 /* Get size macro */
 #define GET_SIZE \
     unsigned long root_rows, root_cols;\
@@ -46,8 +50,10 @@ static int AttachL(MNode root, MNode other, unsigned long offset);
 static int AdvH(MNode* n, unsigned long off);
 /* Advance vertically (towards downside) */
 static int AdvV(MNode* n, unsigned long off);
+/* Update mesh IDs */
+static int UpdateID(MNode m, unsigned long st_r, unsigned long st_c, unsigned long nr, unsigned long nc);
 
-
+/* TODO: Add ID update code. */
 
 /* Attach to right hand Upper */
 int MeshAttachRHU(MNode root, MNode other)
@@ -226,7 +232,7 @@ static int AttachR(MNode root, MNode other, unsigned long offset)
         r_tmp->rh = o_tmp;
         o_tmp->lh = r_tmp;
 
-        /* if other node has lower node, 
+        /* if other node has lower node,
            update rd as well */
         if (o_tmp->dn) {
             r_tmp->rd = o_tmp->dn;
@@ -301,5 +307,28 @@ static int AdvV(MNode* n, unsigned long off)
 
     unsigned long i;
     for (i=0; i<off; ++i) (*n) = (*n)->dn;
+    return 0;
+}
+
+/* Update mesh IDs */
+static int UpdateID(MNode m, unsigned long st_r, unsigned long st_c, unsigned long nr, unsigned long nc)
+{
+    assert(m);
+
+    MNode tmp_h, tmp;
+    unsigned long i, j;
+
+    tmp = m;
+
+    for (i=0; i<nr; ++i) {
+        tmp_h = tmp->rh;
+        for (j=0; j<nc; ++j) {
+            tmp->id = MeshIDGen(st_r+i, st_c+j);
+            tmp = tmp->dn;
+        }
+        if (tmp_h) tmp = tmp_h;
+        else break;
+    }
+
     return 0;
 }
