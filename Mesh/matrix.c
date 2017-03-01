@@ -570,7 +570,7 @@ int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol)
                 tmp_data = SMatrixGet((*M), i+1, j+1);
                 sm_tmp = SMatrixFind((*M), tmp_data);
                 free(tmp_data);
-                BTRemove((*M)->root, sm_tmp, Keygen(i,j));     
+                BTRemove((*M)->root, sm_tmp, Keygen(i,j));
             }
         }
     }

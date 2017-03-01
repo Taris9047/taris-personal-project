@@ -218,17 +218,22 @@ static int AttachR(MNode root, MNode other, unsigned long offset)
     MeshTravH(&r_tmp);
 
     /* advance pointers by offset */
-    AdvV(&r_tmp, offset); AdvV(&o_tmp, offset);
+    AdvV(&r_tmp, offset);
 
     /* Then attach them */
     for (i=0; i<oth_rows-offset; ++i) {
+        /* attach current two nodes */
         r_tmp->rh = o_tmp;
         o_tmp->lh = r_tmp;
-        if (r_tmp->up) {
-            o_tmp->ul = r_tmp->up;
-            r_tmp->up->rd = o_tmp;
+
+        /* if other node has lower node, 
+           update rd as well */
+        if (o_tmp->dn) {
+            r_tmp->rd = o_tmp->dn;
+            o_tmp->dn->ul = r_tmp;
         }
 
+        /* Then advance the pointers */
         r_tmp = r_tmp->dn;
         o_tmp = o_tmp->dn;
     }
@@ -258,12 +263,13 @@ static int AttachL(MNode root, MNode other, unsigned long offset)
     MeshTravV(&r_tmp);
 
     /* advance pointers by offset */
-    AdvH(&r_tmp, offset); AdvH(&o_tmp, offset);
+    AdvH(&r_tmp, offset);
 
     /* Then attach them */
     for (i=0; i<oth_cols-offset; ++i) {
         r_tmp->dn = o_tmp;
         o_tmp->up = r_tmp;
+
         if (r_tmp->lh) {
             o_tmp->ul = r_tmp->lh;
             r_tmp->lh->rd = o_tmp;

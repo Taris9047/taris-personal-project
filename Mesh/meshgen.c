@@ -27,7 +27,8 @@ MNode MeshMakeRect(unsigned long rows, unsigned long cols)
 {
     MNode rect_mesh = NewMesh();
     MNode tmp_new;
-    MNode tmp;
+    MNode tmp_h;
+    MNode tmp_v;
 
     unsigned long hi, vi;
 
@@ -35,17 +36,23 @@ MNode MeshMakeRect(unsigned long rows, unsigned long cols)
         tmp_new = NewMesh();
         PushH(&rect_mesh, tmp_new);
     }
-    tmp = rect_mesh;
+    tmp_v = tmp_h = rect_mesh;
     while (1) {
         for (vi=1; vi<cols; ++vi) {
             tmp_new = NewMesh();
-            PushV(&rect_mesh, tmp_new);
+            PushV(&tmp_v, tmp_new);
         }
-        if (tmp->rh) rect_mesh = tmp->rh;
+        tmp_v = tmp_h;
+        if (tmp_v->rh) {
+            tmp_v = tmp_v->rh;
+            tmp_h = tmp_v;
+        }
         else break;
     }
 
-    MeshFindRoot(&rect_mesh);
+    MeshFindRoot(&tmp_v);
+
+    rect_mesh = tmp_v;
 
     return rect_mesh;
 }

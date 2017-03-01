@@ -18,6 +18,8 @@
 #ifndef MESH_MAIN_H
 #define MESH_MAIN_H
 
+#define TEST_PROGRAM
+
 /* A mesh point in a semiconductor material */
 /* Numerical data will be handled by general pointers */
 typedef void* mesh_data_t;
@@ -38,6 +40,8 @@ typedef struct _mesh_node {
 
 } mesh_node;
 typedef mesh_node* MNode;
+
+
 
 /* Constructors and Destructors */
 MNode NewMesh();
@@ -72,5 +76,11 @@ int MeshSwap(MNode* a, MNode* b);
 int MeshCpy(MNode* target, MNode a);
 /* Is root? (top left corner) */
 int MeshIsRoot(MNode a);
+
+/* for test program */
+#ifdef TEST_PROGRAM
+#include "utils.h"
+int MeshTravAllVerbose(MNode* m, unsigned long* n_tot);
+#endif
 
 #endif /* Include guard */

@@ -18,6 +18,8 @@
 #ifndef TEST_H
 #define TEST_H
 
+#include "utils.h"
+
 typedef struct _dummy_data {
     double x_coord;
     double y_coord;
@@ -33,14 +35,12 @@ typedef data* Data;
 /* Make a dummy data */
 Data NewData();
 Data NewDataAt(const double x, const double y);
-
-/* Mesh Traverse Verbose */
-static int MeshTravAllVerbose(MNode* m, unsigned long* n_tot);
-static int ProgressBar(unsigned long curr, unsigned long all, const char* header_txt);
-static int ProgressNum(unsigned long curr, const char* header_txt);
+Data** MakeNewDummyData(unsigned long rows, unsigned long cols);
+void DestroyDummyData(Data** d, unsigned long rows, unsigned long cols);
 
 /* Test Functions */
 void test_graph(unsigned long nh, unsigned long nv);
 void test_mesh(unsigned long nh, unsigned long nv);
+void test_mesh_manip(unsigned long ar, unsigned long ac, unsigned long br, unsigned long bc);
 
 #endif /* Include guard */

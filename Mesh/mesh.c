@@ -22,8 +22,52 @@
 #include "list.h"
 #include "mesh.h"
 
+/* Direction mapping
+    0 rh
+    1 rd
+    2 dn
+    3 lh
+    4 ul
+    5 up
+*/
+
+/* Lefty mapping matrix */
+static const int lefty_matrix[6][5] = \
+{\
+    {1, 2, 3, 4, 5},\
+    {2, 3, 4, 5, 0},\
+    {3, 4, 5, 0, 1},\
+    {4, 5, 0, 1, 2},\
+    {5, 0, 1, 2, 3},\
+    {0, 1, 2, 3, 4}\
+};
+
 /* Static functions */
-//static int MeshIsFound(MNode* m, MNode** mlist, int listlen);
+
+/* Update adjacent node information 
+   Returns 1 if nowhere to go */
+static int AdjNodeInfo(MNode m, LNode ml, int nxt_found[6], int nxt_exist[6]);
+
+/* Find left node */
+static int FindLeft(MNode* m, MNode* p, LNode ml);
+
+/* Numeric mapping for next node */
+static int Map(MNode* m, int nxt);
+
+/* returns prev direction */
+static int MapPrev(MNode m, MNode p);
+
+/* Dead end escape */
+/* returns 0 if there's no escape */
+static int Escape(MNode* m, LNode h);
+
+/* Lefty pathing table reader */
+/* Input: prev direction, next direction */
+static inline int LTbl(int p_ind, int n_ind) { return lefty_matrix[p_ind][n_ind]; }
+
+/* Traverse all */
+static LNode TravAll(MNode m);
+
 
 /* Constructors and Destructors */
 MNode NewMesh()
@@ -60,25 +104,27 @@ MNode MeshInit()
 /* Rectangular traverse destructor */
 int MeshDestroy(MNode m)
 {
-    MNode tmp;
-    MNode tmp_h;
+    // MNode tmp;
+    // MNode tmp_h;
 
-    /* empty node, nothing to destroy */
-    if (!m) return 0;
+    // /* empty node, nothing to destroy */
+    // if (!m) return 0;
 
-    while (1) {
-        tmp_h = m->dn;
-        while (m) {
-            //if (m->data) free(m->data);
-            tmp = m;
-            m = m->rh;
-            free(tmp);
-        }
-        if (tmp_h) m = tmp_h;
-        else break;
-    }
+    // while (1) {
+    //     tmp_h = m->dn;
+    //     while (m) {
+    //         //if (m->data) free(m->data);
+    //         tmp = m;
+    //         m = m->rh;
+    //         free(tmp);
+    //     }
+    //     if (tmp_h) m = tmp_h;
+    //     else break;
+    // }
 
-    return 0;
+    // return 0;
+
+    return MeshDestroyAll(m);
 }
 
 /* Complete traverse destructor */
@@ -87,12 +133,14 @@ int MeshDestroyAll(MNode m)
 {
     assert(m);
 
-    if (m->rh) MeshDestroyAll(m->rh);
-    if (m->dn) MeshDestroyAll(m->dn);
-    if (m->rd) MeshDestroyAll(m->rd);
+    LNode ml = TravAll(m);
+    LNode ml_tmp = ml;
+    while (ml_tmp) {
+        free((MNode)ml_tmp->value);
+        ml_tmp = ml_tmp->next;
+    }
 
-    //free(m->data);
-    free(m);
+    ListDestroy(ml);
 
     return 0;
 }
@@ -303,57 +351,34 @@ int MeshTrav(MNode* m, unsigned long* i, unsigned long* j)
 int MeshTravAll(MNode* m, unsigned long* n_tot)
 {
     assert(*m);
+    assert(n_tot);
 
     MNode tmp = (*m);
+    MNode tmp_prev = NULL;
     (*n_tot) = 1; /* self */
     LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
+    
+    int dead_end = 0;
+
     ListPush(&ml, tmp); /* Push in first node */
-
-    /* The search algorithm...
-       1st rh
-       2nd rd
-       3rd dn
-       4th lh
-       5th up
-    */
     while (1) {
-        if (tmp->rh && !ListFind(ml, tmp->rh)) {
-            ListPush(&ml, tmp->rh);
-            tmp = tmp->rh;
-            ++(*n_tot);
-            continue;
-        }
+        /* update adjacent node existence in history */
+        dead_end = FindLeft(&tmp, &tmp_prev, ml);
 
-        if (tmp->rd && !ListFind(ml, tmp->rd)) {
-            ListPush(&ml, tmp->rd);
-            tmp = tmp->rd;
-            ++(*n_tot);
-            continue;
+        if (!dead_end) {
+            ListPush(&ml, tmp);
+            (*n_tot)++;
         }
-
-        if (tmp->dn && !ListFind(ml, tmp->dn)) {
-            ListPush(&ml, tmp->dn);
-            tmp = tmp->dn;
-            ++(*n_tot);
-            continue;
+        /* Dead end case */
+        else {
+            /* try to escape */
+            if (!Escape(&tmp, ml)) break;
+            else { /* Escaped!! */
+                ListPush(&ml, tmp);
+                (*n_tot)++;
+                tmp_prev = NULL;
+            }
         }
-
-        if (tmp->lh && !ListFind(ml, tmp->lh)) {
-            ListPush(&ml, tmp->lh);
-            tmp = tmp->lh;
-            ++(*n_tot);
-            continue;
-        }
-
-        if (tmp->up && !ListFind(ml, tmp->up)) {
-            ListPush(&ml, tmp->up);
-            tmp = tmp->up;
-            ++(*n_tot);
-            continue;
-        }
-
-        (*m) = tmp;
-        break;
     }
 
     ListDestroy(ml);
@@ -427,6 +452,9 @@ int MeshFindRoot(MNode *m)
 
     /* If it's root, just skip all the cruds */
     if (MeshIsRoot(tmp)) return 0;
+
+    /* at first, travel down to bottom */
+    while (tmp->dn) tmp = tmp->dn;
 
     /* Traverse back x */
     while (tmp->lh || tmp->ul || tmp->up) {
@@ -547,3 +575,285 @@ int MeshIsRoot(MNode a)
 //
 //     return 0;
 // }
+
+/* Update adjacent node information */
+static int AdjNodeInfo(MNode m, LNode ml, int nxt_found[6], int nxt_exist[6])
+{
+    assert(m);
+    assert(nxt_found);
+    assert(nxt_exist);
+
+    int i;
+
+    MNode tmp = m;
+
+    if (tmp->rh) {
+        nxt_exist[0] = 1;
+        nxt_found[0] = ListFind(ml, tmp->rh);
+    }
+    if (tmp->rd) {
+        nxt_exist[1] = 1;
+        nxt_found[1] = ListFind(ml, tmp->rd);
+    }
+    if (tmp->dn) {
+        nxt_exist[2] = 1;
+        nxt_found[2] = ListFind(ml, tmp->dn);
+    }
+    if (tmp->lh) {
+        nxt_exist[3] = 1;
+        nxt_found[3] = ListFind(ml, tmp->lh);
+    }
+    if (tmp->ul) {
+        nxt_exist[4] = 1;
+        nxt_found[4] = ListFind(ml, tmp->ul);
+    }
+    if (tmp->up) {
+        nxt_exist[5] = 1;
+        nxt_found[5] = ListFind(ml, tmp->up);
+    }
+
+    /* checking if all the other paths are found */
+    for (i=0; i<6; ++i) {
+        if (nxt_exist[i] && !nxt_found[i]) return 0;
+    }
+    /* If history list has all the adjacent nodes, 
+       this is a dead end...
+       return true...
+    */
+    return 1;
+}
+
+
+/* Find left node */
+static int FindLeft(MNode* m, MNode* p, LNode ml)
+{
+    assert(*m);
+    assert(ml);
+
+    MNode curr = (*m);
+    MNode prev = (*p);
+    MNode tmp = NULL;
+    int i;
+    int prev_dir;
+    int next_dir;
+
+    /* Checking if connected nodes are in history */
+    /* nxt_found and nxt_exist has 6 slots:
+        nxt_found[0] is rh
+        nxt_found[1] is rd
+        nxt_found[2] is dn
+        nxt_found[3] is lh
+        nxt_found[4] is ul
+        nxt_found[5] is up
+    */
+    int nxt_found[6] = {0, 0, 0, 0, 0, 0};
+    int nxt_exist[6] = {0, 0, 0, 0, 0, 0};
+    int dead_end = AdjNodeInfo(curr, ml, nxt_found, nxt_exist);
+
+    /* dead end... no point to continue */
+    if (dead_end) return 1;
+
+    if (prev == curr) return 1;
+
+    /* If we don't have previous node ... 
+       Just redirect to any node we can see. */
+    if (!prev) {
+        tmp = curr;
+        for (i=0; i<6; ++i) {
+            if (nxt_exist[i] && !nxt_found[i]) {
+                Map(&tmp, i);
+                break;
+            }
+        }
+
+        if (tmp == curr)
+            return 1;
+        else {
+            (*p) = curr;
+            curr = tmp;
+            (*m) = curr;
+            return 0;
+        }
+    }
+
+    /* The lefty finder */
+    /*
+        Mapping table:
+        prev 0 -> 1 2 3 4 5
+        prev 1 -> 2 ... 5 0
+        prev 2 -> 3 4 5 0 1
+        prev 3 -> 4
+        ... (const int lefty_matrix[6][5])
+    */
+    prev_dir = MapPrev(curr, prev);
+    assert(prev_dir >= 0);
+    tmp = curr;
+
+    for (i=0; i<5; ++i) {
+    	next_dir = LTbl(prev_dir, i);
+    	if (nxt_exist[next_dir] && !nxt_found[next_dir]) {
+    		Map(&tmp, next_dir);
+    		break;
+    	}
+    }
+
+    /* Failed to find a way */
+    if (tmp == curr)
+        return 1;
+    else {
+        (*p) = curr;
+        curr = tmp;
+        (*m) = curr;
+        return 0;
+    }
+}
+
+/* Numeric mapping for next node */
+static int Map(MNode* m, int nxt)
+{
+    /*
+       1st rh
+       2nd rd
+       3rd dn
+       4th lh
+       5th ul
+       6th up
+    */
+    assert(*m);
+
+    if (nxt == 0) (*m) = (*m)->rh;
+    else if (nxt == 1) (*m) = (*m)->rd;
+    else if (nxt == 2) (*m) = (*m)->dn;
+    else if (nxt == 3) (*m) = (*m)->lh;
+    else if (nxt == 4) (*m) = (*m)->ul;
+    else if (nxt == 5) (*m) = (*m)->up;
+
+    return nxt;
+}
+
+/* Returns direction code (0-5) of prev */
+static int MapPrev(MNode m, MNode p)
+{
+    assert(m);
+
+    if (m->rh == p) return 0;
+    else if (m->rd == p) return 1;
+    else if (m->dn == p) return 2;
+    else if (m->lh == p) return 3;
+    else if (m->ul == p) return 4;
+    else if (m->up == p) return 5;
+    else return -1;
+}
+
+/* Dead end escape */
+/* returns 0 if there's no escape */
+static int Escape(MNode* m, LNode h)
+{
+    assert(*m);
+    assert(h);
+
+    MNode curr = (*m);
+    MNode tmp_h = curr;
+    
+    /* Let's start the unpassed node scan from the root */
+    MeshFindRoot(&curr);
+    while (tmp_h) {
+        while (curr) {
+            /* 
+               If we found unpassed node 
+               during search, update *m and escape!
+            */
+            if (!ListFind(h, curr)) {
+                (*m) = curr;
+                return 1;
+            }
+            curr = curr->rh;
+        }
+        curr = tmp_h->dn;
+        tmp_h = tmp_h->dn;
+    }
+
+    if (!curr && !tmp_h) return 0;
+    else return -1;
+}
+
+/* Traverse all and returns linked li */
+static LNode TravAll(MNode m)
+{
+    assert(m);
+
+    MNode tmp = m;
+    MNode tmp_prev = NULL;
+    LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
+    
+    int dead_end = 0;
+
+    ListPush(&ml, tmp); /* Push in first node */
+    while (1) {
+        /* update adjacent node existence in history */
+        dead_end = FindLeft(&tmp, &tmp_prev, ml);
+
+        if (!dead_end) {
+            ListPush(&ml, tmp);
+        }
+        /* Dead end case */
+        else {
+            /* try to escape */
+            if (!Escape(&tmp, ml)) break;
+            else { /* Escaped!! */
+                ListPush(&ml, tmp);
+                tmp_prev = NULL;
+            }
+        }
+    }
+
+    return ml;
+}
+
+
+#ifdef TEST_PROGRAM
+/* for debug */
+/* Rectangular traverse */
+int MeshTravAllVerbose(MNode* m, unsigned long* n_tot)
+{
+    assert(*m);
+    assert(n_tot);
+
+    const char* txt = "[Mesh] Mesh Traverse All Progress";
+
+    MNode tmp = (*m);
+    MNode tmp_prev = NULL;
+    (*n_tot) = 1; /* self */
+    LNode ml = ListInit(); /* Initialize list of meshes ... as linked list */
+    
+    int dead_end = 0;
+
+    ListPush(&ml, tmp); /* Push in first node */
+    while (1) {
+        /* update adjacent node existence in history */
+        dead_end = FindLeft(&tmp, &tmp_prev, ml);
+
+        if (!dead_end) {
+            ListPush(&ml, tmp);
+            (*n_tot)++;
+        }
+        /* Dead end case */
+        else {
+            // ListPush(&ml, tmp);
+            // (*n_tot)++;
+            /* try to escape */
+            if (!Escape(&tmp, ml)) break;
+            else {
+                ListPush(&ml, tmp);
+                (*n_tot)++;
+                tmp_prev = NULL;
+            }
+        }
+        ProgressNum((*n_tot), txt);
+    }
+    printf("\n");
+
+    ListDestroy(ml);
+    return 0;
+}
+#endif
