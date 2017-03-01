@@ -102,29 +102,32 @@ MNode MeshInit()
 }
 
 /* Rectangular traverse destructor */
-int MeshDestroy(MNode m)
+int MeshDestroy(MNode m, unsigned long nh, unsigned long nv)
 {
-    // MNode tmp;
-    // MNode tmp_h;
+    MNode tmp;
+    MNode tmp_h;
 
-    // /* empty node, nothing to destroy */
-    // if (!m) return 0;
+    unsigned long i, j;
 
-    // while (1) {
-    //     tmp_h = m->dn;
-    //     while (m) {
-    //         //if (m->data) free(m->data);
-    //         tmp = m;
-    //         m = m->rh;
-    //         free(tmp);
-    //     }
-    //     if (tmp_h) m = tmp_h;
-    //     else break;
-    // }
+    /* empty node, nothing to destroy */
+    if (!m) return 0;
+    i = j = 0;
 
-    // return 0;
+    while (i<nh) {
+        j = 0;
+        tmp_h = m->rh;
+        while (j<nv-1) {
+            tmp = m;
+            m = m->dn;
+            free(tmp);
+            ++j;
+        }
+        if (tmp_h) m = tmp_h;
+        else break;
+        ++i;
+    }
 
-    return MeshDestroyAll(m);
+    return 0;
 }
 
 /* Complete traverse destructor */
@@ -301,7 +304,7 @@ unsigned long MeshTravH(MNode* m)
 {
     assert(*m);
 
-    unsigned long i = 0;
+    unsigned long i = 1;
     while((*m)->rh) {
         (*m) = (*m)->rh; ++i;
     }
@@ -313,7 +316,7 @@ unsigned long MeshTravV(MNode* m)
 {
     assert(*m);
 
-    unsigned long i = 0;
+    unsigned long i = 1;
     while((*m)->dn) {
         (*m) = (*m)->dn; ++i;
     }
@@ -328,8 +331,8 @@ int MeshTrav(MNode* m, unsigned long* i, unsigned long* j)
     assert(i);
     assert(j);
 
-    (*i) = 0;
-    (*j) = 0;
+    (*i) = 1;
+    (*j) = 1;
 
     MNode tmp_v = (*m);
 
@@ -340,7 +343,7 @@ int MeshTrav(MNode* m, unsigned long* i, unsigned long* j)
         }
         (*m) = tmp_v->dn;
         tmp_v = tmp_v->dn;
-        (*i) = 0;
+        (*i) = 1;
         ++(*j);
     }
 
@@ -753,10 +756,10 @@ static int Escape(MNode* m, LNode h)
     assert(h);
 
     MNode curr = (*m);
-    MNode tmp_h = curr;
-    
     /* Let's start the unpassed node scan from the root */
     MeshFindRoot(&curr);
+    MNode tmp_h = curr;
+
     while (tmp_h) {
         while (curr) {
             /* 
@@ -777,7 +780,7 @@ static int Escape(MNode* m, LNode h)
     else return -1;
 }
 
-/* Traverse all and returns linked li */
+/* Traverse all and returns linked list */
 static LNode TravAll(MNode m)
 {
     assert(m);

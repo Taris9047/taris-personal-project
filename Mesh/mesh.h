@@ -47,7 +47,7 @@ typedef mesh_node* MNode;
 MNode NewMesh();
 MNode NewMeshData(mesh_data_t data);
 MNode MeshInit();
-int MeshDestroy(MNode m);
+int MeshDestroy(MNode m, unsigned long nh, unsigned long nv);
 int MeshDestroyAll(MNode m);
 
 /* Simple methods to grow mesh... */

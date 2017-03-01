@@ -171,7 +171,7 @@ void test_mesh(unsigned long nh, unsigned long nv)
     printf("[Mesh] Traverse all method: %lu\n", cnt);
 
     printf("[Mesh] Ok, destroying the mesh\n\n");
-    MeshDestroy(root);
+    MeshDestroy(root, nh, nv);
 
     /* free data array */
     DestroyDummyData(d, nh, nv);
@@ -180,6 +180,8 @@ void test_mesh(unsigned long nh, unsigned long nv)
 /* mesh manipulation test */
 void test_mesh_manip(unsigned long ar, unsigned long ac, unsigned long br, unsigned long bc)
 {
+    assert( ar >= 2 && ac >= 2 && br >= 1 && bc >= 1);
+
     printf("[Mesh] *** Testing mesh manipulation ***\n");
 
     Data** data_a = MakeNewDummyData(ar, ac);
@@ -211,11 +213,13 @@ void test_mesh_manip(unsigned long ar, unsigned long ac, unsigned long br, unsig
 
     //MeshTravRect(&tmp, n_tot);
     //printf("[Mesh] Found meshes: %lu\n", *n_tot);
+    tmp = A;
     MeshTravAllVerbose(&tmp, n_tot);
 
     printf("[Mesh] Destroying attached mesh ... \n");
-    MeshDestroyAll(A);
-    //MeshDestroyAll(B);
+    //MeshDestroyAll(A);
+    MeshDestroy(A, ar, ac);
+    MeshDestroy(B, br, bc);
 
     DestroyDummyData(data_a, ar, ac);
     DestroyDummyData(data_b, br, bc);
