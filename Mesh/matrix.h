@@ -88,6 +88,8 @@ matrix_data_t MatrixGet(Matrix M, unsigned long row, unsigned long col);
 /* Find stuff */
 MatrixNode MatrixFind(Matrix M, matrix_data_t data);
 int MatrixFindAll(Matrix M, matrix_data_t data, MatrixNode** found);
+/* Resize */
+int MatrixResize(Matrix* M, unsigned long nrow, unsigned long ncol);
 
 /* Some arithmatic operations */
 Matrix MatrixAdd(Matrix A, Matrix B);

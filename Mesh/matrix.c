@@ -220,6 +220,69 @@ int MatrixFindAll(Matrix M, matrix_data_t data, MatrixNode** found)
     return 0;
 }
 
+
+/* Resize */
+int MatrixResize(Matrix* M, unsigned long nrow, unsigned long ncol)
+{
+    assert(*M);
+    assert(nrow > 0 && ncol > 0);
+
+    Matrix tmpM = (*M);
+    Matrix newM, tmp;
+    unsigned long m_nrow = tmpM->rows;
+    unsigned long m_ncol = tmpM->cols;
+    unsigned long i, j;
+
+    /* Same size? trivial. return 0 and be done with it */
+    if (m_nrow == nrow && m_ncol == ncol) return 0;
+
+    /* Assign a new matrix */
+    newM = InitMatrix(nrow, ncol);
+
+    /* expanding */
+    if (m_nrow < nrow && m_ncol < ncol) {
+        for (i=0; i<nrow; ++i) {
+            for (j=0; j<ncol; ++j) {
+                if (i<m_nrow && j<m_ncol) newM->matrix[i][j] = tmpM->matrix[i][j];
+                else MSetZero(&newM->matrix[i][j]->data);
+            }
+        }
+    }
+
+    /* Shrinking */
+    else if (m_nrow > nrow && m_ncol > ncol) {
+        for (i=0; i<m_nrow; ++i) {
+            for (j=0; j<m_ncol; ++j) {
+                newM->matrix[i][j] = tmpM->matrix[i][j];
+            }
+        }
+    }
+
+    /* Overlapping cases */
+    else if (m_nrow >= nrow && m_ncol <= ncol) {
+        for (i=0; i<m_nrow; ++i) {
+            for (j=0; j<ncol; ++j) {
+                if (i>=nrow) MSetZero(&newM->matrix[i][j]->data);
+                else newM->matrix[i][j] = tmpM->matrix[i][j];
+            }
+        }
+    }
+    else if (m_nrow <= nrow && m_ncol >= ncol) {
+        for (i=0; i<nrow; ++i) {
+            for (j=0; j<m_ncol; ++j) {
+                if (j>=ncol) MSetZero(&newM->matrix[i][j]->data);
+                else newM->matrix[i][j] = tmpM->matrix[i][j];
+            }
+        }
+    }
+
+    /* swapping!! */
+    tmp = tmpM;
+    (*M) = newM;
+    DestroyMatrix(tmp);
+    return 0;
+}
+
 /* Some arithmatic operations for regular matrix */
 Matrix MatrixAdd(Matrix A, Matrix B)
 {

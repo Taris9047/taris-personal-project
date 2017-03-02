@@ -24,6 +24,8 @@
 #define MATRIX_D_T int
 #include "matrix.h"
 
+//#define SPARSE_MODE
+
 /* data type */
 typedef void* graph_data_t;
 
@@ -47,6 +49,7 @@ typedef struct _graph_node {
 typedef graph_node* GNode;
 
 /* Graph root */
+#ifndef SPARSE_MODE
 typedef struct _graph_root {
     GNode graph;
     unsigned long vertices;
@@ -54,6 +57,16 @@ typedef struct _graph_root {
     Matrix adj;
 } graph_root;
 typedef graph_root* Graph;
+#else
+typedef struct _graph_root {
+    GNode graph;
+    unsigned long vertices;
+    unsigned long edges;
+    SMatrix adj;
+} graph_root;
+typedef graph_root* Graph;
+#endif /* SPARSE_MODE */
+
 
 /* Constructors and Destructors */
 GNode InitGraph();
