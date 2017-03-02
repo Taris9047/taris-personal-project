@@ -60,7 +60,13 @@ int MeshAttachRHU(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_rows < other_rows) MeshSwap(&root, &other);
+    if (root_rows < other_rows) {
+        UpdateID(root, 0, other_cols, root_rows, root_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(other, 0, root_cols, other_rows, other_cols);
+    }
 
     AttachRU(root, other);
 
@@ -71,7 +77,13 @@ int MeshAttachRHL(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_rows < other_rows) MeshSwap(&root, &other);
+    if (root_rows < other_rows) {
+        UpdateID(root, other_rows-root_rows, other_cols, other_rows, other_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(other, root_rows-other_rows, root_cols, other_rows, other_cols);
+    }
 
     AttachLR(root, other);
 
@@ -82,8 +94,13 @@ int MeshAttachLHU(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_rows > other_rows) MeshSwap(&root, &other);
-
+    if (root_rows > other_rows) {
+        UpdateID(other, 0, root_cols, other_rows, other_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(root, 0, other_cols, root_rows, root_cols);
+    }
     AttachRU(other, root);
 
     return 0;
@@ -93,7 +110,13 @@ int MeshAttachLHL(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_rows > other_rows) MeshSwap(&root, &other);
+    if (root_rows > other_rows) {
+        UpdateID(other, root_rows-other_rows, root_cols, other_rows, other_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(root, other_rows-root_rows, other_cols, other_rows, other_cols);
+    }
 
     AttachRL(other, root);
 
@@ -105,7 +128,13 @@ int MeshAttachBL(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_cols < other_cols) MeshSwap(&root, &other);
+    if (root_cols < other_cols) {
+        UpdateID(root, other_rows, 0, root_rows, root_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(other, root_rows, 0, other_rows, other_cols);
+    }
 
     AttachLL(root, other);
 
@@ -116,7 +145,13 @@ int MeshAttachBR(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_cols < other_cols) MeshSwap(&root, &other);
+    if (root_cols < other_cols) {
+        UpdateID(root, other_rows, other_cols-root_cols, root_rows, root_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(other, root_rows, root_cols-other_cols, other_rows, other_cols);
+    }
 
     AttachLR(root, other);
 
@@ -127,7 +162,13 @@ int MeshAttachUL(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_cols > other_cols) MeshSwap(&root, &other);
+    if (root_cols > other_cols) {
+        UpdateID(other, root_rows, 0, other_rows, other_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(root, other_rows, 0, root_rows, root_cols);
+    }
 
     AttachLL(other, root);
 
@@ -138,7 +179,13 @@ int MeshAttachUR(MNode root, MNode other)
 {
     GET_SIZE
 
-    if (root_cols > other_cols) MeshSwap(&root, &other);
+    if (root_cols > other_cols) {
+        UpdateID(other, root_rows, root_cols-other_cols, other_rows, other_cols);
+        MeshSwap(&root, &other);
+    }
+    else {
+        UpdateID(root, other_rows, other_cols-root_cols, root_rows, root_cols);
+    }
 
     AttachLR(other, root);
 
