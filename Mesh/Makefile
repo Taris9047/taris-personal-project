@@ -4,6 +4,8 @@ WARNS=-Wall
 RWARNS=-Wall
 CFLAGS=-ggdb3 $(WARNS)
 
+SRCDIR=./src
+
 CC_DETECT := `command -v clang`
 ifeq ($(CC_DETECT), "")
 CC=gcc
@@ -27,8 +29,8 @@ AR=ar
 
 TESTF_NAME=meshtest
 
-SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
-HEADERS=$(filter-out test.h, $(wildcard *.h))
+SOURCES=$(filter-out test.c, $(wildcard $(SRCDIR)/*.c $(SRCDIR)/*.C $(SRCDIR)/*.m))
+HEADERS=$(filter-out test.h, $(wildcard $(SRCDIR)/*.h))
 OBJS=$(SOURCES:.c=.o)
 
 SYS := $(shell gcc -dumpmachine)
@@ -56,10 +58,8 @@ $(DLIBNAME): $(OBJS)
 	$(CC) $(CFLAGS) -fPIC $(OBJS) -shared -o $(DLIBNAME)
 
 clean:
-	rm -rfv *.o
-	rm -rfv *.so
-	rm -rfv *.a
+	rm -rfv *.o $(SRCDIR)/*.o
+	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
+	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
-	rm -rfv *.so *.dll *.pyc
-	rm -rfv *.dSYM
 	rm -rfv ./$(TESTF_NAME)

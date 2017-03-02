@@ -18,7 +18,7 @@
 #ifndef MESH_TEST_H
 #define MESH_TEST_H
 
-#include "utils.h"
+#include "src/utils.h"
 
 typedef struct _dummy_data {
     double x_coord;

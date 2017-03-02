@@ -20,12 +20,13 @@
 
 #define TEST_PROGRAM
 
-#include "list.h"
-#include "meshgen.h"
-#include "graph.h"
+#include "src/list.h"
+#include "src/meshgen.h"
+#include "src/graph.h"
+#include "src/utils.h"
+#include "src/vertice.h"
+
 #include "test.h"
-#include "utils.h"
-#include "vertice.h"
 
 #define NUM_HORIZONTAL 200
 #define NUM_VERTICAL 150
