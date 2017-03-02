@@ -15,8 +15,8 @@
   Taylor Shin, Feb. 17 2017
 
  ***************************************/
-#ifndef TEST_H
-#define TEST_H
+#ifndef MESH_TEST_H
+#define MESH_TEST_H
 
 #include "utils.h"
 

@@ -16,8 +16,8 @@
 
  ***************************************/
 
-#ifndef MESHGRAPH_H
-#define MESHGRAPH_H
+#ifndef MESH_GRAPH_H
+#define MESH_GRAPH_H
 
 #include "list.h"
 

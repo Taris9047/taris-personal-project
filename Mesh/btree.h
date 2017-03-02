@@ -15,8 +15,8 @@
   Taylor Shin, Feb. 21 2017
 
  ***************************************/
-#ifndef MESHBTREE_H
-#define MESHBTREE_H
+#ifndef MESH_BTREE_H
+#define MESH_BTREE_H
 
 /* datatype */
 typedef void* btree_data_t;

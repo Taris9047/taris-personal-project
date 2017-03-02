@@ -43,7 +43,17 @@ typedef struct _mesh_node {
 } mesh_node;
 typedef mesh_node* MNode;
 
-
+/* Mesh control node */
+/* May not implemented yet... we can deal everything with nodes */
+/* control node for 2D mesh set */
+// typedef struct _mesh_root {
+//     MNode root_node;
+//
+//     unsigned long rows;
+//     unsigned long cols;
+//
+// } mesh_root;
+// typedef mesh_root* Mesh;
 
 /* Constructors and Destructors */
 MNode NewMesh();

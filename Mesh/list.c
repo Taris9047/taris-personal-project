@@ -18,6 +18,29 @@
 
 
 /* Constructors and destructors */
+/* List control node Constructor */
+List NewList()
+{
+    List nl = (List)malloc(sizeof(List));
+    assert(nl);
+
+    nl->root_node = NULL;
+    nl->len = 0;
+
+    return nl;
+}
+
+/* List control node Destructor */
+int DeleteList(List l)
+{
+    assert(l);
+    if (l->root_node) ListDestroy(l->root_node);
+    free(l);
+    return 0;
+}
+
+
+
 /* Constructor */
 LNode ListInit()
 {
@@ -44,6 +67,38 @@ int ListDestroy(LNode l)
 
     return 0;
 }
+
+
+/* Push, Pop, Search with root node */
+/* push */
+int PushList(List l, list_data_t value)
+{
+    assert(l);
+    (l->len)++;
+    if (!l->root_node) l->root_node = ListInit();
+    return ListPush(&l->root_node, value);
+}
+
+/* pop */
+list_data_t PopList(List l)
+{
+    assert(l);
+    if (!l->root_node) return NULL;
+    else {
+        (l->len)--;
+        return ListPop(&l->root_node);
+    }
+}
+
+/* search */
+LNode SearchList(List l, list_data_t value)
+{
+    assert(l);
+    if (!l->root_node) return NULL;
+    else return ListSearch(l->root_node, value);
+}
+
+
 
 
 /* Push, Pop, Search */
@@ -134,6 +189,14 @@ int ListAssign(LNode l, list_data_t* values, const unsigned long values_len)
 }
 
 /* Some more utils */
+
+/* Get length of list from control node */
+unsigned long LenList(List l)
+{
+    assert(l);
+    return l->len;
+}
+
 /* Get length of list */
 unsigned long ListLen(LNode l)
 {
