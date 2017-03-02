@@ -48,30 +48,38 @@ typedef struct _graph_node {
 } graph_node;
 typedef graph_node* GNode;
 
-/* Graph root */
-#ifndef SPARSE_MODE
+/* Graph root (with regular matrix) */
 typedef struct _graph_root {
-    GNode graph;
+    GNode root;
     unsigned long vertices;
     unsigned long edges;
-    Matrix adj;
+    Matrix adjMatrix;
 } graph_root;
 typedef graph_root* Graph;
-#else
-typedef struct _graph_root {
-    GNode graph;
+
+/* Graph root (with sparse matrix) */
+typedef struct _graph_root_s {
+    GNode root;
     unsigned long vertices;
     unsigned long edges;
-    SMatrix adj;
-} graph_root;
-typedef graph_root* Graph;
-#endif /* SPARSE_MODE */
+    SMatrix adjMatrix;
+} graph_root_s;
+typedef graph_root_s* SGraph;
+
 
 
 /* Constructors and Destructors */
+/* Control node */
+/* Regular matrix */
+Graph NewGraph();
+int DeleteGraph(Graph g);
+/* Sparse matrix */
+SGraph NewSGraph();
+int DeleteSGraph(SGraph g);
+
+/* for nodes */
 GNode InitGraph();
 GNode InitGraphData(graph_data_t data);
-GNode NewGraph();
 GNode GraphMakeNode(graph_data_t data);
 
 int GraphDestroy(GNode r);

@@ -31,6 +31,59 @@ static unsigned int Keygen(btree_data_t data);
 
 
 /* Constructors and Destructors */
+/* Control node */
+/* Regular matrix */
+/* Constructor */
+Graph NewGraph()
+{
+    Graph g = (Graph)malloc(sizeof(graph_root));
+    assert(g);
+
+    g->root = InitGraph();
+    g->vertices = 0;
+    g->edges = 0;
+    g->adjMatrix = InitMatrix(1, 1);
+
+    return g;
+}
+
+/* Destructor */
+int DeleteGraph(Graph g)
+{
+    assert(g);
+
+    if (g->root) GraphDestroy(g->root);
+    if (g->adjMatrix) DestroyMatrix(g->adjMatrix);
+
+    return 0;
+}
+
+/* Sparse matrix */
+/* Constructor */
+SGraph NewSGraph()
+{
+    SGraph g = (SGraph)malloc(sizeof(graph_root_s));
+    assert(g);
+
+    g->root = InitGraph();
+    g->vertices = 0;
+    g->edges = 0;
+    g->adjMatrix = InitSMatrix(1, 1);
+
+    return g;
+}
+/* Destructor */
+int DeleteSGraph(SGraph g)
+{
+    assert(g);
+
+    if (g->root) GraphDestroy(g->root);
+    if (g->adjMatrix) DestroySMatrix(g->adjMatrix);
+
+    return 0;
+}
+
+/* for nodes */
 /* Constructors */
 GNode InitGraph()
 {
@@ -53,11 +106,6 @@ GNode InitGraphData(graph_data_t data)
     gn->data = data;
     gn->index = (unsigned long)data;
     return gn;
-}
-/* Just an alias for InitGraph() */
-GNode NewGraph()
-{
-    return InitGraph();
 }
 /* Make graph node with data (alias) */
 GNode GraphMakeNode(graph_data_t data)
