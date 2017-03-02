@@ -34,7 +34,24 @@ typedef struct _bintree_node {
 } bintree_node;
 typedef bintree_node* BTNode;
 
+/* Binary tree control node */
+typedef struct _bintree_root {
+    BTNode root_node;
+    unsigned long nodes;
+} bintree_root;
+typedef bintree_root* BTree;
+
 /* Methods */
+/* Constructors and Destructors */
+BTree NewBT();
+int DeleteBT(BTree bt);
+
+/* Manipulation methods for control nodes */
+int InsertBT(BTree bt, btree_data_t stuff, unsigned long key);
+int RemoveBT(BTree bt, btree_data_t stuff, unsigned long key);
+int SetBT(BTree bt, btree_data_t stuff, unsigned long key);
+btree_data_t SearchBT(BTree bt, unsigned long key);
+
 /* Initializers */
 BTNode InitBT();
 BTNode InitBTData(btree_data_t init_data);

@@ -24,8 +24,14 @@
 /* Vertice node definition */
 typedef struct _vertice {
     MNode points[3]; /* Three points - mesh nodes */
-    struct _vertice* adjverts; /* Three adjacent vertices */
+    struct _vertice* adjverts[3]; /* Three adjacent vertices */
+    /*
+        adjverts[0] -> line between point[0] and point[1]
+        adjverts[1] -> line between point[1] and point[2]
+        adjverts[2] -> line between point[2] and point[0]
+    */
     int adjnum; /* how many adjacents? */
+    int is_root; /* is this a root vertice? */
 } vertice;
 typedef vertice* VNode;
 
@@ -37,9 +43,21 @@ typedef struct _vertice_root {
 typedef vertice_root* Vertice;
 
 /* Constructors and Destructors */
+/* Root node */
+Vertice NewVertice();
+int DeleteVertice(Vertice v);
 
+/* Node manipulation */
+VNode InitVNode();
+VNode MakeVNode(MNode a, MNode b, MNode c);
+int DestroyVNode(VNode v);
 
 /* Manipulation methods */
+/* Control nodes */
+/* Nodes */
+int AttachVNode(VNode r, VNode o);
+int DetachVNode(VNode r, VNode o);
+int AttachPoint(VNode r, MNode m, VNode* n, int face);
 
 
 /* Other utils */

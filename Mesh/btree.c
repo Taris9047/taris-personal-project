@@ -33,6 +33,59 @@ static BTNode MakeNode(btree_data_t init_data, BTNode parent_node, unsigned long
 /* Swap two nodes */
 //static int Swap(BTNode A, BTNode B);
 
+/* Constructors and Destructors */
+BTree NewBT()
+{
+    BTree bt = (BTree)malloc(sizeof(bintree_root));
+    assert(bt);
+
+    bt->root_node = NULL;
+    bt->nodes = 0;
+
+    return bt;
+}
+
+int DeleteBT(BTree bt)
+{
+    assert(bt);
+    if (bt->root_node) BTDestroy(bt->root_node);
+    free(bt);
+    return 0;
+}
+
+/* Manipulation methods for control nodes */
+int InsertBT(BTree bt, btree_data_t stuff, unsigned long key)
+{
+    assert(bt);
+    if (!bt->root_node) bt->root_node = InitBT();
+    bt->nodes++;
+    return BTInsert(bt->root_node, stuff, key);
+}
+int RemoveBT(BTree bt, btree_data_t stuff, unsigned long key)
+{
+    assert(bt);
+    if (!bt->root_node) return 1;
+    bt->nodes--;
+    return BTRemove(bt->root_node, stuff, key);
+}
+int SetBT(BTree bt, btree_data_t stuff, unsigned long key)
+{
+    assert(bt);
+    if (!bt->root_node) return 1;
+    return BTSetItem(bt->root_node, stuff, key);
+}
+btree_data_t SearchBT(BTree bt, unsigned long key)
+{
+    assert(bt);
+    if (!bt->root_node) return NULL;
+
+    BTNode bt_n = BTSearch(bt->root_node, key);
+
+    return bt_n->stuff;
+}
+
+
+
 /* Initializers */
 BTNode InitBT()
 {

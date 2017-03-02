@@ -21,7 +21,7 @@
 /* List control node Constructor */
 List NewList()
 {
-    List nl = (List)malloc(sizeof(List));
+    List nl = (List)malloc(sizeof(list_root));
     assert(nl);
 
     nl->root_node = NULL;
