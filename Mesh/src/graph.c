@@ -19,16 +19,23 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 #include "btree.h"
 #include "graph.h"
+#include "path.h"
 
 /* Some static methods */
-static int IsRoot(GNode r);
-static unsigned int Keygen(btree_data_t data);
+//static int IsRoot(GNode r);
+//static unsigned int Keygen(btree_data_t data);
 
+static int Push(GNode* r, GNode other);
+static int Attach(GNode r, GNode other);
 
+static int AdjMExpand(Graph g);
+static int AdjMAssign(Graph g, unsigned long key, List keys);
+
+static matrix_data_t MatData(MATRIX_D_T num);
+List VerticeList(GNode v[], unsigned long vlen);
 
 /* Constructors and Destructors */
 /* Control node */
@@ -39,7 +46,7 @@ Graph NewGraph()
     Graph g = (Graph)malloc(sizeof(graph_root));
     assert(g);
 
-    g->root = InitGraph();
+    g->root_node = init_graph_node();
     g->vertices = 0;
     g->edges = 0;
     g->adjMatrix = InitMatrix(1, 1);
@@ -52,8 +59,9 @@ int DeleteGraph(Graph g)
 {
     assert(g);
 
-    if (g->root) GraphDestroy(g->root);
+    if (g->root_node) graph_node_destroy(g->root_node);
     if (g->adjMatrix) DestroyMatrix(g->adjMatrix);
+    free(g);
 
     return 0;
 }
@@ -65,7 +73,7 @@ SGraph NewSGraph()
     SGraph g = (SGraph)malloc(sizeof(graph_root_s));
     assert(g);
 
-    g->root = InitGraph();
+    g->root_node = init_graph_node();
     g->vertices = 0;
     g->edges = 0;
     g->adjMatrix = InitSMatrix(1, 1);
@@ -77,77 +85,79 @@ int DeleteSGraph(SGraph g)
 {
     assert(g);
 
-    if (g->root) GraphDestroy(g->root);
+    if (g->root_node) graph_node_destroy(g->root_node);
     if (g->adjMatrix) DestroySMatrix(g->adjMatrix);
+    free(g);
 
     return 0;
 }
 
 /* for nodes */
 /* Constructors */
-GNode InitGraph()
+GNode init_graph_node()
 {
     GNode gn = (GNode)malloc(sizeof(graph_node)); assert(gn);
     assert(gn);
-    LNode lnks = ListInit();
-    LNode prvs = ListInit();
+    LNode lnks = list_node_init();
+    LNode prvs = list_node_init();
 
     gn->data = NULL;
     gn->links = lnks;
     gn->prevs = prvs;
     gn->index = 0;
+    gn->edges = 0;
 
     return gn;
 }
 /* Constructors with data */
-GNode InitGraphData(graph_data_t data)
+GNode init_graph_node_data(graph_data_t data)
 {
-    GNode gn = InitGraph();
+    GNode gn = init_graph_node();
     gn->data = data;
     gn->index = (unsigned long)data;
     return gn;
 }
 /* Make graph node with data (alias) */
-GNode GraphMakeNode(graph_data_t data)
+GNode graph_make_node(graph_data_t data)
 {
-    return InitGraphData(data);
+    return init_graph_node_data(data);
 }
 
 
 /* Destructor */
-int GraphDestroy(GNode r)
+int graph_node_destroy(GNode r)
 {
     assert(r);
 
     GNode tmp = r;
     GNode ntmp;
-    BTNode history = InitBT();
+    BTNode history = bt_node_init();
     LNode nxt_tmp = tmp->links;
-    unsigned long key = Keygen(tmp);
+    unsigned long key = r->index;
 
     /* Populate a list of graphs (In fact, a binary tree) */
     while (1) {
         /* If current node isn't included in the history ... */
-        if (!BTSearch(history, key))
-            BTInsert(history, tmp, key);
+        if (!bt_search(history, key))
+            bt_insert(history, tmp, key);
         else break;
 
         /* Now find a suitable next node */
         while (nxt_tmp) {
             if (nxt_tmp->value) {
                 ntmp = (GNode)nxt_tmp->value;
-                GraphDestroy(ntmp);
+                graph_node_destroy(ntmp);
                 nxt_tmp = nxt_tmp->next;
             }
             else break;
         }
-        ListDestroy(tmp->links);
-        ListDestroy(tmp->prevs);
+        list_node_destroy(tmp->links);
+        list_node_destroy(tmp->prevs);
         free(tmp);
     }
 
     /* clean up history */
-    BTDestroy(history);
+    bt_node_destroy(history);
 
     return 0;
 }
@@ -156,110 +166,130 @@ int GraphDestroy(GNode r)
 
 
 /* Manipulatin methods */
-int GraphPush(GNode* r, GNode other)
+/* Attach a node to a graph */
+int GraphAttach(Graph g, GNode n, List keys)
+{
+    assert(g);
+    assert(n);
+    assert(keys);
+
+    n->index = (g->vertices++);
+    /* Update adjmatrix */
+    AdjMExpand(g);
+    AdjMAssign(g, n->index, keys);
+    g->edges = keys->len;
+
+    GNode tmp_gn;
+    unsigned long i;
+    unsigned long key;
+    for (i=0; i<keys->len; ++i) {
+        key = *(unsigned long*)LAt(keys, i);
+        graph_node_find(g, &tmp_gn, key);
+        Attach(tmp_gn, n);
+    }
+
+    return 0;
+}
+
+/* Attach to some graph */
+int graph_node_attach(GNode n, GNode* adjs, unsigned long n_adjs)
+{
+    assert(n);
+
+    unsigned long i;
+    for (i=0; i<n_adjs; ++i) Attach(adjs[i], n);
+
+    return 0;
+}
+
+/* Find node */
+int graph_node_find(Graph g, GNode* r, unsigned long key)
+{
+    assert(g);
+
+    (*r) = NULL;
+
+    GNode tmp = g->root_node;
+
+
+
+
+    return 0;
+}
+
+
+/* Node manipulation */
+static int Push(GNode* r, GNode other)
 {
     assert((*r));
     assert(other);
 
-    ListPush(&(*r)->prevs, other);
-    ListPush(&other->links, (*r));
+    list_node_push(&(*r)->prevs, other);
+    list_node_push(&other->links, (*r));
+
     (*r) = other;
 
     return 0;
 }
-int GraphAttach(GNode r, GNode other)
+static int Attach(GNode r, GNode other)
 {
     assert(r);
     assert(other);
 
-    ListPush(&r->links, other);
-    ListPush(&other->prevs, r);
+    list_node_push(&r->links, other);
+    list_node_push(&other->prevs, r);
 
     return 0;
 }
 
-
-
-
-/* Utilities */
-/* Traverse the entire graph and count node numbers */
-int GraphTraverse(GNode* r, unsigned long* n_tot)
+/* Adjacent matrix manipulation */
+/* expand adjacent matrix for additional graph node */
+static int AdjMExpand(Graph g)
 {
-    assert(*r);
-    assert(n_tot);
+    assert(g);
+    assert(g->adjMatrix);
 
-    GNode tmp = (*r);
-    GNode ntmp;
-    unsigned long num_g = 0;
-    BTNode history = InitBT();
-    LNode nxt_tmp = tmp->links;
+    g->vertices++;
 
-    unsigned long p_num = 0;
-    unsigned long p_num_tmp;
+    return MatrixResize(&g->adjMatrix, g->adjMatrix->rows+1, g->adjMatrix->cols+1);
+}
 
-    unsigned long key = Keygen(tmp);
+/* Assign new node into adjacent matrix */
+/* inputs: the graph itself, new key, and the adjacent key list */
+static int AdjMAssign(Graph g, unsigned long key, List keys)
+{
+    assert(g);
+    assert(keys);
 
-    while (1) {
-        /* If current node isn't included in the history ... */
-        if (!BTSearch(history, key))
-            BTInsert(history, tmp, key);
-        else break;
-
-        /* Now find a suitable next node */
-        while (nxt_tmp) {
-            if (nxt_tmp->value) {
-                ntmp = (GNode)nxt_tmp->value;
-                GraphTraverse(&ntmp, &p_num_tmp);
-                p_num += p_num_tmp;
-                nxt_tmp = nxt_tmp->next;
-            }
-            else break;
-        }
-        //nxt_tmp = tmp->links;
-        ++num_g;
-        num_g += p_num;
+    /* the key must be larger than any element in keys at this moment */
+    Matrix tmpM = g->adjMatrix;
+    matrix_data_t one;
+    unsigned long tmp_key;
+    unsigned long i;
+    for (i=0; i<keys->len; ++i) {
+        tmp_key = *(unsigned long*)LAt(keys, i);
+        one = MatData(1);
+        MatrixSet(tmpM, tmp_key, key, one);
+        MatrixSet(tmpM, key, tmp_key, one);
     }
 
-    /* Update node numbers */
-    (*n_tot) = num_g;
-
-    /* clean up history */
-    BTDestroy(history);
-
     return 0;
 }
 
-/* Find graph node that holds designated data */
-int GraphFind(GNode* r, GNode* found, graph_data_t data)
+/* Matrix node genration with int */
+static matrix_data_t MatData(MATRIX_D_T num)
 {
-    assert(*r);
-
-    if (!IsRoot(*r)) {
-        (*found) = NULL;
-        return 1;
-    }
-
-
-    return 0;
+    matrix_data_t d = (matrix_data_t)malloc(sizeof(MATRIX_D_T));
+    assert(d);
+    (*d) = num;
+    return d;
 }
 
-
-
-/* Static functions */
-/* Check if it's root */
-static int IsRoot(GNode r)
+/* Make vertice list */
+List VerticeList(GNode v[], unsigned long vlen)
 {
-    assert(r);
-    if (ListIsEmpty(r->prevs)) return 0;
-    else return 1;
-}
-
-/* keygen for binary tree */
-static unsigned int Keygen(btree_data_t data)
-{
-    unsigned int k = 0;
-    uintptr_t idata = (uintptr_t)data;
-    k = (unsigned int)idata;
-
-    return k;
+    List l = NewList();
+    unsigned long i;
+    for (i=0; i<vlen; ++i) LPush(l, v[i]);
+    return l;
 }

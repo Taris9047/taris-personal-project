@@ -48,7 +48,7 @@ int Mesh3DDestroy(Mesh3D m3d)
 {
     assert(m3d);
 
-    if (m3d->root_node) GraphDestroy(m3d->root_node);
+    if (m3d->root_node) graph_node_destroy(m3d->root_node);
     free(m3d);
 
     return 0;

@@ -30,28 +30,30 @@ typedef list_root* List;
 
 /* Constructors and destructors */
 List NewList();
-LNode ListInit();
 int DeleteList(List l);
-int ListDestroy(LNode l);
+/* for individual Nodes */
+LNode list_node_init();
+int list_node_destroy(LNode l);
 
 /* Push, Pop, Search with root node */
-int PushList(List l, list_data_t value);
-list_data_t PopList(List l);
-LNode SearchList(List l, list_data_t value);
+int LPush(List l, list_data_t value);
+list_data_t LPop(List l);
+LNode LSearch(List l, list_data_t value);
+list_data_t LAt(List l, unsigned long ind);
 
 /* Push, Pop, Search */
-int ListPush(LNode* l, list_data_t value);
-list_data_t ListPop(LNode* l);
-LNode ListSearch(LNode l, list_data_t value);
-int ListAssign(LNode l, list_data_t* values, const unsigned long values_len);
+int list_node_push(LNode* l, list_data_t value);
+list_data_t list_node_pop(LNode* l);
+LNode list_node_search(LNode l, list_data_t value);
+int list_node_assign(LNode l, list_data_t* values, const unsigned long values_len);
 
 /* Some more utils */
-unsigned long LenList(List l);
+unsigned long LLen(List l);
 
-unsigned long ListLen(LNode l);
-int ListFind(LNode l, list_data_t value);
-int ListFindRoot(LNode* l);
-int ListDelete(LNode l, list_data_t value);
-int ListIsEmpty(LNode l);
+unsigned long list_node_len(LNode l);
+int list_node_find(LNode l, list_data_t value);
+int list_node_find_root(LNode* l);
+int list_node_delete_node(LNode l, list_data_t value);
+int list_node_isempty(LNode l);
 
 #endif /* Include guard */

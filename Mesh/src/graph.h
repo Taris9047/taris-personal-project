@@ -43,6 +43,7 @@ typedef struct _graph_node {
     LNode links; /* Other nodes linked from this one */
     LNode prevs; /* Other nodes linked To this one */
 
+    unsigned long edges; /* Number of outgoing edges from this node */
     unsigned long index; /* Binary tree search key */
 
 } graph_node;
@@ -50,7 +51,7 @@ typedef graph_node* GNode;
 
 /* Graph root (with regular matrix) */
 typedef struct _graph_root {
-    GNode root;
+    GNode root_node;
     unsigned long vertices;
     unsigned long edges;
     Matrix adjMatrix;
@@ -59,7 +60,7 @@ typedef graph_root* Graph;
 
 /* Graph root (with sparse matrix) */
 typedef struct _graph_root_s {
-    GNode root;
+    GNode root_node;
     unsigned long vertices;
     unsigned long edges;
     SMatrix adjMatrix;
@@ -78,26 +79,24 @@ SGraph NewSGraph();
 int DeleteSGraph(SGraph g);
 
 /* for nodes */
-GNode InitGraph();
-GNode InitGraphData(graph_data_t data);
-GNode GraphMakeNode(graph_data_t data);
+GNode init_graph_node();
+GNode init_graph_node_data(graph_data_t data);
+GNode graph_make_node(graph_data_t data);
 
-int GraphDestroy(GNode r);
+int graph_node_destroy(GNode r);
 
-/* Manipulatin methods */
-int GraphPush(GNode* r, GNode other);
-int GraphAttach(GNode r, GNode other);
+/* Manipulation methods */
+int GraphAttach(Graph g, GNode n, List keys);
+/* for nodes */
+int graph_node_attach(GNode n, GNode* adjs, unsigned long n_adjs);
+int graph_node_find(Graph g, GNode* r, unsigned long key);
+
+// int GraphPush(GNode* r, GNode other);
+// int GraphAttach(GNode r, GNode other);
 
 /* Utilities */
-int GraphTraverse(GNode* r, unsigned long* n_tot);
-int GraphFind(GNode* r, GNode* found, graph_data_t data);
+//int GraphTraverse(GNode* r, unsigned long* n_tot);
+//int GraphFind(GNode* r, GNode* found, graph_data_t data);
 
-/* Add/Sub/Multiply/Divide matrix data */
-void MAddSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-void MSubSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-void MMulSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-void MDivSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-void MRemSc(matrix_data_t* r, matrix_data_t a, matrix_data_t b);
-void MSetZero();
 
 #endif /* Include guard */

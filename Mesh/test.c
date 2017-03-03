@@ -235,45 +235,48 @@ void test_graph(unsigned long nh, unsigned long nv)
 {
     printf("[GTest] *** Testing graph generation ***\n");
 
-    GNode tgr = InitGraph();
-    GNode tgr_r_b = tgr;
-    GNode tmpgr_h;
-    GNode tmpgr_v;
-    Data** tmp_data_ary;
-    unsigned long i, j;
-    unsigned long num_g;
 
-    /* prepare data */
-    printf("[GTest] Making dummy data.\n");
-    tmp_data_ary = MakeNewDummyData(nh, nv);
 
-    /* Make some crappy graph structure with the 2D dataset */
-    printf("[GTest] Making graph ...\n");
-    tmpgr_h = tgr;
-    for (i=0; i<nh; ++i) {
-        if (i==0) tgr->data = tmp_data_ary[0][0];
-        else {
-            tmpgr_h = InitGraphData(tmp_data_ary[i][0]);
-            GraphAttach(tgr, tmpgr_h);
-        }
-        if (i > 0) tgr = tmpgr_h;
 
-        for (j=1; j<nh; ++j) {
-            tmpgr_v = InitGraphData(tmp_data_ary[i][j]);
-            GraphAttach(tgr, tmpgr_v);
-            tgr = tmpgr_v;
-        }
-        tgr = tmpgr_h;
-    }
-    tgr = tgr_r_b;
+    // GNode tgr = InitGraph();
+    // GNode tgr_r_b = tgr;
+    // GNode tmpgr_h;
+    // GNode tmpgr_v;
+    // Data** tmp_data_ary;
+    // unsigned long i, j;
+    // unsigned long num_g;
 
-    printf("[GTest] Testing graph traverse\n");
-    GraphTraverse(&tgr, &num_g);
-    printf("[GTest] Found nodes during traverse: %lu\n", num_g);
-
-    printf("[GTest] Destroying graph\n");
-    GraphDestroy(tgr);
-
-    printf("[GTest] Cleaning up dummy data ...\n");
-    DestroyDummyData(tmp_data_ary, nh, nv);
+    // /* prepare data */
+    // printf("[GTest] Making dummy data.\n");
+    // tmp_data_ary = MakeNewDummyData(nh, nv);
+    //
+    // /* Make some crappy graph structure with the 2D dataset */
+    // printf("[GTest] Making graph ...\n");
+    // tmpgr_h = tgr;
+    // for (i=0; i<nh; ++i) {
+    //     if (i==0) tgr->data = tmp_data_ary[0][0];
+    //     else {
+    //         tmpgr_h = InitGraphData(tmp_data_ary[i][0]);
+    //         GraphAttach(tgr, tmpgr_h);
+    //     }
+    //     if (i > 0) tgr = tmpgr_h;
+    //
+    //     for (j=1; j<nh; ++j) {
+    //         tmpgr_v = InitGraphData(tmp_data_ary[i][j]);
+    //         GraphAttach(tgr, tmpgr_v);
+    //         tgr = tmpgr_v;
+    //     }
+    //     tgr = tmpgr_h;
+    // }
+    // tgr = tgr_r_b;
+    //
+    // printf("[GTest] Testing graph traverse\n");
+    // GraphTraverse(&tgr, &num_g);
+    // printf("[GTest] Found nodes during traverse: %lu\n", num_g);
+    //
+    // printf("[GTest] Destroying graph\n");
+    // GraphDestroy(tgr);
+    //
+    // printf("[GTest] Cleaning up dummy data ...\n");
+    // DestroyDummyData(tmp_data_ary, nh, nv);
 }

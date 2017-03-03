@@ -472,14 +472,14 @@ SMatrix InitSMatrix(unsigned long rows, unsigned long cols)
 
     sm->rows = rows;
     sm->cols = cols;
-    sm->root = InitBT();
+    sm->root = bt_node_init();
 
     unsigned long i, j;
     for (i=0; i<rows; ++i) {
         for (j=0; j<cols; ++j) {
             smn = NewSNode(i+1, j+1, NULL);
             key = Keygen(i, j);
-            BTInsert(sm->root, smn, key);
+            bt_insert(sm->root, smn, key);
         }
     }
 
@@ -499,7 +499,7 @@ SMatrix InitZeroSMatrix(unsigned long rows, unsigned long cols)
     for (i=0; i<rows; ++i) {
         for (j=0; j<cols; ++j) {
             key = Keygen(i, j);
-            tmp_bt = BTSearch(sm->root, key);
+            tmp_bt = bt_search(sm->root, key);
             zero = (matrix_data_t)malloc(sizeof(MATRIX_D_T));
             assert(zero);
             MSetZero(&zero);
@@ -521,12 +521,12 @@ void DestroySMatrix(SMatrix M)
     for (i=0; i<M->rows; ++i) {
         for (j=0; j<M->cols; ++j) {
             key = Keygen(i, j);
-            tmp_bt = BTSearch(M->root, key);
+            tmp_bt = bt_search(M->root, key);
             tmp_m = (SMatrixNode)tmp_bt->stuff;
             DestroySNode(tmp_m);
         }
     }
-    BTDestroy(M->root);
+    bt_node_destroy(M->root);
 
     free(M);
 }
@@ -541,7 +541,7 @@ int SMatrixSet(SMatrix M, unsigned long row, unsigned long col, matrix_data_t da
 
     unsigned int key = Keygen(row-1, col-1);
 
-    BTNode tmp_bt = BTSearch(M->root, key);
+    BTNode tmp_bt = bt_search(M->root, key);
     SMatrixNode tmp_m = (SMatrixNode)tmp_bt->stuff;
 
     if (tmp_m) tmp_m->data = data;
@@ -556,7 +556,7 @@ matrix_data_t SMatrixGet(SMatrix M, unsigned long row, unsigned long col)
 
     unsigned int key = Keygen(row-1, col-1);
 
-    BTNode tmp_bt = BTSearch(M->root, key);
+    BTNode tmp_bt = bt_search(M->root, key);
     return ((SMatrixNode)(tmp_bt->stuff))->data;
 }
 
@@ -574,7 +574,7 @@ SMatrixNode SMatrixFind(SMatrix M, matrix_data_t data)
     for (i=0; i<M->rows; ++i) {
         for (j=0; j<M->cols; ++j) {
             key = Keygen(i, j);
-            tmp_bt = BTSearch(M->root, key);
+            tmp_bt = bt_search(M->root, key);
             tmp_sm = (SMatrixNode)(tmp_bt->stuff);
             if (data == tmp_sm->data) return tmp_sm;
         }
@@ -623,7 +623,7 @@ int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol)
                 tmp_data = SMatrixGet((*M), i+1, j+1);
                 sm_tmp = SMatrixFind((*M), tmp_data);
                 free(tmp_data);
-                BTRemove((*M)->root, sm_tmp, Keygen(i,j));
+                bt_remove((*M)->root, sm_tmp, Keygen(i,j));
             }
         }
     }
@@ -633,7 +633,7 @@ int SMatrixResize(SMatrix* M, unsigned long nrow, unsigned long ncol)
                 tmp_data = SMatrixGet((*M), i+1, j+1);
                 sm_tmp = SMatrixFind((*M), tmp_data);
                 free(tmp_data);
-                BTRemove((*M)->root, sm_tmp, Keygen(i,j));
+                bt_remove((*M)->root, sm_tmp, Keygen(i,j));
             }
         }
     }

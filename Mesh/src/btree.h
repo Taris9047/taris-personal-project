@@ -43,38 +43,38 @@ typedef bintree_root* BTree;
 
 /* Methods */
 /* Constructors and Destructors */
-BTree NewBT();
-int DeleteBT(BTree bt);
+BTree BTNew();
+int BTDelete(BTree bt);
 
 /* Manipulation methods for control nodes */
-int InsertBT(BTree bt, btree_data_t stuff, unsigned long key);
-int RemoveBT(BTree bt, btree_data_t stuff, unsigned long key);
-int SetBT(BTree bt, btree_data_t stuff, unsigned long key);
-btree_data_t SearchBT(BTree bt, unsigned long key);
+int BTInsert(BTree bt, btree_data_t stuff, unsigned long key);
+int BTRemove(BTree bt, btree_data_t stuff, unsigned long key);
+int BTSet(BTree bt, btree_data_t stuff, unsigned long key);
+btree_data_t BTSearch(BTree bt, unsigned long key);
 
 /* Initializers */
-BTNode InitBT();
-BTNode InitBTData(btree_data_t init_data);
+BTNode bt_node_init();
+BTNode bt_node_init_data(btree_data_t init_data);
 
 /* Destructor */
-void FreeBT(BTNode b);
-void BTDestroy(BTNode b);
+void bt_node_free(BTNode b);
+void bt_node_destroy(BTNode b);
 
 /* Getting some statistics */
-unsigned long LenBT(BTNode b);
-unsigned long DepthBT(BTNode b);
+unsigned long bt_len(BTNode b);
+unsigned long bt_depth(BTNode b);
 
 /* Insert and remove elements */
-int BTInsert(BTNode b, btree_data_t vpStuff, unsigned long key);
-int BTRemove(BTNode b, btree_data_t vpStuff, unsigned long key);
+int bt_insert(BTNode b, btree_data_t vpStuff, unsigned long key);
+int bt_remove(BTNode b, btree_data_t vpStuff, unsigned long key);
 
 /* Get/set item from node */
 // kinda pointless...
 // btree_data_t BTGetItem(BTNode b, unsigned long key);
-int BTSetItem(BTNode b, btree_data_t vpStuff, unsigned long key);
+int bt_setitem(BTNode b, btree_data_t vpStuff, unsigned long key);
 
 /* Search node for specific item
    (Call it multiple times if duplicate values in the tree)*/
-BTNode BTSearch(BTNode b, unsigned long key);
+BTNode bt_search(BTNode b, unsigned long key);
 
 #endif /* Include guard */
