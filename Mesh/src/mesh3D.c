@@ -29,17 +29,21 @@ Mesh3D Mesh3DInit()
     Mesh3D m3d = (Mesh3D)malloc(sizeof(mesh_3d));
     assert(m3d);
 
-    m3d->root_node = NULL;
-    m3d->nodes = 0;
-    m3d->vertices = 0;
+    m3d->nodes = NewGraph();
+    m3d->xnodes = 0;
+    m3d->ynodes = 0;
+    m3d->znodes = 0;
 
     return m3d;
 }
 
-Mesh3D Mesh3DInitGraph(GNode g)
+Mesh3D Mesh3DInitGraph(Graph g, unsigned long xn, unsigned long yn, unsigned long zn)
 {
     Mesh3D m3d = Mesh3DInit();
-    m3d->root_node = g;
+    m3d->nodes = g;
+    m3d->xnodes = xn;
+    m3d->ynodes = yn;
+    m3d->znodes = zn;
 
     return m3d;
 }
@@ -48,7 +52,7 @@ int Mesh3DDestroy(Mesh3D m3d)
 {
     assert(m3d);
 
-    if (m3d->root_node) graph_node_destroy(m3d->root_node);
+    if (m3d->nodes) DeleteGraph(m3d->nodes);
     free(m3d);
 
     return 0;

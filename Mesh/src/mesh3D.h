@@ -19,20 +19,29 @@
 #ifndef MESH3D_H
 #define MESH3D_H
 
+/* TODO: Maybe finish this later ... let's finish up 2D mesh first */
+
 #include "graph.h"
 
 typedef struct _mesh_3d {
-    GNode root_node;
+    Graph nodes; /* Each node is graph */
+    /*
+        Each graph has...
+        1. multiple adjacent nodes (it's 3D)
+        2. information on how to navigate.
+        3. and index.
+    */
 
-    unsigned long nodes;
-    unsigned long vertices;
+    unsigned long xnodes;
+    unsigned long ynodes;
+    unsigned long znodes;
 
 } mesh_3d;
 typedef mesh_3d* Mesh3D;
 
 /* Constructors and Destructors */
 Mesh3D Mesh3DInit();
-Mesh3D Mesh3DInitGraph(GNode g);
+Mesh3D Mesh3DInitGraph(Graph g, unsigned long xn, unsigned long yn, unsigned long zn);
 
 int Mesh3DDestroy(Mesh3D m3d);
 

@@ -15,7 +15,15 @@
 
  #include "list.h"
 
-
+/* Static method */
+static int node_trav(LNode* l)
+{
+    assert(*l);
+    LNode tmp = (*l);
+    while (tmp->next) tmp = tmp->next;
+    (*l) = tmp;
+    return 0;
+}
 
 /* Constructors and destructors */
 /* List control node Constructor */
@@ -115,7 +123,25 @@ list_data_t LAt(List l, unsigned long ind)
     else return NULL;
 }
 
+/* Reverse the list */
+int LReverse(List l)
+{
+    LNode tmp = l->root_node;
+    LNode tmp_r;
+    LNode t;
 
+    while (tmp->next) {
+        tmp_r = tmp->next;
+        t = tmp->next;
+        tmp->next = tmp->prev;
+        tmp->prev = t;
+        tmp = tmp_r;
+    }
+
+    l->root_node = tmp;
+
+    return 0;
+}
 
 /* Push, Pop, Search */
 /* FIFO Push */
@@ -213,6 +239,21 @@ unsigned long LLen(List l)
     return l->len;
 }
 
+/* Copy List Node */
+int LCpy(List l, const List o)
+{
+    assert(o);
+    assert(l);
+
+    if (l->root_node) list_node_destroy(l->root_node);
+    l->root_node = list_node_init();
+
+    list_node_copy(&l->root_node, o->root_node);
+    l->len = o->len;
+
+    return 0;
+}
+
 /* Get length of list */
 unsigned long list_node_len(LNode l)
 {
@@ -273,4 +314,26 @@ int list_node_isempty(LNode l)
 
     if (l->value || l->next) return 0;
     else return 1;
+}
+
+/* Copy nodes */
+int list_node_copy(LNode* l, const LNode o)
+{
+    assert(o);
+
+    LNode tmp = (*l);
+    LNode o_tmp = o;
+
+    if (tmp) list_node_destroy(tmp);
+
+    tmp = list_node_init();
+    node_trav(&o_tmp);
+    while (o_tmp) {
+        list_node_push(&tmp, o_tmp);
+        o_tmp = o_tmp->prev;
+    }
+
+    (*l) = tmp;
+
+    return 0;
 }

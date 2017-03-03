@@ -20,6 +20,8 @@
 #define MESH_GRAPH_H
 
 #include "list.h"
+#define GNodeLAt(lst, num) ((GNode)LAt(lst, num))
+#define ULONGLAt(lst, num) (*(unsigned long*)LAt(lst, num))
 
 #define MATRIX_D_T int
 #include "matrix.h"

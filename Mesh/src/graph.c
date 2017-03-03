@@ -28,7 +28,8 @@
 //static int IsRoot(GNode r);
 //static unsigned int Keygen(btree_data_t data);
 
-static int Push(GNode* r, GNode other);
+//static int Push(GNode* r, GNode other);
+static int GNodeCpy(GNode* a, GNode c);
 static int Attach(GNode r, GNode other);
 
 static int AdjMExpand(Graph g);
@@ -49,7 +50,7 @@ Graph NewGraph()
     g->root_node = init_graph_node();
     g->vertices = 0;
     g->edges = 0;
-    g->adjMatrix = InitMatrix(1, 1);
+    g->adjMatrix = InitZeroMatrix(1, 1);
 
     return g;
 }
@@ -183,7 +184,7 @@ int GraphAttach(Graph g, GNode n, List keys)
     unsigned long i;
     unsigned long key;
     for (i=0; i<keys->len; ++i) {
-        key = *(unsigned long*)LAt(keys, i);
+        key = ULONGLAt(keys, i);
         graph_node_find(g, &tmp_gn, key);
         Attach(tmp_gn, n);
     }
@@ -209,35 +210,65 @@ int graph_node_find(Graph g, GNode* r, unsigned long key)
 
     (*r) = NULL;
 
-    GNode tmp = g->root_node;
+    int stat;
 
+    GPath g_path = PathInit(g);
+    List path = PathFindShort(g_path, key);
 
+    (*r) = GNodeLAt(path, 0);
 
+    stat = DeleteList(path);
+    if (stat) return stat;
+    stat = DeletePath(g_path);
+    if (stat) return stat;
 
     return 0;
 }
 
 
 /* Node manipulation */
-static int Push(GNode* r, GNode other)
+// static int Push(GNode* r, GNode other)
+// {
+//     assert((*r));
+//     assert(other);
+//
+//     list_node_push(&(*r)->prevs, other);
+//     list_node_push(&other->links, (*r));
+//
+//     (*r) = other;
+//
+//     return 0;
+// }
+
+/* Copy a new GNode */
+static int GNodeCpy(GNode* a, GNode c)
 {
-    assert((*r));
-    assert(other);
+    assert(c);
 
-    list_node_push(&(*r)->prevs, other);
-    list_node_push(&other->links, (*r));
+    if (*a) graph_node_destroy(*a);
 
-    (*r) = other;
+    GNode tmp = init_graph_node();
+    tmp->data = c->data;
+    list_node_copy(&tmp->links, c->links);
+    list_node_copy(&tmp->prevs, c->prevs);
+    tmp->index = c->index;
+    tmp->edges = c->edges;
+
+    (*a) = tmp;
 
     return 0;
 }
+
 static int Attach(GNode r, GNode other)
 {
     assert(r);
     assert(other);
 
+    if (!r->data) return GNodeCpy(&r, other);
+
     list_node_push(&r->links, other);
     list_node_push(&other->prevs, r);
+    r->edges++;
 
     return 0;
 }
@@ -267,7 +298,7 @@ static int AdjMAssign(Graph g, unsigned long key, List keys)
     unsigned long tmp_key;
     unsigned long i;
     for (i=0; i<keys->len; ++i) {
-        tmp_key = *(unsigned long*)LAt(keys, i);
+        tmp_key = ULONGLAt(keys, i);
         one = MatData(1);
         MatrixSet(tmpM, tmp_key, key, one);
         MatrixSet(tmpM, key, tmp_key, one);
