@@ -1,3 +1,12 @@
+/**
+* @Author: taris
+* @Date:   2017-03-04T21:14:28-06:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-04T22:09:22-06:00
+*/
+
+
+
 /************************************
 
  Test program for bignum
@@ -15,8 +24,8 @@
 #include "bignum.h"
 
 /* Some default numbers and operations */
-#define DEF_NUMA 100
-#define DEF_NUMB 500
+const char* DEF_NUMA = "100";
+const char* DEF_NUMB = "500";
 #define DEF_OP ADD
 
 /* Check operation */
@@ -53,12 +62,13 @@ static enum oper check_op(const char* op_str)
 /* The main function */
 int main(int argc, char* argv[])
 {
-    int numA, numB;
+    const char* numA;
+    const char* numB;
     enum oper op;
 
     if (argc == 4) {
-        numA = atoi(argv[1]);
-        numB = atoi(argv[2]);
+        numA = argv[1];
+        numB = argv[2];
         op = check_op(argv[3]);
     }
     else {

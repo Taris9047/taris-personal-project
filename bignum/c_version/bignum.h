@@ -1,3 +1,10 @@
+/**
+* @Author: taris
+* @Date:   2017-03-04T21:40:25-06:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-04T22:31:21-06:00
+*/
+
 /************************************
 
  Bignum library
@@ -9,6 +16,60 @@
 
 *************************************/
 
+#ifndef BIGNUM_MAIN_LIB_H
+#define BIGNUM_MAIN_LIB_H
+
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "list.h"
+
+/* Bignum number types */
+enum bntype {INT, MONEY, SCI, ENG} bnt;
+
+/* datatype of each node */
+typedef short* bn_t;
+
+/* Bignum struct */
+typedef struct _bignum {
+    /* List stores cardinal numbers before the decimal point */
+    List cnum;
+    /* List store numbers after decimal point or Power sign */
+    List dnum;
+    /* cardinal number sign, 0 for -, 1 for + */
+    int sgn_cnum;
+    /* Power number sign (only for ENG type) */
+    int sgn_pwr;
+
+    /* Actual type of number */
+    enum bntype num_type;
+} bignum;
+typedef bignum* Bignum;
+
+
+/* Constructors and destructors */
+/* New bignum from string */
+Bignum NewBignum(const char* num_str);
+
+/* Destructors */
+int DeleteBignum(Bignum bn);
+int DeleteBignums(Bignum bns, ...);
+
+/* Arithematic operations */
+Bignum BNAdd(Bignum A, Bignum B);
+Bignum BNSub(Bignum A, Bignum B);
+Bignum BNMul(Bignum A, Bignum B);
+Bignum BNDiv(Bignum A, Bignum B);
+Bignum BNRem(Bignum A, Bignum B);
+
+/* New bignum from string */
+Bignum NewBignum(const char* num_str);
+
+/* Some shortcuts */
+Bignum BNIntZero();
+Bignum BNSciZero();
+Bignum BNEngZero();
+Bignum BNMonZero();
+
+
+#endif /* Include guard */

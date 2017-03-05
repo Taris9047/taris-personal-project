@@ -1,3 +1,10 @@
+# @Author: taris
+# @Date:   2017-03-04T21:14:28-06:00
+# @Last modified by:   taris
+# @Last modified time: 2017-03-04T22:17:57-06:00
+
+
+
 #CFLAGS=-g -O2 -Wall -fPIC
 CFLAGS=-ggdb3
 SRCDIR=./
@@ -6,8 +13,8 @@ TARGET=test
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
 
-SOURCES=$(filter-out test.c, $(wildcard $(SRCDIR)/*.c $(SRCDIR)/*.C $(SRCDIR)/*.m))
-HEADERS=$(filter-out test.h, $(wildcard $(SRCDIR)/*.h))
+SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
+HEADERS=$(filter-out test.h, $(wildcard *.h))
 OBJS=$(SOURCES:.c=.o)
 
 ifeq ($(UNAME), linux)
