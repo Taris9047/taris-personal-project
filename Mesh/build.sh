@@ -11,7 +11,8 @@ source ./clean.sh
 make clean && reset && clear
 
 if [[ $ARG == "" || $ARG == "debug" ]] ; then
-    make -j$(CPUNUM) all
+    make -j $CPUNUM all
 elif [[ $ARG == "release" ]] ; then
-    make -j$(CPUNUM) release
+    # It doesn't work at this moment.
+    make -j $CPUNUM release
 fi
