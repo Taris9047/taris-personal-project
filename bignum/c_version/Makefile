@@ -1,11 +1,9 @@
 # @Author: taris
 # @Date:   2017-03-04T21:14:28-06:00
 # @Last modified by:   taris
-# @Last modified time: 2017-03-04T22:17:57-06:00
+# @Last modified time: 2017-03-05T07:45:56-06:00
 
-
-
-#CFLAGS=-g -O2 -Wall -fPIC
+WARNS=-Wall
 CFLAGS=-ggdb3
 SRCDIR=./
 TARGET=test

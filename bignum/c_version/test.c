@@ -2,7 +2,7 @@
 * @Author: taris
 * @Date:   2017-03-04T21:14:28-06:00
 * @Last modified by:   taris
-* @Last modified time: 2017-03-04T22:09:22-06:00
+* @Last modified time: 2017-03-05T09:39:02-06:00
 */
 
 
@@ -29,7 +29,7 @@ const char* DEF_NUMB = "500";
 #define DEF_OP ADD
 
 /* Check operation */
-static enum oper {ADD, SUB, MUL, DIV, REM} _oper;
+enum oper {ADD, SUB, MUL, DIV, REM};
 static const char add_op[] = "add";
 static const char sub_op[] = "sub";
 static const char mul_op[] = "mul";
@@ -56,6 +56,8 @@ static enum oper check_op(const char* op_str)
 
     rc = strcmp(rem_op, op_str);
     if (!rc) return REM;
+
+    return ADD;
 }
 
 
@@ -77,8 +79,42 @@ int main(int argc, char* argv[])
         op = DEF_OP;
     }
 
+    Bignum bnA = NewBignum(numA);
+    Bignum bnB = NewBignum(numB);
+    Bignum bnResult;
 
+    char* bnResult_str;
+    char op_str[1];
 
+    switch (op) {
+        case ADD:
+            bnResult = BNAdd(bnA, bnB);
+            op_str[0] = '+';
+            break;
+        case SUB:
+            bnResult = BNSub(bnA, bnB);
+            op_str[0] = '-';
+            break;
+        case MUL:
+            bnResult = BNMul(bnA, bnB);
+            op_str[0] = '*';
+            break;
+        case DIV:
+            bnResult = BNDiv(bnA, bnB);
+            op_str[0] = '/';
+            break;
+        case REM:
+            bnResult = BNRem(bnA, bnB);
+            op_str[0] = '%';
+            break;
+    }
+
+    bnResult_str = BN_to_str(bnResult);
+
+    printf("%s %s %s = %s\n", numA, op_str, numB, bnResult_str);
+
+    DeleteBignums(3, bnA, bnB, bnResult);
+    free(bnResult_str);
 
     return 0;
 }
