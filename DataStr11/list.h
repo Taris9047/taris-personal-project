@@ -63,7 +63,7 @@ public:
     // Constructors and destructors
     List();
     List(List& l);
-    ~List();
+    virtual ~List();
 };
 
 #include "list.tcc"

@@ -63,7 +63,7 @@ public:
 		efield = std::sqrt(std::pow((double)std::rand(), 2.0));
 		potential = std::sqrt(std::pow((double)std::rand(), 2.0));
 	}
-	~Dummy() {;}
+	virtual ~Dummy() {;}
 };
 
 /* The test class */

@@ -12,7 +12,7 @@
 
 //#include <swap>
 
-#include "list.h"
+//#include "list.h"
 
 /****************************************************
  LNode::Manipulation methods
