@@ -13,6 +13,10 @@
 #ifndef CPP11_MESH_H
 #define CPP11_MESH_H
 
+#include <memory>
+#include <cassert>
+
+#include "utils.h"
 
 
 
@@ -20,7 +24,6 @@
 
 
 
-
-
+#include "mesh.tcc"
 
 #endif /* Include guard */

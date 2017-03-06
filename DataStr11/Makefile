@@ -17,29 +17,40 @@ AR=ar
 
 TESTF_NAME=DataStrTest
 
-SOURCES=$(wildcard *.c *.C *.m)
-CPPSOURCES=$(wildcard *.cpp *.cc)
+SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
+CXXSOURCES=$(filter-out test.cc, $(wildcard *.cpp *.cc *.tcc))
 HEADERS=$(wildcard *.h)
 CPPHEADERS=$(wildcard *.hpp *.h)
 OBJS=$(SOURCES:.c=.o)
-CXXOBJS=$(CPPSOURCES:.cc=.Po)
+CXXOBJS=$(CXXSOURCES:.cc=.Po)
 
-LIBNAME=libdatastr.a
+SYS := $(shell gcc -dumpmachine)
+ifneq (, $(findstring linux, $(SYS)))
+	LIBNAMEV=libmesh-$(VERNUM_SHORT).a
+	DLIBNAMEV=libmesh-$(VERNUM_SHORT).so
+	LIBNAME=libmesh.a
+	DLIBNAME=libmesh.so
+else ifneq (, $(findstring cygwin, $(SYS)))
+	LIBNAMEV=libmesh-$(VERNUM_SHORT).dll.a
+	DLIBNAMEV=cygmesh-$(VERNUM_SHORT).dll
+	LIBNAME=libmesh.dll.a
+	DLIBNAME=cygmesh.dll
+else ifneq (, $(findstring darwin, $(SYS)))
+	LIBNAMEV=libmesh-$(VERNUM_SHORT).a
+	DLIBNAMEV=libmesh-$(VERNUM_SHORT).so
+	LIBNAME=libmesh.a
+	DLIBNAME=libmesh.so
+endif
 
 # .c.o: $(CPPSOURCES) $(HEADERS)
 # 	$(CXX) $(CFLAGS) -c $< -o $@
 
-%.Po: $(CPPSOURCES) $(HEADERS)
-	$(CXX) $(CFLAGS) -c $< -o $@
+%.Po: $(CXXSOURCES) $(HEADERS) Makefile
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-all: $(LIBNAME) test.cc
-	$(CXX) $(CFLAGS) test.cc $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
+all: $(CXXSOURCES) $(HEADERS) test.cc test.h
+	$(CXX) -ggdb3 -std=c++11 test.cc  -o $(TESTF_NAME) $(LIBS)
 
-release: $(LIBNAME) test.cc
-	$(CXX) $(RCXXFLAGS) test.cc $(LIBNAME) -o $(TESTF_NAME)_cpp $(LIBS)
-
-$(LIBNAME): $(CXXOBJS)
-	$(AR) rcs $@ $(CXXOBJS)
 
 clean:
 	rm -rfv *.Po
