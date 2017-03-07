@@ -21,8 +21,9 @@
 
 /* Binary tree node class */
 template <class T, class KeyT>
-class BTNode {
-private:
+class BTNode : public std::enable_shared_from_this<BTNode<T, KeyT>>
+{
+public:
     std::shared_ptr<T> data; /* the data pointer */
     std::shared_ptr<BTNode<T, KeyT>> left; /* left branch */
     std::shared_ptr<BTNode<T, KeyT>> right; /* right branch */
@@ -30,7 +31,6 @@ private:
 
     KeyT key; /* the key. Datatype must be comparable */
 
-public:
 	/* Access functions */
 	T Get() const;
 	void Set(T ndata);

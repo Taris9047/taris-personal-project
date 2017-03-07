@@ -42,9 +42,10 @@ private:
 	int y;
 	double efield;
 	double potential;
-	int seed;
 
 public:
+	int keygen() { return (x+y)*(x+y+1)/2 + x; }
+
 	std::string Print() {
 		std::stringstream ss;
 		ss << "X: " << x << ", " \
@@ -75,8 +76,36 @@ private:
 	ULLONG cols;
 
 	std::unique_ptr<List<Dummy>> list;
-	// std::unique_ptr<BTree<Dummy>> btree;
+	std::unique_ptr<BTree<Dummy, int>> btree;
 	// std::unique_ptr<Mesh<Dummy>> mesh;
+
+	int* index_memory;
+	int index_mem_size;
+	void set_ind_mem(int size) {
+		if (index_memory) delete [] index_memory;
+		index_memory = new int[size];
+		index_mem_size = size;
+	}
+	void del_ind_mem() {
+		if (index_memory) delete [] index_memory;
+		index_mem_size = 0;
+	}
+	int rand_ind(int max_index) {
+		int tmp;
+		for (;;) {
+			tmp = (int)std::rand()%max_index;
+			if (!ind_dup(tmp)) break;
+		}
+		return tmp;
+	}
+	bool ind_dup(int num) {
+		assert(!index_memory || index_mem_size == 0);
+		int i;
+		for (i=0; i<index_mem_size; ++i) {
+			if (num == index_memory[i]) return true;
+		}
+		return false;
+	}
 
 public:
 	void TestList();

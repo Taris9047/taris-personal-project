@@ -51,8 +51,7 @@ void BTNode<T, KeyT>::SetLeft(std::shared_ptr<BTNode<T, KeyT>> btnode)
 	}
 
 	left = std::move(btnode);
-	std::shared_ptr<BTNode<T, KeyT>> tmp = this;
-	btnode->SetParent(tmp);
+	btnode->parent = this->shared_from_this();
 }
 template <class T, class KeyT>
 void BTNode<T, KeyT>::SetRight(std::shared_ptr<BTNode<T, KeyT>> btnode)
@@ -63,8 +62,7 @@ void BTNode<T, KeyT>::SetRight(std::shared_ptr<BTNode<T, KeyT>> btnode)
 	}
 
 	right = std::move(btnode);
-	std::shared_ptr<BTNode<T, KeyT>> tmp = this;
-	btnode->SetParent(tmp);
+	btnode->parent = this->shared_from_this();
 }
 template <class T, class KeyT>
 void BTNode<T, KeyT>::SetParent(std::shared_ptr<BTNode<T, KeyT>> btnode)
@@ -144,6 +142,8 @@ std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::FindMin(
 	std::shared_ptr<BTNode<T, KeyT>> tmp = r->GetLeft();
 	if (tmp) FindMin(tmp->GetLeft());
 	else return tmp;
+
+	return nullptr;
 }
 
 /* Traverse */
@@ -177,7 +177,7 @@ T BTree<T, KeyT>::Get(KeyT& k) const
 template <class T, class KeyT>
 void BTree<T, KeyT>::Set(T& ndata, KeyT& k)
 {
-	std::shared_ptr<BTNode<T, KeyT>> tmp = this->Find(k, root_node);
+	std::shared_ptr<BTNode<T, KeyT>> tmp = Find(k, root_node);
 	tmp->Set(ndata);
 }
 
@@ -186,21 +186,22 @@ template <class T, class KeyT>
 bool BTree<T, KeyT>::RemNode(
 	std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r)
 {
-	std::shared_ptr<BTNode<T, KeyT>> tmp = Find(bt, r);
+	KeyT tmp_key = bt->GetKey();
+	std::shared_ptr<BTNode<T, KeyT>> tmp = Find(tmp_key, r);
 
 	if (!tmp) return false;
 
 	/* Ok, we've found the target node */
-	std::shared_ptr<BTNode<T, KeyT>> tmp_l = tmp->GetLeft();
-	std::shared_ptr<BTNode<T, KeyT>> tmp_r = tmp->GetRight();
-	std::shared_ptr<BTNode<T, KeyT>> tmp_p = tmp->GetParent();
+	std::shared_ptr<BTNode<T, KeyT>> tmp_l = tmp->left;
+	std::shared_ptr<BTNode<T, KeyT>> tmp_r = tmp->right;
+	std::shared_ptr<BTNode<T, KeyT>> tmp_p = tmp->parent;
 	std::shared_ptr<BTNode<T, KeyT>> tmp_min;
 	std::shared_ptr<BTNode<T, KeyT>> tmp_min_p;
 	bool me_left;
 
 	/* If I don't have any parent ... I am the root @.@!! */
 	if (tmp_p == nullptr) {
-		if (!tmp_l && !tmp_r) delete tmp;
+		if (!tmp_l && !tmp_r) tmp.reset();
 		else if (tmp_l && !tmp_r) {
 			root_node = std::move(tmp_l);
 		}
@@ -211,16 +212,16 @@ bool BTree<T, KeyT>::RemNode(
 			/* Find minimum fron right side */
 			tmp_min = FindMin(tmp_r);
 			// tmp_min must be lefty
-			tmp_min_p = tmp_min->GetParent();
-			tmp_min_p->SetLeft(nullptr);
+			tmp_min_p = tmp_min->parent;
+			tmp_min_p->left = nullptr;
 			/* Then make it root */
 			root_node = std::move(tmp_min);
-			tmp_min->SetParent(nullptr);
-			tmp_min->SetLeft(tmp_l);
-			tmp_min->SetRight(tmp_r);
+			tmp_min->parent = nullptr;
+			tmp_min->left = tmp_l;
+			tmp_min->right = tmp_r;
 		}
-		root_node->SetParent(nullptr);
-		delete tmp;
+		root_node->parent = nullptr;
+		tmp.reset();
 		return true;
 	}
 
@@ -229,30 +230,30 @@ bool BTree<T, KeyT>::RemNode(
 
 	/* Now, how many chilren do I have? */
 	if (!tmp_l && !tmp_r) {
-		if (me_left) tmp_p->SetLeft(nullptr);
-		else tmp_p->SetRight(nullptr);
+		if (me_left) tmp_p->left = nullptr;
+		else tmp_p->right = nullptr;
 	}
 	else if (tmp_l && !tmp_r) {
-		if (me_left) tmp_p->SetLeft(tmp_l);
-		else tmp_p->SetRight(tmp_l);
+		if (me_left) tmp_p->left = tmp_l;
+		else tmp_p->right = tmp_l;
 	}
 	else if (!tmp_l && tmp_r) {
-		if (me_left) tmp_p->SetLeft(tmp_r);
-		else tmp_p->SetRight(tmp_r);
+		if (me_left) tmp_p->left = tmp_r;
+		else tmp_p->right = tmp_r;
 	}
 	else if (tmp_l && tmp_r) {
 		tmp_min = FindMin(tmp_r);
-		tmp_min_p = tmp_min->GetParent();
-		tmp_min_p->SetLeft(nullptr);
+		tmp_min_p = tmp_min->parent;
+		tmp_min_p->left = nullptr;
 
-		if (me_left) tmp_p->SetLeft(tmp_min);
-		else tmp_p->SetRight(tmp_min);
+		if (me_left) tmp_p->left = tmp_min;
+		else tmp_p->right = tmp_min;
 
-		tmp_min->SetLeft(tmp_l);
-		tmp_min->SetRight(tmp_r);
+		tmp_min->left = tmp_l;
+		tmp_min->right = tmp_r;
 	}
 
-	delete tmp;
+	tmp.reset();
 	return true;
 }
 
@@ -268,13 +269,13 @@ bool BTree<T, KeyT>::InsNode(
 
 	/* bt is smaller key: push to left */
 	if ( bt->GetKey() <= r->GetKey() ) {
-		if (!r->GetLeft()) r->SetLeft(bt);
-		else InsNode(bt, r->GetLeft());
+		if (!r->left) r->left = bt;
+		else InsNode(bt, r->left);
 	}
 	/* Other than that, push to right */
 	else {
-		if (!r->GetRight()) r->SetRight(bt);
-		else InsNode(bt, r->GetRight());
+		if (!r->right) r->right = bt;
+		else InsNode(bt, r->right);
 	}
 	return true;
 }

@@ -10,8 +10,6 @@
 
 *****************************************************/
 
-//#include <swap>
-
 //#include "list.h"
 
 /****************************************************
@@ -19,17 +17,29 @@
 *****************************************************/
 
 template <class T>
-int LNode<T>::SetNext(std::shared_ptr<LNode<T>> ln)
+void LNode<T>::SetNext(std::shared_ptr<LNode<T>> ln)
 {
-	next = std::move(ln);
-	return 0;
+	if (ln) {
+		this->next = std::move(ln);
+		this->next->prev = this->shared_from_this();
+	}
+	else {
+		if (this->next->prev) this->next->prev = nullptr;
+		this->next = nullptr;
+	}
 }
 
 template <class T>
-int LNode<T>::SetPrev(std::shared_ptr<LNode<T>> ln)
+void LNode<T>::SetPrev(std::shared_ptr<LNode<T>> ln)
 {
-	prev = std::move(ln);
-	return 0;
+	if (ln) {
+		this->prev = std::move(ln);
+		this->prev->next = this->shared_from_this();
+	}
+	else {
+		if (this->prev->next) this->prev->next = nullptr;
+		this->prev = nullptr;
+	}
 }
 
 /****************************************************
@@ -49,14 +59,14 @@ int LNode<T>::Set(std::shared_ptr<T>& ndata)
 }
 
 template <class T>
-spLNode<T> LNode<T>::GetNext() const
+std::shared_ptr<LNode<T>> LNode<T>::GetNext() const
 {
 	if (next) return next;
 	else return nullptr;
 }
 
 template <class T>
-spLNode<T> LNode<T>::GetPrev() const
+std::shared_ptr<LNode<T>> LNode<T>::GetPrev() const
 {
 	if (prev) return prev;
 	else return nullptr;
@@ -104,7 +114,7 @@ template <class T>
 int List<T>::Push(T& new_stuff)
 {
 	//std::shared_ptr<T> sp_new_stuff = std::make_shared<T>(new_stuff);
-	spLNode<T> new_node = \
+	std::shared_ptr<LNode<T>> new_node = \
 		std::make_unique<LNode<T>>(new_stuff);
 
 	if (this->IsEmpty()) {
@@ -128,10 +138,10 @@ T List<T>::Pop()
 
 	T stuff = root_node->Get();
 
-	spLNode<T> tmp = root_node->GetNext();
-	root_node->SetNext(nullptr);
+	std::shared_ptr<LNode<T>> tmp = root_node->next;
+	root_node->next = nullptr;
 	root_node = std::move(tmp);
-	root_node->SetPrev(nullptr);
+	root_node->prev = nullptr;
 	len--;
 
 	return stuff;
@@ -143,14 +153,15 @@ int List<T>::Reverse()
 {
 	if (!root_node) return -1;
 
-	spLNode<T> t, t_tmp;
+	std::shared_ptr<LNode<T>> t;
+	std::shared_ptr<LNode<T>> t_tmp;
 
 	t = std::move(root_node);
 	while (true) {
-		t_tmp = std::move(t->GetNext());
-		t->SetNext(t->GetPrev());
-		t->SetPrev(t_tmp);
-		if (t_tmp) t = std::move(t_tmp);
+		t_tmp = t->next;
+		t->next = t->prev;
+		t->prev = t_tmp;
+		if (t_tmp) t = t_tmp;
 		else break;
 	}
 
@@ -167,7 +178,7 @@ template <class T>
 T List<T>::At(ULLONG index) const
 {
 	ULLONG i;
-	spLNode<T> tmp;
+	std::shared_ptr<LNode<T>> tmp;
 
 	tmp = std::move(root_node);
 	for (i=0; i<index; ++i) {

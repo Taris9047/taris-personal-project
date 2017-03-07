@@ -20,10 +20,9 @@
 #define DEFALUT_ROWS 200
 #define DEFAULT_COLS 250
 
-/**********************************************
- DataStrTest Implementations
- **********************************************/
-
+/****************************************************
+ DataStrTest::Test Methods
+*****************************************************/
 /* Test functions */
 // List test
 void DataStrTest::TestList()
@@ -78,8 +77,47 @@ void DataStrTest::TestList()
 	delete [] rnd_spots_backup;
 }
 
+// List test
+void DataStrTest::TestBTree()
+{
+	/* We'll just use ldata */
+	if (!ldata) return;
 
-/* Constructors and Destructors */
+	ULLONG i;
+	int key;
+	int tmp;
+
+	/* Make a Binary tree */
+	this->btree = std::make_unique<BTree<Dummy, int>>();
+
+	std::cout << "[BTree] Testing insert " << std::endl;
+	for (i=0; i<rows; ++i) {
+		key = ldata[i].keygen();
+		this->btree->Insert(ldata[i], key);
+	}
+	std::cout << "[BTree] Inserted " << rows << " Dummy data. " << std::endl;
+
+	std::cout << "[BTree] Removal test ... " << std::endl;
+	set_ind_mem(rows/5);
+	for (i=0; i<rows/5; ++i) {
+		tmp = rand_ind(rows/5);
+		index_memory[i] = tmp;
+		std::cout << "[BTree] Selected " << ldata[tmp].Print() << std::endl;
+	}
+	for (i=0; i<index_mem_size; ++i) {
+		key = ldata[index_memory[i]].keygen();
+		this->btree->Remove(key);
+		std::cout << "[BTree] Removed " << ldata[index_memory[i]].Print() << std::endl;
+	}
+
+	//std::cout << "[BTree] "
+
+	del_ind_mem();
+}
+
+/****************************************************
+ DataStrTest::Constructors and Destructors
+*****************************************************/
 DataStrTest::DataStrTest() : \
 	ldata(nullptr),
 	data(nullptr),
@@ -151,7 +189,9 @@ int main(int argc, char* argv[])
 		std::make_unique<DataStrTest>(rows, cols);
 
 	/* Testing List */
-	DST->TestList();
+	DST->TestList(); std::cout << std::endl;
+	/* Testing BTree */
+	DST->TestBTree(); std::cout << std::endl;
 
     return 0;
 }

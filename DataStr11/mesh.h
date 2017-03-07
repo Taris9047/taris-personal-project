@@ -37,7 +37,8 @@ T Keygen(Key<T>& coord_key)
 
 /* Node definition */
 template <class T, class KeyT>
-class MNode {
+class MNode : public std::enable_shared_from_this<MNode<T, KeyT>>
+{
 private:
 	std::shared_ptr<T> data; /* The actual data */
     Key<KeyT> coords; /* key */
