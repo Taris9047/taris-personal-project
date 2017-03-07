@@ -68,8 +68,8 @@ public:
 	void Remove(KeyT k);
 
 	/* Constructors and Destructors */
-	BTree() : root_node(nullptr), nodes(0);
-	BTree(BTree& bt);
+	BTree() : root_node(nullptr), nodes(0) {;}
+	BTree(BTree<T, KeyT>& bt);
 };
 
 
