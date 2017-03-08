@@ -44,7 +44,7 @@ public:
 	void SetKey(KeyT& newkey);
 
 	/* Constructors and Destructors */
-    BTNode() : data(nullptr), left(nullptr), right(nullptr) {;}
+    BTNode();
     BTNode(T& ndata, KeyT& nkey);
 	BTNode(BTNode<T, KeyT>& btnode);
 	virtual ~BTNode() {;}
@@ -63,8 +63,6 @@ private:
 	std::shared_ptr<BTNode<T, KeyT>> Find(
 		KeyT& k, std::shared_ptr<BTNode<T, KeyT>> r);
 	std::shared_ptr<BTNode<T, KeyT>> FindMin(std::shared_ptr<BTNode<T, KeyT>> r);
-	std::shared_ptr<BTNode<T, KeyT>> Traverse(
-		std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r);
 	bool RemNode(
 		std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r);
 	bool InsNode(
@@ -73,11 +71,12 @@ private:
 public:
 	/* Access functions */
 	T Get(KeyT& k) const;
+	std::shared_ptr<BTNode<T, KeyT>> pGet(KeyT& k);
 	void Set(T& ndata, KeyT& k);
 
 	/* Manipulation */
-	void Insert(T& ndata, KeyT& k);
-	void Remove(KeyT& k);
+	int Insert(T& ndata, KeyT& k);
+	int Remove(KeyT& k);
 
 	/* Constructors and Destructors */
 	BTree() : root_node(nullptr), nodes(0) {;}

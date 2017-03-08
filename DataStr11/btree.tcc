@@ -84,7 +84,16 @@ void BTNode<T, KeyT>::SetKey(KeyT& newkey)
  BTNode::Constructors and Destructors
 *****************************************************/
 template <class T, class KeyT>
-BTNode<T, KeyT>::BTNode(T& ndata, KeyT& nkey)
+BTNode<T, KeyT>::BTNode()
+{
+	data = nullptr;
+	left = nullptr;
+	right = nullptr;
+	parent = nullptr;
+}
+
+template <class T, class KeyT>
+BTNode<T, KeyT>::BTNode(T& ndata, KeyT& nkey) : BTNode()
 {
 	data = std::make_shared<T>(ndata);
 	key = nkey;
@@ -94,8 +103,9 @@ template <class T, class KeyT>
 BTNode<T, KeyT>::BTNode(BTNode<T, KeyT>& btnode)
 {
 	data = btnode->Get();
-	left = btnode->GetLeft();
-	right = btnode->GetRight();
+	left = btnode->left;
+	right = btnode->right;
+	parent = btnode->parent;
 	key = btnode->GetKey();
 }
 
@@ -110,7 +120,7 @@ bool BTree<T, KeyT>::IsLefty(std::shared_ptr<BTNode<T, KeyT>> n)
 {
 	assert(n->GetParent() != nullptr);
 
-	if (n->GetParent()->GetLeft() == n) return true;
+	if (n->parent->left == n) return true;
 	else return false;
 }
 
@@ -119,17 +129,15 @@ template <class T, class KeyT>
 std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::Find(
 	KeyT& k, std::shared_ptr<BTNode<T, KeyT>> r)
 {
-	if (!r) return nullptr;
+	if (r == nullptr) return nullptr;
 
 	std::shared_ptr<BTNode<T, KeyT>> tmp = std::move(r);
 
 	if (tmp->GetKey() == k) return tmp;
-	else {
-		if (tmp->GetLeft()) Find(k, tmp->GetLeft());
-		else if (tmp->GetRight()) Find(k, tmp->GetRight());
-	}
 
-	return nullptr;
+	if (tmp->GetKey() > k) tmp = Find(k, tmp->left);
+	else tmp = Find(k, tmp->right);
+	return tmp;
 }
 
 /* Find minimum from given node */
@@ -139,29 +147,11 @@ std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::FindMin(
 {
 	if (r == nullptr) return nullptr;
 
-	std::shared_ptr<BTNode<T, KeyT>> tmp = r->GetLeft();
-	if (tmp) FindMin(tmp->GetLeft());
-	else return tmp;
+	std::shared_ptr<BTNode<T, KeyT>> tmp = r;
 
-	return nullptr;
+	while (tmp->left) tmp = tmp->left;
+	return tmp;
 }
-
-/* Traverse */
-template <class T, class KeyT>
-std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::Traverse(
-	std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r)
-{
-	assert(bt != nullptr);
-
-	if (r == bt) return std::move(r);
-
-	if (r->GetLeft()) Traverse(bt, r->GetLeft());
-	else if (r->GetRight()) Traverse(bt, r->GetRight());
-
-	return nullptr;
-}
-
-
 
 /****************************************************
  BTree::Access functions
@@ -171,6 +161,13 @@ template <class T, class KeyT>
 T BTree<T, KeyT>::Get(KeyT& k) const
 {
 	return *this->Find(k, root_node);
+}
+
+/* Same as Get but returns pointer */
+template <class T, class KeyT>
+std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::pGet(KeyT& k)
+{
+	return this->Find(k, root_node);
 }
 
 /* Set a value with a key */
@@ -216,9 +213,9 @@ bool BTree<T, KeyT>::RemNode(
 			tmp_min_p->left = nullptr;
 			/* Then make it root */
 			root_node = std::move(tmp_min);
-			tmp_min->parent = nullptr;
-			tmp_min->left = tmp_l;
-			tmp_min->right = tmp_r;
+			root_node->parent = nullptr;
+			root_node->left = tmp_l;
+			root_node->right = tmp_r;
 		}
 		root_node->parent = nullptr;
 		tmp.reset();
@@ -268,13 +265,19 @@ bool BTree<T, KeyT>::InsNode(
 	}
 
 	/* bt is smaller key: push to left */
-	if ( bt->GetKey() <= r->GetKey() ) {
-		if (!r->left) r->left = bt;
+	if ( bt->GetKey() < r->GetKey() ) {
+		if (!r->left) {
+			r->left = bt;
+			bt->parent = r;
+		}
 		else InsNode(bt, r->left);
 	}
 	/* Other than that, push to right */
 	else {
-		if (!r->right) r->right = bt;
+		if (!r->right) {
+			r->right = bt;
+			bt->parent = r;
+		}
 		else InsNode(bt, r->right);
 	}
 	return true;
@@ -285,28 +288,30 @@ bool BTree<T, KeyT>::InsNode(
  BTree::Manipulation
 *****************************************************/
 template <class T, class KeyT>
-void BTree<T, KeyT>::Insert(T& ndata, KeyT& k)
+int BTree<T, KeyT>::Insert(T& ndata, KeyT& k)
 {
 	std::shared_ptr<BTNode<T, KeyT>> tmp = \
 		std::make_shared<BTNode<T, KeyT>>(ndata, k);
 
 	if (!root_node) {
 		root_node = std::move(tmp);
-		return;
+		return -1;
 	}
 
-	InsNode(tmp, root_node);
+	return InsNode(tmp, root_node);
 }
 
 template <class T, class KeyT>
-void BTree<T, KeyT>::Remove(KeyT& k)
+int BTree<T, KeyT>::Remove(KeyT& k)
 {
-	if (!root_node) return;
+	if (!root_node) return -1;
 
 	std::shared_ptr<BTNode<T, KeyT>> tmp = \
 		this->Find(k, root_node);
 
-	RemNode(tmp, root_node);
+	if (!tmp) return -1;
+
+	return RemNode(tmp, root_node);
 }
 
 
@@ -314,7 +319,7 @@ void BTree<T, KeyT>::Remove(KeyT& k)
  BTree::Constructors and Destructors
 *****************************************************/
 template <class T, class KeyT>
-BTree<T, KeyT>::BTree(BTree<T, KeyT>& bt)
+BTree<T, KeyT>::BTree(BTree<T, KeyT>& bt) : BTree()
 {
 	root_node = bt.root_node;
 	nodes = bt.nodes;

@@ -35,6 +35,9 @@
 #include "list.h"
 #include "mesh.h"
 
+#define DEFALUT_ROWS 200
+#define DEFAULT_COLS 250
+
 /* Some dummy data class */
 class Dummy {
 private:
@@ -42,27 +45,48 @@ private:
 	int y;
 	double efield;
 	double potential;
+	int key;
 
 public:
 	int keygen() { return (x+y)*(x+y+1)/2 + x; }
 
 	std::string Print() {
 		std::stringstream ss;
-		ss << "X: " << x << ", " \
-			<< "Y: " << y << ", " \
-			<< "E-Field: " << efield << ", " \
+		ss << "Key: " << key << ",\t" \
+			<< "X: " << x << ",\t" \
+			<< "Y: " << y << ",\t" \
+			<< "E-Field: " << efield << ",\t" \
 			<< "Potential: " << potential;
 		return ss.str();
 	}
+
+	int GetKey() { return key; }
 
 	Dummy(int x, int y, double ef, double pot) :
 		x(x), y(y), efield(ef), potential(pot) {;}
 	Dummy() : x(0), y(0), efield(0.0), potential(0.0)
 	{
-		x = (int)std::rand();
-		y = (int)std::rand();
-		efield = std::sqrt(std::pow((double)std::rand(), 2.0));
-		potential = std::sqrt(std::pow((double)std::rand(), 2.0));
+		x = (int)std::rand()%DEFALUT_ROWS;
+		y = (int)std::rand()%DEFAULT_COLS;
+		efield = std::sqrt(std::pow((double)std::rand()/DEFALUT_ROWS, 2.0));
+		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
+		key = keygen();
+	}
+	Dummy(int A)
+	{
+		x = A;
+		y = 0;
+		efield = std::sqrt(std::pow((double)std::rand()/DEFALUT_ROWS, 2.0));
+		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
+		key = keygen();
+	}
+	Dummy(int A, int B)
+	{
+		x = A;
+		y = B;
+		efield = std::sqrt(std::pow((double)std::rand()/DEFALUT_ROWS, 2.0));
+		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
+		key = keygen();
 	}
 	virtual ~Dummy() {;}
 };
@@ -85,6 +109,8 @@ private:
 		if (index_memory) delete [] index_memory;
 		index_memory = new int[size];
 		index_mem_size = size;
+		int i;
+		for (i=0; i<size; ++i) index_memory[i] = -1;
 	}
 	void del_ind_mem() {
 		if (index_memory) delete [] index_memory;
@@ -99,7 +125,6 @@ private:
 		return tmp;
 	}
 	bool ind_dup(int num) {
-		assert(!index_memory || index_mem_size == 0);
 		int i;
 		for (i=0; i<index_mem_size; ++i) {
 			if (num == index_memory[i]) return true;

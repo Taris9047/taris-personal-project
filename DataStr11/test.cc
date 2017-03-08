@@ -17,9 +17,6 @@
 
 #include "test.h"
 
-#define DEFALUT_ROWS 200
-#define DEFAULT_COLS 250
-
 /****************************************************
  DataStrTest::Test Methods
 *****************************************************/
@@ -40,16 +37,12 @@ void DataStrTest::TestList()
 
 	/* Push test */
 	std::cout << "[List] Testing Push" << std::endl;
-	for (i=0; i<rows; ++i) {
-		this->list->Push(ldata[i]);
-	}
+	for (i=0; i<rows; ++i) this->list->Push(ldata[i]);
 	std::cout << "[List] Pushed " << rows << " data." << std::endl;
 
 	/* Pop test */
 	std::cout << "[List] Testing Pop" << std::endl;
-	for (i=0; i<rows/2; ++i) {
-		this->list->Pop();
-	}
+	for (i=0; i<rows/2; ++i) this->list->Pop();
 	std::cout << "[List] Popped " << rows/2 << " data." << std::endl;
 
 	/* Access test */
@@ -83,7 +76,7 @@ void DataStrTest::TestBTree()
 	/* We'll just use ldata */
 	if (!ldata) return;
 
-	ULLONG i;
+	ULLONG i, it;
 	int key;
 	int tmp;
 
@@ -92,25 +85,37 @@ void DataStrTest::TestBTree()
 
 	std::cout << "[BTree] Testing insert " << std::endl;
 	for (i=0; i<rows; ++i) {
-		key = ldata[i].keygen();
+		key = ldata[i].GetKey();
 		this->btree->Insert(ldata[i], key);
 	}
 	std::cout << "[BTree] Inserted " << rows << " Dummy data. " << std::endl;
 
 	std::cout << "[BTree] Removal test ... " << std::endl;
-	set_ind_mem(rows/5);
-	for (i=0; i<rows/5; ++i) {
-		tmp = rand_ind(rows/5);
+	ULLONG sel_items = rows/10;
+	std::cout << "[BTree] Selecting " << sel_items << " items..." << std::endl;
+	set_ind_mem(sel_items);
+	for (i=0; i<sel_items; ++i) {
+		tmp = rand_ind(sel_items);
 		index_memory[i] = tmp;
 		std::cout << "[BTree] Selected " << ldata[tmp].Print() << std::endl;
 	}
 	for (i=0; i<index_mem_size; ++i) {
-		key = ldata[index_memory[i]].keygen();
+		key = ldata[index_memory[i]].GetKey();
 		this->btree->Remove(key);
 		std::cout << "[BTree] Removed " << ldata[index_memory[i]].Print() << std::endl;
 	}
 
-	//std::cout << "[BTree] "
+	std::cout << "[BTree] Testing search ... " << std::endl;
+	for (i=0; i<index_mem_size; ++i) {
+		it = (ULLONG)std::rand()%rows;
+		key = ldata[it].GetKey();
+		if ( this->btree->pGet(key) != nullptr ) {
+			std::cout << "[BTree] Found: " << ldata[it].Print() << std::endl;
+		}
+		else {
+			std::cout << "[BTree] Not Found: " << ldata[it].Print() << std::endl;
+		}
+	}
 
 	del_ind_mem();
 }
@@ -135,13 +140,13 @@ DataStrTest::DataStrTest(ULLONG rows, ULLONG cols) : \
 	ULLONG i, j;
 
 	ldata = new Dummy[this->rows];
-	for (i=0; i<this->rows; ++i) ldata[i] = Dummy();
+	for (i=0; i<this->rows; ++i) ldata[i] = Dummy((int)i);
 
 	data = new Dummy*[this->rows];
 	for (i=0; i<this->rows; ++i) {
 		data[i] = new Dummy[this->cols];
 		for (j=0; j<this->cols; ++j) {
-			data[i][j] = Dummy();
+			data[i][j] = Dummy((int)i, (int)j);
 		}
 	}
 }

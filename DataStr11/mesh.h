@@ -17,67 +17,95 @@
 #include <vector>
 #include <cassert>
 
+#include "list.h"
+#include "btree.h"
 #include "utils.h"
 
-/* key */
-template <typename T>
-struct Key {
-    T x_coord;
-    T y_coord;
-};
-
-/* keygen */
-template <typename T>
-T Keygen(Key<T>& coord_key)
-{
-	T a = coord_key.x_coord;
-	T b = coord_key.y_coord;
-	return (a+b)*(a+b+1)/2+a;
-}
-
-/* Node definition */
+/* The node */
 template <class T, class KeyT>
-class MNode : public std::enable_shared_from_this<MNode<T, KeyT>>
+class MNode : public std::enable_shared_from_this<LNode<T>>
 {
-private:
-	std::shared_ptr<T> data; /* The actual data */
-    Key<KeyT> coords; /* key */
-	/*
-	 	Index of adjnodes...
-		0: right side
-		1: right down
-		2: down side
-		3: left side
-		4: upper left
-		5: upper side
-	*/
-    std::vector<std::shared_ptr<MNode<T, KeyT>>> adjnodes;
-
 public:
-	/* Access methods */
-	Key<KeyT> GetCoords() const;
-	std::shared_ptr<MNode<T, KeyT>> GetRH() const;
-	std::shared_ptr<MNode<T, KeyT>> GetRD() const;
-	std::shared_ptr<MNode<T, KeyT>> GetDN() const;
-	std::shared_ptr<MNode<T, KeyT>> GetLH() const;
-	std::shared_ptr<MNode<T, KeyT>> GetLU() const;
-	std::shared_ptr<MNode<T, KeyT>> GetUP() const;
-	void SetCoords(Key<KeyT>& k);
-	void SetRH(std::shared_ptr<MNode<T, KeyT>> pmn);
-	void SetRD(std::shared_ptr<MNode<T, KeyT>> pmn);
-	void SetDN(std::shared_ptr<MNode<T, KeyT>> pmn);
-	void SetLH(std::shared_ptr<MNode<T, KeyT>> pmn);
-	void SetLU(std::shared_ptr<MNode<T, KeyT>> pmn);
-	void SetUP(std::shared_ptr<MNode<T, KeyT>> pmn);
+	/* Adjacent nodes */
+	std::shared_ptr<MNode<T, KeyT>> rh;
+	std::shared_ptr<MNode<T, KeyT>> rd;
+	std::shared_ptr<MNode<T, KeyT>> dn;
+	std::shared_ptr<MNode<T, KeyT>> lh;
+	std::shared_ptr<MNode<T, KeyT>> lu;
+	std::shared_ptr<MNode<T, KeyT>> up;
+
+	/* Pointer to the data */
+	std::shared_ptr<T> data;
+
+	/* Key */
+	KeyT key;
+
+	/* Access... */
+	void Set(T& d);
+	T Get();
+
+	/* Manipulation */
+	int SetRH(std::shared_ptr<MNode<T, KeyT>> mn);
+	int SetRD(std::shared_ptr<MNode<T, KeyT>> mn);
+	int SetDN(std::shared_ptr<MNode<T, KeyT>> mn);
+	int SetLH(std::shared_ptr<MNode<T, KeyT>> mn);
+	int SetLU(std::shared_ptr<MNode<T, KeyT>> mn);
+	int SetUP(std::shared_ptr<MNode<T, KeyT>> mn);
 
 	/* Constructors and Destructors */
-    MNode();
-	MNode(T& d, Key<KeyT>& k);
-    MNode(MNode<T, KeyT>& mn); /* copy constructor */
-    virtual ~MNode();
+	MNode();
+	MNode(MNode<T, KeyT>& mn);
+	virtual ~MNode() {;}
 };
 
+/* Key type for the node */
+template <typename T>
+struct NodeKey {
+	T x;
+	T y;
 
+	/* Operator overloadings */
+	bool operator== (const NodeKey<T>& o) const
+	{
+		if (x == o.x && y == o.y) return true;
+		else return false;
+	}
+
+	bool operator!= (const NodeKey<T>& o) const
+	{
+		return !(this == o);
+	}
+
+	bool operator< (const NodeKey<T>& o) const
+	{
+		if ( x < o.x ) return true;
+		else if ( x == o.x ) {
+			if ( y < o.y ) return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	bool operator<= (const NodeKey<T>& o) const
+	{
+		return (this < o || this == o);
+	}
+
+	bool operator> (const NodeKey<T>& o) const
+	{
+		if ( x > o.x ) return true;
+		else if ( x == o.x ) {
+			if ( y > o.y ) return true;
+			else return false;
+		}
+		else return false;
+	}
+
+	bool operator>= (const NodeKey<T>& o) const
+	{
+		return (this > o || this == 0);
+	}
+};
 
 
 
