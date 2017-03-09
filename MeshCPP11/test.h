@@ -105,18 +105,23 @@ private:
 
 	int* index_memory;
 	int index_mem_size;
-	void set_ind_mem(int size) {
-		if (index_memory) delete [] index_memory;
-		index_memory = new int[size];
-		index_mem_size = size;
+	void set_ind_mem(int size)
+	{
 		int i;
-		for (i=0; i<size; ++i) index_memory[i] = -1;
+
+		if (this->index_memory) delete [] this->index_memory;
+		this->index_memory = new int[size];
+		this->index_mem_size = size;
+
+		for (i=0; i<size; ++i) this->index_memory[i] = -1;
 	}
-	void del_ind_mem() {
-		if (index_memory) delete [] index_memory;
-		index_mem_size = 0;
+	void del_ind_mem()
+	{
+		if (this->index_memory) delete [] this->index_memory;
+		this->index_mem_size = 0;
 	}
-	int rand_ind(int max_index) {
+	int rand_ind(int max_index)
+	{
 		int tmp;
 		for (;;) {
 			tmp = (int)std::rand()%max_index;
@@ -124,10 +129,11 @@ private:
 		}
 		return tmp;
 	}
-	bool ind_dup(int num) {
+	bool ind_dup(int num)
+	{
 		int i;
-		for (i=0; i<index_mem_size; ++i) {
-			if (num == index_memory[i]) return true;
+		for (i=0; i<this->index_mem_size; ++i) {
+			if (num == this->index_memory[i]) return true;
 		}
 		return false;
 	}

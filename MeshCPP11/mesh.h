@@ -46,6 +46,7 @@ public:
 	/* Access... */
 	void Set(T& d);
 	T Get();
+	std::shared_ptr<T> pGet();
 
 	/* Manipulation */
 	int SetRH(std::shared_ptr<MNode<T, KeyT>> mn);
@@ -54,6 +55,9 @@ public:
 	int SetLH(std::shared_ptr<MNode<T, KeyT>> mn);
 	int SetLU(std::shared_ptr<MNode<T, KeyT>> mn);
 	int SetUP(std::shared_ptr<MNode<T, KeyT>> mn);
+
+	void SetKey(KeyT& k);
+	KeyT GetKey();
 
 	/* Constructors and Destructors */
 	MNode();

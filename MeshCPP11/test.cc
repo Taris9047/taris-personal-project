@@ -70,7 +70,7 @@ void DataStrTest::TestList()
 	delete [] rnd_spots_backup;
 }
 
-// List test
+// Binary Tree test
 void DataStrTest::TestBTree()
 {
 	/* We'll just use ldata */
@@ -120,6 +120,13 @@ void DataStrTest::TestBTree()
 	del_ind_mem();
 }
 
+
+// Mesh test
+void DataStrTest::TestMesh()
+{
+
+}
+
 /****************************************************
  DataStrTest::Constructors and Destructors
 *****************************************************/
@@ -128,7 +135,9 @@ DataStrTest::DataStrTest() : \
 	data(nullptr),
 	list(nullptr),
 	rows(0),
-	cols(0)
+	cols(0),
+	index_memory(nullptr),
+	index_mem_size(0)
 {}
 
 DataStrTest::DataStrTest(ULLONG rows, ULLONG cols) : \
@@ -167,8 +176,6 @@ DataStrTest::~DataStrTest()
  **********************************************/
 int main(int argc, char* argv[])
 {
-    std::cout << "*** Data structure for myTCAD test program ***" << std::endl;
-
 	ULLONG rows, cols;
 	std::string rowstr, colstr;
 
@@ -187,14 +194,19 @@ int main(int argc, char* argv[])
 		cols = std::stoi(colstr);
 	}
 
+	std::cout << "*** Data structure for myTCAD test program ***" << std::endl;
+	std::cout << std::endl;
+
 	std::cout << "[Test] Initializing " \
 		<< rows << " x " << cols \
-		<< " of random dummy data..." << std::endl;
+		<< " of random dummy data..." \
+		<< std::endl << std::endl;
 	std::unique_ptr<DataStrTest> DST = \
 		std::make_unique<DataStrTest>(rows, cols);
 
 	/* Testing List */
 	DST->TestList(); std::cout << std::endl;
+
 	/* Testing BTree */
 	DST->TestBTree(); std::cout << std::endl;
 

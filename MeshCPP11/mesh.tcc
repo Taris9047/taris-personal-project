@@ -13,12 +13,73 @@
 /****************************************************
  MNode::Access node methods
 *****************************************************/
+template <class T, class KeyT>
+void MNode<T, KeyT>::Set(T& d)
+{
+	std::shared_ptr<T> sd = \
+		std::make_shared<T>(d);
+	assert(sd);
+	this->data = sd;
+}
 
+template <class T, class KeyT>
+T MNode<T, KeyT>::Get()
+{
+	assert(this->data);
+	return *this->data;
+}
+
+template <class T, class KeyT>
+std::shared_ptr<T> MNode<T, KeyT>::pGet()
+{
+	return this->data;
+}
 
 /****************************************************
  MNode::Manipulation
 *****************************************************/
+template <class T, class KeyT>
+int MNode<T, KeyT>::SetRH(std::shared_ptr<MNode<T, KeyT>> mn)
+{
+}
 
+template <class T, class KeyT>
+int MNode<T, KeyT>::SetRD(std::shared_ptr<MNode<T, KeyT>> mn)
+{
+}
+
+template <class T, class KeyT>
+int MNode<T, KeyT>::SetDN(std::shared_ptr<MNode<T, KeyT>> mn)
+{
+}
+
+template <class T, class KeyT>
+int MNode<T, KeyT>::SetLH(std::shared_ptr<MNode<T, KeyT>> mn)
+{
+}
+
+template <class T, class KeyT>
+int MNode<T, KeyT>::SetLU(std::shared_ptr<MNode<T, KeyT>> mn)
+{
+}
+
+template <class T, class KeyT>
+int MNode<T, KeyT>::SetUP(std::shared_ptr<MNode<T, KeyT>> mn)
+{
+}
+
+
+template <class T, class KeyT>
+void MNode<T, KeyT>::SetKey(KeyT& k)
+{
+	this->key = k;
+}
+
+template <class T, class KeyT>
+KeyT MNode<T, KeyT>::GetKey()
+{
+	return this->key;
+}
 
 /****************************************************
  MNode::Constructors and Destructors
