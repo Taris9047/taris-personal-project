@@ -15,12 +15,14 @@ RCXXFLAGS=-O3 -fPIC -Wall -std=c++11
 LIBS=-lm -L.
 AR=ar
 
+SRCDIR=./src
+
 TESTF_NAME=DataStrTest
 
-SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
-CXXSOURCES=$(filter-out test.cc, $(wildcard *.cpp *.cc *.tcc))
-HEADERS=$(wildcard *.h)
-CPPHEADERS=$(wildcard *.hpp *.h)
+SOURCES=$(filter-out test.c, $(wildcard $(SRCDIR)/*.c $(SRCDIR)/*.C $(SRCDIR)/*.m))
+CXXSOURCES=$(filter-out test.cpp, $(wildcard $(SRCDIR)/*.cpp $(SRCDIR)/*.cc $(SRCDIR)/*.tcc))
+HEADERS=$(wildcard test.h $(SRCDIR)/*.h)
+CPPHEADERS=$(wildcard test.hpp $(SRCDIR)/*.hpp $(SRCDIR)/*.h)
 OBJS=$(SOURCES:.c=.o)
 CXXOBJS=$(CXXSOURCES:.cc=.Po)
 
@@ -45,11 +47,11 @@ endif
 # .c.o: $(CPPSOURCES) $(HEADERS)
 # 	$(CXX) $(CFLAGS) -c $< -o $@
 
-%.Po: $(CXXSOURCES) $(HEADERS) Makefile
+%.Po: $(CXXSOURCES) $(CPPHEADERS) Makefile
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-all: $(CXXSOURCES) $(HEADERS) test.cc test.h
-	$(CXX) -ggdb3 -std=c++11 test.cc  -o $(TESTF_NAME) $(LIBS)
+all: $(CXXSOURCES) $(CPPHEADERS) test.cpp test.hpp
+	$(CXX) -ggdb3 -std=c++11 test.cpp  -o $(TESTF_NAME) $(LIBS)
 
 
 clean:

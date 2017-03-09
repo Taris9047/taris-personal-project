@@ -1,3 +1,13 @@
+/**
+* @Author: Taylor Shin <SHINLT+kshin>
+* @Date:   2017-03-09T07:55:04-06:00
+* @Email:  kshin@aps.anl.gov
+* @Last modified by:   SHINLT+kshin
+* @Last modified time: 2017-03-09T10:16:26-06:00
+*/
+
+
+
 /****************************************************
 
  Data structure c++11 implementation test program
@@ -15,7 +25,7 @@
 #include <string>
 #include <iostream>
 
-#include "test.h"
+#include "test.hpp"
 
 /****************************************************
  DataStrTest::Test Methods
@@ -124,6 +134,11 @@ void DataStrTest::TestBTree()
 // Mesh test
 void DataStrTest::TestMesh()
 {
+	ULLONG i, j, it, jt;
+
+	assert(data);
+
+	std::cout << "[Mesh] Testing mesh..." << std::endl;
 
 }
 
@@ -209,6 +224,12 @@ int main(int argc, char* argv[])
 
 	/* Testing BTree */
 	DST->TestBTree(); std::cout << std::endl;
+
+	/* Testing Mesh */
+	DST->TestMesh(); std::cout << std::endl;
+
+	std::cout << std::endl;
+	std::cout << "[Test] Test finished." << std::endl;
 
     return 0;
 }

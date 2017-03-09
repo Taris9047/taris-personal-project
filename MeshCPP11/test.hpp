@@ -29,11 +29,11 @@
 #include <cmath>
 #include <ctime>
 
-#include "utils.h"
+#include "src/utils.hpp"
 
-#include "btree.h"
-#include "list.h"
-#include "mesh.h"
+#include "src/btree.hpp"
+#include "src/list.hpp"
+#include "src/region.hpp"
 
 #define DEFALUT_ROWS 200
 #define DEFAULT_COLS 250

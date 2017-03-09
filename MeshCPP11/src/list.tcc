@@ -1,3 +1,13 @@
+/**
+* @Author: Taylor Shin <SHINLT+kshin>
+* @Date:   2017-03-09T07:55:04-06:00
+* @Email:  kshin@aps.anl.gov
+* @Last modified by:   SHINLT+kshin
+* @Last modified time: 2017-03-09T10:17:29-06:00
+*/
+
+
+
 /****************************************************
 
  Data structure c++11
@@ -9,8 +19,6 @@
  Mar. 6th 2017
 
 *****************************************************/
-
-//#include "list.h"
 
 /****************************************************
  LNode::Manipulation methods

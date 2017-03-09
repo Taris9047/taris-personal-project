@@ -1,3 +1,13 @@
+/**
+* @Author: Taylor Shin <SHINLT+kshin>
+* @Date:   2017-03-09T07:55:04-06:00
+* @Email:  kshin@aps.anl.gov
+* @Last modified by:   SHINLT+kshin
+* @Last modified time: 2017-03-09T10:16:42-06:00
+*/
+
+
+
 /****************************************************
 
  Data structure c++11
@@ -131,13 +141,13 @@ std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::Find(
 {
 	if (r == nullptr) return nullptr;
 
-	std::shared_ptr<BTNode<T, KeyT>> tmp = std::move(r);
+	KeyT tmp_k = r->GetKey();
 
-	if (tmp->GetKey() == k) return tmp;
+	if (tmp_k == k) return r;
+	else if (tmp_k > k) return Find(k, r->left);
+	else if (tmp_k < k) return Find(k, r->right);
 
-	if (tmp->GetKey() > k) tmp = Find(k, tmp->left);
-	else tmp = Find(k, tmp->right);
-	return tmp;
+	return nullptr;
 }
 
 /* Find minimum from given node */
@@ -259,13 +269,23 @@ template <class T, class KeyT>
 bool BTree<T, KeyT>::InsNode(
 	std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r)
 {
+	assert(bt);
+
 	if (!r) {
 		r = std::move(bt);
 		return true;
 	}
 
+	KeyT bt_k = bt->GetKey();
+	KeyT r_k = r->GetKey();
+
+	/* if r and bt has the same key
+	  Overwrite r's value. */
+	if ( bt_k == r_k ) {
+		r->data = bt->data;
+	}
 	/* bt is smaller key: push to left */
-	if ( bt->GetKey() < r->GetKey() ) {
+	else if ( bt_k < r_k ) {
 		if (!r->left) {
 			r->left = bt;
 			bt->parent = r;
@@ -273,13 +293,14 @@ bool BTree<T, KeyT>::InsNode(
 		else InsNode(bt, r->left);
 	}
 	/* Other than that, push to right */
-	else {
+	else if ( bt_k > r_k ) {
 		if (!r->right) {
 			r->right = bt;
 			bt->parent = r;
 		}
 		else InsNode(bt, r->right);
 	}
+
 	return true;
 }
 
