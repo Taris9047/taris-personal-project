@@ -81,15 +81,50 @@ std::shared_ptr<LNode<T>> LNode<T>::GetPrev() const
 }
 
 /****************************************************
+ LNode::Operators
+*****************************************************/
+template <class T>
+LNode<T>& LNode<T>::operator= (const LNode<T>& ln)
+{
+	LNode<T> tmp(ln);
+	*this = std::move(tmp);
+	return *this;
+}
+
+template <class T>
+LNode<T>& LNode<T>::operator= (LNode<T>&& ln) noexcept
+{
+	data = std::move(ln.data);
+	next = std::move(ln.next);
+	prev = std::move(ln.prev);
+
+	return *this;
+}
+
+
+/****************************************************
  LNode::Constructors and Destructors
 *****************************************************/
 template <class T>
-LNode<T>::LNode(LNode& ln) : LNode<T>::LNode()
+LNode<T>::LNode(const LNode<T>& ln)
 {
-	data = ln.Get();
-	next = ln.GetNext();
-	prev = ln.GetPrev();
+	T& tmp_data = *ln.data;
+	LNode<T>& tmp_next = *ln.next;
+	LNode<T>& tmp_prev = *ln.prev;
+
+	data = std::make_shared<T>(tmp_data);
+	next = std::make_shared<LNode<T>>(tmp_next);
+	prev = std::make_shared<LNode<T>>(tmp_prev);
 }
+
+template <class T>
+LNode<T>::LNode(LNode<T>&& ln) noexcept
+{
+	data = std::move(ln.data);
+	next = std::move(ln.next);
+	prev = std::move(ln.prev);
+}
+
 
 template <class T>
 LNode<T>::~LNode()
@@ -226,7 +261,7 @@ List<T>::List() : root_node(nullptr), len(0)
 {}
 
 template<class T>
-List<T>::List(List& l)
+List<T>::List(const List& l)
 {
 	root_node = l->GetL();
 	len = l->Len();

@@ -35,7 +35,7 @@
 void DataStrTest::TestList()
 {
 	/* We'll just use ldata */
-	if (!ldata) return;
+	if (!ldata.size()) return;
 
 	ULLONG i, ti;
 
@@ -84,7 +84,7 @@ void DataStrTest::TestList()
 void DataStrTest::TestBTree()
 {
 	/* We'll just use ldata */
-	if (!ldata) return;
+	if (!ldata.size()) return;
 
 	ULLONG i, it;
 	int key;
@@ -136,9 +136,17 @@ void DataStrTest::TestMesh()
 {
 	ULLONG i, j, it, jt;
 
-	assert(data);
-
 	std::cout << "[Mesh] Testing mesh..." << std::endl;
+
+	std::cout << "[Mesh] Testing region generation..." << std::endl;
+
+	std::cout << "[Mesh] Generating a Mesh Region with " << this->rows \
+		<< " x " << this->cols << " of size ..." << std::endl;
+	std::unique_ptr<Region<Dummy>> reg = \
+		std::make_unique<Region<Dummy>>(this->rows, this->cols);
+
+	std::cout << "[Mesh] Assigning " << this->rows << " x "<< this->cols << " data" << std::endl;
+	reg->AssignData(this->data);
 
 }
 
@@ -146,8 +154,8 @@ void DataStrTest::TestMesh()
  DataStrTest::Constructors and Destructors
 *****************************************************/
 DataStrTest::DataStrTest() : \
-	ldata(nullptr),
-	data(nullptr),
+	ldata(std::vector<Dummy>()),
+	data(std::vector<std::vector<Dummy>>()),
 	list(nullptr),
 	rows(0),
 	cols(0),
@@ -155,34 +163,42 @@ DataStrTest::DataStrTest() : \
 	index_mem_size(0)
 {}
 
-DataStrTest::DataStrTest(ULLONG rows, ULLONG cols) : \
+DataStrTest::DataStrTest(ULLONG r, ULLONG c) : \
 	DataStrTest()
 {
-	this->rows = rows;
-	this->cols = cols;
+	rows = r;
+	cols = c;
 
 	ULLONG i, j;
 
-	ldata = new Dummy[this->rows];
-	for (i=0; i<this->rows; ++i) ldata[i] = Dummy((int)i);
+	for (i=0; i<rows; ++i)
+		ldata.push_back(Dummy((int)i));
 
-	data = new Dummy*[this->rows];
-	for (i=0; i<this->rows; ++i) {
-		data[i] = new Dummy[this->cols];
-		for (j=0; j<this->cols; ++j) {
-			data[i][j] = Dummy((int)i, (int)j);
-		}
+	data.resize(r, std::vector<Dummy>(c, Dummy()));
+	for (i=0; i<rows; ++i) {
+		data[i][j] = Dummy((int)i, (int)j);
 	}
+
+	// ldata = new Dummy[this->rows];
+	// for (i=0; i<this->rows; ++i) ldata[i] = Dummy((int)i);
+	//
+	// data = new Dummy*[this->rows];
+	// for (i=0; i<this->rows; ++i) {
+	// 	data[i] = new Dummy[this->cols];
+	// 	for (j=0; j<this->cols; ++j) {
+	// 		data[i][j] = Dummy((int)i, (int)j);
+	// 	}
+	// }
 }
 
 DataStrTest::~DataStrTest()
 {
-	ULLONG i;
-	if (ldata) delete[] ldata;
-	if (data) {
-		for (i=0; i<this->rows; ++i) delete [] data[i];
-	}
-	delete [] data;
+	// ULLONG i;
+	// if (ldata) delete[] ldata;
+	// if (data) {
+	// 	for (i=0; i<this->rows; ++i) delete [] data[i];
+	// }
+	// delete [] data;
 }
 
 

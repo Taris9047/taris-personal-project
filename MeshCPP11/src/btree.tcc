@@ -33,9 +33,16 @@ T BTNode<T, KeyT>::Get() const
 	return *data;
 }
 template <class T, class KeyT>
-void BTNode<T, KeyT>::Set(T ndata)
+int BTNode<T, KeyT>::Set(T ndata)
 {
 	data = std::make_shared<T>(ndata);
+	return 0;
+}
+template <class T, class KeyT>
+int BTNode<T, KeyT>::Set(std::shared_ptr<T> pndata)
+{
+	data = pndata;
+	return 0;
 }
 template <class T, class KeyT>
 std::shared_ptr<BTNode<T, KeyT>> BTNode<T, KeyT>::GetLeft() const
@@ -90,6 +97,35 @@ void BTNode<T, KeyT>::SetKey(KeyT& newkey)
 	key = newkey;
 }
 
+
+
+/****************************************************
+ BTNode::Operator Overloading
+*****************************************************/
+template <class T, class KeyT>
+BTNode<T, KeyT>& BTNode<T, KeyT>::operator= (const BTNode<T, KeyT>& btnode)
+{
+	BTNode<T, KeyT> tmp(btnode);
+	*this = std::move(tmp);
+	return *this;
+}
+
+template <class T, class KeyT>
+BTNode<T, KeyT>& BTNode<T, KeyT>::operator= (BTNode<T, KeyT>&& btnode) noexcept
+{
+	data = nullptr;
+	left = nullptr;
+	right = nullptr;
+	parent = nullptr;
+
+	data = std::move(btnode.data);
+	left = std::move(btnode.left);
+	right = std::move(btnode.right);
+	parent = std::move(btnode.parent);
+
+	return *this;
+}
+
 /****************************************************
  BTNode::Constructors and Destructors
 *****************************************************/
@@ -110,14 +146,65 @@ BTNode<T, KeyT>::BTNode(T& ndata, KeyT& nkey) : BTNode()
 }
 
 template <class T, class KeyT>
-BTNode<T, KeyT>::BTNode(BTNode<T, KeyT>& btnode)
+BTNode<T, KeyT>::BTNode(std::shared_ptr<T> pndata, KeyT& nkey)
 {
-	data = btnode->Get();
-	left = btnode->left;
-	right = btnode->right;
-	parent = btnode->parent;
+	data = pndata;
+	key = nkey;
+}
+
+template <class T, class KeyT>
+BTNode<T, KeyT>::BTNode(const BTNode<T, KeyT>& btnode)
+{
+	T& tmp_data = *btnode->Get();
+	BTNode<T, KeyT>& tmp_l = *btnode->left;
+	BTNode<T, KeyT>& tmp_r = *btnode->right;
+	BTNode<T, KeyT>& tmp_p = *btnode->parent;
+
+	data = std::make_shared<T>(tmp_data);
+	left = std::make_shared<BTNode<T, KeyT>>(tmp_l);
+	right = std::make_shared<BTNode<T, KeyT>>(tmp_r);
+	parent = std::make_shared<BTNode<T, KeyT>>(tmp_p);
+
 	key = btnode->GetKey();
 }
+
+template <class T, class KeyT>
+BTNode<T, KeyT>::BTNode(BTNode<T, KeyT>&& btnode) noexcept
+{
+	data = std::move(btnode->data);
+	left = std::move(btnode->left);
+	right = std::move(btnode->right);
+	parent = std::move(btnode->parent);
+	key = btnode->GetKey();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /********** Main part ****************************/
 /****************************************************
@@ -182,10 +269,17 @@ std::shared_ptr<BTNode<T, KeyT>> BTree<T, KeyT>::pGet(KeyT& k)
 
 /* Set a value with a key */
 template <class T, class KeyT>
-void BTree<T, KeyT>::Set(T& ndata, KeyT& k)
+int BTree<T, KeyT>::Set(T& ndata, KeyT& k)
 {
 	std::shared_ptr<BTNode<T, KeyT>> tmp = Find(k, root_node);
-	tmp->Set(ndata);
+	return tmp->Set(ndata);
+}
+
+template <class T, class KeyT>
+int BTree<T, KeyT>::Set(std::shared_ptr<T> pndata, KeyT& k)
+{
+	std::shared_ptr<BTNode<T, KeyT>> tmp = Find(k, root_node);
+	return tmp->Set(pndata);
 }
 
 /* Remove a node with a key */
@@ -316,7 +410,21 @@ int BTree<T, KeyT>::Insert(T& ndata, KeyT& k)
 
 	if (!root_node) {
 		root_node = std::move(tmp);
-		return -1;
+		return 1;
+	}
+
+	return InsNode(tmp, root_node);
+}
+
+template <class T, class KeyT>
+int BTree<T, KeyT>::Insert(std::shared_ptr<T> pndata, KeyT& k)
+{
+	std::shared_ptr<BTNode<T, KeyT>> tmp = \
+		std::make_shared<BTNode<T, KeyT>>(pndata, k);
+
+	if (!root_node) {
+		root_node = std::move(tmp);
+		return 1;
 	}
 
 	return InsNode(tmp, root_node);
@@ -335,13 +443,40 @@ int BTree<T, KeyT>::Remove(KeyT& k)
 	return RemNode(tmp, root_node);
 }
 
+/****************************************************
+ BTree::Operator overloading
+*****************************************************/
+template <class T, class KeyT>
+BTree<T, KeyT>& BTree<T, KeyT>::operator= (const BTree<T, KeyT>& bt)
+{
+	BTree<T, KeyT> tmp(bt);
+	*this = std::move(tmp);
+	return *this;
+}
+
+template <class T, class KeyT>
+BTree<T, KeyT>& BTree<T, KeyT>::operator= (BTree<T, KeyT>&& bt) noexcept
+{
+	root_node = std::move(bt.root_node);
+	bt.data = nullptr;
+	nodes = bt.nodes;
+	return *this;
+}
 
 /****************************************************
  BTree::Constructors and Destructors
 *****************************************************/
 template <class T, class KeyT>
-BTree<T, KeyT>::BTree(BTree<T, KeyT>& bt) : BTree()
+BTree<T, KeyT>::BTree(const BTree<T, KeyT>& bt) : BTree()
 {
-	root_node = bt.root_node;
+	BTNode<T, KeyT>& tmp_n = *bt.root_node;
+	root_node = std::make_shared<BTNode<T, KeyT>>(tmp_n);
+	nodes = bt.nodes;
+}
+
+template <class T, class KeyT>
+BTree<T, KeyT>::BTree(BTree<T, KeyT>&& bt) noexcept
+{
+	root_node = std::move(bt.root_node);
 	nodes = bt.nodes;
 }

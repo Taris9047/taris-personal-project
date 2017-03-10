@@ -25,27 +25,26 @@
 /****************************************************
  Region::Private methods
 *****************************************************/
-template <class T, class KeyT>
-int Region<T, KeyT>::make_nodes()
+template <class T>
+int Region<T>::make_nodes()
 {
 	if (!root_node)
-		root_node = \
-			std::make_shared<MNode<T, KeyT>>();
+		root_node = std::make_shared<MNode<T, IndKey>>();
 
 	if (!MNodes) {
-		MNodes = std::unique_ptr<Matrix<std::shared_ptr<MNode<T, KeyT>>>>();
+		MNodes = std::make_unique<Matrix< std::shared_ptr<MNode<T, IndKey>>>>();
 		MNodes->Set(0, 0, root_node);
 	}
 
 	if (rows == 1 && cols == 1) return 0;
 
 	ULLONG i, j;
-	std::shared_ptr<MNode<T, KeyT>> tmp = root_node;
-	std::shared_ptr<MNode<T, KeyT>> new_node;
+	std::shared_ptr<MNode<T, IndKey>> tmp = root_node;
+	std::shared_ptr<MNode<T, IndKey>> new_node;
 
 	/* Make first row */
 	for (i=1; i<rows; ++i) {
-		new_node = std::make_shared<MNode<T, KeyT>>();
+		new_node = std::make_shared<MNode<T, IndKey>>();
 		tmp->SetDN(new_node);
 		MNodes->Set(i, 0, new_node);
 		tmp = tmp->dn;
@@ -54,7 +53,7 @@ int Region<T, KeyT>::make_nodes()
 	/* then make entire row */
 	for (i=0; i<rows; ++i) {
 		for (j=1; j<cols; ++j) {
-			new_node = std::make_shared<MNode<T, KeyT>>();
+			new_node = std::make_shared<MNode<T, IndKey>>();
 			tmp->SetRH(new_node);
 			MNodes->Set(i, j, new_node);
 			tmp = tmp->rh;
@@ -66,35 +65,110 @@ int Region<T, KeyT>::make_nodes()
 
 
 /****************************************************
+ Region::Manipulation
+*****************************************************/
+/* 2D data assignment. Make sure your data's dimension matches class */
+template <class T>
+void Region<T>::AssignData(T** data)
+{
+	assert(data);
+
+	ULLONG i, j;
+
+	std::shared_ptr<MNode<T, IndKey>> tmp;
+
+	for (i=0; i<rows; ++i) {
+		for (j=0; j<cols; ++j) {
+			IndKey key(i, j);
+			tmp = std::make_shared<MNode<T, IndKey>>(data[i][j], key);
+			MNodes->Set(i, j, tmp);
+		}
+	}
+}
+
+template <class T>
+void Region<T>::AssignData(std::vector<std::vector<T>> data)
+{
+	ULLONG i, j;
+
+	std::shared_ptr<MNode<T, IndKey>> tmp;
+
+	for (i=0; i<rows; ++i) {
+		for (j=0; j<cols; ++j) {
+			IndKey key(i, j);
+			tmp = std::make_shared<MNode<T, IndKey>>(data[i][j], key);
+			MNodes->Set(i, j, tmp);
+		}
+	}
+}
+
+
+/****************************************************
+ Region::Operator Overloading
+*****************************************************/
+template <class T>
+Region<T>& Region<T>::operator= (const Region<T>& r)
+{
+	Region<T> tmp(r);
+	*this = std::move(tmp);
+	return *this;
+}
+
+template <class T>
+Region<T>& Region<T>::operator= (Region<T>&& r) noexcept
+{
+	MNodes = std::move(r.MNodes);
+	root_node = std::move(r.root_node);
+	rows = r.Rows();
+	cols = r.Cols();
+
+	return *this;
+}
+
+/****************************************************
  Region::Constructors and Destructors
 *****************************************************/
-template <class T, class KeyT>
-Region<T, KeyT>::Region() : \
+template <class T>
+Region<T>::Region() : \
 	MNodes(nullptr),
 	root_node(nullptr),
 	rows(1), cols(1)
 {
 }
 
-template <class T, class KeyT>
-Region<T, KeyT>::Region::Region(
-	const ULLONG size_r, const ULLONG size_c) : \
+template <class T>
+Region<T>::Region::Region(
+	const ULLONG& size_r, const ULLONG& size_c) : \
 	Region()
 {
 	rows = size_r; cols = size_c;
 	make_nodes();
 }
 
-template <class T, class KeyT>
-Region<T, KeyT>::Region(const Region<T, KeyT>& r)
+template <class T>
+Region<T>::Region(const Region<T>& r)
 {
-	MNodes = r.GetNodes();
-	root_node = r.GetRootNode();
+	Matrix< std::shared_ptr<MNode<T, IndKey>> >& MN_tmp = *r.GetNodes();
+	MNode<T, IndKey>& rn_tmp = *r.GetRootNode();
+
+	MNodes = std::make_unique<Matrix< std::shared_ptr<MNode<T, IndKey>> >>(MN_tmp);
+	root_node = std::make_shared<MNode<T, IndKey>>(rn_tmp);
+
 	rows = r.Rows();
 	cols = r.Cols();
 }
 
-template <class T, class KeyT>
-Region<T, KeyT>::~Region()
+template <class T>
+Region<T>::Region(Region<T>&& r) noexcept
+{
+	MNodes = std::move(r.MNodes);
+	root_node = std::move(r.root_node);
+
+	rows = r.Rows();
+	cols = r.Cols();
+}
+
+template <class T>
+Region<T>::~Region()
 {
 }

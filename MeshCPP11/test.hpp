@@ -25,6 +25,7 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include <cmath>
 #include <ctime>
@@ -40,14 +41,13 @@
 
 /* Some dummy data class */
 class Dummy {
-private:
+public:
 	int x;
 	int y;
 	double efield;
 	double potential;
 	int key;
 
-public:
 	int keygen() { return (x+y)*(x+y+1)/2 + x; }
 
 	std::string Print() {
@@ -62,8 +62,29 @@ public:
 
 	int GetKey() { return key; }
 
+	Dummy& operator= (const Dummy& d)
+	{
+		Dummy tmp(d);
+		*this = std::move(tmp);
+		return *this;
+	}
+
+	Dummy& operator= (Dummy&& d) noexcept
+	{
+		x = d.x;
+		y = d.y;
+		efield = d.efield;
+		potential = d.potential;
+		key = d.key;
+
+		return *this;
+	}
+
 	Dummy(int x, int y, double ef, double pot) :
-		x(x), y(y), efield(ef), potential(pot) {;}
+		x(x), y(y), efield(ef), potential(pot)
+	{
+		key = keygen();
+	}
 	Dummy() : x(0), y(0), efield(0.0), potential(0.0)
 	{
 		x = (int)std::rand()%DEFALUT_ROWS;
@@ -88,14 +109,30 @@ public:
 		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
 		key = keygen();
 	}
+	Dummy(const Dummy& d) : \
+		x(d.x), y(d.y),
+		efield(d.efield),
+		potential(d.potential),
+		key(d.key)
+	{
+	}
+	Dummy(Dummy&& d) noexcept
+	{
+		x = d.x;
+		y = d.y;
+		efield = d.efield;
+		potential = d.potential;
+		key = d.key;
+	}
 	virtual ~Dummy() {;}
 };
 
 /* The test class */
 class DataStrTest {
 private:
-	Dummy* ldata;
-	Dummy** data;
+	std::vector<Dummy> ldata;
+	std::vector<std::vector<Dummy>> data;
+
 	ULLONG rows;
 	ULLONG cols;
 
@@ -145,7 +182,7 @@ public:
 
 	DataStrTest();
 	DataStrTest(ULLONG rows, ULLONG cols);
-	~DataStrTest();
+	virtual ~DataStrTest();
 };
 
 #endif /* Include guard */

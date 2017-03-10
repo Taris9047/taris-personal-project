@@ -1,6 +1,9 @@
 # Detecting OS --> let's use clang!!
-CC=clang
-CXX=clang++
+#CC=clang
+#CXX=clang++
+
+CC=gcc
+CXX=g++
 
 UNAME := $(shell uname)
 ifeq ($(UNALE), darwin)

@@ -18,7 +18,7 @@
 
 *****************************************************/
 
-
+#include <stdexcept>
 
 /****************************************************
  MNode::Private methods
@@ -71,23 +71,23 @@ int MNode<T, KeyT>::attach(
 		update_adjs(RH, tn);
 		break;
 	case RD:
-		this->rh = tn;
+		this->rd = tn;
 		update_adjs(RD, tn);
 		break;
 	case DN:
-		this->rh = tn;
+		this->dn = tn;
 		update_adjs(DN, tn);
 		break;
 	case LH:
-		this->rh = tn;
+		this->lh = tn;
 		update_adjs(LH, tn);
 		break;
 	case LU:
-		this->rh = tn;
+		this->lu = tn;
 		update_adjs(LU, tn);
 		break;
 	case UP:
-		this->rh = tn;
+		this->up = tn;
 		update_adjs(UP, tn);
 		break;
 	}
@@ -108,10 +108,10 @@ int MNode<T, KeyT>::update_L(
 	int tmp_dir = (int)attach_direction;
 
 	while (true) {
-		tmp_dir = find_L(tmp_dir, tmp);
+		tmp_dir = find_L((enum MNodeDir)tmp_dir, tmp);
 		if (tmp_dir == -1) break;
 
-		tmp_n = map(tmp_dir, tmp);
+		tmp_n = map((enum MNodeDir)tmp_dir, tmp);
 
 		if (tmp_n == tmp) break;
 		else if (tmp_n == tn) break;
@@ -145,13 +145,13 @@ int MNode<T, KeyT>::update_R(
 	std::shared_ptr<MNode<T, KeyT>> tmp = tn;
 	std::shared_ptr<MNode<T, KeyT>> tmp_n;
 	int me;
-	enum MNodeDir tmp_dir = attach_direction;
+	int tmp_dir = (int)attach_direction;
 
 	while (true) {
-		tmp_dir = find_R(tmp_dir, tmp);
+		tmp_dir = find_R((enum MNodeDir)tmp_dir, tmp);
 		if (tmp_dir == -1) break;
 
-		tmp_n = map(tmp_dir, tmp);
+		tmp_n = map((enum MNodeDir)tmp_dir, tmp);
 
 		if (tmp_n == tmp) break;
 		else if (tmp_n == tn) break;
@@ -194,37 +194,37 @@ int MNode<T, KeyT>::find_L(
 	switch (in_dir) {
 	case RH:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFL[0][i]);
+			retn = map(MPathFL[0][i], n);
 			if (retn) return i;
 		}
 		break;
 	case RD:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFL[1][i]);
+			retn = map(MPathFL[1][i], n);
 			if (retn) return i;
 		}
 		break;
 	case DN:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFL[2][i]);
+			retn = map(MPathFL[2][i], n);
 			if (retn) return i;
 		}
 		break;
 	case LH:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFL[3][i]);
+			retn = map(MPathFL[3][i], n);
 			if (retn) return i;
 		}
 		break;
 	case LU:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFL[4][i]);
+			retn = map(MPathFL[4][i], n);
 			if (retn) return i;
 		}
 		break;
 	case UP:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFL[5][i]);
+			retn = map(MPathFL[5][i], n);
 			if (retn) return i;
 		}
 		break;
@@ -243,37 +243,37 @@ int MNode<T, KeyT>::find_R(
 	switch (in_dir) {
 	case RH:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFR[0][i]);
+			retn = map(MPathFR[0][i], n);
 			if (retn) return i;
 		}
 		break;
 	case RD:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFR[1][i]);
+			retn = map(MPathFR[1][i], n);
 			if (retn) return i;
 		}
 		break;
 	case DN:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFR[2][i]);
+			retn = map(MPathFR[2][i], n);
 			if (retn) return i;
 		}
 		break;
 	case LH:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFR[3][i]);
+			retn = map(MPathFR[3][i], n);
 			if (retn) return i;
 		}
 		break;
 	case LU:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFR[4][i]);
+			retn = map(MPathFR[4][i], n);
 			if (retn) return i;
 		}
 		break;
 	case UP:
 		for (i=0; i<6; ++i) {
-			retn = map(MPathFR[5][i]);
+			retn = map(MPathFR[5][i], n);
 			if (retn) return i;
 		}
 		break;
@@ -322,23 +322,35 @@ std::shared_ptr<MNode<T, KeyT>> MNode<T, KeyT>::map(
  MNode::Access node methods
 *****************************************************/
 template <class T, class KeyT>
-void MNode<T, KeyT>::Set(T& d)
+int MNode<T, KeyT>::Set(T& d)
 {
-	std::shared_ptr<T> sd = \
-		std::make_shared<T>(d);
+	std::shared_ptr<T> sd = std::make_shared<T>(d);
 	assert(sd);
 	this->data = sd;
+
+	return 0;
 }
 
 template <class T, class KeyT>
-T MNode<T, KeyT>::Get() const
+int MNode<T, KeyT>::Set(std::shared_ptr<T> pd)
 {
-	assert(this->data);
+	this->data = pd;
+
+	return 0;
+}
+
+template <class T, class KeyT>
+T& MNode<T, KeyT>::Get()
+{
+	if (data == nullptr)
+		throw std::invalid_argument(
+			"MNode: nothing has been initialized!!");
+
 	return *this->data;
 }
 
 template <class T, class KeyT>
-std::shared_ptr<T> MNode<T, KeyT>::pGet() const
+std::shared_ptr<T> MNode<T, KeyT>::pGet()
 {
 	return this->data;
 }
@@ -350,7 +362,7 @@ void MNode<T, KeyT>::SetKey(KeyT& k)
 }
 
 template <class T, class KeyT>
-KeyT MNode<T, KeyT>::GetKey() const
+KeyT& MNode<T, KeyT>::GetKey()
 {
 	return this->key;
 }
@@ -367,8 +379,7 @@ int MNode<T, KeyT>::SetRH(std::shared_ptr<MNode<T, KeyT>> mn)
 		return 0;
 	}
 
-	/* updating rd */
-	return this->attach(RH);
+	return this->attach(RH, mn);
 }
 
 template <class T, class KeyT>
@@ -379,7 +390,7 @@ int MNode<T, KeyT>::SetRD(std::shared_ptr<MNode<T, KeyT>> mn)
 		return 0;
 	}
 
-
+	return this->attach(RD, mn);
 }
 
 template <class T, class KeyT>
@@ -390,6 +401,7 @@ int MNode<T, KeyT>::SetDN(std::shared_ptr<MNode<T, KeyT>> mn)
 		return 0;
 	}
 
+	return this->attach(DN, mn);
 }
 
 template <class T, class KeyT>
@@ -400,6 +412,7 @@ int MNode<T, KeyT>::SetLH(std::shared_ptr<MNode<T, KeyT>> mn)
 		return 0;
 	}
 
+	return this->attach(LH, mn);
 }
 
 template <class T, class KeyT>
@@ -410,6 +423,7 @@ int MNode<T, KeyT>::SetLU(std::shared_ptr<MNode<T, KeyT>> mn)
 		return 0;
 	}
 
+	return this->attach(LU, mn);
 }
 
 template <class T, class KeyT>
@@ -420,10 +434,46 @@ int MNode<T, KeyT>::SetUP(std::shared_ptr<MNode<T, KeyT>> mn)
 		return 0;
 	}
 
+	return this->attach(UP, mn);
 }
 
+template <class T, class KeyT>
+MNode<T, KeyT>& MNode<T, KeyT>::operator= (const MNode<T, KeyT>& mn)
+{
+	MNode<T, KeyT> tmp(mn);
+	*this = std::move(tmp);
+	return *this;
+}
 
+template <class T, class KeyT>
+MNode<T, KeyT>& MNode<T, KeyT>::operator= (MNode<T, KeyT>&& mn) noexcept
+{
+	rh = nullptr;
+	rd = nullptr;
+	dn = nullptr;
+	lh = nullptr;
+	lu = nullptr;
+	up = nullptr;
+	data = nullptr;
 
+	rh = mn.rh;
+	rd = mn.rd;
+	dn = mn.dn;
+	lh = mn.lh;
+	lu = mn.lu;
+	up = mn.up;
+	data = mn.data;
+
+	mn.rh = nullptr;
+	mn.rd = nullptr;
+	mn.dn = nullptr;
+	mn.lh = nullptr;
+	mn.lu = nullptr;
+	mn.up = nullptr;
+	mn.data = nullptr;
+
+	return *this;
+}
 
 /****************************************************
  MNode::Constructors and Destructors
@@ -448,16 +498,66 @@ MNode<T, KeyT>::MNode(T& d, KeyT& k) : MNode()
 }
 
 template <class T, class KeyT>
-MNode<T, KeyT>::MNode(MNode<T, KeyT>& mn) :
+MNode<T, KeyT>::MNode(std::shared_ptr<T> pd, KeyT& k) : MNode()
+{
+	this->Set(pd);
+	this->SetKey(k);
+}
+
+template <class T, class KeyT>
+MNode<T, KeyT>::MNode(const MNode<T, KeyT>& mn) :
+	key(mn.key)
+{
+	MNode<T, KeyT>& tmp_rh = *mn.rh;
+	MNode<T, KeyT>& tmp_rd = *mn.rd;
+	MNode<T, KeyT>& tmp_dn = *mn.dn;
+	MNode<T, KeyT>& tmp_lh = *mn.lh;
+	MNode<T, KeyT>& tmp_lu = *mn.lu;
+	MNode<T, KeyT>& tmp_up = *mn.up;
+	T& tmp = *mn.data;
+
+	rh = std::make_shared<MNode<T, KeyT>>(tmp_rh);
+	rd = std::make_shared<MNode<T, KeyT>>(tmp_rd);
+	dn = std::make_shared<MNode<T, KeyT>>(tmp_dn);
+	lh = std::make_shared<MNode<T, KeyT>>(tmp_lh);
+	lu = std::make_shared<MNode<T, KeyT>>(tmp_lu);
+	up = std::make_shared<MNode<T, KeyT>>(tmp_up);
+	data = std::make_shared<T>(tmp);
+}
+
+template <class T, class KeyT>
+MNode<T, KeyT>::MNode(MNode<T, KeyT>&& mn) noexcept : \
 	rh(mn.rh),
 	rd(mn.rd),
 	dn(mn.dn),
 	lh(mn.lh),
 	lu(mn.lu),
 	up(mn.up),
-	data(mn.data),
 	key(mn.key)
 {
+	MNode<T, KeyT>& tmp_rh = *mn.rh;
+	MNode<T, KeyT>& tmp_rd = *mn.rd;
+	MNode<T, KeyT>& tmp_dn = *mn.dn;
+	MNode<T, KeyT>& tmp_lh = *mn.lh;
+	MNode<T, KeyT>& tmp_lu = *mn.lu;
+	MNode<T, KeyT>& tmp_up = *mn.up;
+	T& tmp = *mn.data;
+
+	rh = std::make_shared<MNode<T, KeyT>>(tmp_rh);
+	rd = std::make_shared<MNode<T, KeyT>>(tmp_rd);
+	dn = std::make_shared<MNode<T, KeyT>>(tmp_dn);
+	lh = std::make_shared<MNode<T, KeyT>>(tmp_lh);
+	lu = std::make_shared<MNode<T, KeyT>>(tmp_lu);
+	up = std::make_shared<MNode<T, KeyT>>(tmp_up);
+	data = std::make_shared<T>(tmp);
+
+	mn.rh = nullptr;
+	mn.rd = nullptr;
+	mn.dn = nullptr;
+	mn.lh = nullptr;
+	mn.lu = nullptr;
+	mn.up = nullptr;
+	mn.data = nullptr;
 }
 
 template <class T, class KeyT>

@@ -87,6 +87,12 @@ struct IndKey {
 		else throw std::invalid_argument("KeyInd: Index out of range!!");
 	}
 
+	IndKey& operator= (const IndKey& o)
+	{
+		x = o.x; y = o.y;
+		return *this;
+	}
+
 	std::string Print() {
 		std::stringstream ss;
 		ss << "X: " << x << ", Y: " << y;
@@ -104,29 +110,33 @@ struct IndKey {
 /* Simple Matrix class (Uses binary tree... yeah, sparse matrix) */
 template <class T>
 class Matrix {
-private:
+public:
 	std::unique_ptr<BTree<T, IndKey>> BTData;
 
 	ULLONG rows;
 	ULLONG cols;
 
-public:
 	/* Access */
-	T& At(const ULLONG ir, const ULLONG ic);
-	T& operator () (const ULLONG ir, const ULLONG ic); /* Same as At */
-	int Set(const ULLONG ir, const ULLONG ic, T& d); /* Set data */
+	T& At(const ULLONG& ir, const ULLONG& ic);
+	T& operator () (const ULLONG& ir, const ULLONG& ic); /* Same as At */
+	int Set(const ULLONG& ir, const ULLONG& ic, T& d); /* Set data */
+	int Set(const ULLONG& ir, const ULLONG& ic,
+		std::shared_ptr<T> pd); /* Set data with pointer */
 	Matrix<T>& operator= (const Matrix<T>& m); /* Assignment operator */
+	Matrix<T>& operator= (Matrix<T>&& m) noexcept;
 
 	ULLONG Rows() { return rows; }
 	ULLONG Cols() { return cols; }
 	IndKey Size() { return IndKey(rows, cols); }
 	std::unique_ptr<BTree<T, IndKey>> GetTree()
 	{ return BTData; }
+	bool Chk(const ULLONG& ir, const ULLONG& ic);
 
 	/* Constructors and destructors */
 	Matrix();
 	Matrix(const ULLONG size_r, const ULLONG size_c, const T& init_data);
 	Matrix(const Matrix<T>& m);
+	Matrix(Matrix<T>&& m) noexcept;
 	virtual ~Matrix();
 };
 

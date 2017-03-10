@@ -29,12 +29,12 @@
 #include "mesh.hpp"
 #include "matrix.hpp"
 
-template <class T, class KeyT>
-class Region : public std::enable_shared_from_this<BTNode<T, KeyT>>
+template <class T>
+class Region : public std::enable_shared_from_this<Region<T>>
 {
 private:
-	std::unique_ptr<Matrix<T>> MNodes;
-	std::shared_ptr<MNode<T, KeyT>> root_node;
+	std::unique_ptr<Matrix< std::shared_ptr<MNode<T, IndKey>> >> MNodes;
+	std::shared_ptr<MNode<T, IndKey>> root_node;
 
 	ULLONG rows;
 	ULLONG cols;
@@ -43,17 +43,24 @@ private:
 
 public:
 	/* Access */
-	std::unique_ptr<Matrix<T>> GetNodes()
-	{ return MNodes; }
-	std::shared_ptr<MNode<T, KeyT>> GetRootNode()
-	{ return root_node; }
+	std::unique_ptr<Matrix<T>> GetNodes() { return MNodes; }
+	std::shared_ptr<MNode<T, IndKey>> GetRootNode() { return root_node; }
 	ULLONG Rows() { return rows; }
 	ULLONG Cols() { return cols; }
 
+	/* Manipulation */
+	void AssignData(T** data);
+	void AssignData(std::vector<std::vector<T>> data);
+
+	/* operator overloading */
+	Region<T>& operator= (const Region<T>& r);
+	Region<T>& operator= (Region<T>&& r) noexcept;
+
 	/* Constructors and Destructors */
 	Region();
-	Region(const ULLONG size_r, const ULLONG size_c);
-	Region(const Region<T, KeyT>& r);
+	Region(const ULLONG& size_r, const ULLONG& size_c);
+	Region(const Region<T>& r);
+	Region(Region<T>&& r) noexcept;
 	virtual ~Region();
 };
 

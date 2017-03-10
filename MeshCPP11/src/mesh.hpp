@@ -57,7 +57,7 @@ const enum MNodeDir MPathFR[6][6] = \
 
 /* The node */
 template <class T, class KeyT>
-class MNode : public std::enable_shared_from_this<LNode<T>>
+class MNode : public std::enable_shared_from_this<MNode<T, KeyT>>
 {
 private:
 	/* Pointer to the data */
@@ -98,12 +98,13 @@ public:
 	std::shared_ptr<MNode<T, KeyT>> up;
 
 	/* Access... */
-	void Set(T& d);
-	T Get() const;
-	std::shared_ptr<T> pGet() const;
+	int Set(T& d);
+	int Set(std::shared_ptr<T> pd);
+	T& Get();
+	std::shared_ptr<T> pGet();
 
 	void SetKey(KeyT& k);
-	KeyT GetKey() const;
+	KeyT& GetKey();
 
 	/* Manipulation */
 	int SetRH(std::shared_ptr<MNode<T, KeyT>> mn);
@@ -113,10 +114,16 @@ public:
 	int SetLU(std::shared_ptr<MNode<T, KeyT>> mn);
 	int SetUP(std::shared_ptr<MNode<T, KeyT>> mn);
 
+	/* Operator overloading */
+	MNode<T, KeyT>& operator= (const MNode<T, KeyT>& mn);
+	MNode<T, KeyT>& operator= (MNode<T, KeyT>&& mn) noexcept;
+
 	/* Constructors and Destructors */
 	MNode();
 	MNode(T& d, KeyT& k);
-	MNode(MNode<T, KeyT>& mn);
+	MNode(std::shared_ptr<T> pd, KeyT& k);
+	MNode(const MNode<T, KeyT>& mn);
+	MNode(MNode<T, KeyT>&& mn) noexcept;
 	virtual ~MNode();
 };
 

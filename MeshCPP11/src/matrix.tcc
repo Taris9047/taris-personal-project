@@ -28,7 +28,7 @@
  Matrix::Access methods
 *****************************************************/
 template <class T>
-T& Matrix<T>::At(const ULLONG ir, const ULLONG ic)
+T& Matrix<T>::At(const ULLONG& ir, const ULLONG& ic)
 {
 	assert(ir < rows || ic < cols);
 
@@ -37,13 +37,13 @@ T& Matrix<T>::At(const ULLONG ir, const ULLONG ic)
 }
 
 template <class T>
-T& Matrix<T>::operator () (const ULLONG ir, const ULLONG ic)
+T& Matrix<T>::operator () (const ULLONG& ir, const ULLONG& ic)
 {
 	return At(ir, ic);
 }
 
 template <class T>
-int Matrix<T>::Set(const ULLONG ir, const ULLONG ic, T& d)
+int Matrix<T>::Set(const ULLONG& ir, const ULLONG& ic, T& d)
 {
 	IndKey key(ir, ic);
 
@@ -56,9 +56,48 @@ int Matrix<T>::Set(const ULLONG ir, const ULLONG ic, T& d)
 }
 
 template <class T>
+int Matrix<T>::Set(const ULLONG& ir, const ULLONG& ic,
+	std::shared_ptr<T> pd)
+{
+	IndKey key(ir, ic);
+
+	if (ir >= rows || ic >= cols) {
+		rows = ir+1;
+		cols = ic+1;
+		return BTData->Insert(pd, key);
+	}
+	else return BTData->Set(pd, key);
+}
+
+template <class T>
+bool Matrix<T>::Chk(const ULLONG& ir, const ULLONG& ic)
+{
+	IndKey key(ir, ic);
+	std::shared_ptr<BTNode<T, IndKey>> tmp = \
+		BTData->pGet(key);
+
+	if (tmp != nullptr) return true;
+	else return false;
+}
+
+
+/****************************************************
+ Matrix::Operators
+*****************************************************/
+template <class T>
 Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
 {
-	return Matrix<T>(m);
+	Matrix<T> tmp(m);
+	*this = std::move(tmp);
+	return *this;
+}
+
+template <class T>
+Matrix<T>& Matrix<T>::operator= (Matrix<T>&& m) noexcept
+{
+	BTData = nullptr;
+	BTData = std::move(m.BTData);
+	return *this;
 }
 
 
@@ -107,5 +146,22 @@ Matrix<T>::Matrix(const Matrix<T>& m)
 {
 	rows = m.Rows();
 	cols = m.Cols();
-	BTData = m.GetTree();
+
+	BTree<T, IndKey>& tmp = *m.BTData;
+	BTData = std::make_unique<BTree<T, IndKey>>(tmp);
+}
+
+template <class T>
+Matrix<T>::Matrix(Matrix<T>&& m) noexcept
+{
+	rows = m.Rows();
+	cols = m.Cols();
+
+	BTData = std::move(m.BTData);
+}
+
+/* Destructor */
+template <class T>
+Matrix<T>::~Matrix()
+{
 }

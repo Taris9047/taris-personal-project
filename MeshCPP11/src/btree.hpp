@@ -43,7 +43,8 @@ public:
 
 	/* Access functions */
 	T Get() const;
-	void Set(T ndata);
+	int Set(T ndata);
+	int Set(std::shared_ptr<T> pndata);
 	std::shared_ptr<BTNode<T, KeyT>> GetLeft() const;
 	std::shared_ptr<BTNode<T, KeyT>> GetRight() const;
 	std::shared_ptr<BTNode<T, KeyT>> GetParent() const;
@@ -53,10 +54,16 @@ public:
 	KeyT GetKey() const;
 	void SetKey(KeyT& newkey);
 
+	/* Operator overloading */
+	BTNode<T, KeyT>& operator= (const BTNode<T, KeyT>& btnode);
+	BTNode<T, KeyT>& operator= (BTNode<T, KeyT>&& btnode) noexcept;
+
 	/* Constructors and Destructors */
     BTNode();
     BTNode(T& ndata, KeyT& nkey);
-	BTNode(BTNode<T, KeyT>& btnode);
+	BTNode(std::shared_ptr<T> pndata, KeyT& nkey);
+	BTNode(const BTNode<T, KeyT>& btnode);
+	BTNode(BTNode<T, KeyT>&& btnode) noexcept;
 	virtual ~BTNode() {;}
 };
 
@@ -65,7 +72,7 @@ public:
 /* Binary tree main control class */
 template <class T, class KeyT>
 class BTree {
-private:
+public:
 	std::shared_ptr<BTNode<T, KeyT>> root_node; /* The root node */
 	ULLONG nodes; /* Total number of nodes */
 
@@ -78,19 +85,26 @@ private:
 	bool InsNode(
 		std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r);
 
-public:
 	/* Access functions */
 	T Get(KeyT& k) const;
 	std::shared_ptr<BTNode<T, KeyT>> pGet(KeyT& k);
-	void Set(T& ndata, KeyT& k);
+	int Set(T& ndata, KeyT& k);
+	int Set(std::shared_ptr<T> pndata, KeyT& k);
 
 	/* Manipulation */
 	int Insert(T& ndata, KeyT& k);
+	int Insert(std::shared_ptr<T> ndata, KeyT& k);
 	int Remove(KeyT& k);
+
+	/* Operator overloading */
+	BTree<T, KeyT>& operator= (const BTree<T, KeyT>& bt);
+	BTree<T, KeyT>& operator= (BTree<T, KeyT>&& bt) noexcept;
 
 	/* Constructors and Destructors */
 	BTree() : root_node(nullptr), nodes(0) {;}
-	BTree(BTree<T, KeyT>& bt);
+	BTree(const BTree<T, KeyT>& bt);
+	BTree(BTree<T, KeyT>&& bt) noexcept;
+	virtual ~BTree() {;}
 };
 
 

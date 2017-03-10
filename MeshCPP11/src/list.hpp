@@ -44,9 +44,13 @@ public:
     void SetNext(std::shared_ptr<LNode<T>> ln);
     void SetPrev(std::shared_ptr<LNode<T>> ln);
 
+	LNode<T>& operator= (const LNode<T>& ln);
+	LNode<T>& operator= (LNode<T>&& ln) noexcept;
+
     LNode() : data(nullptr), next(nullptr), prev(nullptr) {;}
     LNode(T& d) : LNode() { data = std::make_shared<T>(d); }
-    LNode(LNode& ln);
+    LNode(const LNode<T>& ln);
+	LNode(LNode<T>&& ln) noexcept;
     ~LNode();
 };
 
@@ -71,7 +75,7 @@ public:
 
     // Constructors and destructors
     List();
-    List(List& l);
+    List(const List& l);
     virtual ~List();
 };
 
