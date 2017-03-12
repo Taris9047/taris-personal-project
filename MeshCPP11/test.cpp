@@ -176,21 +176,11 @@ DataStrTest::DataStrTest(ULLONG r, ULLONG c) : \
 	for (i=0; i<rows; ++i)
 		ldata.push_back(Dummy((int)i));
 
-	data.resize(r, std::vector<Dummy>(c, Dummy()));
 	for (i=0; i<rows; ++i) {
-		data[i][j] = Dummy((int)i, (int)j);
+		data.push_back(std::vector<Dummy>());
+		for (j=0; j<cols; ++j)
+			data[i].push_back(Dummy( (int)i, (int)j ));
 	}
-
-	// ldata = new Dummy[this->rows];
-	// for (i=0; i<this->rows; ++i) ldata[i] = Dummy((int)i);
-	//
-	// data = new Dummy*[this->rows];
-	// for (i=0; i<this->rows; ++i) {
-	// 	data[i] = new Dummy[this->cols];
-	// 	for (j=0; j<this->cols; ++j) {
-	// 		data[i][j] = Dummy((int)i, (int)j);
-	// 	}
-	// }
 }
 
 DataStrTest::~DataStrTest()
