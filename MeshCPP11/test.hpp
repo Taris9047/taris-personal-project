@@ -40,7 +40,8 @@
 #define DEFAULT_COLS 250
 
 /* Some dummy data class */
-class Dummy {
+class Dummy
+{
 public:
 	int x;
 	int y;
@@ -91,38 +92,37 @@ public:
 		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
 		key = keygen();
 	}
-
 	virtual ~Dummy() {;}
 };
 
 /* The test class */
-class DataStrTest {
+class DataStrTest
+{
 private:
-	std::vector<std::shared_ptr<Dummy>> ldata;
-	std::vector<std::vector<std::shared_ptr<Dummy>>> data;
+	std::vector<Dummy> ldata;
+	std::vector<std::vector<Dummy>> data;
 
 	ULLONG rows;
 	ULLONG cols;
 
 	std::unique_ptr<List<Dummy>> list;
 	std::unique_ptr<BTree<Dummy, int>> btree;
-	std::unique_ptr<Region<Dummy>> reg;
+	std::unique_ptr<Region<Dummy>> region;
 
-	int* index_memory;
+	std::vector<int> index_memory;
 	int index_mem_size;
 	void set_ind_mem(int size)
 	{
 		int i;
 
-		if (this->index_memory) delete [] this->index_memory;
-		this->index_memory = new int[size];
-		this->index_mem_size = size;
+		index_memory.reserve(size);
+		index_mem_size = size;
 
 		for (i=0; i<size; ++i) this->index_memory[i] = -1;
 	}
 	void del_ind_mem()
 	{
-		if (this->index_memory) delete [] this->index_memory;
+		index_memory.empty();
 		this->index_mem_size = 0;
 	}
 	int rand_ind(int max_index)

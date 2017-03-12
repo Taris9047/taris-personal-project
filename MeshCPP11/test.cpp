@@ -47,7 +47,7 @@ void DataStrTest::TestList()
 
 	/* Push test */
 	std::cout << "[List] Testing Push" << std::endl;
-	for (i=0; i<rows; ++i) this->list->Push(*ldata[i]);
+	for (i=0; i<rows; ++i) this->list->Push(ldata[i]);
 	std::cout << "[List] Pushed " << rows << " data." << std::endl;
 
 	/* Pop test */
@@ -95,7 +95,7 @@ void DataStrTest::TestBTree()
 
 	std::cout << "[BTree] Testing insert " << std::endl;
 	for (i=0; i<rows; ++i) {
-		key = ldata[i]->GetKey();
+		key = ldata[i].GetKey();
 		this->btree->Insert(ldata[i], key);
 	}
 	std::cout << "[BTree] Inserted " << rows << " Dummy data. " << std::endl;
@@ -107,23 +107,23 @@ void DataStrTest::TestBTree()
 	for (i=0; i<sel_items; ++i) {
 		tmp = rand_ind(sel_items);
 		index_memory[i] = tmp;
-		std::cout << "[BTree] Selected " << ldata[tmp]->Print() << std::endl;
+		std::cout << "[BTree] Selected " << ldata[tmp].Print() << std::endl;
 	}
 	for (i=0; i<index_mem_size; ++i) {
-		key = ldata[index_memory[i]]->GetKey();
+		key = ldata[index_memory[i]].GetKey();
 		this->btree->Remove(key);
-		std::cout << "[BTree] Removed " << ldata[index_memory[i]]->Print() << std::endl;
+		std::cout << "[BTree] Removed " << ldata[index_memory[i]].Print() << std::endl;
 	}
 
 	std::cout << "[BTree] Testing search ... " << std::endl;
 	for (i=0; i<index_mem_size; ++i) {
 		it = (ULLONG)std::rand()%rows;
-		key = ldata[it]->GetKey();
+		key = ldata[it].GetKey();
 		if ( this->btree->pGet(key) != nullptr ) {
-			std::cout << "[BTree] Found: " << ldata[it]->Print() << std::endl;
+			std::cout << "[BTree] Found: " << ldata[it].Print() << std::endl;
 		}
 		else {
-			std::cout << "[BTree] Not Found: " << ldata[it]->Print() << std::endl;
+			std::cout << "[BTree] Not Found: " << ldata[it].Print() << std::endl;
 		}
 	}
 
@@ -142,11 +142,11 @@ void DataStrTest::TestMesh()
 
 	std::cout << "[Mesh] Generating a Mesh Region with " << this->rows \
 		<< " x " << this->cols << " of size ..." << std::endl;
-	this->reg = \
+	this->region = \
 		std::make_unique<Region<Dummy>>(this->rows, this->cols);
 
 	std::cout << "[Mesh] Assigning " << this->rows << " x "<< this->cols << " data" << std::endl;
-	reg->AssignData(this->data);
+	this->region->AssignData(this->data);
 
 }
 
@@ -154,14 +154,14 @@ void DataStrTest::TestMesh()
  DataStrTest::Constructors and Destructors
 *****************************************************/
 DataStrTest::DataStrTest() : \
-	ldata(std::vector<std::shared_ptr<Dummy>>()),
-	data(std::vector<std::vector<std::shared_ptr<Dummy>>>()),
+	ldata(std::vector<Dummy>()),
+	data(std::vector<std::vector<Dummy>>()),
 	list(nullptr),
 	btree(nullptr),
-	reg(nullptr),
+	region(nullptr),
 	rows(0),
 	cols(0),
-	index_memory(nullptr),
+	index_memory(std::vector<int>()),
 	index_mem_size(0)
 {}
 
@@ -174,11 +174,11 @@ DataStrTest::DataStrTest(ULLONG r, ULLONG c) : \
 	ULLONG i, j;
 
 	for (i=0; i<rows; ++i)
-		ldata.push_back( std::make_shared<Dummy>((int)i) );
+		ldata.push_back(Dummy((int)i));
 
-	data.resize( r, std::vector<std::shared_ptr<Dummy>>( c, nullptr ) );
+	data.resize(r, std::vector<Dummy>(c, Dummy()));
 	for (i=0; i<rows; ++i) {
-		data[i][j] = std::make_shared<Dummy>( (int)i, (int)j );
+		data[i][j] = Dummy((int)i, (int)j);
 	}
 
 	// ldata = new Dummy[this->rows];
