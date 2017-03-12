@@ -142,11 +142,11 @@ void DataStrTest::TestMesh()
 
 	std::cout << "[Mesh] Generating a Mesh Region with " << this->rows \
 		<< " x " << this->cols << " of size ..." << std::endl;
-	std::unique_ptr<Region<Dummy>> reg = \
+	this->region = \
 		std::make_unique<Region<Dummy>>(this->rows, this->cols);
 
 	std::cout << "[Mesh] Assigning " << this->rows << " x "<< this->cols << " data" << std::endl;
-	reg->AssignData(this->data);
+	this->region->AssignData(this->data);
 
 }
 
@@ -157,9 +157,11 @@ DataStrTest::DataStrTest() : \
 	ldata(std::vector<Dummy>()),
 	data(std::vector<std::vector<Dummy>>()),
 	list(nullptr),
+	btree(nullptr),
+	region(nullptr),
 	rows(0),
 	cols(0),
-	index_memory(nullptr),
+	index_memory(std::vector<int>()),
 	index_mem_size(0)
 {}
 

@@ -58,11 +58,10 @@ all: $(CXXSOURCES) $(CPPHEADERS) test.cpp test.hpp
 
 
 clean:
-	rm -rfv *.Po
-	rm -rfv *.o
-	rm -rfv *.a
+	rm -rfv *.Po $(SRCDIR)/*.Po
+	rm -rfv *.o $(SRCDIR)/*.o
+	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
-	rm -rfv *.so *.dll *.pyc
-	rm -rfv *.dSYM
+	rm -rfv *.so *.dll *.pyc $(SRCDIR)/*.so $(SRCDIR)/*.dll $(SRCDIR)/*.pyc
+	rm -rfv *.dSYM $(SRCDIR)/*.dSYM
 	rm -rfv ./$(TESTF_NAME)
-	rm -rfv ./$(TESTF_NAME)_cpp
