@@ -51,6 +51,7 @@ public:
 	/* Manipulation */
 	void AssignData(T** data);
 	void AssignData(std::vector<std::vector<T>> data);
+	void AssignData(std::vector<std::vector<std::shared_ptr<T>>> pdata);
 
 	/* operator overloading */
 	Region<T>& operator= (const Region<T>& r);

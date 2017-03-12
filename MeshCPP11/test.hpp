@@ -62,24 +62,6 @@ public:
 
 	int GetKey() { return key; }
 
-	Dummy& operator= (const Dummy& d)
-	{
-		Dummy tmp(d);
-		*this = std::move(tmp);
-		return *this;
-	}
-
-	Dummy& operator= (Dummy&& d) noexcept
-	{
-		x = d.x;
-		y = d.y;
-		efield = d.efield;
-		potential = d.potential;
-		key = d.key;
-
-		return *this;
-	}
-
 	Dummy(int x, int y, double ef, double pot) :
 		x(x), y(y), efield(ef), potential(pot)
 	{
@@ -109,36 +91,22 @@ public:
 		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
 		key = keygen();
 	}
-	Dummy(const Dummy& d) : \
-		x(d.x), y(d.y),
-		efield(d.efield),
-		potential(d.potential),
-		key(d.key)
-	{
-	}
-	Dummy(Dummy&& d) noexcept
-	{
-		x = d.x;
-		y = d.y;
-		efield = d.efield;
-		potential = d.potential;
-		key = d.key;
-	}
+
 	virtual ~Dummy() {;}
 };
 
 /* The test class */
 class DataStrTest {
 private:
-	std::vector<Dummy> ldata;
-	std::vector<std::vector<Dummy>> data;
+	std::vector<std::shared_ptr<Dummy>> ldata;
+	std::vector<std::vector<std::shared_ptr<Dummy>>> data;
 
 	ULLONG rows;
 	ULLONG cols;
 
 	std::unique_ptr<List<Dummy>> list;
 	std::unique_ptr<BTree<Dummy, int>> btree;
-	// std::unique_ptr<Mesh<Dummy>> mesh;
+	std::unique_ptr<Region<Dummy>> reg;
 
 	int* index_memory;
 	int index_mem_size;

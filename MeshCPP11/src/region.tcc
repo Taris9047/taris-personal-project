@@ -102,6 +102,22 @@ void Region<T>::AssignData(std::vector<std::vector<T>> data)
 	}
 }
 
+template <class T>
+void Region<T>::AssignData(std::vector<std::vector<std::shared_ptr<T>>> pdata)
+{
+	ULLONG i, j;
+
+	std::shared_ptr<MNode<T, IndKey>> tmp;
+
+	for (i=0; i<rows; ++i) {
+		for (j=0; j<cols; ++j) {
+			IndKey key(i, j);
+			tmp = std::make_shared<MNode<T, IndKey>>(*pdata[i][j], key);
+			MNodes->Set(i, j, tmp);
+		}
+	}
+}
+
 
 /****************************************************
  Region::Operator Overloading
