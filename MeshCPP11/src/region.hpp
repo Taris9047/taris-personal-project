@@ -33,17 +33,19 @@ template <class T>
 class Region : public std::enable_shared_from_this<Region<T>>
 {
 private:
-	std::unique_ptr<Matrix< std::shared_ptr<MNode<T, IndKey>> >> MNodes;
+	//std::unique_ptr<Matrix< std::shared_ptr<MNode<T, IndKey>> >> MNodes;
 	std::shared_ptr<MNode<T, IndKey>> root_node;
 
 	ULLONG rows;
 	ULLONG cols;
 
 	int make_nodes();
+	int delete_nodes();
+	int del_node(std::shared_ptr<MNode<T, IndKey>> n);
 
 public:
 	/* Access */
-	std::unique_ptr<Matrix<T>> GetNodes() { return MNodes; }
+	//std::unique_ptr<Matrix<T>> GetNodes() { return MNodes; }
 	std::shared_ptr<MNode<T, IndKey>> GetRootNode() { return root_node; }
 	ULLONG Rows() { return rows; }
 	ULLONG Cols() { return cols; }

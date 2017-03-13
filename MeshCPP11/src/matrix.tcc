@@ -164,4 +164,5 @@ Matrix<T>::Matrix(Matrix<T>&& m) noexcept
 template <class T>
 Matrix<T>::~Matrix()
 {
+	BTData = nullptr;
 }

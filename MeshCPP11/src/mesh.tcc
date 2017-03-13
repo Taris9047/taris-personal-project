@@ -563,4 +563,11 @@ MNode<T, KeyT>::MNode(MNode<T, KeyT>&& mn) noexcept : \
 template <class T, class KeyT>
 MNode<T, KeyT>::~MNode()
 {
+	data = nullptr;
+	rh = nullptr;
+	rd = nullptr;
+	dn = nullptr;
+	lh = nullptr;
+	lu = nullptr;
+	up = nullptr;
 }

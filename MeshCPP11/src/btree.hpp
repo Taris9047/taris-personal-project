@@ -37,7 +37,7 @@ public:
     std::shared_ptr<T> data; /* the data pointer */
     std::shared_ptr<BTNode<T, KeyT>> left; /* left branch */
     std::shared_ptr<BTNode<T, KeyT>> right; /* right branch */
-	std::shared_ptr<BTNode<T, KeyT>> parent; /* top branch */
+	std::weak_ptr<BTNode<T, KeyT>> parent; /* top branch */
 
     KeyT key; /* the key. Datatype must be comparable */
 
@@ -45,12 +45,6 @@ public:
 	T Get() const;
 	int Set(T ndata);
 	int Set(std::shared_ptr<T> pndata);
-	std::shared_ptr<BTNode<T, KeyT>> GetLeft() const;
-	std::shared_ptr<BTNode<T, KeyT>> GetRight() const;
-	std::shared_ptr<BTNode<T, KeyT>> GetParent() const;
-	void SetLeft(std::shared_ptr<BTNode<T, KeyT>> btnode);
-	void SetRight(std::shared_ptr<BTNode<T, KeyT>> btnode);
-	void SetParent(std::shared_ptr<BTNode<T, KeyT>> btnode);
 	KeyT GetKey() const;
 	void SetKey(KeyT& newkey);
 
@@ -64,7 +58,7 @@ public:
 	BTNode(std::shared_ptr<T> pndata, KeyT& nkey);
 	BTNode(const BTNode<T, KeyT>& btnode);
 	BTNode(BTNode<T, KeyT>&& btnode) noexcept;
-	virtual ~BTNode() {;}
+	virtual ~BTNode();
 };
 
 
@@ -104,7 +98,7 @@ public:
 	BTree() : root_node(nullptr), nodes(0) {;}
 	BTree(const BTree<T, KeyT>& bt);
 	BTree(BTree<T, KeyT>&& bt) noexcept;
-	virtual ~BTree() {;}
+	virtual ~BTree();
 };
 
 

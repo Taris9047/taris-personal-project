@@ -45,48 +45,6 @@ int BTNode<T, KeyT>::Set(std::shared_ptr<T> pndata)
 	return 0;
 }
 template <class T, class KeyT>
-std::shared_ptr<BTNode<T, KeyT>> BTNode<T, KeyT>::GetLeft() const
-{
-	return left;
-}
-template <class T, class KeyT>
-std::shared_ptr<BTNode<T, KeyT>> BTNode<T, KeyT>::GetRight() const
-{
-	return right;
-}
-template <class T, class KeyT>
-std::shared_ptr<BTNode<T, KeyT>> BTNode<T, KeyT>::GetParent() const
-{
-	return parent;
-}
-template <class T, class KeyT>
-void BTNode<T, KeyT>::SetLeft(std::shared_ptr<BTNode<T, KeyT>> btnode)
-{
-	if (!btnode) {
-		left = nullptr;
-		return;
-	}
-
-	left = std::move(btnode);
-	btnode->parent = this->shared_from_this();
-}
-template <class T, class KeyT>
-void BTNode<T, KeyT>::SetRight(std::shared_ptr<BTNode<T, KeyT>> btnode)
-{
-	if (!btnode) {
-		right = nullptr;
-		return;
-	}
-
-	right = std::move(btnode);
-	btnode->parent = this->shared_from_this();
-}
-template <class T, class KeyT>
-void BTNode<T, KeyT>::SetParent(std::shared_ptr<BTNode<T, KeyT>> btnode)
-{
-	parent = std::move(btnode);
-}
-template <class T, class KeyT>
 KeyT BTNode<T, KeyT>::GetKey() const
 {
 	return key;
@@ -116,12 +74,12 @@ BTNode<T, KeyT>& BTNode<T, KeyT>::operator= (BTNode<T, KeyT>&& btnode) noexcept
 	data = nullptr;
 	left = nullptr;
 	right = nullptr;
-	parent = nullptr;
+	//parent = std::weak_ptr<BTNode<T, KeyT>>();
 
 	data = std::move(btnode.data);
 	left = std::move(btnode.left);
 	right = std::move(btnode.right);
-	parent = std::move(btnode.parent);
+	parent = std::move(btnode.parent.lock());
 
 	return *this;
 }
@@ -130,12 +88,15 @@ BTNode<T, KeyT>& BTNode<T, KeyT>::operator= (BTNode<T, KeyT>&& btnode) noexcept
  BTNode::Constructors and Destructors
 *****************************************************/
 template <class T, class KeyT>
-BTNode<T, KeyT>::BTNode()
+BTNode<T, KeyT>::BTNode() : \
+	data(nullptr),
+	left(nullptr),
+	right(nullptr)
 {
 	data = nullptr;
 	left = nullptr;
 	right = nullptr;
-	parent = nullptr;
+	//parent = nullptr;
 }
 
 template <class T, class KeyT>
@@ -158,7 +119,7 @@ BTNode<T, KeyT>::BTNode(const BTNode<T, KeyT>& btnode)
 	T& tmp_data = *btnode->Get();
 	BTNode<T, KeyT>& tmp_l = *btnode->left;
 	BTNode<T, KeyT>& tmp_r = *btnode->right;
-	BTNode<T, KeyT>& tmp_p = *btnode->parent;
+	BTNode<T, KeyT>& tmp_p = *btnode->parent.lock();
 
 	data = std::make_shared<T>(tmp_data);
 	left = std::make_shared<BTNode<T, KeyT>>(tmp_l);
@@ -174,9 +135,19 @@ BTNode<T, KeyT>::BTNode(BTNode<T, KeyT>&& btnode) noexcept
 	data = std::move(btnode->data);
 	left = std::move(btnode->left);
 	right = std::move(btnode->right);
-	parent = std::move(btnode->parent);
+	parent = std::move(btnode->parent.lock());
 	key = btnode->GetKey();
 }
+
+template <class T, class KeyT>
+BTNode<T, KeyT>::~BTNode()
+{
+	data = nullptr;
+	left = nullptr;
+	right = nullptr;
+	//parent = nullptr;
+}
+
 
 
 
@@ -215,9 +186,9 @@ BTNode<T, KeyT>::BTNode(BTNode<T, KeyT>&& btnode) noexcept
 template <class T, class KeyT>
 bool BTree<T, KeyT>::IsLefty(std::shared_ptr<BTNode<T, KeyT>> n)
 {
-	assert(n->GetParent() != nullptr);
+	assert(n->parent.lock());
 
-	if (n->parent->left == n) return true;
+	if (n->parent.lock()->left == n) return true;
 	else return false;
 }
 
@@ -295,7 +266,7 @@ bool BTree<T, KeyT>::RemNode(
 	/* Ok, we've found the target node */
 	std::shared_ptr<BTNode<T, KeyT>> tmp_l = tmp->left;
 	std::shared_ptr<BTNode<T, KeyT>> tmp_r = tmp->right;
-	std::shared_ptr<BTNode<T, KeyT>> tmp_p = tmp->parent;
+	std::shared_ptr<BTNode<T, KeyT>> tmp_p = tmp->parent.lock();
 	std::shared_ptr<BTNode<T, KeyT>> tmp_min;
 	std::shared_ptr<BTNode<T, KeyT>> tmp_min_p;
 	bool me_left;
@@ -313,15 +284,15 @@ bool BTree<T, KeyT>::RemNode(
 			/* Find minimum fron right side */
 			tmp_min = FindMin(tmp_r);
 			// tmp_min must be lefty
-			tmp_min_p = tmp_min->parent;
+			tmp_min_p = tmp_min->parent.lock();
 			tmp_min_p->left = nullptr;
 			/* Then make it root */
 			root_node = std::move(tmp_min);
-			root_node->parent = nullptr;
+			root_node->parent = std::weak_ptr<BTNode<T, KeyT>>();
 			root_node->left = tmp_l;
 			root_node->right = tmp_r;
 		}
-		root_node->parent = nullptr;
+		root_node->parent = std::weak_ptr<BTNode<T, KeyT>>();
 		tmp.reset();
 		return true;
 	}
@@ -344,7 +315,7 @@ bool BTree<T, KeyT>::RemNode(
 	}
 	else if (tmp_l && tmp_r) {
 		tmp_min = FindMin(tmp_r);
-		tmp_min_p = tmp_min->parent;
+		tmp_min_p = tmp_min->parent.lock();
 		tmp_min_p->left = nullptr;
 
 		if (me_left) tmp_p->left = tmp_min;
@@ -479,4 +450,11 @@ BTree<T, KeyT>::BTree(BTree<T, KeyT>&& bt) noexcept
 {
 	root_node = std::move(bt.root_node);
 	nodes = bt.nodes;
+}
+
+template <class T, class KeyT>
+BTree<T, KeyT>::~BTree()
+{
+	root_node = nullptr;
+	nodes = 0;
 }
