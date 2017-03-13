@@ -31,10 +31,10 @@ int Region<T>::make_nodes()
 	if (!root_node)
 		root_node = std::make_shared<MNode<T, IndKey>>();
 
-	if (!MNodes) {
-		MNodes = std::make_unique<Matrix< std::shared_ptr<MNode<T, IndKey>>>>();
-		MNodes->Set(0, 0, root_node);
-	}
+	// if (!MNodes) {
+	// 	MNodes = std::make_unique<Matrix< std::shared_ptr<MNode<T, IndKey>>>>();
+	// 	MNodes->Set(0, 0, root_node);
+	// }
 
 	if (rows == 1 && cols == 1) return 0;
 
@@ -46,7 +46,7 @@ int Region<T>::make_nodes()
 	for (i=1; i<rows; ++i) {
 		new_node = std::make_shared<MNode<T, IndKey>>();
 		tmp->SetDN(new_node);
-		MNodes->Set(i, 0, new_node);
+		//MNodes->Set(i, 0, new_node);
 		tmp = tmp->dn;
 	}
 	tmp = root_node;
@@ -55,7 +55,7 @@ int Region<T>::make_nodes()
 		for (j=1; j<cols; ++j) {
 			new_node = std::make_shared<MNode<T, IndKey>>();
 			tmp->SetRH(new_node);
-			MNodes->Set(i, j, new_node);
+			//MNodes->Set(i, j, new_node);
 			tmp = tmp->rh;
 		}
 	}
@@ -63,6 +63,36 @@ int Region<T>::make_nodes()
 	return i*j;
 }
 
+template <class T>
+int Region<T>::delete_nodes()
+{
+	if (!root_node) return 1;
+
+	if (rows == 1 && cols == 1) root_node = nullptr;
+
+	std::shared_ptr<MNode<T, IndKey>> tmp = root_node;
+
+	return del_node(tmp);
+}
+
+template <class T>
+int Region<T>::del_node(std::shared_ptr<MNode<T, IndKey>> n)
+{
+	if (n->rh) del_node(n->rh);
+	if (n->rd) del_node(n->rd);
+	if (n->dn) del_node(n->dn);
+
+	n->rh = nullptr;
+	n->rd = nullptr;
+	n->dn = nullptr;
+	n->lh = nullptr;
+	n->lu = nullptr;
+	n->up = nullptr;
+
+	n = nullptr;
+
+	return 0;
+}
 
 /****************************************************
  Region::Manipulation
@@ -81,7 +111,7 @@ void Region<T>::AssignData(T** data)
 		for (j=0; j<cols; ++j) {
 			IndKey key(i, j);
 			tmp = std::make_shared<MNode<T, IndKey>>(data[i][j], key);
-			MNodes->Set(i, j, tmp);
+			//MNodes->Set(i, j, tmp);
 		}
 	}
 }
@@ -97,7 +127,7 @@ void Region<T>::AssignData(std::vector<std::vector<T>> data)
 		for (j=0; j<cols; ++j) {
 			IndKey key(i, j);
 			tmp = std::make_shared<MNode<T, IndKey>>(data[i][j], key);
-			MNodes->Set(i, j, tmp);
+			//MNodes->Set(i, j, tmp);
 		}
 	}
 }
@@ -113,7 +143,7 @@ void Region<T>::AssignData(std::vector<std::vector<std::shared_ptr<T>>> pdata)
 		for (j=0; j<cols; ++j) {
 			IndKey key(i, j);
 			tmp = std::make_shared<MNode<T, IndKey>>(*pdata[i][j], key);
-			MNodes->Set(i, j, tmp);
+			//MNodes->Set(i, j, tmp);
 		}
 	}
 }
@@ -133,7 +163,7 @@ Region<T>& Region<T>::operator= (const Region<T>& r)
 template <class T>
 Region<T>& Region<T>::operator= (Region<T>&& r) noexcept
 {
-	MNodes = std::move(r.MNodes);
+	//MNodes = std::move(r.MNodes);
 	root_node = std::move(r.root_node);
 	rows = r.Rows();
 	cols = r.Cols();
@@ -146,7 +176,6 @@ Region<T>& Region<T>::operator= (Region<T>&& r) noexcept
 *****************************************************/
 template <class T>
 Region<T>::Region() : \
-	MNodes(nullptr),
 	root_node(nullptr),
 	rows(1), cols(1)
 {
@@ -164,10 +193,10 @@ Region<T>::Region::Region(
 template <class T>
 Region<T>::Region(const Region<T>& r)
 {
-	Matrix< std::shared_ptr<MNode<T, IndKey>> >& MN_tmp = *r.GetNodes();
+	//Matrix< std::shared_ptr<MNode<T, IndKey>> >& MN_tmp = *r.GetNodes();
 	MNode<T, IndKey>& rn_tmp = *r.GetRootNode();
 
-	MNodes = std::make_unique<Matrix< std::shared_ptr<MNode<T, IndKey>> >>(MN_tmp);
+	//MNodes = std::make_unique<Matrix< std::shared_ptr<MNode<T, IndKey>> >>(MN_tmp);
 	root_node = std::make_shared<MNode<T, IndKey>>(rn_tmp);
 
 	rows = r.Rows();
@@ -177,7 +206,7 @@ Region<T>::Region(const Region<T>& r)
 template <class T>
 Region<T>::Region(Region<T>&& r) noexcept
 {
-	MNodes = std::move(r.MNodes);
+	//MNodes = std::move(r.MNodes);
 	root_node = std::move(r.root_node);
 
 	rows = r.Rows();
@@ -187,4 +216,6 @@ Region<T>::Region(Region<T>&& r) noexcept
 template <class T>
 Region<T>::~Region()
 {
+	delete_nodes();
+	// MNodes = nullptr;
 }
