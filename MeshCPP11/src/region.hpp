@@ -33,7 +33,7 @@ template <class T>
 class Region : public std::enable_shared_from_this<Region<T>>
 {
 private:
-	//std::unique_ptr<Matrix< std::shared_ptr<MNode<T, IndKey>> >> MNodes;
+	std::unique_ptr<Matrix< std::shared_ptr<MNode<T, IndKey>> >> MNodes;
 	std::shared_ptr<MNode<T, IndKey>> root_node;
 
 	ULLONG rows;
@@ -47,8 +47,9 @@ public:
 	/* Access */
 	//std::unique_ptr<Matrix<T>> GetNodes() { return MNodes; }
 	std::shared_ptr<MNode<T, IndKey>> GetRootNode() { return root_node; }
-	ULLONG Rows() { return rows; }
-	ULLONG Cols() { return cols; }
+	ULLONG Rows() const { return rows; }
+	ULLONG Cols() const { return cols; }
+	T& At(const ULLONG& r, const ULLONG& c);
 
 	/* Manipulation */
 	void AssignData(T** data);
@@ -58,6 +59,7 @@ public:
 	/* operator overloading */
 	Region<T>& operator= (const Region<T>& r);
 	Region<T>& operator= (Region<T>&& r) noexcept;
+	T& operator() (const ULLONG& r, const ULLONG& c);
 
 	/* Constructors and Destructors */
 	Region();

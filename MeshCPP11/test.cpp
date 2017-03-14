@@ -136,6 +136,9 @@ void DataStrTest::TestMesh()
 {
 	ULLONG i, j, it, jt;
 
+	std::vector<int> index_memory_rows;
+	std::vector<int> index_memory_cols;
+
 	std::cout << "[Mesh] Testing mesh..." << std::endl;
 
 	std::cout << "[Mesh] Testing region generation..." << std::endl;
@@ -147,6 +150,29 @@ void DataStrTest::TestMesh()
 
 	std::cout << "[Mesh] Assigning " << this->rows << " x "<< this->cols << " data" << std::endl;
 	this->region->AssignData(this->data);
+
+	ULLONG sel_items_r = rows/10;
+	ULLONG sel_items_c = cols/10;
+
+	index_memory_rows.reserve(sel_items_r);
+	index_memory_cols.reserve(sel_items_c);
+
+	for (i=0; i<sel_items_r; ++i)
+		index_memory_rows[i] = rand_ind(rows);
+	for (j=0; j<sel_items_c; ++j)
+		index_memory_cols[j] = rand_ind(cols);
+
+	std::cout << "[Mesh] Accessing some random spots... " << std::endl;
+	for (i=0; i<sel_items_r; ++i) {
+		for (j=0; j<sel_items_c; ++j) {
+			it = index_memory_rows[rand_ind(sel_items_r)];
+			jt = index_memory_cols[rand_ind(sel_items_c)];
+			std::cout << "[Mesh] Accessing [" \
+				<< it << "][" << jt << "]: " \
+				<< this->region->At(it, jt).Print() \
+				<< std::endl;
+		}
+	}
 
 }
 

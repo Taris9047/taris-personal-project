@@ -37,15 +37,15 @@ public:
     std::shared_ptr<T> data; /* the data pointer */
     std::shared_ptr<BTNode<T, KeyT>> left; /* left branch */
     std::shared_ptr<BTNode<T, KeyT>> right; /* right branch */
-	std::weak_ptr<BTNode<T, KeyT>> parent; /* top branch */
+	std::shared_ptr<BTNode<T, KeyT>> parent; /* top branch */
 
     KeyT key; /* the key. Datatype must be comparable */
 
 	/* Access functions */
-	T Get() const;
+	T& Get();
 	int Set(T ndata);
 	int Set(std::shared_ptr<T> pndata);
-	KeyT GetKey() const;
+	KeyT& GetKey();
 	void SetKey(KeyT& newkey);
 
 	/* Operator overloading */
@@ -80,7 +80,7 @@ public:
 		std::shared_ptr<BTNode<T, KeyT>> bt, std::shared_ptr<BTNode<T, KeyT>> r);
 
 	/* Access functions */
-	T Get(KeyT& k) const;
+	T& Get(KeyT& k);
 	std::shared_ptr<BTNode<T, KeyT>> pGet(KeyT& k);
 	int Set(T& ndata, KeyT& k);
 	int Set(std::shared_ptr<T> pndata, KeyT& k);

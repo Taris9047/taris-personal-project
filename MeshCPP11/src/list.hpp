@@ -37,7 +37,7 @@ public:
     std::shared_ptr<LNode<T>> next; /* next node */
     std::shared_ptr<LNode<T>> prev; /* previous node */
 
-    T Get() const;
+    T& Get() const;
     int Set(std::shared_ptr<T>& ndata);
     std::shared_ptr<LNode<T>> GetNext() const;
     std::shared_ptr<LNode<T>> GetPrev() const;
@@ -64,8 +64,8 @@ private:
 public:
     // Push, Pop, Access, Reverse methods
     int Push(T& new_stuff);
-    T Pop();
-    T At(ULLONG index) const;
+    T& Pop();
+    T& At(ULLONG index) const;
     int Reverse();
 
     // Status check methods

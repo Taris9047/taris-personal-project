@@ -63,11 +63,6 @@ public:
 
 	int GetKey() { return key; }
 
-	// Dummy& operator= (Dummy& d)
-	// {
-	// 	return d;
-	// }
-
 	Dummy(int x, int y, double ef, double pot) :
 		x(x), y(y), efield(ef), potential(pot)
 	{
@@ -97,9 +92,6 @@ public:
 		potential = std::sqrt(std::pow((double)std::rand()/DEFAULT_COLS, 2.0));
 		key = keygen();
 	}
-	// Dummy(const Dummy& d) {
-	// 	(*this) = d;
-	// }
 	virtual ~Dummy() {;}
 };
 

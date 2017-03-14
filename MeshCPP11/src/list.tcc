@@ -54,7 +54,7 @@ void LNode<T>::SetPrev(std::shared_ptr<LNode<T>> ln)
  LNode::Access methods
 *****************************************************/
 template <class T>
-T LNode<T>::Get() const
+T& LNode<T>::Get() const
 {
 	return *data;
 }
@@ -175,11 +175,11 @@ int List<T>::Push(T& new_stuff)
 
 // Pop
 template <class T>
-T List<T>::Pop()
+T& List<T>::Pop()
 {
 	assert(root_node);
 
-	T stuff = root_node->Get();
+	T& stuff = root_node->Get();
 
 	std::shared_ptr<LNode<T>> tmp = root_node->next;
 	root_node->next = nullptr;
@@ -218,7 +218,7 @@ int List<T>::Reverse()
 *****************************************************/
 // Access by index
 template <class T>
-T List<T>::At(ULLONG index) const
+T& List<T>::At(ULLONG index) const
 {
 	ULLONG i;
 	std::shared_ptr<LNode<T>> tmp;

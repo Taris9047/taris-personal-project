@@ -37,12 +37,6 @@ T& Matrix<T>::At(const ULLONG& ir, const ULLONG& ic)
 }
 
 template <class T>
-T& Matrix<T>::operator () (const ULLONG& ir, const ULLONG& ic)
-{
-	return At(ir, ic);
-}
-
-template <class T>
 int Matrix<T>::Set(const ULLONG& ir, const ULLONG& ic, T& d)
 {
 	IndKey key(ir, ic);
@@ -70,7 +64,7 @@ int Matrix<T>::Set(const ULLONG& ir, const ULLONG& ic,
 }
 
 template <class T>
-bool Matrix<T>::Chk(const ULLONG& ir, const ULLONG& ic)
+bool Matrix<T>::Chk(const ULLONG& ir, const ULLONG& ic) const
 {
 	IndKey key(ir, ic);
 	std::shared_ptr<BTNode<T, IndKey>> tmp = \
@@ -84,6 +78,12 @@ bool Matrix<T>::Chk(const ULLONG& ir, const ULLONG& ic)
 /****************************************************
  Matrix::Operators
 *****************************************************/
+template <class T>
+T& Matrix<T>::operator () (const ULLONG& ir, const ULLONG& ic)
+{
+	return At(ir, ic);
+}
+
 template <class T>
 Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
 {
