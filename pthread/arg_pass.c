@@ -42,6 +42,7 @@ typedef struct _thread_data {
 	char* message;
 } thread_data;
 
+/* constructor for the thread_data */
 thread_data new_thread_data()
 {
 	thread_data t;
@@ -68,6 +69,7 @@ void* print_hello(void *thread_arg)
 	pthread_exit(NULL);
 }
 
+/* main function */
 int main(int argc, char* argv[])
 {
 	pthread_t* threads;

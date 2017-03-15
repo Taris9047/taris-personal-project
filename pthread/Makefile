@@ -1,22 +1,30 @@
-CC=clang
-CFLAGS=-ggdb3
+CC=gcc
+CFLAGS=-ggdb3 -Wall
+LIBS=-pthread -lm
 
 INF=$(wildcard *.c)
 OUTF=$(INF:.c=)
 
 all: $(OUTF)
 
-pthread_tutorial: pthread_tutorial.c
-	$(CC) $(CFLAGS) -o $@ $<
+basic: basic.c
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
-pthread_arg_pass: pthread_arg_pass.c
-	$(CC) $(CFLAGS) -o $@ $<
-	
-pthread_mutex: pthread_mutex.c
-	$(CC) $(CFLAGS) -o $@ $<
+arg_pass: arg_pass.c
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
+mutex: mutex.c
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
-clean: $(OUTF)
+join: join.c
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+
+stack: stack.c
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+
+manage: manage.c
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
+
+clean:
 	rm -rfv $(OUTF) $(OUTF).exe
 	rm -rfv *.stackdump
-
