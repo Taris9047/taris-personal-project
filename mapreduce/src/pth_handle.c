@@ -44,7 +44,7 @@ void init_mutexes(long num)
     }
   }
 
-  printf("%lu mutexes are ready. Access with mutexes[i] ...\n");
+  printf("%li mutexes are ready. Access with mutexes[i] ...\n", num_mutex);
 }
 
 /* Destroy main mutex */
@@ -70,7 +70,7 @@ void destroy_mutexes()
   for (i=0; i<num_mutex; ++i) {
     rc = pthread_mutex_destroy(&mutexes[i]);
     if (rc) {
-      printf("Multi mutex destroy fail!! Mutex: %lu Code: %d\n", i, rc);
+      printf("Multi mutex destroy fail!! Mutex: %li Code: %d\n", i, rc);
       exit(-1);
     }
   }
