@@ -38,7 +38,7 @@ int get_pid_max()
 	char str_pid_max[100];
 	int pid_max;
 
-	fp = popen("ulimit -u", "r");
+	fp = popen("ulimit -a | grep processes | grep -o '[0-9]\\+'", "r");
 	if (!fp) {
 		printf("failed to run ulimit command!!\n");
 		exit(-1);
