@@ -6,8 +6,8 @@ CFLAGS=-ggdb3 $(WARNS)
 
 SRCDIR=./src
 
-VERNUM=0.3.0
-VERNUM_SHORT=0.3
+VERNUM=0.0.1
+VERNUM_SHORT=0.0
 
 CURR_DIR := $(shell pwd)
 
@@ -80,3 +80,4 @@ clean:
 	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
 	rm -rfv ./$(TESTF_NAME)
+	rm -rfv ./__pycache__
