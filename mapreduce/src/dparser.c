@@ -16,6 +16,9 @@
 
 #include "dparser.h"
 
+/***********************************************
+ parse and return pobj
+************************************************/
 /* read the text file */
 List parse_txt_file(char* f_name)
 {
@@ -36,6 +39,7 @@ List parse_txt_file(char* f_name)
 
   /* Now, let's scan the file */
   while ( (tmp_char = fgetc(fp)) ) {
+    p_tmp_pobj = NULL;
     /* Avoiding buffer overflow error */
     if (tmp_char_ind == BUFFER_MAX_LEN) {
       fprintf(stderr,
@@ -45,8 +49,8 @@ List parse_txt_file(char* f_name)
     /* test character value */
     if (tmp_char == EOF) {
       line[tmp_char_ind] = '\0';
-      p_tmp_pobj = parse_line(line);
-      LPush(p_obj_list, p_tmp_pobj);
+      // p_tmp_pobj = parse_line(line);
+      // LPush(p_obj_list, p_tmp_pobj);
       break;
     }
     else if (tmp_char == '\n') {
@@ -101,14 +105,31 @@ PObj parse_line(char* a_line)
 
   /* label */
   tmp = (char*)LPop(sections);
-  po->label = tmp;
+  po->label = strdup(tmp);
 
   /* timestamp */
   tmp = (char*)LPop(sections);
   po->ts = (ULLONG)atoi(tmp);
 
+  /* Original line */
+  po->line_str = strdup(a_line);
+
   DeleteList(sections);
-  free(str);
 
   return po;
+}
+
+/***********************************************
+ Destroy PObj
+************************************************/
+int DeletePObj(PObj po)
+{
+  assert(po);
+
+  if (po->label) free(po->label);
+  if (po->line_str) free(po->line_str);
+
+  free(po);
+
+  return 0;
 }

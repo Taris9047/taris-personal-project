@@ -44,13 +44,17 @@ typedef bintree_root* BTree;
 /* Methods */
 /* Constructors and Destructors */
 BTree BTNew();
+BTree NewBTree();
 int BTDelete(BTree bt);
+int DeleteBTree(BTree bt);
 
 /* Manipulation methods for control nodes */
 int BTInsert(BTree bt, btree_data_t stuff, unsigned long key);
 int BTRemove(BTree bt, btree_data_t stuff, unsigned long key);
 int BTSet(BTree bt, btree_data_t stuff, unsigned long key);
 btree_data_t BTSearch(BTree bt, unsigned long key);
+btree_data_t BTGetMax(BTree bt);
+btree_data_t BTGetMin(BTree bt);
 
 /* Initializers */
 BTNode bt_node_init();

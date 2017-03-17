@@ -42,18 +42,18 @@ OBJS=$(SOURCES:.c=.o)
 
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
-	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM_SHORT).a
-	DLIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM_SHORT).so
+	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).a
+	DLIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).so
 	LIBNAME=lib$(LIB_PROJ_NAME).a
 	DLIBNAME=lib$(LIB_PROJ_NAME).so
 else ifneq (, $(findstring cygwin, $(SYS)))
-	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM_SHORT).dll.a
-	DLIBNAMEV=cyg$(LIB_PROJ_NAME)-$(VERNUM_SHORT).dll
+	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).dll.a
+	DLIBNAMEV=cyg$(LIB_PROJ_NAME)-$(VERNUM).dll
 	LIBNAME=lib$(LIB_PROJ_NAME).dll.a
 	DLIBNAME=cyg$(LIB_PROJ_NAME).dll
 else ifneq (, $(findstring darwin, $(SYS)))
-	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM_SHORT).a
-	DLIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM_SHORT).so
+	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).a
+	DLIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).so
 	LIBNAME=lib$(LIB_PROJ_NAME).a
 	DLIBNAME=lib$(LIB_PROJ_NAME).so
 endif

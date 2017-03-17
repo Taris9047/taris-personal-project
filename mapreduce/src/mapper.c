@@ -27,8 +27,11 @@ Key NewKey(ULLONG* ts, PObj po)
   Key k = (Key)malloc(sizeof(mapped_key));
   assert(k);
 
-  if (ts) k->ts = *ts; else k->ts = 0;
+  if (ts) k->ts = *ts;
+  else k->ts = 0;
+
   if (po) k->point_data = po;
+  else k->point_data = NULL;
 
   return k;
 }
@@ -37,7 +40,69 @@ Key NewKey(ULLONG* ts, PObj po)
 bool KeyTsEq(Key k, Key o)
 {
   assert(k && o);
-
   if (k->ts == o->ts) return true;
   else return false;
+}
+
+/* Key destroyer */
+int DeleteKey(Key k)
+{
+  assert(k);
+  /*
+    If we decide to drop a key from memory,
+    Let's drop the original data from memory as well...
+  */
+  if (k->point_data) DeletePObj(k->point_data);
+
+  return 0;
+}
+
+/***********************************************
+ Mapper stuff
+************************************************/
+/* Mapper data struct generator */
+MArgs NewMArgs()
+{
+  MArgs ma = (MArgs)malloc(sizeof(mapper_data_args));
+  assert(ma);
+
+  ma->po = NULL;
+  // ma->key = NULL;
+  // ma->pid = 0;
+
+  return ma;
+}
+
+/* Mapper data struct generator with data */
+MArgs NewMArgsPO(PObj po)
+{
+  MArgs ma = NewMArgs();
+  ma->po = po;
+  return ma;
+}
+
+/* Mapper data struct destructor */
+int DeleteMArgs(MArgs ma)
+{
+  assert(ma);
+  free(ma);
+  return 0;
+}
+
+
+/* mapper - a pthread worker */
+void mapper(void* args)
+{
+  pth_args _args = (pth_args)args;
+  MArgs margs = (MArgs)_args->data_set;
+
+  pid_t my_pid = _args->pid;
+  //int rc = margs->rc;
+
+  PObj po = margs->po;
+  margs->key = NewKey(&po->ts, po);
+
+  arg_bundle_delete(_args);
+
+  pthread_exit((void*)&my_pid);
 }

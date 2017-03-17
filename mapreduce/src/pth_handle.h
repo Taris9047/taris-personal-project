@@ -47,6 +47,7 @@ typedef pth_arg_bundle* pth_args;
 
 /* Argument bundle initializer */
 pth_args arg_bundle_init(pid_t pid, void* data);
+int arg_bundle_delete(pth_args pa);
 
 
 

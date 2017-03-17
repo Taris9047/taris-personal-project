@@ -44,6 +44,10 @@ BTree BTNew()
 
   return bt;
 }
+BTree NewBTree()
+{
+  return BTNew();
+}
 
 int BTDelete(BTree bt)
 {
@@ -51,6 +55,10 @@ int BTDelete(BTree bt)
   if (bt->root_node) bt_node_destroy(bt->root_node);
   free(bt);
   return 0;
+}
+int DeleteBTree(BTree bt)
+{
+  return BTDelete(bt);
 }
 
 /* Manipulation methods for control nodes */
@@ -83,7 +91,32 @@ btree_data_t BTSearch(BTree bt, unsigned long key)
 
   return bt_n->stuff;
 }
+btree_data_t BTGetMax(BTree bt)
+{
+  assert(bt);
+  if (!bt->root_node) return NULL;
 
+  BTNode bt_tmp = bt->root_node;
+
+  while (bt_tmp->right) {
+    bt_tmp = bt_tmp->right;
+  }
+
+  return bt_tmp;
+}
+btree_data_t BTGetMin(BTree bt)
+{
+  assert(bt);
+  if (!bt->root_node) return NULL;
+
+  BTNode bt_tmp = bt->root_node;
+
+  while (bt_tmp->left) {
+    bt_tmp = bt_tmp->left;
+  }
+
+  return bt_tmp;
+}
 
 
 /* Initializers */

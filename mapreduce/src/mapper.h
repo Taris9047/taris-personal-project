@@ -15,6 +15,7 @@
 
 #include "utils.h"
 #include "dparser.h"
+#include "pth_handle.h"
 
 /* key */
 typedef struct _key {
@@ -24,13 +25,33 @@ typedef struct _key {
 typedef mapped_key* Key;
 
 /* Keygen */
-Key NewKey(ULONG* xc, ULONG* yc, ULONG* gs, ULLONG* ts);
+Key NewKey(ULLONG* ts, PObj po);
 /* Key comparator */
 bool KeyTsEq(Key k, Key o);
+/* Key destroyer */
+int DeleteKey(Key k);
 
+/* pthead interface */
+/*
+  Contents of args:
+    pid,
+    rc,
+    data -> pointer to PObj, pointer to key
+*/
+/* data struct for mapper */
+typedef struct _mapper_data_args {
+  PObj po;
+  Key key;
+  // pid_t pid;
+} mapper_data_args;
+typedef mapper_data_args* MArgs;
+/* Dummy constructor */
+MArgs NewMArgs();
+MArgs NewMArgsPO(PObj po);
+int DeleteMArgs(MArgs ma);
 
-
-
-
+/* mapper - a pthread worker */
+/* returns key */
+void mapper(void* args);
 
 #endif /* Include guard */

@@ -95,3 +95,12 @@ pth_args arg_bundle_init(pid_t pid, void* data)
 
   return pa;
 }
+
+/* Argument bundle deleter */
+int arg_bundle_delete(pth_args pa)
+{
+  assert(pa);
+  pa->data_set = NULL;
+  free(pa);
+  return 0;
+}

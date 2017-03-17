@@ -39,5 +39,7 @@ List parse_txt_file(char* f_name);
 /* parse a single line */
 PObj parse_line(char* a_line);
 
+/* Destructor */
+int DeletePObj(PObj po);
 
 #endif /* Include guard */

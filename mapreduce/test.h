@@ -15,11 +15,13 @@
 
 #include "src/mapreduce.h"
 
+#define DEF_THREADS 4
 
+/* Input argument handler */
+int inp_arg_handler(int argc, char** argv, char** fname, ULONG* threads);
 
-
-
-
+/* Max threads */
+ULONG get_pid_max();
 
 
 #endif /* Include guard */
