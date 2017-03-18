@@ -56,6 +56,7 @@ int inp_arg_handler(int argc, char** argv, char** fname, ULONG* threads)
 /* Let's figure out max thread numbers on current system... */
 ULONG get_pid_max()
 {
+#ifdef WIN32
 	FILE *fp;
 	char str_pid_max[100];
 	ULONG pid_max;
@@ -72,6 +73,28 @@ ULONG get_pid_max()
 	pclose(fp);
 
 	return pid_max;
+#elif MACOS
+	#include <sys/proc_internal.h>
+	return (ULONG)PID_MAX;
+
+#else
+    FILE *fp;
+    char str_pid_max[100];
+    ULONG pid_max;
+    
+    fp = fopen("/proc/sys/kernel/pid_max", "r");
+    if (!fp) {
+        fprintf(stderr, "Failed to open /proc/sys/kernel/pid_max Whoopsy?\n");
+        exit(-1);
+    }
+    
+    fgets(str_pid_max, sizeof(str_pid_max)-1, fp);
+    pid_max = (ULONG)atoi(str_pid_max);
+    
+    fclose(fp);
+    
+    return pid_max;
+#endif
 }
 
 
