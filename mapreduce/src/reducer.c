@@ -176,7 +176,7 @@ int ImgDataWriter(ImgData img_data, char* base_name)
   char* buffer;
 
   FILE* fp;
-  fp = fopen(fname, "w");
+  fp = fopen(fname, "a"); /* Data are read out not so concurrently. So, append */
   if (!fp) {
     fprintf(stderr, "reducer: Error, can't open img txt file!!\n");
     exit(-1);

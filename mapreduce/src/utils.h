@@ -24,5 +24,7 @@ typedef unsigned long long ULLONG;
 int ProgressBar(unsigned long curr, unsigned long all, const char* header_txt);
 int ProgressNum(unsigned long curr, const char* header_txt);
 
+/* Max threads */
+ULONG get_pid_max();
 
 #endif /* Include guard */

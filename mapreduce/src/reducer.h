@@ -46,7 +46,7 @@ int DeleteImgData(ImgData img_data);
 
 /* Reducer args struct */
 typedef struct _reducer_args {
-  List keys; /* Just one stuff... but let's keep it this way ... who knows? */
+  List keys;
   ImgData image_data;
 } reducer_args;
 typedef reducer_args* RDArgs;

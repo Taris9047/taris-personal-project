@@ -47,7 +47,16 @@ int DeleteList(List l)
   return 0;
 }
 
-
+/* List control node Hard destructor
+   --> Scrap up the data as well.
+*/
+int DeleteListHard(List l, int (*destroyer)() )
+{
+  assert(l);
+  if (l->root_node) list_node_destroy_hard(l->root_node, destroyer);
+  free(l);
+  return 0;
+}
 
 /* Constructor */
 LNode list_node_init()
@@ -75,6 +84,21 @@ int list_node_destroy(LNode l)
   return 0;
 }
 
+/* Hard node destructor */
+int list_node_destroy_hard(LNode l, int (*destroyer) () )
+{
+  assert(l);
+  LNode tl;
+  while (l) {
+    tl = l;
+    l = l->next;
+    if (destroyer) destroyer(tl->value);
+    else free(tl->value);
+    free(tl);
+  }
+
+  return 0;
+}
 
 /* Push, Pop, Search with root node */
 /* push */

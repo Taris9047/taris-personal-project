@@ -61,6 +61,15 @@ int DeleteBTree(BTree bt)
   return BTDelete(bt);
 }
 
+/* hard delete: destroys all the data as well */
+int DeleteBTreeHard(BTree bt, int (*destroyer)())
+{
+  assert(bt);
+  if (bt->root_node) bt_node_destroy_hard(bt->root_node, destroyer);
+  free(bt);
+  return 0;
+}
+
 /* Manipulation methods for control nodes */
 int BTInsert(BTree bt, btree_data_t stuff, unsigned long key)
 {
@@ -151,17 +160,20 @@ void bt_node_free(BTNode b)
   if (b->left) bt_node_free(b->left);
   if (b->right) bt_node_free(b->right);
 
-  // if (!(b->left && b->right)) {
-  //     b->stuff = NULL;
-  //     b->parent = NULL;
-  //     b->depth = 0;
-  //     b->key = 0;
-  // }
-
   free(b);
 }
 void bt_node_destroy(BTNode b) { bt_node_free(b); }
 
+/* Hard destruction... with data ... */
+void bt_node_destroy_hard(BTNode b, int (*destroyer)() )
+{
+  if (b->left) bt_node_destroy_hard(b->left, destroyer);
+  if (b->right) bt_node_destroy_hard(b->left, destroyer);
+
+  if (destroyer) destroyer(b->stuff);
+  else free(b->stuff);
+  free(b);
+}
 
 /* Getting some statics */
 /* Returns number of elements in the node */

@@ -47,6 +47,7 @@ BTree BTNew();
 BTree NewBTree();
 int BTDelete(BTree bt);
 int DeleteBTree(BTree bt);
+int DeleteBTreeHard(BTree bt, int (*destroyer)());
 
 /* Manipulation methods for control nodes */
 int BTInsert(BTree bt, btree_data_t stuff, unsigned long key);
@@ -63,6 +64,7 @@ BTNode bt_node_init_data(btree_data_t init_data);
 /* Destructor */
 void bt_node_free(BTNode b);
 void bt_node_destroy(BTNode b);
+void bt_node_destroy_hard(BTNode b, int (*destroyer)() );
 
 /* Getting some statistics */
 unsigned long bt_len(BTNode b);

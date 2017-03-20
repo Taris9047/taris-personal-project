@@ -31,9 +31,11 @@ typedef list_root* List;
 /* Constructors and destructors */
 List NewList();
 int DeleteList(List l);
+int DeleteListHard(List l, int (*destroyer)() );
 /* for individual Nodes */
 LNode list_node_init();
 int list_node_destroy(LNode l);
+int list_node_destroy_hard(LNode l, int (*destroyer) () );
 
 /* Push, Pop, Search with root node */
 int LPush(List l, list_data_t value);
