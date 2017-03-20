@@ -34,6 +34,7 @@ List parse_txt_file(char* f_name)
   FILE* fp = fopen(f_name, "r");
   if (!fp) {
     fprintf(stderr, "DParser: Error, can't open txt file!!\n");
+    fprintf(stderr, "Hint: Use dummy_data_gen.py to generate some stupid data set to play with!!\n");
     exit(-1);
   }
 

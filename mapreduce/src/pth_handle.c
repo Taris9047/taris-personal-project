@@ -104,3 +104,72 @@ int arg_bundle_delete(pth_args pa)
   free(pa);
   return 0;
 }
+
+
+/***********************************************
+ Multiple threads handling
+************************************************/
+/* Constructor */
+Threads NewThreads(
+  ULONG num_threads,
+  bool b_joinable,
+  pthread_mutex_t* n_mutex)
+{
+  assert(num_threads > 0);
+
+  ULONG i;
+  Threads thr = (Threads)malloc(sizeof(multiple_threads));
+  assert(thr);
+
+  /* Threads */
+  thr->n_threads = num_threads;
+  thr->threads = \
+    (pthread_t*)malloc(sizeof(pthread_t)*thr->n_threads);
+  assert(thr->threads);
+
+  /* Thread attributes */
+  thr->thread_attrs = \
+    (pthread_attr_t*)malloc(sizeof(pthread_attr_t)*thr->n_threads);
+  assert(thr->thread_attrs);
+  thr->joinable = b_joinable;
+  for (i=0; i<thr->n_threads; ++i) {
+    pthread_attr_init(&thr->thread_attrs[i]);
+    if (thr->joinable)
+      pthread_attr_setdetachstate(
+        &thr->thread_attrs[i], PTHREAD_CREATE_JOINABLE);
+  }
+
+  /* Mutex */
+  thr->mutex = n_mutex;
+  if (thr->mutex)
+    pthread_mutex_init(thr->mutex, NULL);
+
+  /* Status check pointer */
+  thr->status = NULL;
+
+  return thr;
+}
+
+/* Destructor */
+int DeleteThreads(Threads thr)
+{
+  assert(thr);
+
+  ULONG i;
+  if (thr->threads) {
+    if (thr->joinable) {
+      for (i=0; i<thr->n_threads; ++i)
+        pthread_join(thr->threads[i], &thr->status);
+    }
+    free(thr->threads);
+  }
+
+  if (thr->thread_attrs)
+    free(thr->thread_attrs);
+
+  if (thr->mutex)
+    pthread_mutex_destroy(thr->mutex);
+
+  free(thr);
+  return 0;
+}

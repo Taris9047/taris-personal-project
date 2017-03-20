@@ -18,197 +18,220 @@
 /* Static method */
 static int node_trav(LNode* l)
 {
-    assert(*l);
-    LNode tmp = (*l);
-    while (tmp->next) tmp = tmp->next;
-    (*l) = tmp;
-    return 0;
+  assert(*l);
+  LNode tmp = (*l);
+  while (tmp->next) tmp = tmp->next;
+  (*l) = tmp;
+  return 0;
 }
 
 /* Constructors and destructors */
 /* List control node Constructor */
 List NewList()
 {
-    List nl = (List)malloc(sizeof(list_root));
-    assert(nl);
+  List nl = (List)malloc(sizeof(list_root));
+  assert(nl);
 
-    nl->root_node = NULL;
-    nl->len = 0;
+  nl->root_node = NULL;
+  nl->len = 0;
 
-    return nl;
+  return nl;
 }
 
 /* List control node Destructor */
 int DeleteList(List l)
 {
-    assert(l);
-    if (l->root_node) list_node_destroy(l->root_node);
-    free(l);
-    return 0;
+  assert(l);
+  if (l->root_node) list_node_destroy(l->root_node);
+  free(l);
+  return 0;
 }
 
-
+/* List control node Hard destructor
+   --> Scrap up the data as well.
+*/
+int DeleteListHard(List l, int (*destroyer)() )
+{
+  assert(l);
+  if (l->root_node) list_node_destroy_hard(l->root_node, destroyer);
+  free(l);
+  return 0;
+}
 
 /* Constructor */
 LNode list_node_init()
 {
-    LNode l = (LNode)malloc(sizeof(list_node));
-    assert(l);
+  LNode l = (LNode)malloc(sizeof(list_node));
+  assert(l);
 
-    l->next = NULL;
-    l->prev = NULL;
-    l->value = NULL;
+  l->next = NULL;
+  l->prev = NULL;
+  l->value = NULL;
 
-    return l;
+  return l;
 }
 /* Destructor */
 int list_node_destroy(LNode l)
 {
-    assert(l);
-    LNode tl;
-    while (l) {
-        //if (l->value) free(l->value);
-        tl = l;
-        l = l->next;
-        free(tl);
-    }
+  assert(l);
+  LNode tl;
+  while (l) {
+    tl = l;
+    l = l->next;
+    free(tl);
+  }
 
-    return 0;
+  return 0;
 }
 
+/* Hard node destructor */
+int list_node_destroy_hard(LNode l, int (*destroyer) () )
+{
+  assert(l);
+  LNode tl;
+  while (l) {
+    tl = l;
+    l = l->next;
+    if (destroyer) destroyer(tl->value);
+    else free(tl->value);
+    free(tl);
+  }
+
+  return 0;
+}
 
 /* Push, Pop, Search with root node */
 /* push */
 int LPush(List l, list_data_t value)
 {
-    assert(l);
-    (l->len)++;
-    if (!l->root_node) l->root_node = list_node_init();
-    return list_node_push(&l->root_node, value);
+  assert(l);
+  (l->len)++;
+  if (!l->root_node) l->root_node = list_node_init();
+  return list_node_push(&l->root_node, value);
 }
 
 /* pop */
 list_data_t LPop(List l)
 {
-    assert(l);
-    if (!l->root_node) return NULL;
-    else {
-        (l->len)--;
-        return list_node_pop(&l->root_node);
-    }
+  assert(l);
+  if (!l->root_node) return NULL;
+  else {
+    (l->len)--;
+    return list_node_pop(&l->root_node);
+  }
 }
 
 /* search */
 LNode LSearch(List l, list_data_t value)
 {
-    assert(l);
-    if (!l->root_node) return NULL;
-    else return list_node_search(l->root_node, value);
+  assert(l);
+  if (!l->root_node) return NULL;
+  else return list_node_search(l->root_node, value);
 }
 
 /* Access the list with an array fashion */
 list_data_t LAt(List l, unsigned long ind)
 {
-    assert(l);
-    assert(ind < l->len);
+  assert(l);
+  assert(ind < l->len);
 
-    LNode tmp = l->root_node;
+  LNode tmp = l->root_node;
 
-    unsigned long i;
-    for (i=0; i<=ind; ++i) {
-        tmp = tmp->next;
-    }
+  unsigned long i;
+  for (i=0; i<=ind; ++i) {
+    tmp = tmp->next;
+  }
 
-    if (tmp) return tmp->value;
-    else return NULL;
+  if (tmp) return tmp->value;
+  else return NULL;
 }
 
 /* Reverse the list */
 int LReverse(List l)
 {
-    LNode tmp = l->root_node;
-    LNode tmp_r;
-    LNode t;
+  LNode tmp = l->root_node;
+  LNode tmp_r;
+  LNode t;
 
-    while (tmp->next) {
-        tmp_r = tmp->next;
-        t = tmp->next;
-        tmp->next = tmp->prev;
-        tmp->prev = t;
-        tmp = tmp_r;
-    }
+  while (tmp->next) {
+    tmp_r = tmp->next;
+    t = tmp->next;
+    tmp->next = tmp->prev;
+    tmp->prev = t;
+    tmp = tmp_r;
+  }
 
-    l->root_node = tmp;
+  l->root_node = tmp;
 
-    return 0;
+  return 0;
 }
 
 /* Push, Pop, Search */
 /* FIFO Push */
 int list_node_push(LNode* l, list_data_t value)
 {
-    assert(*l);
-    assert(value);
+  assert(*l);
+  assert(value);
 
-    /* Make sure l is the first node */
-    if ((*l)->prev) list_node_find_root(l);
+  /* Make sure l is the first node */
+  if ((*l)->prev) list_node_find_root(l);
 
-    /* If the first node is empty, no need to make another node */
-    if (list_node_isempty(*l)) {
-        (*l)->value = value;
-        return 0;
-    }
-
-    LNode new = list_node_init();
-    new->value = value;
-    new->next = (*l);
-    new->prev = NULL;
-
-    (*l)->prev = new;
-    (*l) = new;
-
+  /* If the first node is empty, no need to make another node */
+  if (list_node_isempty(*l)) {
+    (*l)->value = value;
     return 0;
+  }
+
+  LNode new = list_node_init();
+  new->value = value;
+  new->next = (*l);
+  new->prev = NULL;
+
+  (*l)->prev = new;
+  (*l) = new;
+
+  return 0;
 }
 
 list_data_t list_node_pop(LNode* l)
 {
-    assert(*l);
+  assert(*l);
 
-    list_data_t p_val;
-    LNode tmp = (*l);
+  list_data_t p_val;
+  LNode tmp = (*l);
 
-    /* Make sure l is the first node */
-    if (tmp->prev) list_node_find_root(l);
+  /* Make sure l is the first node */
+  if (tmp->prev) list_node_find_root(l);
 
-    /* If the list is empty just return NULL */
-    if (list_node_isempty(tmp)) return NULL;
+  /* If the list is empty just return NULL */
+  if (list_node_isempty(tmp)) return NULL;
 
-    p_val = tmp->value;
+  p_val = tmp->value;
 
-    /* If the list is a single node, pop the value only */
-    if (!tmp->next) {
-        tmp->value = NULL;
-        return p_val;
-    }
-
-    (*l) = (*l)->next;
-    (*l)->prev = NULL;
-    free(tmp);
-
+  /* If the list is a single node, pop the value only */
+  if (!tmp->next) {
+    tmp->value = NULL;
     return p_val;
+  }
+
+  (*l) = (*l)->next;
+  (*l)->prev = NULL;
+  free(tmp);
+
+  return p_val;
 }
 
 LNode list_node_search(LNode l, list_data_t value)
 {
-    assert(l);
-    assert(value);
+  assert(l);
+  assert(value);
 
-    while (l) {
-        if (l->value == value) return l;
-        else l = l->next;
-    }
+  while (l) {
+    if (l->value == value) return l;
+    else l = l->next;
+  }
 
-    return NULL;
+  return NULL;
 }
 
 /* Pushing stuffs into a list from some array */
@@ -216,18 +239,18 @@ LNode list_node_search(LNode l, list_data_t value)
    but sometimes, stupid stuffs are needed. */
 int list_node_assign(LNode l, list_data_t* values, const unsigned long values_len)
 {
-    assert(values);
-    assert(values_len > 0);
+  assert(values);
+  assert(values_len > 0);
 
-    unsigned long i;
+  unsigned long i;
 
-    i = values_len-1;
-    do {
-        list_node_push(&l, values[i]);
-        --i;
-    } while(i);
+  i = values_len-1;
+  do {
+    list_node_push(&l, values[i]);
+    --i;
+  } while(i);
 
-    return 0;
+  return 0;
 }
 
 /* Some more utils */
@@ -235,105 +258,118 @@ int list_node_assign(LNode l, list_data_t* values, const unsigned long values_le
 /* Get length of list from control node */
 unsigned long LLen(List l)
 {
-    assert(l);
-    return l->len;
+  assert(l);
+  return l->len;
 }
 
 /* Copy List Node */
 int LCpy(List l, const List o)
 {
-    assert(o);
-    assert(l);
+  assert(o);
+  assert(l);
 
-    if (l->root_node) list_node_destroy(l->root_node);
-    l->root_node = list_node_init();
+  if (l->root_node) list_node_destroy(l->root_node);
+  l->root_node = list_node_init();
 
-    list_node_copy(&l->root_node, o->root_node);
-    l->len = o->len;
+  list_node_copy(&l->root_node, o->root_node);
+  l->len = o->len;
 
-    return 0;
+  return 0;
 }
+
+/* Converts some array to list */
+/* Warning!! the source array will be destroyed
+   if this list is freed by DeleteListHard
+*/
+List AtoL(void* some_array[], unsigned long long arr_len)
+{
+  List al = NewList();
+  unsigned long long i;
+  for (i=arr_len; i>1; --i) LPush(al, some_array[i-1]);
+  return al;
+}
+
 
 /* Get length of list */
 unsigned long list_node_len(LNode l)
 {
-    assert(l);
+  assert(l);
 
-    unsigned long i = 1;
-    while (l->next) {
-        l = l->next;
-        ++i;
-    }
+  unsigned long i = 1;
+  while (l->next) {
+    l = l->next;
+    ++i;
+  }
 
-    return i;
+  return i;
 }
 
 /* Alias for Search: Returns 1 for yes 0 for no... */
 int list_node_find(LNode l, list_data_t value)
 {
-    assert(l);
-    if (list_node_search(l, value)) return 1;
-    else return 0;
+  assert(l);
+  if (list_node_search(l, value)) return 1;
+  else return 0;
 }
 
 /* Delete certain node */
 int list_node_delete_node(LNode l, list_data_t value)
 {
-    assert(l);
+  assert(l);
 
-    LNode found = list_node_search(l, value);
+  LNode found = list_node_search(l, value);
 
-    /* Now remove the found LNode */
-    found->prev->next = found->next;
-    found->next->prev = found->prev;
+  /* Now remove the found LNode */
+  found->prev->next = found->next;
+  found->next->prev = found->prev;
 
-    free(found->value);
-    free(found);
+  free(found->value);
+  free(found);
 
-    return 0;
+  return 0;
 }
 
 /* Find root node */
 int list_node_find_root(LNode* l)
 {
-    assert(*l);
-    LNode tmp = (*l);
-    while (tmp->prev) if (tmp->prev) tmp = tmp->prev;
-    (*l) = tmp;
+  assert(*l);
+  LNode tmp = (*l);
+  while (tmp->prev) if (tmp->prev) tmp = tmp->prev;
+  (*l) = tmp;
 
-    if (*l) return 1;
-    else return 0;
+  if (*l) return 1;
+  else return 0;
 }
 
 /* Is Empty? */
 int list_node_isempty(LNode l)
 {
-    assert(l);
-    /* make sure l is the root */
-    list_node_find_root(&l);
+  assert(l);
+  /* make sure l is the root */
+  list_node_find_root(&l);
 
-    if (l->value || l->next) return 0;
-    else return 1;
+  if (l->value || l->next) return 0;
+  else return 1;
 }
 
 /* Copy nodes */
 int list_node_copy(LNode* l, const LNode o)
 {
-    assert(o);
+  assert(o);
 
-    LNode tmp = (*l);
-    LNode o_tmp = o;
+  LNode tmp = (*l);
+  LNode o_tmp = o;
 
-    if (tmp) list_node_destroy(tmp);
+  if (tmp) list_node_destroy(tmp);
 
-    tmp = list_node_init();
-    node_trav(&o_tmp);
-    while (o_tmp) {
-        list_node_push(&tmp, o_tmp);
-        o_tmp = o_tmp->prev;
-    }
+  tmp = list_node_init();
+  node_trav(&o_tmp);
+  while (o_tmp) {
+    list_node_push(&tmp, o_tmp);
+    o_tmp = o_tmp->prev;
+  }
 
-    (*l) = tmp;
+  (*l) = tmp;
 
-    return 0;
+  return 0;
 }

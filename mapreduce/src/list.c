@@ -130,14 +130,14 @@ LNode LSearch(List l, list_data_t value)
 }
 
 /* Access the list with an array fashion */
-list_data_t LAt(List l, unsigned long ind)
+list_data_t LAt(List l, unsigned long long ind)
 {
   assert(l);
   assert(ind < l->len);
 
   LNode tmp = l->root_node;
 
-  unsigned long i;
+  unsigned long long i;
   for (i=0; i<=ind; ++i) {
     tmp = tmp->next;
   }
@@ -237,12 +237,12 @@ LNode list_node_search(LNode l, list_data_t value)
 /* Pushing stuffs into a list from some array */
 /* It's kind of pointless in terms memory fragmentation issue
    but sometimes, stupid stuffs are needed. */
-int list_node_assign(LNode l, list_data_t* values, const unsigned long values_len)
+int list_node_assign(LNode l, list_data_t* values, const unsigned long long values_len)
 {
   assert(values);
   assert(values_len > 0);
 
-  unsigned long i;
+  unsigned long long i;
 
   i = values_len-1;
   do {
@@ -256,7 +256,7 @@ int list_node_assign(LNode l, list_data_t* values, const unsigned long values_le
 /* Some more utils */
 
 /* Get length of list from control node */
-unsigned long LLen(List l)
+unsigned long long LLen(List l)
 {
   assert(l);
   return l->len;
@@ -291,11 +291,11 @@ List AtoL(void* some_array[], unsigned long long arr_len)
 
 
 /* Get length of list */
-unsigned long list_node_len(LNode l)
+unsigned long long list_node_len(LNode l)
 {
   assert(l);
 
-  unsigned long i = 1;
+  unsigned long long i = 1;
   while (l->next) {
     l = l->next;
     ++i;

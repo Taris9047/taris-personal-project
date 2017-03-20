@@ -259,18 +259,6 @@ int bt_remove(BTNode b, btree_data_t vpStuff, unsigned long key)
   return 0;
 }
 
-
-
-
-// Pointless, eh?
-/* Get/set item from node */
-// btree_data_t BTGetItem(BTNode b, unsigned long key)
-// {
-//     BTNode bi = bt_search(b, );
-//     if (bi) return bi->stuff;
-//     else return NULL;
-// }
-
 int bt_setitem(BTNode b, btree_data_t vpStuff, unsigned long key)
 {
   bt_search(b, key)->stuff = vpStuff;
@@ -291,39 +279,6 @@ BTNode bt_search(BTNode b, unsigned long key)
   else
     return bt_search(b->right, key);
 }
-
-/* Copy a node */
-// static int Copy(BTNode orig, BTNode cpy)
-// {
-//     if (orig == cpy)
-//         return -1;
-//
-//     cpy->parent = orig->parent;
-//     cpy->depth = orig->depth;
-//     cpy->key = orig->key;
-//     cpy->stuff = orig->stuff;
-//
-//     cpy->left = orig->left;
-//     cpy->right = orig->right;
-//
-//     return 0;
-// }
-
-/* Swap two nodes */
-// static int Swap(BTNode A, BTNode B)
-// {
-//     if (A == B)
-//         return 0;
-//
-//     BTNode tmp = bt_node_init();
-//
-//     Copy(A, tmp);
-//     Copy(B, A);
-//     Copy(tmp, B);
-//
-//     return 0;
-// }
-
 
 /* Some static functions (mostly misc. utils) */
 static BTNode MakeNode(btree_data_t init_data, BTNode parent_node, unsigned long key)

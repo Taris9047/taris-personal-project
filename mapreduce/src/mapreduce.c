@@ -76,10 +76,11 @@ TNumCtrl thread_num_assign(ULONG total_threads)
     mthreads = total_threads-sthreads-1;
 
   printf("We have total %lu assigned threads to this program:\n", total_threads);
-  printf("So, they are assigned as...\n");
+  printf("So, we will assign threads as...\n");
   printf("Mappers: %lu\n", mthreads);
   printf("Shufflers: %lu\n", sthreads);
   printf("Reducers (uses shuffler threads): %lu\n", sthreads);
+  printf("At maximum!!\n");
   if (total_threads >= max_threads)
     printf("Reserved one thread for main controller\n");
 
@@ -147,9 +148,54 @@ int delete_shfl_node(ShflNode shfl_node)
   return 0;
 }
 
+
+/***********************************************
+ Shuffler Node arguments
+************************************************/
+ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node)
+{
+  ShflNodeArgs sna = (ShflNodeArgs)malloc(sizeof(shuffling_node_args));
+  assert(sna);
+
+  sna->pid = n_pid;
+  sna->rc = 0;
+
+  if (!n_shfl_node) {
+    fprintf(stderr, "NewShflNodeArgs: Unable to initialize shuffler node arg without valid shuffler!!\n");
+    exit(EXIT_FAILURE);
+  }
+
+  sna->shfl_node = n_shfl_node;
+
+  return sna;
+}
+int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args)
+{
+  assert(shfl_node_args);
+  free(shfl_node_args);
+  return 0;
+}
+
 /***********************************************
  Shuffler Node - Methods
 ************************************************/
+/* Do the real shuffling job for given node */
+void do_shuffle(void* args)
+{
+  ShflNodeArgs shfl_na = (ShflNodeArgs)args;
+  if (!shfl_na) {
+    fprintf(stderr, "do_shuffle: NULL given!! Nothing to do~~~\n");
+    return;
+  }
+
+  pid_t my_pid = shfl_na->pid;
+  int rc = shfl_na->rc;
+  ShflNode shfl_node = shfl_na->shfl_node;
+
+  /* Now the shuffling job starts here */
+  /* ... */
+
+}
 
 
 /***********************************************
@@ -194,12 +240,88 @@ int DeleteShuffler(Shuffler shfl)
 /***********************************************
  Shuffler - Methods
 ************************************************/
+/* Performs actual shuffling */
+/* -> handles job splitting */
+/*
+  Note
+  1. shuffle_nodes needs to be joinable so that they can communicate each other.
+  2. entire shuffle_nodes in a shuffle_node_map
+     need to be kept alive until other nodes finish their job.
+     (gotta research this. Thread scheduling?)
+  3. map nodes also needs to be joinable since we need to collect the data.
+*/
 int Shuffle(Shuffler shfl)
 {
+  assert(shfl);
+  /* Ok, we have the entire data!! Let's truncate them and assign
+     shufflers!!
+  */
+  ULONG i, j;
+
+  ULLONG total_data_len = (ULLONG)LLen(shfl->main_data);
+  /* Determine how many shufflers needed */
+  ULONG curr_mapper_threads = 0;
+  ULONG curr_shuffler_threads = 0;
+  ULONG available_mappers_per_job = \
+    shfl->tc->mappers_per_shuffler*shfl->tc->shufflers;
+
+  List* job_schedule = NULL; /* List of data_nodes */
+  ULONG job_schedule_len = 0;
+  List* shufflers = NULL;
+  if (total_data_len <= available_mappers_per_job) {
+    /* We have more threads than data!! Wh000ray!! 1337!! */
+    job_schedule_len = 1;
+  }
+  else {
+    job_schedule_len = total_data_len/available_mappers_per_job;
+    if (total_data_len%available_mappers_per_job)
+      job_schedule_len++;
+  }
+
+  job_schedule = (List*)malloc(sizeof(List)*job_schedule_len);
+  assert(job_schedule);
+
+  /* now, populate the job schedule */
+  for (i=0; i<job_schedule_len; ++i) {
+    if (job_schedule_len == 1) {
+      curr_mapper_threads = shfl->tc->mappers_per_shuffler;
+      curr_shuffler_threads = shfl->tc->shufflers;
+      job_schedule[i] = shfl->main_data;
+      /* TODO:Let's make a function to assign multiple threads in pth_handle.c
+      */
+      /* ... */
+    }
+    else if (i == job_schedule_len && total_data_len%available_mappers_per_job) {
+      curr_mapper_threads = total_data_len%available_mappers_per_job;
+      curr_shuffler_threads = curr_mapper_threads/shfl->tc->mappers_per_shuffler;
+      if (curr_mapper_threads%shfl->tc->mappers_per_shuffler)
+        curr_shuffler_threads++;
+
+      /* ... */
+    }
+    else {
+      curr_mapper_threads = shfl->tc->mappers_per_shuffler;
+      curr_shuffler_threads = shfl->tc->shufflers;
+
+      /* ... */
+    }
+
+  }
+
+  /*
+  ShflNodeArgs n_shfl_args = \
+    NewShflNodeArgs(some_pid, some_shfl_node);
+  pthread_create(nthreads, attr, do_shuffle, (void*)shfl_args);
+  */
+
+  for (i=0; i<job_schedule_len; ++i) DeleteList(job_schedule[i]);
+  free(job_schedule);
+
   return 0;
 }
 
-int AddShflNode(ULONG num_mappers)
+/* Adds a shuffler to shuffler map */
+int AddShflNode(Shuffler shfl, ULONG num_mappers)
 {
   return 0;
 }
@@ -225,7 +347,7 @@ int AddShflNode(ULONG num_mappers)
 /***********************************************
  Main handlers
 ************************************************/
-/* Main controller */
+/* Main interface */
 int map_reduce(char* fname, ULONG threads)
 {
   /* First, read in the file...
@@ -241,7 +363,8 @@ int map_reduce(char* fname, ULONG threads)
   Shuffler mr_shfl = NewShuffler(p_objs, threads);
   printf("\n");
 
-  /* TODO: Implement shuffling stuff */
+  /* Really running shuffling -> Reducing job */
+  Shuffle(mr_shfl);
 
   /* Cleaning up - remove this after implementing reducers here... */
   DeleteListHard(p_objs, &DeletePObj);
@@ -264,5 +387,5 @@ void print_pobj_stats(char* fname, List pol)
 
   printf("%s Readout Complete!!\n", fname);
 
-  printf("Total pixel data entries: %lu\n", LLen(pol));
+  printf("Total pixel data entries: %llu\n", LLen(pol));
 }

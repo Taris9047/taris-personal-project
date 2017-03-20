@@ -63,6 +63,18 @@ ShflNode new_shfl_node(
   ULONG id);
 int delete_shfl_node(ShflNode shfl_node);
 
+/* struct for shuffling job */
+typedef struct _shuffling_node_args {
+  pid_t pid;
+  int rc;
+  ShflNode shfl_node;
+} shuffling_node_args;
+typedef shuffling_node_args* ShflNodeArgs;
+ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node);
+int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args);
+
+/* shuffling job at the node - pthread worker */
+void do_shuffle(void* args);
 
 
 
@@ -81,8 +93,10 @@ Shuffler NewShuffler(
 int DeleteShuffler(Shuffler shfl);
 
 /* Methods */
-int Shuffle(Shuffler shfl); /* Performs actual shuffling */
-int AddShflNode(ULONG num_mappers); /* Adds a shuffler to shuffler map */
+/* Performs actual shuffling */
+int Shuffle(Shuffler shfl);
+/* Adds a shuffler to shuffler map */
+int AddShflNode(Shuffler shfl, ULONG num_mappers);
 
 
 
