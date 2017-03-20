@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "list.h"
+
 /* Some shortcuts for my fingers */
 typedef unsigned long ULONG;
 typedef unsigned long long ULLONG;

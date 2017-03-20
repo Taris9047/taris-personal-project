@@ -12,62 +12,74 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include <unistd.h>
 
 #include "test.h"
 
-
-
-
-
-
-
-/***********************************************
- * Utilities
- ***********************************************/
-/* Input argument handler */
-int inp_arg_handler(int argc, char** argv, char** fname, ULONG* threads)
+/* Initializer */
+int Initializer(int argc, char** argv, char** fname, ULONG* threads)
 {
-	int max_threads = get_pid_max();
+	*fname = NULL;
+	*threads = 0;
 
-	if (argc == 2) {
-		*fname = argv[1];
-		(*threads) = DEF_THREADS;
-	}
-	else if (argc >= 3) {
-		*fname = argv[1];
-		(*threads) = atoi(argv[2]);
-	}
-	else {
-		*fname = "./data.txt";
-		(*threads) = DEF_THREADS;
+	int opt, i;
+
+	while ( (opt = getopt(argc, argv, "fth")) != -1 ) {
+		switch (opt) {
+			case 'f':
+				*fname = optarg;
+				break;
+			case 't':
+				*threads = atoi(optarg);
+				break;
+			case 'h':
+				fprintf(stderr, "Usage: %s [-fth] [input data file...]\n", argv[0]);
+				exit(EXIT_FAILURE);
+			default:
+				break;
+		}
 	}
 
-	printf("\n");
+	for (i=optind; i<argc; ++i) {
+		*fname = argv[i];
+	}
 
-	if ( (*threads) > max_threads ) {
-		printf("Asked to use %lu threads...\n", (*threads));
-		printf("Oops, we can't deal with such many threads!!\n");
-		(*threads) = max_threads;
-		printf("Limiting to ... %lu threads\n\n", (*threads));
+	if (!*fname && !*threads) {
+		fprintf(stdout, "No arguments have been given!! Using default parameters:\n");
+		*fname = DEF_INF_NAME;
+		*threads = DEF_THREADS;
+	}
+	else if (*fname && !*threads) *threads = DEF_THREADS;
+	else if (!*fname && *threads) *fname = DEF_INF_NAME;
+
+	fprintf(stdout, "Input datafile: %s (default: %s)\n", *fname, DEF_INF_NAME);
+	fprintf(stdout, "Given # of threads: %lu (default: %d)\n", *threads, DEF_THREADS);
+
+	if (*threads < 2) {
+		fprintf(stderr, "We need at least two concurrent threads to work!!\n");
+		exit(EXIT_FAILURE);
 	}
 
 	return 0;
 }
-
 
 /***********************************************
  * The main function
  ***********************************************/
 int main(int argc, char* argv[])
 {
-	printf("Mapreduce test program\n");
+	printf("******************************\n");
+	printf("*** Mapreduce test program ***\n");
+	printf("*** Version 0.0.1          ***\n");
+	printf("******************************\n");
 
 	char* inf_name = NULL;
 	ULONG n_threads;
 
-	inp_arg_handler(argc, argv, &inf_name, &n_threads);
+	Initializer(argc, argv, &inf_name, &n_threads);
+	printf("\n");
 
 	fprintf(stdout, "Reading data from %s ... \n", inf_name);
 

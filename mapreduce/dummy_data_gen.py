@@ -131,7 +131,7 @@ def main():
 			data_str += '\n'
 		fp.write(data_str)
 
-	print("Written ", data_size, " random pseudo image data.")
+	print("Written", data_size, "random pseudo image data.")
 
 if __name__ == "__main__":
 	main();

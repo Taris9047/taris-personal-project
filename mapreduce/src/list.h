@@ -55,6 +55,12 @@ int list_node_assign(LNode l, list_data_t* values, const unsigned long values_le
 /* Some more utils */
 unsigned long LLen(List l);
 int LCpy(List l, const List o);
+/* converts some array to List
+   Warning!! the source array will be destroyed
+   if this list is freed by DeleteListHard!!
+*/
+List AtoL(void* some_array[], unsigned long long arr_len);
+
 
 unsigned long list_node_len(LNode l);
 int list_node_find(LNode l, list_data_t value);

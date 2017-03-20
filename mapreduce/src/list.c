@@ -277,6 +277,19 @@ int LCpy(List l, const List o)
   return 0;
 }
 
+/* Converts some array to list */
+/* Warning!! the source array will be destroyed
+   if this list is freed by DeleteListHard
+*/
+List AtoL(void* some_array[], unsigned long long arr_len)
+{
+  List al = NewList();
+  unsigned long long i;
+  for (i=arr_len; i>1; --i) LPush(al, some_array[i-1]);
+  return al;
+}
+
+
 /* Get length of list */
 unsigned long list_node_len(LNode l)
 {
