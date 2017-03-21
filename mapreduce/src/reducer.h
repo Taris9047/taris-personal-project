@@ -60,7 +60,7 @@ int DeleteRDArgs(RDArgs rda);
   list of keys
   --> another pthread worker
 */
-void reducer(void* args);
+void* reducer(void* args);
 
 /* Keygen for reducer */
 inline ULLONG pixel_keygen(ULONG a, ULONG b);

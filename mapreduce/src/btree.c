@@ -127,6 +127,12 @@ btree_data_t BTGetMin(BTree bt)
   return bt_tmp;
 }
 
+unsigned long long BTNodes(BTree bt)
+{
+  assert(bt);
+  return bt->nodes;
+}
+
 
 /* Initializers */
 BTNode bt_node_init()

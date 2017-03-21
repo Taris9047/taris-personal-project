@@ -52,6 +52,6 @@ int DeleteMArgs(MArgs ma);
 
 /* mapper - a pthread worker */
 /* returns key */
-void mapper(void* args);
+void* mapper(void* args);
 
 #endif /* Include guard */

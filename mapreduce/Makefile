@@ -2,7 +2,7 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-CFLAGS=-ggdb3 $(WARNS)
+CFLAGS=-ggdb3 -std=c11 $(WARNS)
 
 SRCDIR=./src
 
@@ -29,7 +29,7 @@ ifeq ($(UNAME), linux)
 CFLAGS=-ggdb3 -fPIC $(WARNS)
 endif
 
-LIBS=-lm -L.
+LIBS=-lm -L. -lpthread
 AR=ar
 
 LIB_PROJ_NAME := mapreduce

@@ -69,7 +69,7 @@ Threads NewThreads(
   pthread_mutex_t* n_mutex);
 int DeleteThreads(Threads thr);
 /* Run, stop, etc. control methods */
-int RunThreads(Threads thr, void (*worker)() );
+int RunThreads(Threads thr, void* (*worker)(), void* worker_args[]);
 
 
 #endif /* Include guard */

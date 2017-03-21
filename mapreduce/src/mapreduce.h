@@ -19,8 +19,11 @@
 #include "pth_handle.h"
 #include "mapper.h"
 #include "reducer.h"
+#include "utils.h"
+#include "hash.h"
 
 #include <pthread.h>
+#include <stdbool.h>
 
 #define MAPPERS_PER_SHUFFLER 5
 
@@ -73,8 +76,10 @@ typedef shuffling_node_args* ShflNodeArgs;
 ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node);
 int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args);
 
+
+
 /* shuffling job at the node - pthread worker */
-void do_shuffle(void* args);
+void* do_shuffle(void* args);
 
 
 
@@ -97,7 +102,12 @@ int DeleteShuffler(Shuffler shfl);
 int Shuffle(Shuffler shfl);
 /* Adds a shuffler to shuffler map */
 int AddShflNode(Shuffler shfl, ULONG num_mappers);
-
+/* job scheduler - return number of jobs */
+ULONG job_schedule(
+  ULLONG total_data_length,
+  ULONG available_threads,
+  ULONG*** job_indexes,
+  ULONG start_offset);
 
 
 

@@ -125,7 +125,7 @@ int DeleteRDArgs(RDArgs rda)
 /***********************************************
  Reducer itself - another pthread worker
 ************************************************/
-void reducer(void* args)
+void* reducer(void* args)
 {
   pth_args _args = (pth_args)args;
   RDArgs rd_data_set = (RDArgs)_args->data_set;

@@ -10,6 +10,8 @@
 
 ************************************************/
 
+#include <pthread.h>
+
 #include "pth_handle.h"
 
 
@@ -172,4 +174,34 @@ int DeleteThreads(Threads thr)
 
   free(thr);
   return 0;
+}
+
+/* Run, stop, etc. control methods */
+int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
+{
+  assert(thr);
+  ULONG i;
+  int rc;
+  for (i=0; i<thr->n_threads; ++i) {
+    rc = pthread_create(
+      &thr->threads[i], &thr->thread_attrs[i],
+      worker, (void*)worker_args[i]);
+    if (rc) {
+      fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
+      exit(-1);
+    }
+  }
+
+  /* Join threads if thr->joinable is true */
+  if (thr->joinable) {
+    for (i=0; i<thr->n_threads; ++i) {
+      rc = pthread_join(thr->threads[i], &thr->status);
+      if (rc) {
+        fprintf(stderr, "RunThreads Thread join Error!! returo code: %d\n", rc);
+        exit(-1);
+      }
+    }
+  }
+
+  return rc;
 }

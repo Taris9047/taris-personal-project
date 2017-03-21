@@ -91,7 +91,7 @@ int DeleteMArgs(MArgs ma)
 
 
 /* mapper - a pthread worker */
-void mapper(void* args)
+void* mapper(void* args)
 {
   pth_args _args = (pth_args)args;
   MArgs margs = (MArgs)_args->data_set;

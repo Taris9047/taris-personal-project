@@ -8,8 +8,10 @@
 
  ***************************************/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -75,4 +77,30 @@ ULONG get_pid_max()
 
     return pid_max;
 #endif
+}
+
+/* Integer division */
+int i_div(int A, int B, int* rem)
+{
+  assert(B!=0);
+  if (rem) (*rem) = A%B;
+  return A/B;
+}
+long l_div(long A, long B, long* rem)
+{
+  assert(B!=0);
+  if (rem) (*rem) = A%B;
+  return A/B;
+}
+ULONG ul_div(ULONG A, ULONG B, ULONG* rem)
+{
+  assert(B!=0);
+  if (rem) (*rem) = A%B;
+  return A/B;
+}
+ULLONG ull_div(ULLONG A, ULLONG B, ULLONG* rem)
+{
+  assert(B!=0);
+  if (rem) (*rem) = A%B;
+  return A/B;
 }

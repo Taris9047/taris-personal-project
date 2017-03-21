@@ -8,7 +8,7 @@
 
 /***************************************
 
-  Binary Tree Data Structure for Mesh
+  Binary Tree Data Structure
 
   Header file
 
@@ -37,7 +37,7 @@ typedef bintree_node* BTNode;
 /* Binary tree control node */
 typedef struct _bintree_root {
   BTNode root_node;
-  unsigned long nodes;
+  unsigned long long nodes;
 } bintree_root;
 typedef bintree_root* BTree;
 
@@ -56,6 +56,7 @@ int BTSet(BTree bt, btree_data_t stuff, unsigned long key);
 btree_data_t BTSearch(BTree bt, unsigned long key);
 btree_data_t BTGetMax(BTree bt);
 btree_data_t BTGetMin(BTree bt);
+unsigned long long BTNodes(BTree bt);
 
 /* Initializers */
 BTNode bt_node_init();

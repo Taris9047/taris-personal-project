@@ -1,5 +1,7 @@
 /***************************************
 
+  Linked list data structure
+
   Header file
 
   Taylor Shin, Feb. 14 2017
