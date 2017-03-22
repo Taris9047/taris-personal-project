@@ -43,14 +43,14 @@ Dict NewDict()
   assert(d);
   d->size = 0;
   d->table = NewList(); /* The DNode linked list */
-  d->keys = NewList();
+  d->keys = NULL;
   return d;
 }
 int DeleteDict(Dict d)
 {
   assert(d);
   DeleteListHard(d->table, &DeleteDNode);
-  DeleteList(d->keys);
+  free(d->keys);
   free(d);
   return 0;
 }
@@ -67,6 +67,8 @@ int DInsert(  Dict d,
   const void* inp_key,
   unsigned long (*hash)() )
 {
+  assert(d);
+
 
 }
 
@@ -75,6 +77,8 @@ dict_data_t DGet(
   const void* inp_key,
   unsigned long (*hash)() )
 {
+  assert(d);
+
 
 }
 
@@ -83,5 +87,7 @@ int DRemove(
   const void* inp_key,
   unsigned long (*hash)() )
 {
+  assert(d);
+
 
 }
