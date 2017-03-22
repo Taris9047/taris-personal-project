@@ -10,6 +10,8 @@
 #ifndef MAPREDUCE_HASH_H
 #define MAPREDUCE_HASH_H
 
+// TODO: Gotta write proper hash algorithm later...
+
 //#include "btree.h"
 #include "list.h"
 
@@ -57,8 +59,14 @@ bool HIsEmpty(Hash h);
 bool HKeyFound(Hash h, hash_key_t k);
 List HGet(Hash h, hash_key_t k);
 int HSet(Hash h, hash_data_t d, hash_key_t k);
+List HKeys(Hash h);
 
-/* Search key */
-bool hash_key_search(Hash h, hash_key_t k);
+/* Setting up data array by key */
+List HGetByKey(Hash h, hash_key_t k);
+int HSetByKey(Hash h, hash_data_t* d, unsigned long long d_len, hash_key_t k);
+int HInsertByKey(Hash h, hash_data_t* d, unsigned long long d_len, hash_key_t k);
+int HRemoveByKey(Hash h, hash_key_t k);
+
+
 
 #endif /* Include guard */

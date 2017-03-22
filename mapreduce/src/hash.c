@@ -15,27 +15,26 @@
 
 #include "hash.h"
 
-/* most important: key mapper --> returns index for given key */
-/* for later use: implement this part as you please */
-static unsigned long long hash_mapper(Hash h, hash_key_t k);
-
+/***************************************
+ Hash - static function definitions
+ ***************************************/
 /* local memcpy */
-static void* memcpy_c(char* tgt_array, const char* source_array, unsigned long long cnt);
 static void* memcpy_List(List* tgt_array, const List* source_array, unsigned long long cnt);
 static void* memcpy_hash_key(hash_key_t* tgt_array, const hash_key_t* source_array, unsigned long long cnt);
 
+/* Static functions */
+/* most important: key mapper --> returns index for given key */
+/* for later use: implement this part as you please */
+static unsigned long long mapper(Hash h, hash_key_t k);
 
-#define memcpy_h(T, cT, CNT) \
-  _Generic( (T), \
-    List*: _Generic ( (cT), \
-      List*: _Generic ( (CNT), \
-        unsigned long long:memcpy_List), \
-        default:memcpy_c), \
-    hash_key_t*: _Generic ( (cT), \
-      hash_key_t*: _Generic ( (CNT), \
-        unsigned long long:memcpy_hash_key,
-        default:memcpy_c)) \
-  ) (T, cT, CNT)
+/* Search stuff */
+static bool exists(Hash h, hash_key_t k);
+static List search(Hash h, hash_key_t k, unsigned long long* found_index);
+
+
+
+
+
 
 // /***************************************
 //  HNode - C and D
@@ -81,6 +80,19 @@ static void* memcpy_hash_key(hash_key_t* tgt_array, const hash_key_t* source_arr
 //   hn->data = hd;
 //   return 0;
 // }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -132,7 +144,7 @@ bool HIsEmpty(Hash h)
 bool HKeyFound(Hash h, hash_key_t k)
 {
   assert(h);
-  return hash_key_search(h, k);
+  return exists(h, k);
 }
 
 List HGet(Hash h, hash_key_t k)
@@ -141,7 +153,7 @@ List HGet(Hash h, hash_key_t k)
 
   if (!HKeyFound(h, k)) return NULL;
 
-  unsigned long long ind = hash_mapper(h, k);
+  unsigned long long ind = mapper(h, k);
   return h->hash_nodes[ind];
 }
 
@@ -149,32 +161,130 @@ int HSet(Hash h, hash_data_t d, hash_key_t k)
 {
   assert(h);
 
-  unsigned long long ind = hash_mapper(h, k);
+  unsigned long long ind = mapper(h, k);
   LPush(h->hash_nodes[ind], d);
+
+  return 0;
+}
+
+List HKeys(Hash h)
+{
+  List keys = NewList();
+
+  unsigned long long i;
+  for (i=0; i<h->n_keys; ++i)
+    LPush(keys, &h->keys[i]);
+
+  return keys;
+}
+
+
+
+
+/* Insert, Get, Remove data list by key */
+List HGetByKey(Hash h, hash_key_t k)
+{
+  assert(h);
+  return search(h, k, NULL);
+}
+
+int HSetByKey(Hash h, hash_data_t* d, unsigned long long d_len, hash_key_t k)
+{
+  assert(h);
+  List found_list = search(h, k, NULL);
+
+  unsigned long long i, new_ind;
+
+  /* If the key already exists, append the list */
+  if (found_list) {
+    for (i=0; i<d_len; ++i)
+      LPush(found_list, d[i]);
+  }
+  else {
+    new_ind = mapper(h, k);
+    for (i=0; i<d_len; ++i)
+      LPush(h->hash_nodes[new_ind], d[i]);
+  }
+
+  return 0;
+}
+
+int HInsertByKey(Hash h, hash_data_t* d, unsigned long long d_len, hash_key_t k)
+{
+  return HSetKey(h, d, d_len, k);
+}
+
+int HRemoveByKey(Hash h, hash_key_t k)
+{
+  assert(h);
+  unsigned long long i, found_index;
+  List found_list = search(h, k, &found_index);
+  /* Cannot remove non existing key */
+  if (!found_list) {
+    fprintf(stderr, "Hash, cannot find the key!!\n");
+    return -1;
+  }
+
+  /* now we need to drop a key and a list at found_index */
+  hash_key_t *new_key_array, *tmp_key_array;
+  new_key_array = (hash_key_t*)malloc(sizeof(hash_key_t)*(h->n_keys-1));
+  for (i=0; i<h->n_keys; ++i) {
+    if (i==found_index) continue;
+    else if (i<found_index) new_key_array[i] = h->keys[i];
+    else if (i>found_index) new_key_array[i-1] = h->keys[i];
+  }
+  tmp_key_array = h->keys;
+  h->keys = new_key_array;
+  free(tmp_key_array);
+
+  List *new_hash_list, *tmp_hash_list;
+  new_hash_list = (List*)malloc(sizeof(List)*(h->n_keys-1));
+  for (i=0; i<h->n_keys; ++i) {
+    if (i==found_index) continue;
+    else if (i<found_index) new_hash_list[i] = h->hash_nodes[i];
+    else if (i>found_index) new_hash_list[i-1] = h->hash_nodes[i];
+  }
+  tmp_hash_list = h->hash_nodes;
+  h->hash_nodes = new_hash_list;
+  for (i=0; i<h->n_keys; ++i) DeleteList(tmp_hash_list[i]);
+  free(tmp_hash_list);
+
+  h->n_keys--;
 
   return 0;
 }
 
 
 
-/* Search key */
-bool hash_key_search(Hash h, hash_key_t k)
+
+
+
+
+/***************************************
+ Hash - static functions
+ ***************************************/
+/* local memcpy implementations */
+static void* memcpy_List(List* tgt_array, const List* source_array, unsigned long long cnt)
 {
-  assert(h);
+  assert(source_array);
   unsigned long long i;
-
-  if (!h->keys) return false;
-
-  for (i=0; i<h->n_keys; ++i)
-    if (h->keys[i] == k) return true;
-
-  return false;
+  for (i=0; i<cnt; ++i)
+    tgt_array[i] = source_array[i];
+  return tgt_array;
+}
+static void* memcpy_hash_key(hash_key_t* tgt_array, const hash_key_t* source_array, unsigned long long cnt)
+{
+  assert(source_array);
+  unsigned long long i;
+  for (i=0; i<cnt; ++i)
+    tgt_array[i] = source_array[i];
+  return tgt_array;
 }
 
 /***************************************
  Hash - The mapper!!
  ***************************************/
-static unsigned long long hash_mapper(Hash h, hash_key_t k)
+static unsigned long long mapper(Hash h, hash_key_t k)
 {
   assert(h);
 
@@ -199,12 +309,12 @@ static unsigned long long hash_mapper(Hash h, hash_key_t k)
   }
 
   /*
-    If we couln't find the key in current h->keys,
-    Insert this key...  in fact, we're swapping the key_list with
-    the new key, trailing it.
+  If we couln't find the key in current h->keys,
+  Insert this key...  in fact, we're swapping the key_list with
+  the new key, trailing it.
   */
   new_key_list = (hash_key_t*)malloc(sizeof(hash_key_t)*(h->n_keys+1));
-  memcpy_h(new_key_list, h->keys, h->n_keys);
+  memcpy_hash_key(new_key_list, h->keys, h->n_keys);
   new_key_list[h->n_keys] = k;
 
   tmp = h->keys;
@@ -213,8 +323,8 @@ static unsigned long long hash_mapper(Hash h, hash_key_t k)
 
   /* Do the same array swapping for hash_nodes as well */
   new_hash_nodes = (List*)malloc(sizeof(List)*(h->n_keys+1));
-  memcpy_h(new_hash_nodes, h->hash_nodes, h->n_keys);
-  new_hash_nodes[h->n_keys] = NewList();
+  memcpy_List(new_hash_nodes, h->hash_nodes, h->n_keys);
+  new_hash_nodes[h->n_keys] = NewList(); /* Assign an empty list to the new slot */
 
   tmp_hash_nodes = h->hash_nodes;
   h->hash_nodes = new_hash_nodes;
@@ -227,21 +337,34 @@ static unsigned long long hash_mapper(Hash h, hash_key_t k)
   return h->n_keys-1;
 }
 
+/* Check key existence */
+static bool exists(Hash h, hash_key_t k)
+{
+  assert(h);
+  unsigned long long i;
 
-/* local memcpy implementations */
-static void* memcpy_List(List* tgt_array, const List* source_array, unsigned long long cnt)
-{
-  assert(source_array);
-  unsigned long long i;
-  for (i=0; i<cnt; ++i)
-    tgt_array[i] = source_array[i];
-  return tgt_array;
+  if (!h->keys) return false;
+
+  for (i=0; i<h->n_keys; ++i)
+    if (h->keys[i] == k) return true;
+
+  return false;
 }
-static void* memcpy_hash_key(hash_key_t* tgt_array, const hash_key_t* source_array, unsigned long long cnt)
+
+/* search data list by key */
+static List search(Hash h, hash_key_t k, unsigned long long* found_index)
 {
-  assert(source_array);
+  assert(h);
   unsigned long long i;
-  for (i=0; i<cnt; ++i)
-    tgt_array[i] = source_array[i];
-  return tgt_array;
+
+  if (HIsEmpty(h)) return NULL;
+
+  for (i=0; i<h->n_keys; ++i) {
+    if (h->keys[i] == k) {
+      if (found_index) (*found_index) = i;
+      return h->hash_nodes[i];
+    }
+  }
+
+  return NULL;
 }

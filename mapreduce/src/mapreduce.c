@@ -18,9 +18,12 @@
 
 #include "mapreduce.h"
 
+
+
+
 /***********************************************
  Thread number controller - Constructors and Destructors
-************************************************/
+ ************************************************/
 TNumCtrl NewTNumCtrl(
   ULONG n_total_threads,
   ULONG n_mappers_per_shuffler,
@@ -104,6 +107,7 @@ ShflNode new_shfl_node(
   List frac_main_data,
   ULONG num_mappers,
   BTree shuffle_map,
+  KeyManager n_k_man,
   ULONG id)
 {
   ShflNode shn = (ShflNode)malloc(sizeof(shuffler_node));
@@ -127,7 +131,11 @@ ShflNode new_shfl_node(
   assert(shn->thread_mappers);
 
   /* Diciphered key container */
-  shn->keys = NewList();
+  shn->keys = NULL;
+
+  shn->k_man = n_k_man;
+
+  shn->my_key_type = NULL;
 
   return shn;
 }
@@ -142,6 +150,9 @@ int delete_shfl_node(ShflNode shfl_node)
     free(shfl_node->thread_mappers);
 
   DeleteList(shfl_node->keys); /* points data within main data... so, just delete the list */
+
+  if (shfl_node->my_key_type)
+    free(shfl_node->my_key_type);
 
   free(shfl_node);
 
@@ -236,17 +247,63 @@ void* do_shuffle(void* args)
   }
   /* Now "key_list" has all the keys we've read out */
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
-  /* TODO: Let's implement a hash (or dict) to sort them out */
+  Hash KeyMap = make_key_hash(key_list);
+  DeleteList(key_list); /* We don't need list anymore */
 
+  /* Now KeyMap has collection of keys */
+  /* Report my findings to Key manager */
+  if (!shfl_node->my_key_type) KManReportKeys(shfl_node->k_man, KeyMap, shfl_node->my_key_type);
+
+  /* Let's communicate with other shuffler nodes */
+
+  /*
+    After shuffling, KeyMap must have only one key.
+    Taking that key to list.
+  */
+  //Key k_type = KManGetKeyType(shfl_node->k_man, shfl_node);
+  shfl_node->keys = HGetByKey(KeyMap, *shfl_node->my_key_type);
+
+  /* Start reducer job */
+  RDArgs reducer_args = NewRDArgs(shfl_node->keys);
+  reducer((void*)reducer_args);
+
+  DeleteRDArgs(reducer_args);
 
   /* Free all the craps before finishing all the stuff */
   for (i=0; i<jobs; ++i)
     free(jobs_index[i]);
   free(jobs_index);
-  free(key_list);
+  //free(key_list);
+  DeleteHash(KeyMap);
 
   return NULL;
 }
+
+/* List containing keys to Hash key map (Sort by timestamp) */
+Hash make_key_hash(List k_list)
+{
+  assert(k_list);
+  Hash key_map = NewHash();
+
+  ULLONG i;
+  ULLONG k_list_len = LLen(k_list);
+  Key tmp_k;
+
+  for (i=0; i<k_list_len; ++i) {
+    tmp_k = (Key)LAt(k_list, i);
+    HInsert(key_map, tmp_k, tmp_k->ts);
+  }
+
+  return key_map;
+}
+
+
+
+
+
+
+
+
 
 
 /***********************************************
@@ -264,6 +321,8 @@ Shuffler NewShuffler(
   shfl->shuffler_map = NewBTree();
 
   shfl->tc = thread_num_assign(total_threads);
+
+  shfl->k_man = NewKeyManager();
 
   return shfl;
 }
@@ -360,7 +419,6 @@ ULONG job_schedule(
 
   return n_jobs;
 }
-
 
 
 

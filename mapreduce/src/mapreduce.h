@@ -21,6 +21,7 @@
 #include "reducer.h"
 #include "utils.h"
 #include "hash.h"
+#include "key_shuffle_mapper.h"
 
 #include <pthread.h>
 #include <stdbool.h>
@@ -55,6 +56,16 @@ typedef struct _shuffler_node {
 
   List keys; /* Deciphered (?) keys from mapper - will be fed into a reducer */
 
+  /*
+    Designated key type.
+    This node will pass other types of keys to other nodes in the map.
+    --> KeyManager will handle it
+    after reading it.
+  */
+  ULLONG* my_key_type;
+
+  KeyManager k_man; /* Given by the Shuffler node (see key_shuffle_mapper.h) */
+
 } shuffler_node;
 typedef shuffler_node* ShflNode;
 
@@ -63,6 +74,7 @@ ShflNode new_shfl_node(
   List frac_main_data,
   ULONG num_mappers,
   BTree shuffle_map,
+  KeyManager n_k_man,
   ULONG id);
 int delete_shfl_node(ShflNode shfl_node);
 
@@ -77,10 +89,11 @@ ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node);
 int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args);
 
 
-
 /* shuffling job at the node - pthread worker */
 void* do_shuffle(void* args);
 
+/* List containing keys to Hash key map (Sort by timestamp) */
+Hash make_key_hash(List k_list);
 
 
 /* Shuffler control node */
@@ -88,6 +101,7 @@ typedef struct _shuffler {
   List main_data; /* list of main data (Might be changed to somewhat more dynamic stuff in real program..) */
   BTree shuffler_map; /* map of shuffler nodes */
   TNumCtrl tc; /* Thread number controller */
+  KeyManager k_man;
 } shuffler;
 typedef shuffler* Shuffler;
 
@@ -108,6 +122,7 @@ ULONG job_schedule(
   ULONG available_threads,
   ULONG*** job_indexes,
   ULONG start_offset);
+
 
 
 
