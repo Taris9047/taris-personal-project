@@ -53,6 +53,7 @@ typedef struct _dictionary {
   */
   List table;
   dict_key_t* keys; // just holding the keys.. (may not needed?)
+  dict_key_t (*hashing)(); /* Hashing function */
 
 } dictionary;
 typedef dictionary* Dict;
@@ -62,20 +63,38 @@ Dict NewDict();
 int DeleteDict(Dict d);
 
 /* Dictionary methods */
-int DInsert(
-  Dict d,
-  dict_data_t inp_data,
-  const void* inp_key,
-  unsigned long (*hash)() ); /* Assumes inp_key as unsigned long if hashing function is NULL */
+int DSetHashFunc(Dict d, dict_key_t (*hashing) ());
 
-dict_data_t DGet(
-  Dict d,
-  const void* inp_key,
-  unsigned long (*hash)() );
+int DInsert(Dict d, dict_data_t inp_data, const void* inp_key);
+dict_data_t DGet(Dict d, const void* inp_key);
+int DRemove(Dict d, const void* inp_key);
 
-int DRemove(
-  Dict d,
-  const void* inp_key,
-  unsigned long (*hash)() );
+List DGetKeys(Dict d);
+
+/* Providing some time-saving utils */
+#define ToStr(T) \
+  _Generic( (T), \
+    short:sh_to_str, \
+    int:i_to_str, \
+    unsigned int:ui_to_str, \
+    long:l_to_str, \
+    unsigned long:ul_to_str, \
+    long long:ll_to_str, \
+    unsigned long long:ull_to_str, \
+    float:f_to_str, \
+    double:d_to_str, \
+    long double:ld_to_str \
+  ) (T)
+
+char* sh_to_str(const short a);
+char* i_to_str(const int a);
+char* ui_to_str(const unsigned int a);
+char* l_to_str(const long a);
+char* ul_to_str(const unsigned long a);
+char* ll_to_str(const long long a);
+char* ull_to_str(const unsigned long long a);
+char* f_to_str(const float a);
+char* d_to_str(const double a);
+char* ld_to_str(const long double a);
 
 #endif /* Include guard */

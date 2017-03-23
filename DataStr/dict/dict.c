@@ -46,6 +46,7 @@ int DeleteDNode(DNode dn)
 /***************************************
  Dict - static functions
 ****************************************/
+/* search Dict->table to return data */
 static dict_data_t tbl_search(List tbl, dict_key_t k)
 {
   assert(tbl);
@@ -58,6 +59,7 @@ static dict_data_t tbl_search(List tbl, dict_key_t k)
   return NULL;
 }
 
+/* search Dict->table to return DNode */
 static DNode tbl_search_node(List tbl, dict_key_t k)
 {
   assert(tbl);
@@ -70,6 +72,7 @@ static DNode tbl_search_node(List tbl, dict_key_t k)
   return NULL;
 }
 
+/* Search node to return the data */
 static dict_data_t search(Dict d, dict_key_t k)
 {
   assert(d);
@@ -81,6 +84,7 @@ static dict_data_t search(Dict d, dict_key_t k)
   return NULL;
 }
 
+/* Search node to return DNode */
 static DNode search_node(Dict d, dict_key_t k)
 {
   assert(d);
@@ -92,6 +96,7 @@ static DNode search_node(Dict d, dict_key_t k)
   return NULL;
 }
 
+/* Append Dict->keys array */
 static int append_keys(
   dict_key_t** keys,
   dict_key_t n_key,
@@ -121,6 +126,48 @@ static int append_keys(
   return 0;
 }
 
+/* remove a key in Dict->keys */
+static int remove_key(
+  dict_key_t** keys,
+  dict_key_t k,
+  unsigned long long* keys_len)
+{
+  if (!(*keys_len)) free(*keys);
+
+  if (!(*keys)) return -1; /* Nothing to remove */
+
+  unsigned long long k_ind;
+  bool k_found = false;
+  unsigned long long i;
+  for (i=0; i<(*keys_len); ++i) {
+    if ((*keys)[i] == k) {
+      k_ind = i;
+      k_found = true;
+      break;
+    }
+  }
+
+  if (!k_found) return -1; /* Couldn't find the key */
+
+  /* Ok, now we've found the key. Let's remove it */
+  dict_key_t *new_keys, *tmp_keys;
+  new_keys = (dict_key_t*)malloc(sizeof(dict_key_t)*((*keys_len)-1));
+  for (i=0; i<(*keys_len); ++i) {
+    if (i == k_ind) continue;
+    if (i < k_ind) new_keys[i] = (*keys)[i];
+    if (i > k_ind) new_keys[i-1] = (*keys)[i];
+  }
+
+  tmp_keys = (*keys);
+  (*keys) = new_keys;
+  free(tmp_keys);
+
+  (*keys_len)--;
+
+  return 0;
+}
+
+
 /***************************************
  Dict - Constructors and Destructors
 ****************************************/
@@ -149,16 +196,21 @@ int DeleteDict(Dict d)
 /***************************************
  Dict - Methods
 ****************************************/
-int DInsert(
-  Dict d,
-  dict_data_t inp_data,
-  const void* inp_key,
-  unsigned long (*hash)() )
+/* Sets up or disengage hash function */
+int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
+{
+  assert(d);
+  d->hashing = hashing;
+  return 0;
+}
+
+/* Insert Data */
+int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
 {
   assert(d);
   dict_key_t k;
-  if (!hash) k = *(const dict_key_t*)inp_key;
-  else k = hash(inp_key);
+  if (!d->hashing) k = *(const dict_key_t*)inp_key;
+  else k = d->hashing(inp_key);
 
   DNode tmp_dnode = search_node(d, k);
   if (tmp_dnode) tmp_dnode->data = inp_data;
@@ -172,31 +224,122 @@ int DInsert(
   return 0;
 }
 
-dict_data_t DGet(
-  Dict d,
-  const void* inp_key,
-  unsigned long (*hash)() )
+/* Get data from given key */
+dict_data_t DGet(Dict d, const void* inp_key)
 {
   assert(d);
   dict_key_t k;
-  if (!hash) k = *(const dict_key_t*)inp_key;
-  else k = hash(inp_key);
+  if (!d->hashing) k = *(const dict_key_t*)inp_key;
+  else k = d->hashing(inp_key);
 
   return search(d, k);
 }
 
-int DRemove(
-  Dict d,
-  const void* inp_key,
-  unsigned long (*hash)() )
+/* Remove a key and its data */
+int DRemove(Dict d, const void* inp_key)
 {
   assert(d);
   dict_key_t k;
-  if (!hash) k = *(const dict_key_t*)inp_key;
-  else k = hash(inp_key);
+  if (!d->hashing) k = *(const dict_key_t*)inp_key;
+  else k = d->hashing(inp_key);
 
   DNode tmp_dnode = search_node(d, k);
   if (!tmp_dnode) return 0; /* Key isn't here, nothing to do */
 
-  return LRemoveHard(d->table, LIndex(d->table, tmp_dnode), &DeleteDNode);
+  LRemoveHard(d->table, LIndex(d->table, tmp_dnode), &DeleteDNode);
+  remove_key(&d->keys, k, &d->size);
+
+  return 0;
+}
+
+/* Get list of keys */
+List DGetKeys(Dict d)
+{
+  assert(d);
+  return AtoL((void**)d->keys, d->size);
+}
+
+
+/***************************************
+ Some life saving converters...
+****************************************/
+char* sh_to_str(const short a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%d", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%d", a);
+  return output;
+}
+char* i_to_str(const int a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%d", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%d", a);
+  return output;
+}
+char* ui_to_str(const unsigned int a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%u", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%u", a);
+  return output;
+}
+char* l_to_str(const long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%ld", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%ld", a);
+  return output;
+}
+char* ul_to_str(const unsigned long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%lu", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%lu", a);
+  return output;
+}
+char* ll_to_str(const long long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%lld", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%lld", a);
+  return output;
+}
+char* ull_to_str(const unsigned long long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%llu", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%llu", a);
+  return output;
+}
+char* f_to_str(const float a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%f", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%f", a);
+  return output;
+}
+char* d_to_str(const double a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%f", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%f", a);
+  return output;
+}
+char* ld_to_str(const long double a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%Lf", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%Lf", a);
+  return output;
 }

@@ -1,6 +1,6 @@
 CC=clang
 
-CFLAGS=-ggdb3 -Wall -std=gnu99
+CFLAGS=-ggdb3 -Wall -std=c1x
 LIBS=-lm -L.
 
 SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))

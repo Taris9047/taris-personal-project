@@ -142,17 +142,16 @@ LNode LSearch(List l, list_data_t value)
 list_data_t LAt(List l, unsigned long long ind)
 {
   assert(l);
+  assert(l->root_node);
   assert(ind < l->len);
 
   LNode tmp = l->root_node;
 
-  unsigned long long i;
-  for (i=0; i<=ind; ++i) {
-    tmp = tmp->next;
-  }
+  if (ind == 0) return tmp->value;
 
-  if (tmp) return tmp->value;
-  else return NULL;
+  unsigned long long i;
+  for (i=0; i<ind; ++i) tmp = tmp->next;
+  return tmp->value;
 }
 
 /* Get index */
@@ -364,9 +363,10 @@ int LCpy(List l, const List o)
 */
 List AtoL(void* some_array[], unsigned long long arr_len)
 {
+  assert(some_array);
   List al = NewList();
   unsigned long long i;
-  for (i=arr_len; i>1; --i) LPush(al, some_array[i-1]);
+  for (i=arr_len; i!=0; --i) LPush(al, some_array[i-1]);
   return al;
 }
 

@@ -15,7 +15,20 @@
 
 #include "dict.h"
 
-#define DICT_ELEMENT_SIZE 100
+#define DICT_ELEMENT_SIZE 5
+
+/* strdup */
+static char* _strdup(const char *s)
+{
+  size_t len = strlen (s) + 1;
+  void *new = malloc (len);
+
+  if (new == NULL)
+    return NULL;
+
+  return (char *) memcpy (new, s, len);
+}
+
 
 typedef struct _dummy_struct {
   char* dummy_name;
@@ -30,7 +43,7 @@ Dummy NewDummy(const char* dummy_name)
   Dummy dum = (Dummy)malloc(sizeof(dummy_struct));
   assert(dum);
 
-  dum->dummy_name = strdup(dummy_name);
+  dum->dummy_name = _strdup(dummy_name);
   dum->some_dummy_int = (int)rand();
   dum->some_dummy_double = (double)rand();
   dum->some_dummy_struct = NULL;
@@ -60,30 +73,38 @@ int main (void)
   printf("Dictioniary test program...\n");
 
   Dict test_dict = NewDict();
+  DSetHashFunc(test_dict, &hash_str_fnv);
 
-  const char label[] = "Dummy struct.";
-  unsigned long some_ind2 = 34;
+  Dummy* dums = (Dummy*)malloc(sizeof(dictionary)*DICT_ELEMENT_SIZE);
+  assert(dums);
 
-  Dummy dum1 = NewDummy("First Dummy");
-  Dummy dum2 = NewDummy("Second Dummy");
-  Dummy dum3 = NewDummy("Thrid Dummy");
+  int i;
+  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
+    dums[i] = NewDummy(ToStr((i+37)+(i*37)));
 
-  printf("Inserting first data with a string key \"%s\"\n", label);
-  printf("FNV hash result: %lu\n", hash_str_fnv(label));
-  DInsert(test_dict, dum1, label, &hash_str_fnv);
-  printf("Inserting second data with key %lu\n", some_ind2);
-  DInsert(test_dict, dum2, &some_ind2, NULL);
-  printf("Inserting third data with its string key \"%s\"\n", dum3->dummy_name);
-  printf("FNV hash result: %lu\n", hash_str_fnv(dum3->dummy_name));
-  DInsert(test_dict, dum3, dum3->dummy_name, &hash_str_fnv);
+  printf("Inserting Dummies!!\n");
+  for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
+    printf("Inserting with string \"%s\" : %lu \n", dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
+    DInsert(test_dict, dums[i], dums[i]->dummy_name);
+  }
 
   printf("\nDictionary readout test...\n");
 
-  Dummy tmp_dum = (Dummy)DGet(test_dict, label, &hash_str_fnv);
-  if (tmp_dum) DummyPrint(tmp_dum);
-  else fprintf(stderr, "NULL returned .. what?\n");
+  List key_list = DGetKeys(test_dict);
 
-  DeleteDummy(dum1); DeleteDummy(dum2); DeleteDummy(dum3);
+  printf("dict has %llu keys\n", LLen(key_list));
+  printf("dict_keys:");
+  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
+    printf(" %lu\n", (dict_key_t)LAt(key_list, i));
+  printf("\n");
+  printf("dict_keys (direct access):\n");
+  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
+    printf(" %lu", test_dict->keys[i]);
+  printf("\n");
+  DeleteList(key_list);
+
+  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
+    DeleteDummy(dums[i]);
   DeleteDict(test_dict);
 
   return 0;
