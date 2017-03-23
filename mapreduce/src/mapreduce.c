@@ -247,7 +247,7 @@ void* do_shuffle(void* args)
   }
   /* Now "key_list" has all the keys we've read out */
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
-  Hash KeyMap = make_key_hash(key_list);
+  Dict KeyMap = make_key_hash(key_list);
   DeleteList(key_list); /* We don't need list anymore */
 
   /* Now KeyMap has collection of keys */
@@ -261,7 +261,7 @@ void* do_shuffle(void* args)
     Taking that key to list.
   */
   //Key k_type = KManGetKeyType(shfl_node->k_man, shfl_node);
-  shfl_node->keys = HGetByKey(KeyMap, *shfl_node->my_key_type);
+  shfl_node->keys = DGet(KeyMap, ToStr(*shfl_node->my_key_type));
 
   /* Start reducer job */
   RDArgs reducer_args = NewRDArgs(shfl_node->keys);
@@ -274,16 +274,16 @@ void* do_shuffle(void* args)
     free(jobs_index[i]);
   free(jobs_index);
   //free(key_list);
-  DeleteHash(KeyMap);
+  DeleteDict(KeyMap);
 
   return NULL;
 }
 
 /* List containing keys to Hash key map (Sort by timestamp) */
-Hash make_key_hash(List k_list)
+Dict make_key_hash(List k_list)
 {
   assert(k_list);
-  Hash key_map = NewHash();
+  Dict key_map = NewDict();
 
   ULLONG i;
   ULLONG k_list_len = LLen(k_list);
@@ -291,7 +291,7 @@ Hash make_key_hash(List k_list)
 
   for (i=0; i<k_list_len; ++i) {
     tmp_k = (Key)LAt(k_list, i);
-    HInsert(key_map, tmp_k, tmp_k->ts);
+    DInsert(key_map, tmp_k, ToStr(tmp_k->ts));
   }
 
   return key_map;

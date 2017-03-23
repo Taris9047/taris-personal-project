@@ -20,7 +20,7 @@
 #include "mapper.h"
 #include "reducer.h"
 #include "utils.h"
-#include "hash.h"
+#include "dict.h"
 #include "key_shuffle_mapper.h"
 
 #include <pthread.h>
@@ -93,7 +93,7 @@ int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args);
 void* do_shuffle(void* args);
 
 /* List containing keys to Hash key map (Sort by timestamp) */
-Hash make_key_hash(List k_list);
+Dict make_key_hash(List k_list);
 
 
 /* Shuffler control node */

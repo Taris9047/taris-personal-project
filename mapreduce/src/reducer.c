@@ -143,7 +143,7 @@ void* reducer(void* args)
  Utilities for reducer
 ************************************************/
 /* Keygen */
-inline ULLONG pixel_keygen(ULONG a, ULONG b)
+ULLONG pixel_keygen(ULONG a, ULONG b)
 {
   return (ULLONG)( (a+b+1)*(a+b)/2 + b );
 }

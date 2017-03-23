@@ -63,7 +63,7 @@ int DeleteRDArgs(RDArgs rda);
 void* reducer(void* args);
 
 /* Keygen for reducer */
-inline ULLONG pixel_keygen(ULONG a, ULONG b);
+ULLONG pixel_keygen(ULONG a, ULONG b);
 
 /* Img file writer */
 int ImgDataWriter(ImgData img_data, char* base_name);

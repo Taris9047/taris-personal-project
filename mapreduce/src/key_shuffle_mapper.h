@@ -12,8 +12,10 @@
 #define MAPREDUCE_KEY_SHUFFLE_MAPPER_H
 
 #include "list.h"
-#include "mapreduce.h"
-#include "hash.h"
+//#include "mapreduce.h"
+#include "dict.h"
+#include "mapper.h"
+#include "reducer.h"
 
 struct _shuffler_node;
 typedef struct _shuffler_node* ShflNode;
@@ -34,6 +36,6 @@ int DeleteKeyManager(KeyManager k_m);
 int KManGetShflNode(KeyManager kl_m, Key k, ShflNode** shfl_nodes);
 Key KManGetKey(KeyManager kl_m, ShflNode shfl_node);
 int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
-int KManReportKeys(KeyManager kl_m, Hash key_map, ULLONG* assigned_key_type);
+int KManReportKeys(KeyManager kl_m, Dict key_map, ULLONG* assigned_key_type);
 
 #endif /* Include guard */

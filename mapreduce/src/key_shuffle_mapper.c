@@ -45,4 +45,20 @@ int DeleteKeyManager(KeyManager k_m)
 
 /***********************************************
  Key list manager - Methods
- ************************************************/
+************************************************/
+int KManGetShflNode(KeyManager kl_m, Key k, ShflNode** shfl_nodes)
+{
+  
+}
+Key KManGetKey(KeyManager kl_m, ShflNode shfl_node)
+{
+  
+}
+int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node)
+{
+  
+}
+int KManReportKeys(KeyManager kl_m, Dict key_map, ULLONG* assigned_key_type)
+{
+  
+}
