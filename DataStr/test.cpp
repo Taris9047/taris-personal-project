@@ -15,7 +15,7 @@
 #include <cassert>
 
 extern "C" {
-    #include "bintree.h"
+    #include "btree.h"
     #include "graph.h"
     #include "search.h"
     #include "trie.h"
@@ -32,7 +32,8 @@ int test_binary_tree(int array_size)
 
     std::cout << "Testing Binary tree..." << std::endl;
 
-    BINode Root = InitBITree();
+    //BINode Root = InitBITree();
+    BTree Root = NewBTree();
 
     //double* some_array;
     //some_array = (double*)malloc(sizeof(double)*array_size);
@@ -42,7 +43,7 @@ int test_binary_tree(int array_size)
     for (i=0; i < array_size; ++i) {
         some_array[i] = sqrt(pow((int)rand()%100,2.0));
         //some_array[i] = (double)i;
-        BITreeInsert((void*)&some_array[i], i, Root);
+        BTInsert(Root, i, (void*)&some_array[i]);
     }
     //free(some_array);
     delete[] some_array;

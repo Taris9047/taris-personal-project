@@ -22,7 +22,7 @@ typedef char rtrie_key_t;
 typedef struct _rwe_trie_node {
     rtrie_key_t key;
     rtrie_value_t value;
-    LNode children;
+    List children;
     struct _rwe_trie_node* parent;
     //struct _rwe_trie_node* children;
 } rwe_trie_node;
@@ -30,7 +30,7 @@ typedef rwe_trie_node* rTrieNode;
 
 typedef struct _rwe_trie_root {
     char* name;
-    LNode head;
+    List head;
     //rTrieNode head;
 } rwe_trie_root;
 typedef rwe_trie_root* rTrieRoot;

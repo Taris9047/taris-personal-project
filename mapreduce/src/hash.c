@@ -1,370 +1,206 @@
 /***************************************
 
-  Hash Structure
+  Dictionary data structure for C
+  -> Hashing algorithm
 
   Implementation file
 
-  Taylor Shin, Mar. 21 2017
+  Taylor Shin, Mar. 22th 2017
 
  ***************************************/
 
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <string.h>
+#include <time.h>
+#include <limits.h>
 
 #include "hash.h"
 
 /***************************************
- Hash - static function definitions
- ***************************************/
-/* local memcpy */
-static void* memcpy_List(List* tgt_array, const List* source_array, unsigned long long cnt);
-static void* memcpy_hash_key(hash_key_t* tgt_array, const hash_key_t* source_array, unsigned long long cnt);
+ Mappers (Or, hashing algorithms)
+****************************************/
 
-/* Static functions */
-/* most important: key mapper --> returns index for given key */
-/* for later use: implement this part as you please */
-static unsigned long long mapper(Hash h, hash_key_t k);
-
-/* Search stuff */
-static bool exists(Hash h, hash_key_t k);
-static List search(Hash h, hash_key_t k, unsigned long long* found_index);
-
-
-
-
-
-
-// /***************************************
-//  HNode - C and D
-//  ***************************************/
-// HNode NewHNode(hash_data_t data, unsigned long long index)
-// {
-//   HNode hn = (HNode)malloc(sizeof(hash_node));
-//   assert(hn);
-//   hn->data = data;
-//   hn->index = index;
-//   return hn;
-// }
-//
-// int DeleteHNode(HNode hn)
-// {
-//   assert(hn);
-//   free(hn);
-//   return 0;
-// }
-//
-// int DeleteHNodeHard(HNode hn, int (*destroyer)())
-// {
-//   assert(hn);
-//   if (hn->data) {
-//     if (destroyer) destroyer(hn->data);
-//     else free(hn->data);
-//   }
-//   return 0;
-// }
-//
-// /***************************************
-//  HNode - Methods
-//  ***************************************/
-// hash_data_t HNGet(HNode hn)
-// {
-//   assert(hn);
-//   return hn->data;
-// }
-//
-// int HNSet(HNode hn, hash_data_t hd)
-// {
-//   assert(hn);
-//   hn->data = hd;
-//   return 0;
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/***************************************
- Hash - C and D
- ***************************************/
-Hash NewHash()
+/* Division method */
+unsigned long hash_str_div(const void* str)
 {
-  Hash h = (Hash)malloc(sizeof(hash));
-  assert(h);
+  unsigned long h = 0;
+  const unsigned char* us = str;
+  while (*us != '\0') {
+    h = (h*HASH_STR_DIV_BASE + (*us)) % HASH_STR_DIV_CONST;
+    ++us;
+  }
+  return h;
+}
 
-  h->hash_nodes = NULL;
-  h->keys = NULL;
-  h->n_keys = 0;
+/* Paul Larson's method */
+unsigned long hash_str_PLarson(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = HASH_STR_PLARSON_SEED;
+  while (*us != '\0') h = h*101+(*us++);
+  return h;
+}
+
+/* Multiplication method */
+unsigned long hash_str_mul(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0;
+  while (*us != '\0') h = h*HASH_STR_MULTIPLIER+(*us++);
+  return h;
+}
+
+/* Some bad but fast FNV */
+unsigned long hash_str_fbb_fnv(const void* str)
+{
+  const unsigned char* us = (const unsigned char*)str;
+  unsigned long h = HASH_STR_INITIAL_FNV;
+  while (*us != '\0') {
+    h = h^(*us);
+    h = h*HASH_STR_FNV_MULTIPLE;
+    ++us;
+  }
+  return h;
+}
+
+/* Rotating hash */
+unsigned long hash_str_rot(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0;
+  while (*us != '\0') h = (h<<4)^(h>>28)^(*us++);
+  return h;
+}
+
+/* Bernstein */
+unsigned long hash_str_bern(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0;
+  while (*us != '\0') h = HASH_STR_BERN_MULTIPLIER*h+(*us++);
+  return h;
+}
+
+/* Modified Bernstein */
+unsigned long hash_str_mbern(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0;
+  while (*us != '\0') h = HASH_STR_BERN_MULTIPLIER*h^(*us++);
+  return h;
+}
+
+/* Shift-Add-Xor */
+unsigned long hash_str_shaxor(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0;
+  while (*us != '\0') h ^= (h<<5)+(h>>2)+(*us++);
+  return h;
+}
+
+/* Fowler/Noll/Vo */
+unsigned long hash_str_fnv(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = HASH_STR_INITIAL_FNV;
+  while (*us != '\0') h=(h*HASH_STR_FNV_MULTIPLE)^(*us++);
+  return h;
+}
+
+/* One at a Time (otime) */
+unsigned long hash_str_otime(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0;
+
+  while (*us != '\0') {
+    h += (*us++);
+    h += (h<<10);
+    h ^= (h>>6);
+  }
+  h += (h<<3);
+  h ^= (h>>11);
+  h += (h<<15);
 
   return h;
 }
 
-int DeleteHash(Hash h)
+/* JSW hash */
+unsigned long hash_jsw_tab[HASH_JSW_TAB_LEN];
+bool jsw_tbl_exist = false;
+void init_jsw_tab()
 {
-  assert(h);
+  srand(time(NULL));
+  int i;
+  for (i=0; i<HASH_JSW_TAB_LEN; ++i)
+    hash_jsw_tab[i] = rand()%ULONG_MAX;
+  jsw_tbl_exist = true;
+}
 
-  unsigned long long i;
-  for (i=0; i<h->n_keys; ++i) {
-    DeleteList(h->hash_nodes[i]);
+unsigned long hash_str_jsw(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = HASH_JSW_INIT;
+  if (!jsw_tbl_exist) init_jsw_tab();
+  while (*us != '\0') h=(h<<1|h>>31)^hash_jsw_tab[*us++];
+  return h;
+}
+
+
+/* ELF hash */
+unsigned long hash_str_elf(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long h = 0, g;
+  while (*us != '\0') {
+    h = (h<<4) + *us++;
+    g = h&0xf0000000UL;
+    if (g) h^=g>>24;
+    h &= ~g;
+  }
+  return h;
+}
+
+/* Jenkins */
+unsigned long hash_str_jenkins(const void* str)
+{
+  const unsigned char* us = str;
+  unsigned long a, b;
+  unsigned long c = HASH_JENKINS_INITVAL;
+  unsigned long long orig_length = strlen((const char*)str);
+  unsigned long long str_len = orig_length;
+
+  a = b = 0x9e3779b9;
+  while (str_len >= 12) {
+    a += (us[0] + ((unsigned long)us[1] << 8) + ((unsigned long)us[2] << 16) + ((unsigned long)us[3] << 24));
+    b += (us[4] + ((unsigned long)us[5] << 8) + ((unsigned long)us[6] << 16) + ((unsigned long)us[7] << 24));
+    c += (us[8] + ((unsigned long)us[9] << 8) + ((unsigned long)us[10] << 16) + ((unsigned long)us[11] << 24));
+
+    hash_jenkins_mix(a, b, c);
+
+    us += 12;
+    str_len -= 12;
   }
 
-  if (h->keys) free(h->keys);
+  c += orig_length;
 
-  return 0;
-}
-
-
-/***************************************
- Hash - Methods
- ***************************************/
-int HInsert(Hash h, hash_data_t d, hash_key_t k)
-{
-  return HSet(h, d, k);
-}
-
-bool HIsEmpty(Hash h)
-{
-  assert(h);
-  if (!h->hash_nodes && !h->keys && !h->n_keys) return true;
-  else return false;
-}
-
-bool HKeyFound(Hash h, hash_key_t k)
-{
-  assert(h);
-  return exists(h, k);
-}
-
-List HGet(Hash h, hash_key_t k)
-{
-  assert(h);
-
-  if (!HKeyFound(h, k)) return NULL;
-
-  unsigned long long ind = mapper(h, k);
-  return h->hash_nodes[ind];
-}
-
-int HSet(Hash h, hash_data_t d, hash_key_t k)
-{
-  assert(h);
-
-  unsigned long long ind = mapper(h, k);
-  LPush(h->hash_nodes[ind], d);
-
-  return 0;
-}
-
-List HKeys(Hash h)
-{
-  List keys = NewList();
-
-  unsigned long long i;
-  for (i=0; i<h->n_keys; ++i)
-    LPush(keys, &h->keys[i]);
-
-  return keys;
-}
-
-
-
-
-/* Insert, Get, Remove data list by key */
-List HGetByKey(Hash h, hash_key_t k)
-{
-  assert(h);
-  return search(h, k, NULL);
-}
-
-int HSetByKey(Hash h, hash_data_t* d, unsigned long long d_len, hash_key_t k)
-{
-  assert(h);
-  List found_list = search(h, k, NULL);
-
-  unsigned long long i, new_ind;
-
-  /* If the key already exists, append the list */
-  if (found_list) {
-    for (i=0; i<d_len; ++i)
-      LPush(found_list, d[i]);
-  }
-  else {
-    new_ind = mapper(h, k);
-    for (i=0; i<d_len; ++i)
-      LPush(h->hash_nodes[new_ind], d[i]);
+  switch(str_len) {
+    case 11: c += ((unsigned long)us[10]<<24);
+    case 10: c += ((unsigned long)us[9] << 16);
+    case 9: c += ((unsigned long)us[8] << 8);
+    case 8: b += ((unsigned long)us[7] << 24);
+    case 7: b += ((unsigned long)us[6] << 16);
+    case 6: b += ((unsigned long)us[5] << 8);
+    case 5: b += us[4];
+    case 4: a += ((unsigned long)us[3] << 24);
+    case 3: a += ((unsigned long)us[2] << 16);
+    case 2: a += ((unsigned long)us[1] << 8);
+    case 1: a += us[0];
   }
 
-  return 0;
-}
-
-int HInsertByKey(Hash h, hash_data_t* d, unsigned long long d_len, hash_key_t k)
-{
-  return HSetKey(h, d, d_len, k);
-}
-
-int HRemoveByKey(Hash h, hash_key_t k)
-{
-  assert(h);
-  unsigned long long i, found_index;
-  List found_list = search(h, k, &found_index);
-  /* Cannot remove non existing key */
-  if (!found_list) {
-    fprintf(stderr, "Hash, cannot find the key!!\n");
-    return -1;
-  }
-
-  /* now we need to drop a key and a list at found_index */
-  hash_key_t *new_key_array, *tmp_key_array;
-  new_key_array = (hash_key_t*)malloc(sizeof(hash_key_t)*(h->n_keys-1));
-  for (i=0; i<h->n_keys; ++i) {
-    if (i==found_index) continue;
-    else if (i<found_index) new_key_array[i] = h->keys[i];
-    else if (i>found_index) new_key_array[i-1] = h->keys[i];
-  }
-  tmp_key_array = h->keys;
-  h->keys = new_key_array;
-  free(tmp_key_array);
-
-  List *new_hash_list, *tmp_hash_list;
-  new_hash_list = (List*)malloc(sizeof(List)*(h->n_keys-1));
-  for (i=0; i<h->n_keys; ++i) {
-    if (i==found_index) continue;
-    else if (i<found_index) new_hash_list[i] = h->hash_nodes[i];
-    else if (i>found_index) new_hash_list[i-1] = h->hash_nodes[i];
-  }
-  tmp_hash_list = h->hash_nodes;
-  h->hash_nodes = new_hash_list;
-  for (i=0; i<h->n_keys; ++i) DeleteList(tmp_hash_list[i]);
-  free(tmp_hash_list);
-
-  h->n_keys--;
-
-  return 0;
-}
-
-
-
-
-
-
-
-/***************************************
- Hash - static functions
- ***************************************/
-/* local memcpy implementations */
-static void* memcpy_List(List* tgt_array, const List* source_array, unsigned long long cnt)
-{
-  assert(source_array);
-  unsigned long long i;
-  for (i=0; i<cnt; ++i)
-    tgt_array[i] = source_array[i];
-  return tgt_array;
-}
-static void* memcpy_hash_key(hash_key_t* tgt_array, const hash_key_t* source_array, unsigned long long cnt)
-{
-  assert(source_array);
-  unsigned long long i;
-  for (i=0; i<cnt; ++i)
-    tgt_array[i] = source_array[i];
-  return tgt_array;
-}
-
-/***************************************
- Hash - The mapper!!
- ***************************************/
-static unsigned long long mapper(Hash h, hash_key_t k)
-{
-  assert(h);
-
-  /* If the hash was empty! insert it!! */
-  if (!h->keys && !h->n_keys) {
-    h->keys = (hash_key_t*)malloc(sizeof(hash_key_t));
-    h->keys[0] = k;
-    h->hash_nodes = (List*)malloc(sizeof(List));
-    h->hash_nodes[0] = NewList();
-    ++h->n_keys;
-    return h->n_keys-1;
-  }
-
-  unsigned long long i;
-
-  hash_key_t *new_key_list, *tmp;
-  List *new_hash_nodes, *tmp_hash_nodes;
-
-  /* Try to find given key from existing keys */
-  for (i=0; i<h->n_keys; ++i) {
-    if (h->keys[i] == k) return i;
-  }
-
-  /*
-  If we couln't find the key in current h->keys,
-  Insert this key...  in fact, we're swapping the key_list with
-  the new key, trailing it.
-  */
-  new_key_list = (hash_key_t*)malloc(sizeof(hash_key_t)*(h->n_keys+1));
-  memcpy_hash_key(new_key_list, h->keys, h->n_keys);
-  new_key_list[h->n_keys] = k;
-
-  tmp = h->keys;
-  h->keys = new_key_list;
-  free(tmp);
-
-  /* Do the same array swapping for hash_nodes as well */
-  new_hash_nodes = (List*)malloc(sizeof(List)*(h->n_keys+1));
-  memcpy_List(new_hash_nodes, h->hash_nodes, h->n_keys);
-  new_hash_nodes[h->n_keys] = NewList(); /* Assign an empty list to the new slot */
-
-  tmp_hash_nodes = h->hash_nodes;
-  h->hash_nodes = new_hash_nodes;
-  for (i=0; i<h->n_keys; ++i)
-    DeleteList(tmp_hash_nodes[i]);
-  free(tmp_hash_nodes);
-
-  ++h->n_keys;
-
-  return h->n_keys-1;
-}
-
-/* Check key existence */
-static bool exists(Hash h, hash_key_t k)
-{
-  assert(h);
-  unsigned long long i;
-
-  if (!h->keys) return false;
-
-  for (i=0; i<h->n_keys; ++i)
-    if (h->keys[i] == k) return true;
-
-  return false;
-}
-
-/* search data list by key */
-static List search(Hash h, hash_key_t k, unsigned long long* found_index)
-{
-  assert(h);
-  unsigned long long i;
-
-  if (HIsEmpty(h)) return NULL;
-
-  for (i=0; i<h->n_keys; ++i) {
-    if (h->keys[i] == k) {
-      if (found_index) (*found_index) = i;
-      return h->hash_nodes[i];
-    }
-  }
-
-  return NULL;
+  hash_jenkins_mix(a,b,c);
+  return c;
 }

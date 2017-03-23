@@ -1,4 +1,15 @@
+/**
+* @Author: taris
+* @Date:   2017-03-22T18:57:27-05:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-23T00:06:42-05:00
+*/
+
+
+
 /***************************************
+
+  Linked list data structure
 
   Header file
 
@@ -9,8 +20,8 @@
 
  ***************************************/
 
-#ifndef MAPREDUCE_LINKED_LIST_H
-#define MAPREDUCE_LINKED_LIST_H
+#ifndef C_IMPLEMENATTION_LINKED_LIST_H
+#define C_IMPLEMENATTION_LINKED_LIST_H
 
 /* List node */
 typedef void* list_data_t;
@@ -24,7 +35,7 @@ typedef list_node* LNode;
 /* List control node */
 typedef struct _list_root {
   LNode root_node; /* The first list node */
-  unsigned long len; /* length of list */
+  unsigned long long len; /* length of list */
 } list_root;
 typedef list_root* List;
 
@@ -41,7 +52,12 @@ int list_node_destroy_hard(LNode l, int (*destroyer) () );
 int LPush(List l, list_data_t value);
 list_data_t LPop(List l);
 LNode LSearch(List l, list_data_t value);
-list_data_t LAt(List l, unsigned long ind);
+list_data_t LAt(List l, unsigned long long ind);
+unsigned long long LIndex(List l, list_data_t value);
+
+/* Remove a node */
+int LRemove(List l, unsigned long long ind);
+int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () );
 
 /* Reverse the list */
 int LReverse(List l);
@@ -50,10 +66,10 @@ int LReverse(List l);
 int list_node_push(LNode* l, list_data_t value);
 list_data_t list_node_pop(LNode* l);
 LNode list_node_search(LNode l, list_data_t value);
-int list_node_assign(LNode l, list_data_t* values, const unsigned long values_len);
+int list_node_assign(LNode l, list_data_t* values, const unsigned long long values_len);
 
 /* Some more utils */
-unsigned long LLen(List l);
+unsigned long long LLen(List l);
 int LCpy(List l, const List o);
 /* converts some array to List
    Warning!! the source array will be destroyed
@@ -62,7 +78,7 @@ int LCpy(List l, const List o);
 List AtoL(void* some_array[], unsigned long long arr_len);
 
 
-unsigned long list_node_len(LNode l);
+unsigned long long list_node_len(LNode l);
 int list_node_find(LNode l, list_data_t value);
 int list_node_find_root(LNode* l);
 int list_node_delete_node(LNode l, list_data_t value);

@@ -22,8 +22,8 @@
 static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value);
 static int Destroy(rTrieNode node);
 static int AttachNode(rTrieNode me, rTrieNode addon);
-static LNode ChildSearch(LNode children, const char key);
-static int ChildDestroy(LNode children);
+static List ChildSearch(List children, const char key);
+static int ChildDestroy(List children);
 static rTrieNode Traverse(rTrieRoot root, char* key);
 
 
@@ -76,10 +76,10 @@ int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
 
     /* if root is empty, make first node */
     if (!root->head) {
-        root->head = ListInit();
+        root->head = NewList();
         assert(root->head);
         rtp = New((rTrieNode)root, key[0], NULL);
-        ListPush(&root->head, rtp);
+        LPush(&root->head, rtp);
     }
     /* if we already have first node, initialize rtp and cc */
     else {
@@ -88,7 +88,7 @@ int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
         else {
             rtp = New((rTrieNode)root, key[0], NULL);
             assert(rtp);
-            ListPush(&root->head, rtp);
+            LPush(&root->head, rtp);
         }
     }
     //cc = rtp->children;
@@ -139,7 +139,7 @@ int rTrieRemove(rTrieRoot root, char* key)
         while (1) {
             rtptmp = rtp->parent;
             if (!ListDelete(rtptmp->children, rtp)) rtp = rtptmp;
-            if (ListLen(rtp->children) > 1) break;
+            if (LLen(rtp->children) > 1) break;
         }
         return 0;
     }
@@ -161,7 +161,6 @@ int rTrieSet(rTrieRoot root, char* key, rtrie_value_t value)
 {
     assert(root);
     assert(strlen(key)>0);
-    //assert(value);
 
     rTrieNode rtp = Traverse(root, key);
 
@@ -177,13 +176,11 @@ static rTrieNode New(rTrieNode parent, const char key, rtrie_value_t value)
 {
     rTrieNode rt = (rTrieNode)malloc(sizeof(rwe_trie_node));
     assert(rt);
+
     rt->parent = parent;
     rt->key = key;
     rt->value = value;
-
-    LNode ch = ListInit();
-    assert(ch);
-    rt->children = ch;
+    rt->children = NewList();
 
     return rt;
 }
@@ -192,12 +189,7 @@ static int Destroy(rTrieNode node)
 {
     if (!node) return 0;
 
-    LNode cld;
-    if (node->children) {
-        cld = node->children;
-        ChildDestroy(cld);
-
-    }
+    DeleteList(node->children);
 
     if (node->value) free(node->value);
     free(node);
@@ -210,7 +202,7 @@ static int AttachNode(rTrieNode me, rTrieNode addon)
     assert(me);
     assert(addon);
 
-    if(ListPush(&me->children, addon)) return -1;
+    if(LPush(me->children, addon)) return -1;
 
     return 0;
 }

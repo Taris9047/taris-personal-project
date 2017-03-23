@@ -15,7 +15,11 @@
 
 #include "dict.h"
 
-#define DICT_ELEMENT_SIZE 5
+#define DICT_ELEMENT_SIZE 5000
+#define ELEMENTS_TO_REMOVE DICT_ELEMENT_SIZE/3
+
+#define Encode(n) (n+37+1)*(n+37)/2+n
+#define EncodeTwo(a, b) (a+b+1)*(a+b)/2+a
 
 /* strdup */
 static char* _strdup(const char *s)
@@ -68,6 +72,51 @@ void DummyPrint(Dummy dum)
   printf("\n");
 }
 
+
+#define ERR_NO_NUM -1
+#define ERR_NO_MEM -2
+
+int myRandom (int size) {
+  int i, n;
+  static int numNums = 0;
+  static int *numArr = NULL;
+
+  // Initialize with a specific size.
+
+  if (size >= 0) {
+    if (numArr != NULL)
+      free (numArr);
+    if ((numArr = malloc (sizeof(int) * size)) == NULL)
+      return ERR_NO_MEM;
+    for (i = 0; i  < size; i++)
+      numArr[i] = i;
+    numNums = size;
+  }
+
+  // Error if no numbers left in pool.
+
+  if (numNums == 0)
+    return ERR_NO_NUM;
+
+  // Get random number from pool and remove it (rnd in this
+  //   case returns a number between 0 and numNums-1 inclusive).
+
+  n = rand() % numNums;
+  i = numArr[n];
+  numArr[n] = numArr[numNums-1];
+  numNums--;
+  if (numNums == 0) {
+    free (numArr);
+    numArr = 0;
+  }
+
+  return i;
+}
+
+
+
+
+
 int main (void)
 {
   printf("Dictioniary test program...\n");
@@ -78,29 +127,51 @@ int main (void)
   Dummy* dums = (Dummy*)malloc(sizeof(dictionary)*DICT_ELEMENT_SIZE);
   assert(dums);
 
-  int i;
-  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
-    dums[i] = NewDummy(ToStr((i+37)+(i*37)));
+  int i; char* tmp_str = NULL; int tmp_str_len;
+  for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
+    tmp_str_len = snprintf(NULL, 0, "Dummy node [%s]", ToStr(Encode(i)));
+    tmp_str = (char*)malloc(sizeof(char)*tmp_str_len);
+    sprintf(tmp_str, "Dummy node [%s]", ToStr(Encode(i)) );
+    dums[i] = NewDummy( tmp_str );
+  }
 
   printf("Inserting Dummies!!\n");
   for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
-    printf("Inserting with string \"%s\" : %lu \n", dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
+    printf("Inserting with string \"%s\", Hashed as: %lu \n", dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
     DInsert(test_dict, dums[i], dums[i]->dummy_name);
   }
 
   printf("\nDictionary readout test...\n");
 
   List key_list = DGetKeys(test_dict);
-
   printf("dict has %llu keys\n", LLen(key_list));
-  printf("dict_keys:");
-  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
-    printf(" %lu\n", (dict_key_t)LAt(key_list, i));
-  printf("\n");
-  printf("dict_keys (direct access):\n");
-  for (i=0; i<DICT_ELEMENT_SIZE; ++i)
-    printf(" %lu", test_dict->keys[i]);
-  printf("\n");
+  // printf("dict_keys:");
+  // for (i=0; i<test_dict->size; ++i)
+  //   printf(" %lu", (dict_key_t)LAt(key_list, i));
+  // printf("\n");
+  // printf("dict_keys (direct access):\n");
+  // for (i=0; i<test_dict->size; ++i)
+  //   printf(" %lu", test_dict->keys[i]);
+  // printf("\n");
+  DeleteList(key_list);
+
+  printf("\nRemoval test ... \n");
+  for (i=0; i<ELEMENTS_TO_REMOVE; ++i) {
+    unsigned long long del_ind = myRandom(DICT_ELEMENT_SIZE);
+    printf("Removing dums[%llu]...\n", del_ind);
+    DRemove(test_dict, dums[del_ind]->dummy_name);
+  }
+
+  key_list = DGetKeys(test_dict);
+  printf("dict has %llu keys\n", LLen(key_list));
+  // printf("dict_keys:");
+  // for (i=0; i<test_dict->size; ++i)
+  //   printf(" %lu", (dict_key_t)LAt(key_list, i));
+  // printf("\n");
+  // printf("dict_keys (direct access):\n");
+  // for (i=0; i<test_dict->size; ++i)
+  //   printf(" %lu", test_dict->keys[i]);
+  // printf("\n");
   DeleteList(key_list);
 
   for (i=0; i<DICT_ELEMENT_SIZE; ++i)

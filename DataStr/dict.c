@@ -1,173 +1,345 @@
+/**
+* @Author: taris
+* @Date:   2017-03-22T18:57:27-05:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-23T00:10:05-05:00
+*/
+
+
+
 /***************************************
 
-  Practice coding for hash datastructure
+  Dictionary data structure for C
 
-  Dictionary part
   Implementation file
 
-  Taylor Shin, Feb. 07 2017
+  Taylor Shin, Mar. 22th 2017
 
  ***************************************/
 
-//#include <stdio.h>
+#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "dict.h"
 
-/* Some private(?)... errr static functions */
-static void* Search(Dict* d, const char *key);
-static int Grow(Dict* d);
-static int Insert(Dict* d, const char *key, void* stuff);
-static int Delete(Dict* d, const char *key);
-
-/* Constructors */
-Dict* DictInit(void)
+/***************************************
+ DNode - Constructors and Destructors
+****************************************/
+DNode NewDNode(dict_data_t inp_data, dict_key_t inp_key)
 {
-    return DictInitSize(INIT_SIZE);
+  DNode dn = (DNode)malloc(sizeof(dict_node));
+  assert(dn);
+  dn->data = inp_data;
+  dn->key = inp_key;
+  return dn;
 }
 
-Dict* DictInitSize(unsigned long size)
+int DeleteDNode(DNode dn)
 {
-    Dict* d = (Dict*)malloc(sizeof(Dict));
-    int i;
-
-    if (!d) return NULL;
-
-        d->size = size;
-        d->n = 0;
-        d->table = (Node**)malloc(sizeof(Node*)*d->size);
-
-    if (!d->table) return NULL;
-
-    for (i=0; i<d->size; ++i) d->table[i] = NULL;
-
-    return d;
+  assert(dn);
+  dn->data = NULL;
+  free(dn);
+  return 0;
 }
 
-/* Destructors */
-int DictDestroy(Dict* d)
+/***************************************
+ Dict - static functions
+****************************************/
+/* search Dict->table to return data */
+static dict_data_t tbl_search(List tbl, dict_key_t k)
 {
-    int i;
-    Node* n;
-    Node* nxt;
+  assert(tbl);
+  unsigned long long i, tbl_len = LLen(tbl);
+  DNode tmp_dnode;
+  for (i=0; i<tbl_len; ++i) {
+    tmp_dnode = tableAt(tbl, i);
+    if (tmp_dnode->key == k) return tmp_dnode->data;
+  }
+  return NULL;
+}
 
-    for (i=0; i<d->size; ++i) {
-        for(n=d->table[i]; n!=NULL; nxt = n->next) {
-            nxt = n->next;
-            free(n->key);
-            free(n->stuff);
-            free(n);
-        }
-    }
-    free(d->table);
-    free(d);
+/* search Dict->table to return DNode */
+static DNode tbl_search_node(List tbl, dict_key_t k)
+{
+  assert(tbl);
+  unsigned long long i, tbl_len = LLen(tbl);
+  DNode tmp_dnode;
+  for (i=0; i<tbl_len; ++i) {
+    tmp_dnode = tableAt(tbl, i);
+    if (tmp_dnode->key == k) return tmp_dnode;
+  }
+  return NULL;
+}
 
+/* Search node to return the data */
+static dict_data_t search(Dict d, dict_key_t k)
+{
+  assert(d);
+
+  unsigned long long i;
+  for (i=0; i<d->size; ++i)
+    if (k == d->keys[i]) return tbl_search(d->table, k);
+
+  return NULL;
+}
+
+/* Search node to return DNode */
+static DNode search_node(Dict d, dict_key_t k)
+{
+  assert(d);
+
+  unsigned long long i;
+  for (i=0; i<d->size; ++i)
+    if (k == d->keys[i]) return tbl_search_node(d->table, k);
+
+  return NULL;
+}
+
+/* Append Dict->keys array */
+static int append_keys(
+  dict_key_t** keys,
+  dict_key_t n_key,
+  unsigned long long* keys_len)
+{
+  if (!(*keys_len)) free(*keys);
+
+  if (!(*keys)) {
+    (*keys) = (dict_key_t*)malloc(sizeof(dict_key_t));
+    (*keys)[0] = n_key;
+    (*keys_len) = 1;
     return 0;
+  }
+
+  unsigned long long i;
+  dict_key_t *new_keys, *tmp_keys;
+  new_keys = (dict_key_t*)malloc(sizeof(dict_key_t)*((*keys_len)+1));
+  for (i=0; i<(*keys_len); ++i) new_keys[i] = (*keys)[i];
+  new_keys[(*keys_len)] = n_key;
+
+  tmp_keys = (*keys);
+  (*keys) = new_keys;
+  free(tmp_keys);
+
+  (*keys_len)++;
+
+  return 0;
 }
 
-/* Manipulation methods */
-/* Grow */
-static int Grow(Dict* d)
+/* remove a key in Dict->keys */
+static int remove_key(
+  dict_key_t** keys,
+  dict_key_t k,
+  unsigned long long* keys_len)
 {
-    Dict* other;
-    Dict swap;
-    int i;
-    Node* n;
+  if (!(*keys_len)) free(*keys);
 
-    other = DictInitSize(d->size*GROWTH_FACTOR);
+  if (!(*keys)) return -1; /* Nothing to remove */
 
-    for (i=0; i<d->size; ++i) {
-        for (n=d->table[i]; n!=NULL; n = n->next) {
-            Insert(other, n->key, n->stuff);
-        }
+  unsigned long long k_ind;
+  bool k_found = false;
+  unsigned long long i;
+  for (i=0; i<(*keys_len); ++i) {
+    if ((*keys)[i] == k) {
+      k_ind = i;
+      k_found = true;
+      break;
     }
+  }
 
-    swap = *d;
-    *d = *other;
-    *other = swap;
-    DictDestroy(other);
+  if (!k_found) return -1; /* Couldn't find the key */
 
-    return 0;
+  /* Ok, now we've found the key. Let's remove it */
+  dict_key_t *new_keys, *tmp_keys;
+  new_keys = (dict_key_t*)malloc(sizeof(dict_key_t)*((*keys_len)-1));
+  for (i=0; i<(*keys_len); ++i) {
+    if (i == k_ind) continue;
+    if (i < k_ind) new_keys[i] = (*keys)[i];
+    if (i > k_ind) new_keys[i-1] = (*keys)[i];
+  }
+
+  tmp_keys = (*keys);
+  (*keys) = new_keys;
+  free(tmp_keys);
+
+  (*keys_len)--;
+
+  return 0;
 }
 
-/* Insert */
-static int Insert(Dict* d, const char *key, void* stuff)
+
+/***************************************
+ Dict - Constructors and Destructors
+****************************************/
+Dict NewDict()
 {
-    Node* n;
-    unsigned long h;
-    size_t stuff_size;
-
-    /* if key or stuff are empty, call it. */
-    if (!key || !stuff)
-        return 1;
-
-    n = (Node*)malloc(sizeof(Node));
-    /* if malloc fails.. */
-    if (!n) return -1;
-
-    n->key = strdup(key);
-    //stuff_size = sizeof(*n->stuff)+1;
-    //memcpy(n->stuff, stuff, stuff_size);
-    n->stuff = strdup(stuff);
-
-    h = hash_mul(key) % d->size;
-
-    n->next = d->table[h];
-    d->table[h] = n;
-
-    /* not enough room? grow table! */
-    if (d->n >= d->size * MAX_LOAD_FACTOR) Grow(d);
-
-    return 0;
+  Dict d = (Dict)malloc(sizeof(dictionary));
+  assert(d);
+  d->size = 0;
+  d->table = NewList(); /* The DNode linked list */
+  d->keys = NULL;
+  return d;
+}
+int DeleteDict(Dict d)
+{
+  assert(d);
+  DeleteListHard(d->table, &DeleteDNode);
+  free(d->keys);
+  free(d);
+  return 0;
 }
 
-/* Delete element */
-static int Delete(Dict* d, const char *key)
+
+
+
+
+/***************************************
+ Dict - Methods
+****************************************/
+/* Sets up or disengage hash function */
+int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
 {
-    Node** prev;          /* what to change when elt is deleted */
-    Node* e;              /* what to delete */
-
-    for(prev = &(d->table[hash_mul(key) % d->size]);
-        *prev != NULL;
-        prev = &((*prev)->next)) {
-        if(!strcmp((*prev)->key, key)) {
-            /* got it */
-            e = *prev;
-            *prev = e->next;
-
-            free(e->key);
-            free(e->stuff);
-            free(e);
-
-            return 0;
-        }
-    }
-    return -1;
+  assert(d);
+  d->hashing = hashing;
+  return 0;
 }
 
-/* Search element */
-static void* Search(Dict* d, const char *key)
+/* Insert Data */
+int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
 {
-    Node* n;
+  assert(d);
+  dict_key_t k;
+  if (!d->hashing) k = *(const dict_key_t*)inp_key;
+  else k = d->hashing(inp_key);
 
-    for (n = d->table[hash_mul(key) % d->size]; n!=NULL; n=n->next) {
-        if(!strcmp(n->key, key)) return n->stuff;
-    }
+  DNode tmp_dnode = search_node(d, k);
+  if (tmp_dnode) tmp_dnode->data = inp_data;
+  else {
+    /* cannot find the key. Let's make it!! */
+    tmp_dnode = NewDNode(inp_data, k);
+    LPush(d->table, tmp_dnode);
+    append_keys(&d->keys, k, &d->size);
+  }
 
-    return NULL;
+  return 0;
 }
 
-/* Interfacing functions */
-int DictInsert(Dict* d, const char *key, void* stuff)
+/* Get data from given key */
+dict_data_t DGet(Dict d, const void* inp_key)
 {
-    return Insert(d, key, stuff);
+  assert(d);
+  dict_key_t k;
+  if (!d->hashing) k = *(const dict_key_t*)inp_key;
+  else k = d->hashing(inp_key);
+
+  return search(d, k);
 }
-int DictDelete(Dict* d, const char *key)
+
+/* Remove a key and its data */
+int DRemove(Dict d, const void* inp_key)
 {
-    return Delete(d, key);
+  assert(d);
+  dict_key_t k;
+  if (!d->hashing) k = *(const dict_key_t*)inp_key;
+  else k = d->hashing(inp_key);
+
+  DNode tmp_dnode = search_node(d, k);
+  if (!tmp_dnode) return 0; /* Key isn't here, nothing to do */
+
+  LRemoveHard(d->table, LIndex(d->table, tmp_dnode), &DeleteDNode);
+  remove_key(&d->keys, k, &d->size);
+
+  return 0;
 }
-void* DictSearch(Dict* d, const char *key)
+
+/* Get list of keys */
+List DGetKeys(Dict d)
 {
-    return Search(d, key);
+  assert(d);
+  return AtoL((void**)d->keys, d->size);
+}
+
+
+/***************************************
+ Some life saving converters...
+****************************************/
+char* sh_to_str(const short a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%d", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%d", a);
+  return output;
+}
+char* i_to_str(const int a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%d", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%d", a);
+  return output;
+}
+char* ui_to_str(const unsigned int a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%u", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%u", a);
+  return output;
+}
+char* l_to_str(const long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%ld", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%ld", a);
+  return output;
+}
+char* ul_to_str(const unsigned long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%lu", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%lu", a);
+  return output;
+}
+char* ll_to_str(const long long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%lld", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%lld", a);
+  return output;
+}
+char* ull_to_str(const unsigned long long a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%llu", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%llu", a);
+  return output;
+}
+char* f_to_str(const float a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%f", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%f", a);
+  return output;
+}
+char* d_to_str(const double a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%f", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%f", a);
+  return output;
+}
+char* ld_to_str(const long double a)
+{
+  char* output;
+  unsigned long long len = snprintf(NULL, 0, "%Lf", a);
+  output = (char*)malloc(sizeof(char)*len);
+  sprintf(output, "%Lf", a);
+  return output;
 }

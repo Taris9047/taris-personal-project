@@ -1,3 +1,12 @@
+/**
+* @Author: taris
+* @Date:   2017-03-22T18:57:27-05:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-23T00:10:34-05:00
+*/
+
+
+
 /***************************************
 
   Implementation file
@@ -130,20 +139,91 @@ LNode LSearch(List l, list_data_t value)
 }
 
 /* Access the list with an array fashion */
-list_data_t LAt(List l, unsigned long ind)
+list_data_t LAt(List l, unsigned long long ind)
 {
   assert(l);
+  assert(l->root_node);
   assert(ind < l->len);
 
   LNode tmp = l->root_node;
 
-  unsigned long i;
+  if (ind == 0) return tmp->value;
+
+  unsigned long long i;
+  for (i=0; i<ind; ++i) tmp = tmp->next;
+  return tmp->value;
+}
+
+/* Get index */
+unsigned long long LIndex(List l, list_data_t value)
+{
+  unsigned long long i = 0;
+  LNode tmp = l->root_node;
+  while(1) {
+    if (tmp->value == value) break;
+    else {
+      tmp = tmp->next;
+      ++i;
+    }
+  }
+  return i;
+}
+
+/* Remove a node at index i */
+int LRemove(List l, unsigned long long ind)
+{
+  assert(l);
+  assert(ind < l->len);
+
+  LNode prev_tmp, next_tmp, tmp = l->root_node;
+
+  unsigned long long i;
   for (i=0; i<=ind; ++i) {
     tmp = tmp->next;
   }
 
-  if (tmp) return tmp->value;
-  else return NULL;
+  prev_tmp = tmp->prev;
+  next_tmp = tmp->next;
+
+  prev_tmp->next = next_tmp;
+  next_tmp->prev = prev_tmp;
+
+  free(tmp);
+
+  l->len--;
+
+  return 0;
+}
+
+/* Removal with certain datatype destructor */
+int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () )
+{
+  assert(l);
+  assert(ind < l->len);
+
+  LNode prev_tmp, next_tmp, tmp = l->root_node;
+
+  unsigned long long i;
+  for (i=0; i<=ind; ++i) {
+    tmp = tmp->next;
+  }
+
+  prev_tmp = tmp->prev;
+  next_tmp = tmp->next;
+
+  prev_tmp->next = next_tmp;
+  next_tmp->prev = prev_tmp;
+
+  if (tmp->value) {
+    if (destroyer) destroyer(tmp->value);
+    else free(tmp->value);
+  }
+
+  free(tmp);
+
+  l->len--;
+
+  return 0;
 }
 
 /* Reverse the list */
@@ -237,12 +317,12 @@ LNode list_node_search(LNode l, list_data_t value)
 /* Pushing stuffs into a list from some array */
 /* It's kind of pointless in terms memory fragmentation issue
    but sometimes, stupid stuffs are needed. */
-int list_node_assign(LNode l, list_data_t* values, const unsigned long values_len)
+int list_node_assign(LNode l, list_data_t* values, const unsigned long long values_len)
 {
   assert(values);
   assert(values_len > 0);
 
-  unsigned long i;
+  unsigned long long i;
 
   i = values_len-1;
   do {
@@ -256,7 +336,7 @@ int list_node_assign(LNode l, list_data_t* values, const unsigned long values_le
 /* Some more utils */
 
 /* Get length of list from control node */
-unsigned long LLen(List l)
+unsigned long long LLen(List l)
 {
   assert(l);
   return l->len;
@@ -283,19 +363,20 @@ int LCpy(List l, const List o)
 */
 List AtoL(void* some_array[], unsigned long long arr_len)
 {
+  assert(some_array);
   List al = NewList();
   unsigned long long i;
-  for (i=arr_len; i>1; --i) LPush(al, some_array[i-1]);
+  for (i=arr_len; i!=0; --i) LPush(al, some_array[i-1]);
   return al;
 }
 
 
 /* Get length of list */
-unsigned long list_node_len(LNode l)
+unsigned long long list_node_len(LNode l)
 {
   assert(l);
 
-  unsigned long i = 1;
+  unsigned long long i = 1;
   while (l->next) {
     l = l->next;
     ++i;

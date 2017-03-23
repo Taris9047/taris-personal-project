@@ -1,3 +1,12 @@
+/**
+* @Author: taris
+* @Date:   2017-03-22T18:57:27-05:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-23T00:06:42-05:00
+*/
+
+
+
 /***************************************
 
   Linked list data structure
@@ -11,8 +20,8 @@
 
  ***************************************/
 
-#ifndef MAPREDUCE_LINKED_LIST_H
-#define MAPREDUCE_LINKED_LIST_H
+#ifndef C_IMPLEMENATTION_LINKED_LIST_H
+#define C_IMPLEMENATTION_LINKED_LIST_H
 
 /* List node */
 typedef void* list_data_t;
@@ -44,6 +53,11 @@ int LPush(List l, list_data_t value);
 list_data_t LPop(List l);
 LNode LSearch(List l, list_data_t value);
 list_data_t LAt(List l, unsigned long long ind);
+unsigned long long LIndex(List l, list_data_t value);
+
+/* Remove a node */
+int LRemove(List l, unsigned long long ind);
+int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () );
 
 /* Reverse the list */
 int LReverse(List l);
