@@ -102,14 +102,14 @@ static int append_keys(
   if (!(*keys)) {
     (*keys) = (dict_key_t*)malloc(sizeof(dict_key_t));
     (*keys)[0] = n_key;
+    (*keys_len) = 1;
     return 0;
   }
 
   unsigned long long i;
   dict_key_t *new_keys, *tmp_keys;
   new_keys = (dict_key_t*)malloc(sizeof(dict_key_t)*((*keys_len)+1));
-  for (i=0; i<(*keys_len); ++i)
-    new_keys[i] = (*keys)[i];
+  for (i=0; i<(*keys_len); ++i) new_keys[i] = (*keys)[i];
   new_keys[(*keys_len)] = n_key;
 
   tmp_keys = (*keys);

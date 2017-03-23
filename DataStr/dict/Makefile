@@ -1,17 +1,17 @@
 CC=clang
 
-CFLAGS=-ggdb3 -Wall -std=c11
+CFLAGS=-ggdb3 -Wall -std=gnu99
 LIBS=-lm -L.
 
-SOURCES=$(wildcard *.c *.C *.m)
-HEADERS=$(wildcard *.h)
+SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
+HEADERS=$(filter-out test.h, $(wildcard *.h))
 OBJS=$(SOURCES:.c=.o)
 
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 test: test.c $(OBJS)
-	$(CC) $(CFLAGS) $< -o dict_test
+	$(CC) $(CFLAGS) test.c $(OBJS) -o dict_test
 
 all: test
 

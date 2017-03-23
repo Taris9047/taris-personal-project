@@ -78,10 +78,4 @@ int DRemove(
   const void* inp_key,
   unsigned long (*hash)() );
 
-
-
-
-
-
-
 #endif /* Include guard */

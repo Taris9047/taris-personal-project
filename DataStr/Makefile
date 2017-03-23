@@ -21,10 +21,8 @@ AR=ar
 
 TESTF_NAME=DataStrTest
 
-SOURCES=$(wildcard *.c *.C *.m)
-CPPSOURCES=$(wildcard *.cpp *.cc)
-HEADERS=$(wildcard *.h)
-CPPHEADERS=$(wildcard *.hpp *.h)
+SOURCES=$(filter-out test.c, $(wildcard *.c *.C *.m))
+HEADERS=$(filter-out test.h, $(wildcard *.h))
 OBJS=$(SOURCES:.c=.o)
 
 LIBNAME=libdatastr.a

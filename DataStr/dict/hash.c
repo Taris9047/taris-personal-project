@@ -129,13 +129,17 @@ unsigned long hash_str_otime(const void* str)
 }
 
 /* JSW hash */
-inline void init_jsw_tab()
+unsigned long hash_jsw_tab[HASH_JSW_TAB_LEN];
+bool jsw_tbl_exist = false;
+void init_jsw_tab()
 {
   srand(time(NULL));
   int i;
-  for (i=0; i<HASH_JSW_TAB_LEN; ++i) hash_jsw_tab[i] = rand()%ULONG_MAX;
+  for (i=0; i<HASH_JSW_TAB_LEN; ++i)
+    hash_jsw_tab[i] = rand()%ULONG_MAX;
   jsw_tbl_exist = true;
 }
+
 unsigned long hash_str_jsw(const void* str)
 {
   const unsigned char* us = str;

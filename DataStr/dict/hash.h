@@ -79,9 +79,7 @@ unsigned long hash_str_otime(const void* str);
 */
 #define HASH_JSW_TAB_LEN 256
 #define HASH_JSW_INIT 16777551
-unsigned long hash_jsw_tab[HASH_JSW_TAB_LEN];
-inline void init_jsw_tab();
-bool jsw_tbl_exist = false;
+void init_jsw_tab();
 unsigned long hash_str_jsw(const void* str);
 
 /*
