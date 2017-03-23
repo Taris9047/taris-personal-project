@@ -1,3 +1,12 @@
+/**
+* @Author: taris
+* @Date:   2017-03-22T18:57:27-05:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-23T00:08:47-05:00
+*/
+
+
+
 /***************************************
 
   Dictionary data structure for C

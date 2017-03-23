@@ -1,3 +1,12 @@
+/**
+* @Author: taris
+* @Date:   2017-03-22T18:57:27-05:00
+* @Last modified by:   taris
+* @Last modified time: 2017-03-23T00:10:34-05:00
+*/
+
+
+
 /***************************************
 
   Implementation file
@@ -144,6 +153,78 @@ list_data_t LAt(List l, unsigned long long ind)
 
   if (tmp) return tmp->value;
   else return NULL;
+}
+
+/* Get index */
+unsigned long long LIndex(List l, list_data_t value)
+{
+  unsigned long long i = 0;
+  LNode tmp = l->root_node;
+  while(1) {
+    if (tmp->value == value) break;
+    else {
+      tmp = tmp->next;
+      ++i;
+    }
+  }
+  return i;
+}
+
+/* Remove a node at index i */
+int LRemove(List l, unsigned long long ind)
+{
+  assert(l);
+  assert(ind < l->len);
+
+  LNode prev_tmp, next_tmp, tmp = l->root_node;
+
+  unsigned long long i;
+  for (i=0; i<=ind; ++i) {
+    tmp = tmp->next;
+  }
+
+  prev_tmp = tmp->prev;
+  next_tmp = tmp->next;
+
+  prev_tmp->next = next_tmp;
+  next_tmp->prev = prev_tmp;
+
+  free(tmp);
+
+  l->len--;
+
+  return 0;
+}
+
+/* Removal with certain datatype destructor */
+int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () )
+{
+  assert(l);
+  assert(ind < l->len);
+
+  LNode prev_tmp, next_tmp, tmp = l->root_node;
+
+  unsigned long long i;
+  for (i=0; i<=ind; ++i) {
+    tmp = tmp->next;
+  }
+
+  prev_tmp = tmp->prev;
+  next_tmp = tmp->next;
+
+  prev_tmp->next = next_tmp;
+  next_tmp->prev = prev_tmp;
+
+  if (tmp->value) {
+    if (destroyer) destroyer(tmp->value);
+    else free(tmp->value);
+  }
+
+  free(tmp);
+
+  l->len--;
+
+  return 0;
 }
 
 /* Reverse the list */
