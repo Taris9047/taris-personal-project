@@ -143,9 +143,9 @@ void* reducer(void* args)
  Utilities for reducer
 ************************************************/
 /* Keygen */
-ULLONG pixel_keygen(ULONG a, ULONG b)
+mapped_key_t pixel_keygen(ULONG a, ULONG b)
 {
-  return (ULLONG)( (a+b+1)*(a+b)/2 + b );
+  return (mapped_key_t)( (a+b+1)*(a+b)/2 + b );
 }
 
 /* Img file writer */

@@ -18,13 +18,16 @@
 
 #define BUFFER_MAX_LEN 1024
 
+/* Came from mapper.h */
+typedef ULLONG mapped_key_t;
+
 /* Example line
   601736 jHR 166 88 10635229
   timestamp label x y greyscale
 */
 /* struct object for parser */
 typedef struct _parse_obj {
-  ULLONG ts;
+  mapped_key_t ts;
   char* label;
   ULONG x;
   ULONG y;

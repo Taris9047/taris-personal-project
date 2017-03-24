@@ -2,9 +2,9 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-CFLAGS=-ggdb3 -std=c11 $(WARNS)
+CFLAGS=-ggdb3 -std=gnu11 $(WARNS)
 
-SRCDIR=./src
+SRCDIR=src
 
 VERNUM=0.0.1
 VERNUM_SHORT=0.0
@@ -13,20 +13,20 @@ CURR_DIR := $(shell pwd)
 
 CC_DETECT := `command -v clang`
 ifeq ($(CC_DETECT), "")
-CC=gcc
+	CC=gcc
 else
-CC=clang
+	CC=clang
 endif
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
 ifeq ($(UNAME), darwin)
-CC=gcc
-CFLAGS=-ggdb3 $(WARNS)
+	CC=gcc
+	CFLAGS=-ggdb3 $(WARNS)
 endif
 
 ifeq ($(UNAME), linux)
-CFLAGS=-ggdb3 -fPIC $(WARNS)
+	CFLAGS=-ggdb3 -fPIC $(WARNS)
 endif
 
 LIBS=-lm -L. -lpthread

@@ -32,6 +32,7 @@ typedef unsigned long dict_key_t;
 typedef struct _dict_node {
   dict_data_t data;
   dict_key_t key;
+	char* key_str;
 } dict_node;
 typedef dict_node* DNode;
 
@@ -52,6 +53,7 @@ typedef struct _dictionary {
     --> might change to BTree later...
   */
   List table;
+	List key_str;
   dict_key_t* keys; // just holding the keys.. (may not needed?)
   dict_key_t (*hashing)(); /* Hashing function */
 
@@ -63,13 +65,20 @@ Dict NewDict();
 int DeleteDict(Dict d);
 
 /* Dictionary methods */
+/* Setup hashing function */
 int DSetHashFunc(Dict d, dict_key_t (*hashing) ());
-
+/* Insert/Get/Remove, typical access stuff */
 int DInsert(Dict d, dict_data_t inp_data, const void* inp_key);
 dict_data_t DGet(Dict d, const void* inp_key);
 int DRemove(Dict d, const void* inp_key);
-
+/* Get list of key strings */
 List DGetKeys(Dict d);
+
+
+
+
+
+
 
 /* Providing some time-saving utils */
 #define ToStr(T) \

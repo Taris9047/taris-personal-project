@@ -35,10 +35,20 @@ KeyManager NewKeyManager();
 int DeleteKeyManager(KeyManager k_m);
 
 /* Methods */
-List KManGetShflNode(KeyManager kl_m, Key k, ShflNode** shfl_nodes);
-Key KManGetKey(KeyManager kl_m, ShflNode shfl_node);
+List KManGetShflNode(KeyManager kl_m, Key k);
 int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
 int KManAcceptKeysFromShflNode(
-  KeyManager kl_m, Dict key_map, ULLONG* shfl_node_key_type_assignment);
+	KeyManager kl_m, ShflNode shfl_node, Dict key_map);
+
+
+/* Key Dict (Dict<List<Key>>>) Statistics tool */
+typedef struct _key_dict_stats {
+	Dict source_dict; /* The Dict<List<Key>>> */
+	List keys; /* List<char*>: contains list of key strings*/
+	List n_elements; /* List<ULLONG>: contains # of shfl_nodes (match the index with above)*/
+} key_dict_stats;
+typedef key_dict_stats* KeyDictStats;
+
+
 
 #endif /* Include guard */

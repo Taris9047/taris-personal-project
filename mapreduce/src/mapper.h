@@ -17,15 +17,18 @@
 #include "dparser.h"
 #include "pth_handle.h"
 
+/* key type */
+typedef ULLONG mapped_key_t;
+
 /* key */
 typedef struct _key {
-  ULLONG ts; /* timestamp */
+  mapped_key_t ts; /* timestamp */
   PObj point_data;
 } mapped_key;
 typedef mapped_key* Key;
 
 /* Keygen */
-Key NewKey(ULLONG* ts, PObj po);
+Key NewKey(mapped_key_t* ts, PObj po);
 /* Key comparator */
 bool KeyTsEq(Key k, Key o);
 /* Key destroyer */

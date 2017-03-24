@@ -22,7 +22,7 @@
  Key manipulation
 ************************************************/
 /* Keygen */
-Key NewKey(ULLONG* ts, PObj po)
+Key NewKey(mapped_key_t* ts, PObj po)
 {
   Key k = (Key)malloc(sizeof(mapped_key));
   assert(k);

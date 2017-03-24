@@ -38,7 +38,7 @@ int ProgressNum(unsigned long curr, const char* header_txt)
 /* Let's figure out max thread numbers on current system... */
 ULONG get_pid_max()
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(__CYGWIN__)
 	FILE *fp;
 	char str_pid_max[100];
 	ULONG pid_max;

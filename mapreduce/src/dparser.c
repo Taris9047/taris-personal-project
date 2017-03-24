@@ -111,7 +111,7 @@ PObj parse_line(char* a_line)
 
   /* timestamp */
   tmp = (char*)LPop(sections);
-  po->ts = (ULLONG)atoi(tmp);
+  po->ts = (mapped_key_t)atoi(tmp);
 
   /* Original line */
   po->line_str = strdup(a_line);

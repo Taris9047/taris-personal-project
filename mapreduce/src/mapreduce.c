@@ -18,12 +18,9 @@
 
 #include "mapreduce.h"
 
-
-
-
 /***********************************************
  Thread number controller - Constructors and Destructors
- ************************************************/
+************************************************/
 TNumCtrl NewTNumCtrl(
   ULONG n_total_threads,
   ULONG n_mappers_per_shuffler,
@@ -59,14 +56,6 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 
   max_threads = get_pid_max();
 
-  // if (total_threads >= max_threads) {
-  //   printf("Warning: Given total threads (%lu) system pid_max.\n
-  //     This system can only handle up to %lu threads...\n", \
-  //     total_threads, max_threads);
-  //   total_threads = max_threads;
-  //   printf("Reducing max number of threads to... %lu", total_threads);
-  // }
-
   if (total_threads < MAPPERS_PER_SHUFFLER) {
     sthreads = 1;
   }
@@ -99,6 +88,14 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 
 
 
+
+
+
+
+
+
+
+
 /***********************************************
  Shuffler Node - Constructors and Destructors
 ************************************************/
@@ -110,6 +107,10 @@ ShflNode new_shfl_node(
   KeyManager n_k_man,
   ULONG id)
 {
+	assert(frac_main_data);
+	assert(shuffle_map);
+	assert(n_k_man);
+
   ShflNode shn = (ShflNode)malloc(sizeof(shuffler_node));
   assert(shn);
 
@@ -135,7 +136,7 @@ ShflNode new_shfl_node(
   /* Key manager */
   shn->k_man = n_k_man;
   /* Assigned key type - default: zero */
-  shn->my_key_type = 0;
+  shn->assigned_key = 0;
 
   return shn;
 }
@@ -150,9 +151,6 @@ int delete_shfl_node(ShflNode shfl_node)
     free(shfl_node->thread_mappers);
 
   DeleteList(shfl_node->keys); /* points data within main data... so, just delete the list */
-
-  if (shfl_node->my_key_type)
-    free(shfl_node->my_key_type);
 
   free(shfl_node);
 
@@ -253,7 +251,7 @@ void* do_shuffle(void* args)
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
   if (!shfl_node->my_key_type)
-    KManAcceptKeysFromShflNode(shfl_node->k_man, KeyMap, &shfl_node->my_key_type);
+    KManAcceptKeysFromShflNode(shfl_node, KeyMap);
 
   /* Let's communicate with other shuffler nodes */
 
@@ -262,7 +260,9 @@ void* do_shuffle(void* args)
     Taking that key to list.
   */
   //Key k_type = KManGetKeyType(shfl_node->k_man, shfl_node);
-  shfl_node->keys = DGet(KeyMap, ToStr(*shfl_node->my_key_type));
+	char* keytype_char = ToStr(shfl_node->my_key_type);
+  shfl_node->keys = DGet(KeyMap, keytype_char);
+	free(keytype_char);
 
   /* Start reducer job */
   RDArgs reducer_args = NewRDArgs(shfl_node->keys);
@@ -281,6 +281,13 @@ void* do_shuffle(void* args)
 }
 
 /* List containing keys to Hash key map (Sort by timestamp) */
+/*
+	KeyMap Dictionary loos like..
+	KeyMap = {
+		string_timestamp: Key (pointer to the key)
+		...
+	}
+*/
 Dict make_key_hash(List k_list)
 {
   assert(k_list);
@@ -297,6 +304,9 @@ Dict make_key_hash(List k_list)
 
   return key_map;
 }
+
+
+
 
 
 

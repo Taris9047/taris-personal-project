@@ -35,7 +35,7 @@ typedef struct _img_data {
   ULONG x_size;
   ULONG y_size;
   char* label;
-  ULLONG ts;
+  mapped_key_t ts;
   BTree pixel_data;
 } img_data;
 typedef img_data* ImgData;
