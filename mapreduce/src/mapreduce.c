@@ -132,10 +132,10 @@ ShflNode new_shfl_node(
 
   /* Diciphered key container */
   shn->keys = NULL;
-
+  /* Key manager */
   shn->k_man = n_k_man;
-
-  shn->my_key_type = NULL;
+  /* Assigned key type - default: zero */
+  shn->my_key_type = 0;
 
   return shn;
 }
@@ -252,7 +252,8 @@ void* do_shuffle(void* args)
 
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
-  if (!shfl_node->my_key_type) KManReportKeys(shfl_node->k_man, KeyMap, shfl_node->my_key_type);
+  if (!shfl_node->my_key_type)
+    KManAcceptKeysFromShflNode(shfl_node->k_man, KeyMap, &shfl_node->my_key_type);
 
   /* Let's communicate with other shuffler nodes */
 

@@ -62,7 +62,7 @@ typedef struct _shuffler_node {
     --> KeyManager will handle it
     after reading it.
   */
-  ULLONG* my_key_type;
+  ULLONG my_key_type;
 
   KeyManager k_man; /* Given by the Shuffler node (see key_shuffle_mapper.h) */
 
