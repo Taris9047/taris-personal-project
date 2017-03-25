@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "tuple.h"
+
 /***************************************
  Tuple - Constructors and Destructors
 ****************************************/
@@ -48,10 +50,10 @@ Tuple NewTupleData(const unsigned int data_len, const void* data_set[])
   Tuple tup = (Tuple)malloc(sizeof(tuple_struct));
   assert(tup);
 
+  unsigned int i;
   if (data_len) {
     tup->data = (tuple_data_t*)malloc(sizeof(tuple_data_t)*data_len);
     assert(tup->data);
-    unsigned int i;
     for (i=0; i<data_len; ++i) tup->data[i] = data_set[i];
   }
   else tup->data = NULL;
