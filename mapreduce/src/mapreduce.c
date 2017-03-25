@@ -250,8 +250,8 @@ void* do_shuffle(void* args)
 
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
-  if (!shfl_node->my_key_type)
-    KManAcceptKeysFromShflNode(shfl_node, KeyMap);
+  if (!shfl_node->assigned_key)
+      KManAcceptKeysFromShflNode(shfl_node->k_man, shfl_node, KeyMap);
 
   /* Let's communicate with other shuffler nodes */
 
@@ -260,7 +260,7 @@ void* do_shuffle(void* args)
     Taking that key to list.
   */
   //Key k_type = KManGetKeyType(shfl_node->k_man, shfl_node);
-	char* keytype_char = ToStr(shfl_node->my_key_type);
+	char* keytype_char = ToStr(shfl_node->assigned_key);
   shfl_node->keys = DGet(KeyMap, keytype_char);
 	free(keytype_char);
 

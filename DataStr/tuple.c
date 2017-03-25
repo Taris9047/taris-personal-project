@@ -21,8 +21,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "tuple.h"
-
 /***************************************
  Tuple - Constructors and Destructors
 ****************************************/

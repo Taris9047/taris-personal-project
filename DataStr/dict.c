@@ -177,6 +177,7 @@ Dict NewDict()
   assert(d);
   d->size = 0;
   d->table = NewList(); /* The DNode linked list */
+	d->key_str = NewList(); /* key string list */
   d->keys = NULL;
   return d;
 }
@@ -193,6 +194,12 @@ int DeleteDict(Dict d)
 
 
 
+
+
+
+
+
+
 /***************************************
  Dict - Methods
 ****************************************/
@@ -201,6 +208,15 @@ int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
 {
   assert(d);
   d->hashing = hashing;
+
+	/* update hashed keys */
+	unsigned long long i;
+	DNode tmp_dnode;
+	for (i=0; i<d->size; ++i) {
+		tmp_dnode = (DNode)LAt(d->table, i);
+		tmp_dnode->key = d->hashing((const char*)LAt(d->key_str, i));
+	}
+
   return 0;
 }
 
@@ -218,6 +234,7 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
     /* cannot find the key. Let's make it!! */
     tmp_dnode = NewDNode(inp_data, k);
     LPush(d->table, tmp_dnode);
+		LPush(d->key_str, (list_data_t)inp_key);
     append_keys(&d->keys, k, &d->size);
   }
 
@@ -246,7 +263,9 @@ int DRemove(Dict d, const void* inp_key)
   DNode tmp_dnode = search_node(d, k);
   if (!tmp_dnode) return 0; /* Key isn't here, nothing to do */
 
-  LRemoveHard(d->table, LIndex(d->table, tmp_dnode), &DeleteDNode);
+	unsigned long long rem_index = LIndex(d->table, tmp_dnode);
+  LRemoveHard(d->table, rem_index, &DeleteDNode);
+	LRemoveHard(d->key_str, rem_index, NULL);
   remove_key(&d->keys, k, &d->size);
 
   return 0;
@@ -256,8 +275,34 @@ int DRemove(Dict d, const void* inp_key)
 List DGetKeys(Dict d)
 {
   assert(d);
-  return AtoL((void**)d->keys, d->size);
+  return d->key_str;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /***************************************
