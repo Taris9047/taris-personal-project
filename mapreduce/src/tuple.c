@@ -54,7 +54,7 @@ Tuple NewTupleData(const unsigned int data_len, const void* data_set[])
     tup->data = (tuple_data_t*)malloc(sizeof(tuple_data_t)*data_len);
     assert(tup->data);
     unsigned int i;
-    for (i=0; i<data_len; ++i) tup->data[i] = data_set[i];
+    for (i=0; i<data_len; ++i) tup->data[i] = (void*)data_set[i];
   }
   else tup->data = NULL;
 
