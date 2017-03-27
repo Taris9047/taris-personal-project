@@ -149,6 +149,8 @@ int KManAcceptKeysFromShflNode(
 		1. More numbers. (KDS needs max function)
 		2. If other shuffler has it already, then take second max.
 		3. If all taken, take lease found one (KDS needs min function)
+		--> We have the same amount of data from any timestamp.
+		    So, just place most unpopular one first.
 	*/
 
 	/* 1. Look for most common keys */
@@ -166,6 +168,10 @@ int KManAcceptKeysFromShflNode(
 	/* If we couldn't find suitable node yet, just assign most unpopular node */
 	if (!shfl_node->assigned_key)
 		shfl_node->assigned_key = shfl_key_str_array[0];
+
+	/* update the Dict key_map and shfl_node */
+	LPush((List)DGet(key_map, shfl_node->assigned_key), shfl_node->assigned_key);
+	BTInsert(shfl_node->shuffler_map, shfl_node, (ULLONG)atoi(shfl_node->assigned_key));
 
 	DeleteKeyDictStats(kds);
 
