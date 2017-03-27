@@ -11,11 +11,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
 
-
+#include "mapreduce.h"
 #include "key_shuffle_mapper.h"
+#include "btree.h"
 
 /***********************************************
  Key list manager - Static functions
@@ -38,6 +40,13 @@ static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
 	return false;
 }
 
+/* Search BTree<ShflNode> by key */
+static ShflNode BTSearchShflNode(BTree btsh, char* key)
+{
+	assert(btsh);
+	ShflNode sfl = (ShflNode)BTSearch(btsh, (ULLONG)atoi(key));
+	return sfl;
+}
 
 
 
@@ -125,20 +134,40 @@ int KManAcceptKeysFromShflNode(
   assert(key_map);
 	assert(shfl_node);
 
-	List key_str_list = DGetKeys(key_map);
-	mapped_key_t key_to_assign;
+	char** shfl_key_str_array;
+	ULLONG i;
 
-	char* shfl_key_str;
+	/* No need to run key assignment if already assigned */
+	if (shfl_node->assigned_key) return SHFL_HAS_ASSIGNED_KEY;
 
 	/* If manager's database is empty? */
-	if (!kl_m->n_keys) {
-		// TODO: Write some fancy statistic reporter for dict. --> on the way.
-		// Also, writing a tuple data structure...
+	KeyDictStats kds = NewKeyDictStats(key_map);
+	kl_m->n_keys = kds->n_keys;
 
-		kl_m->n_keys++;
+	/*
+		Key assignment priorities.
+		1. More numbers. (KDS needs max function)
+		2. If other shuffler has it already, then take second max.
+		3. If all taken, take lease found one (KDS needs min function)
+	*/
+
+	/* 1. Look for most common keys */
+	shfl_key_str_array = KDSGetSortedNumKey(kds);
+	ShflNode sfl_tmp;
+	for (i=kl_m->n_keys; i; --i) {
+		/* , search the tree if the most common key exists */
+		sfl_tmp = \
+			BTSearchShflNode(
+				shfl_node->shuffler_map, shfl_key_str_array[i]);
+		if (!sfl_tmp) {
+			shfl_node->assigned_key = shfl_key_str_array[i];
+		}
 	}
+	/* If we couldn't find suitable node yet, just assign most unpopular node */
+	if (!shfl_node->assigned_key)
+		shfl_node->assigned_key = shfl_key_str_array[0];
 
-	//shfl_node->assigned_key = key_to_assign;
+	DeleteKeyDictStats(kds);
 
   return 0;
 }
@@ -152,18 +181,190 @@ int KManAcceptKeysFromShflNode(
 
 
 
+/***********************************************
+ Key Dict statistics - Static stuffs
+************************************************/
+/* Convert source dict to tuple list (List<Tuple>) */
+static List key_convert_dict(Dict d)
+{
+	assert(d);
+	List tup_list = NewList();
 
+	Tuple tmp_tuple = NULL;
 
+	ULLONG i, dict_size = d->size;
+	List dict_str_array = d->key_str;
+	ULLONG* t_ull;
+	for (i=0; i<dict_size; ++i) {
+		tmp_tuple = NewTuple(2);
+		TSet(tmp_tuple, 0, (char*)LAt(dict_str_array, i));
+		t_ull = (ULLONG*)malloc(sizeof(ULLONG));
+		(*t_ull) = LLen( (List)DGet(d, (List)LAt(dict_str_array, i) ));
+		TSet(tmp_tuple, 1, t_ull);
+		LPush(tup_list, tmp_tuple);
+	}
 
+	return tup_list;
+}
 
+/* Convert source dict to tuple list of (List<List<ShflNode>>) */
+static List shfl_convert_dict(Dict d)
+{
+	assert(d);
+	List tup_list = NewList();
+
+	Tuple tmp_tuple = NULL;
+
+	ULLONG i, dict_size = d->size;
+	List dict_str_array = d->key_str;
+	List* t_list;
+	for (i=0; i<dict_size; ++i) {
+		tmp_tuple = NewTuple(2);
+		TSet(tmp_tuple, 0, (char*)LAt(dict_str_array, i));
+		t_list = (List*)malloc(sizeof(List));
+		(*t_list) = (List)DGet( d, (List)LAt(dict_str_array, i) );
+		TSet(tmp_tuple, 1, t_list);
+		LPush(tup_list, tmp_tuple);
+	}
+
+	return tup_list;
+}
+
+/* comparison function for qsort. Compares Tuple... */
+static int comp_tuple(const void* elem1, const void* elem2)
+{
+	Tuple a = (Tuple)elem1;
+	Tuple b = (Tuple)elem2;
+	if (a->data[0] > b->data[0]) return 1;
+	if (a->data[0] < b->data[0]) return -1;
+	return 0;
+}
 
 /***********************************************
  Key Dict statistics - Constructors and Destructors
 ************************************************/
+KeyDictStats NewKeyDictStats(Dict sd)
+{
+	assert(sd);
+	KeyDictStats kds = (KeyDictStats)malloc(sizeof(key_dict_stats));
+	assert(kds);
+	kds->source_dict = sd;
+	kds->key_elements = key_convert_dict(kds->source_dict);
+	kds->shfl_elements = shfl_convert_dict(kds->source_dict);
+	kds->n_keys = LLen(kds->key_elements);
+	return kds;
+}
 
+int DeleteKeyDictStats(KeyDictStats kds)
+{
+	assert(kds);
+	//DeleteListHard(kds->key_elements, DeleteTuple);
 
+	ULLONG i, k_el_size = LLen(kds->key_elements);
+	Tuple tmp_tuple;
+	for (i=0; i<k_el_size; ++i) {
+		/* do not destroy key string. they came from original dict */
+		/* But remove the numbers */
+		tmp_tuple = (Tuple)LAt(kds->key_elements, i);
+		free((ULLONG*)TAt(tmp_tuple,1));
+		DeleteTuple(tmp_tuple);
+	}
 
+	DeleteList(kds->shfl_elements);
+
+	free(kds);
+	return 0;
+}
 
 /***********************************************
  Key Dict statistics - Methods
 ************************************************/
+/* Get 'number' of collected mapped keys by key string */
+unsigned long long KDSGetKeyElements(KeyDictStats kds, char* key_str)
+{
+	assert(kds);
+	assert(key_str);
+
+	ULLONG i, k_elements, elements = LLen(kds->key_elements);
+	for (i=0; i<elements; ++i) {
+		if ( strcmp(key_str, (char*)TAt((Tuple)LAt(kds->key_elements, i), 0) ) ) {
+			k_elements = *(ULLONG*)TAt((Tuple)LAt(kds->key_elements, i), 1);
+			return k_elements;
+		}
+		else return 0;
+	}
+	/* Shall not reach here */
+	return 0;
+}
+
+/* Get key string with most number of mapped keys */
+char* KDSGetMaxNumKey(KeyDictStats kds)
+{
+	assert(kds);
+
+	Tuple* sort_bed;
+	sort_bed = (Tuple*)malloc(sizeof(Tuple));
+	assert(sort_bed);
+
+	ULLONG i;
+	for (i=0; i<kds->n_keys; ++i)
+		sort_bed[i] = TAt((Tuple)LAt(kds->key_elements, i), 0);
+
+	qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
+
+	char* max_key = strdup((char*)TAt(sort_bed[kds->n_keys-1], 0));
+
+	free(sort_bed);
+
+	return max_key;
+}
+
+/* Vice versa, min */
+char* KDSGetMinNumKey(KeyDictStats kds)
+{
+	assert(kds);
+
+	Tuple* sort_bed;
+	sort_bed = (Tuple*)malloc(sizeof(Tuple));
+	assert(sort_bed);
+
+	ULLONG i;
+	for (i=0; i<kds->n_keys; ++i)
+		sort_bed[i] = TAt((Tuple)LAt(kds->key_elements, i), 0);
+
+	qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
+
+	char* max_key = strdup((char*)TAt(sort_bed[0], 0));
+
+	free(sort_bed);
+
+	return max_key;
+}
+
+/* Awwwww crap, just return the sorted array!! */
+/* Remember: don't free everything!! it also destroys char* in dict */
+char** KDSGetSortedNumKey(KeyDictStats kds)
+{
+	assert(kds);
+
+	char** sorted_key_list;
+	Tuple* sort_bed;
+	sort_bed = (Tuple*)malloc(sizeof(Tuple));
+	assert(sort_bed);
+
+	ULLONG i;
+	for (i=0; i<kds->n_keys; ++i)
+		sort_bed[i] = (Tuple)LAt(kds->key_elements, i);
+
+	qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
+
+	sorted_key_list = \
+		(char**)malloc(sizeof(char*)*kds->n_keys);
+
+	for (i=0; i<kds->n_keys; ++i)
+		sorted_key_list[i] = (char*)TAt(sort_bed[i], 0);
+
+	free(sort_bed);
+
+	return sorted_key_list;
+}

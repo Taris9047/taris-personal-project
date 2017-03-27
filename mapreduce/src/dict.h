@@ -23,6 +23,7 @@
 
 #include "list.h"
 #include "hash.h"
+#include "tuple.h"
 
 /* Some hefty typedef */
 typedef list_data_t dict_data_t;

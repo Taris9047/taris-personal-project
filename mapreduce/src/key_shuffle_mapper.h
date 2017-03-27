@@ -13,11 +13,14 @@
 
 #include <stdbool.h>
 
+#define SHFL_HAS_ASSIGNED_KEY 100
+
 #include "list.h"
 //#include "mapreduce.h"
 #include "dict.h"
 #include "mapper.h"
 #include "reducer.h"
+#include "tuple.h"
 
 struct _shuffler_node;
 typedef struct _shuffler_node* ShflNode;
@@ -44,11 +47,42 @@ int KManAcceptKeysFromShflNode(
 /* Key Dict (Dict<List<Key>>>) Statistics tool */
 typedef struct _key_dict_stats {
 	Dict source_dict; /* The Dict<List<Key>>> */
-	List keys; /* List<char*>: contains list of key strings*/
-	List n_elements; /* List<ULLONG>: contains # of shfl_nodes (match the index with above)*/
+	/*
+
+		Dict<List<Key>>
+		{ timestamp: key ... }
+
+		--> needs to be converted to ...
+
+		List<Tuple>
+		{ (timestamp, number of this timestamp), ... }
+
+		and
+
+		List<List<ShflNode>>
+		{ (timestamp, List<ShflNode>), ... }
+
+	*/
+	List key_elements; /* List<Tuple>: Contains key-n_elements pair tuples */
+	List shfl_elements; /* List<List<ShflNode>> */
+
+	ULLONG n_keys;
 } key_dict_stats;
 typedef key_dict_stats* KeyDictStats;
+/* Constructors and Destructors */
+KeyDictStats NewKeyDictStats(Dict sd);
+int DeleteKeyDictStats(KeyDictStats kds);
 
+/* Methods */
+/* Get number of collected mapped keys by key string */
+ULLONG KDSGetKeyElements(KeyDictStats kds, char* key_str);
+/* Get key string with most number of mapped keys */
+char* KDSGetMaxNumKey(KeyDictStats kds);
+/* Vice versa, min */
+char* KDSGetMinNumKey(KeyDictStats kds);
+/* Awwwww crap, just return the sorted array!! */
+/* Remember: don't free everything!! it also destroys char* in dict */
+char** KDSGetSortedNumKey(KeyDictStats kds);
 
 
 #endif /* Include guard */

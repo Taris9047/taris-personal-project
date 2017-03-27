@@ -135,8 +135,8 @@ ShflNode new_shfl_node(
   shn->keys = NULL;
   /* Key manager */
   shn->k_man = n_k_man;
-  /* Assigned key type - default: zero */
-  shn->assigned_key = 0;
+  /* Assigned key type... as string. default: NULL */
+  shn->assigned_key = NULL;
 
   return shn;
 }
@@ -251,18 +251,17 @@ void* do_shuffle(void* args)
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
   if (!shfl_node->assigned_key)
-      KManAcceptKeysFromShflNode(shfl_node->k_man, shfl_node, KeyMap);
+    KManAcceptKeysFromShflNode(shfl_node->k_man, shfl_node, KeyMap);
 
   /* Let's communicate with other shuffler nodes */
+
+
 
   /*
     After shuffling, KeyMap must have only one key.
     Taking that key to list.
   */
-  //Key k_type = KManGetKeyType(shfl_node->k_man, shfl_node);
-	char* keytype_char = ToStr(shfl_node->assigned_key);
-  shfl_node->keys = DGet(KeyMap, keytype_char);
-	free(keytype_char);
+  shfl_node->keys = DGet(KeyMap, shfl_node->assigned_key);
 
   /* Start reducer job */
   RDArgs reducer_args = NewRDArgs(shfl_node->keys);
@@ -274,7 +273,7 @@ void* do_shuffle(void* args)
   for (i=0; i<jobs; ++i)
     free(jobs_index[i]);
   free(jobs_index);
-  //free(key_list);
+
   DeleteDict(KeyMap);
 
   return NULL;
