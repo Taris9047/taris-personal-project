@@ -103,7 +103,7 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 ShflNode new_shfl_node(
   List frac_main_data,
   ULONG num_mappers,
-  BTree shuffle_map,
+  BTreeList shuffle_map,
   KeyManager n_k_man,
   ULONG id)
 {
@@ -123,7 +123,7 @@ ShflNode new_shfl_node(
 
   /* Add this new node to the map if given... */
   if (shn->shuffler_map)
-    BTInsert(shn->shuffler_map, shn, shn->shfl_node_id);
+    BTLInsert(shn->shuffler_map, shn, 0);
 
   /* Prepare threads for mappers */
   shn->n_mappers = num_mappers;
@@ -348,11 +348,11 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 					Let's find out how many keys that the node has to work with then
 					assign it or pass to other, same key assigned, node.
 				*/
-				for (j=0; j<n_shfl_nodes; ++j) {
+				for (j=0; j<n_found_shfl_nodes; ++j) {
 					ULLONG n_key_tmp = LLen(found_shfl_nodes[j]->keys);
-					if (n_key_tmp > ) {
-
-					}
+					// if (n_key_tmp > ) {
+					//
+					// }
 				}
 			} /* if (!n_found_shfl_nodes) */
 		} /* (tmp_key != n_assigned_key) */
@@ -387,7 +387,7 @@ Shuffler NewShuffler(
   assert(shfl);
 
   shfl->main_data = main_data;
-  shfl->shuffler_map = NewBTree();
+  shfl->shuffler_map = NewDict();
 
   shfl->tc = thread_num_assign(total_threads);
 
@@ -404,7 +404,8 @@ int DeleteShuffler(Shuffler shfl)
   shfl->main_data = NULL; /* main data will be freed later in main controller */
 
   /* We don't need the shuffler map anymore */
-  DeleteBTreeHard(shfl->shuffler_map, &delete_shfl_node);
+  //DeleteBTreeHard(shfl->shuffler_map, &delete_shfl_node);
+	DeleteDict(shfl->shuffler_map);
 
   /* Free the controller */
   free(shfl->tc);
@@ -445,6 +446,7 @@ int Shuffle(Shuffler shfl)
   ShflNode* shfl_nodes;
   ShflNodeArgs* shfl_node_args;
 	Threads thrd_shfl_nodes;
+	char* tmp_key;
   for (j=0; j<schedule_len; ++j) {
     if (j < schedule_len-1) curr_run_len = shfl->tc->shufflers;
     else curr_run_len = given_data_len%shfl->tc->shufflers;
@@ -469,7 +471,8 @@ int Shuffle(Shuffler shfl)
       shfl_node_args[i] = \
         NewShflNodeArgs(schedule[j][i], shfl_nodes[i]);
 
-			BTInsert(shfl->shuffler_map, shfl_nodes[i], schedule[j][i]);
+			//BTInsert(shfl->shuffler_map, shfl_nodes[i], schedule[j][i]);
+			BTLInsert(shfl->shuffler_map, shfl_nodes[i], 0);
 
     } /* for (i=0; i<curr_run_len; ++i) */
 
@@ -478,7 +481,7 @@ int Shuffle(Shuffler shfl)
 		init_mutex(); /* Initializes main_mutex --> just use this */
 
 		/* prepare threads */
-		thrd_shfl_nodes = NewThreads(curr_run_len, true, main_mutex);
+		thrd_shfl_nodes = NewThreads(curr_run_len, true, &main_mutex);
 		DeleteThreads(thrd_shfl_nodes);
 
 		/* prepare thread args */
@@ -562,7 +565,7 @@ ULLONG shfl_map_search(
 	assert(shuffler_map);
 	assert(key);
 
-	List found_nodes_list;
+	List found_nodes_list = NULL;
 	ULLONG n_found_nodes = 0;
 
 	// TODO: Implement BTree find with trait.

@@ -372,45 +372,46 @@ List AtoL(void* some_array[], unsigned long long arr_len)
 
 /* Generates a new list with given indexes */
 List LPart(
-	List l,
-	unsigned long long part_index[],
-	unsigned long long part_index_len)
+  List l,
+  unsigned long long part_index[],
+  unsigned long long part_index_len)
 {
   assert(l);
-	assert(part_index);
+  assert(part_index);
 
-	if (!part_index_len) return NULL;
+  if (!part_index_len) return NULL;
 
   List ret_list = NewList();
 
-	unsigned long long i;
-	for (i=0; i<part_index_len; ++i)
-		LPush(ret_list, LAt(l, part_index[i]));
+  unsigned long long i;
+  for (i=0; i<part_index_len; ++i)
+    LPush(ret_list, LAt(l, part_index[i]));
 
   LReverse(ret_list);
-	return ret_list;
+  return ret_list;
 }
 
 /* Generates a new list with given range */
-List LPartRng(List l,
-	unsigned long long start_ind,
-	unsigned long long end_ind)
+List LPartRng(
+  List l,
+  unsigned long long start_ind,
+  unsigned long long end_ind)
 {
-	assert(l);
-	assert(start_ind <= end_ind);
+  assert(l);
+  assert(start_ind <= end_ind);
 
-	List ret_list = NewList();
-	if (start_ind == end_ind) {
-		LPush(ret_list, LAt(l, start_ind));
-		return ret_list;
-	}
+  List ret_list = NewList();
+  if (start_ind == end_ind) {
+    LPush(ret_list, LAt(l, start_ind));
+    return ret_list;
+  }
 
-	unsigned long long i, rng = end_ind - start_ind;
-	for (i=0; i<rng; ++i)
-		LPush(ret_list, LAt(l, start_ind+i));
+  unsigned long long i, rng = end_ind - start_ind;
+  for (i=0; i<rng; ++i)
+    LPush(ret_list, LAt(l, start_ind+i));
 
-	LReverse(ret_list);
-	return ret_list;
+  LReverse(ret_list);
+  return ret_list;
 }
 
 /* Get length of list */

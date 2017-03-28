@@ -13,7 +13,7 @@
 #ifndef MAPREDUCE_MAIN_SHUFFLER_H
 #define MAPREDUCE_MAIN_SHUFFLER_H
 
-#include "btree.h"
+#include "btreelist.h"
 #include "list.h"
 #include "dparser.h"
 #include "pth_handle.h"
@@ -49,7 +49,7 @@ TNumCtrl thread_num_assign(ULONG total_threads);
 typedef struct _shuffler_node {
   List frac_data; /* Dataset given to this shuffle node */
   ULONG shfl_node_id; /* Unique ID of a shuffler (might scrap it and just use pid)*/
-  BTree shuffler_map; /* Binary tree contains the whole list of shufflers */
+  BTreeList shuffler_map; /* Binary tree contains the whole list of shufflers */
 
   ULONG n_mappers;     /* number of mappers */
   pthread_t* thread_mappers; /* mapper thoreads */
@@ -74,7 +74,7 @@ typedef shuffler_node* ShflNode;
 ShflNode new_shfl_node(
   List frac_main_data,
   ULONG num_mappers,
-  BTree shuffle_map,
+  BTreeList shuffle_map,
   KeyManager n_k_man,
   ULONG id);
 int delete_shfl_node(ShflNode shfl_node);
@@ -102,7 +102,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx);
 /* Shuffler control node */
 typedef struct _shuffler {
   List main_data; /* list of main data (Might be changed to somewhat more dynamic stuff in real program..) */
-  BTree shuffler_map; /* map of shuffler nodes */
+  BTreeList shuffler_map; /* map of shuffler nodes */
   TNumCtrl tc; /* Thread number controller */
   KeyManager k_man; /* key manager */
 	/* mutex */
