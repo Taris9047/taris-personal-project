@@ -129,7 +129,7 @@ ULONG job_schedule(
 
 /* Search the shuffler map and find matching ShflNodes */
 ULLONG shfl_map_search(
-	BTree shuffler_map,
+	BTreeList shuffler_map,
 	char* key,
 	ShflNode** found_nodes);
 

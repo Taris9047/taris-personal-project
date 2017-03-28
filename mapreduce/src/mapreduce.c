@@ -312,7 +312,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 {
 	assert(shfl_node);
 
-	BTree key_map = shfl_node->shuffler_map;
+	BTreeList key_map = shfl_node->shuffler_map;
 	List given_keys = shfl_node->keys;
 	const char* assigned_key = shfl_node->assigned_key;
 	ULLONG n_assigned_key = atoi(assigned_key);
@@ -324,7 +324,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 	}
 
 	/* Locking mutex */
-	pthread_mutex_lock(&mtx);
+	pthread_mutex_lock(mtx);
 
 	/* We locked the mutex, let's re-distribute keys */
 	ULLONG i, j, tmp_key;
@@ -334,7 +334,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 		tmp_key = (ULLONG)LAt(given_keys, i);
 		if (tmp_key != n_assigned_key) {
 			// TODO: ShflMapSearch needs to be implemented somewhere...
-			n_found_shfl_nodes = shfl_map_search(key_map, tmp_key, &found_shfl_nodes);
+			n_found_shfl_nodes = shfl_map_search(key_map, ToStr(tmp_key), &found_shfl_nodes);
 			if (!n_found_shfl_nodes) {
 				/*
 					If we can't find assigned key for this node, assign any node with
@@ -359,7 +359,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 	} /* for (i=0; i<n_keys; ++i) */
 
 	/* Releasing mutex */
-	pthread_mutex_unlock(&mtx);
+	pthread_mutex_unlock(mtx);
 
 	return 0;
 }
@@ -387,7 +387,7 @@ Shuffler NewShuffler(
   assert(shfl);
 
   shfl->main_data = main_data;
-  shfl->shuffler_map = NewDict();
+  shfl->shuffler_map = NewBTreeList();
 
   shfl->tc = thread_num_assign(total_threads);
 
@@ -404,8 +404,7 @@ int DeleteShuffler(Shuffler shfl)
   shfl->main_data = NULL; /* main data will be freed later in main controller */
 
   /* We don't need the shuffler map anymore */
-  //DeleteBTreeHard(shfl->shuffler_map, &delete_shfl_node);
-	DeleteDict(shfl->shuffler_map);
+	DeleteBTreeList(shfl->shuffler_map);
 
   /* Free the controller */
   free(shfl->tc);
@@ -484,13 +483,8 @@ int Shuffle(Shuffler shfl)
 		thrd_shfl_nodes = NewThreads(curr_run_len, true, &main_mutex);
 		DeleteThreads(thrd_shfl_nodes);
 
-		/* prepare thread args */
-		// for (i=0; i<curr_run_len; ++i) {
-		//
-		// }
-
 		/* Let's run shuffling !! */
-		RunThreads(thrd_shfl_nodes, do_shuffle, shfl_node_args);
+		RunThreads(thrd_shfl_nodes, do_shuffle, (void**)shfl_node_args);
 
 		destroy_mutex();
 
@@ -558,7 +552,7 @@ ULONG job_schedule(
 
 /* Search the shuffler map and find matching ShflNodes */
 ULLONG shfl_map_search(
-	BTree shuffler_map,
+	BTreeList shuffler_map,
 	char* key,
 	ShflNode** found_nodes)
 {
@@ -569,6 +563,7 @@ ULLONG shfl_map_search(
 	ULLONG n_found_nodes = 0;
 
 	// TODO: Implement BTree find with trait.
+
 
 	DeleteList(found_nodes_list);
 	return n_found_nodes;

@@ -40,12 +40,13 @@ static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
 	return false;
 }
 
-/* Search BTree<ShflNode> by key */
-static ShflNode BTSearchShflNode(BTree btsh, char* key)
+/* Search BTreeList<ShflNode> by key -> returns List<ShflNode> */
+static List BTSearchShflNode(BTreeList btshl, char* key)
 {
-	assert(btsh);
-	ShflNode sfl = (ShflNode)BTSearch(btsh, (ULLONG)atoi(key));
-	return sfl;
+	assert(btshl);
+	List sfl_list;
+	if (!BTLSearch(btshl, (btree_key_t)atoi(key), &sfl_list)) return NULL;
+	else return sfl_list;
 }
 
 
@@ -155,13 +156,13 @@ int KManAcceptKeysFromShflNode(
 
 	/* 1. Look for most common keys */
 	shfl_key_str_array = KDSGetSortedNumKey(kds);
-	ShflNode sfl_tmp;
+	List sfl_tmp; /* Temporary List<ShflNode> */
 	for (i=kl_m->n_keys; i; --i) {
 		/* , search the tree if the most common key exists */
 		sfl_tmp = \
 			BTSearchShflNode(
 				shfl_node->shuffler_map, shfl_key_str_array[i]);
-		if (!sfl_tmp) {
+		if (!LLen(sfl_tmp)) {
 			shfl_node->assigned_key = shfl_key_str_array[i];
 		}
 	}
@@ -171,7 +172,7 @@ int KManAcceptKeysFromShflNode(
 
 	/* update the Dict key_map and shfl_node */
 	LPush((List)DGet(key_map, shfl_node->assigned_key), shfl_node->assigned_key);
-	BTInsert(shfl_node->shuffler_map, shfl_node, (ULLONG)atoi(shfl_node->assigned_key));
+	BTLInsert(shfl_node->shuffler_map, shfl_node, (btree_key_t)atoi(shfl_node->assigned_key));
 
 	DeleteKeyDictStats(kds);
 

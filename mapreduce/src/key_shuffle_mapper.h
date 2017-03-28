@@ -16,7 +16,6 @@
 #define SHFL_HAS_ASSIGNED_KEY 100
 
 #include "list.h"
-//#include "mapreduce.h"
 #include "dict.h"
 #include "mapper.h"
 #include "reducer.h"
