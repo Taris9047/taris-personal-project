@@ -77,6 +77,15 @@ int LCpy(List l, const List o);
 */
 List AtoL(void* some_array[], unsigned long long arr_len);
 
+/* Generates a new list with given indexes */
+List LPart(
+	List l,
+	unsigned long long part_index[],
+	unsigned long long part_index_len);
+/* Generates a new list with given range */
+List LPartRng(List l,
+	unsigned long long start_ind,
+	unsigned long long end_ind);
 
 unsigned long long list_node_len(LNode l);
 int list_node_find(LNode l, list_data_t value);

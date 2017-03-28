@@ -71,8 +71,10 @@ int Initializer(int argc, char** argv, char** fname, ULONG* threads)
 int main(int argc, char* argv[])
 {
 	printf("******************************\n");
+	printf("***                        ***\n");
 	printf("*** Mapreduce test program ***\n");
 	printf("*** Version 0.0.1          ***\n");
+	printf("***                        ***\n");
 	printf("******************************\n");
 
 	char* inf_name = NULL;

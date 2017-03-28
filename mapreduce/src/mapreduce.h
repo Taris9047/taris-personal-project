@@ -54,7 +54,7 @@ typedef struct _shuffler_node {
   ULONG n_mappers;     /* number of mappers */
   pthread_t* thread_mappers; /* mapper thoreads */
 
-  List keys; /* Deciphered (?) keys from mapper - will be fed into a reducer */
+  List keys; /* List<ULLONG> Deciphered (?) keys from mapper - will be fed into a reducer */
 
   /*
     Designated key type.
@@ -63,7 +63,7 @@ typedef struct _shuffler_node {
     after reading it.
   */
   //mapped_key_t assigned_key;
-	char* assigned_key;
+  char* assigned_key;
 
   KeyManager k_man; /* Given by the Shuffler node (see key_shuffle_mapper.h) */
 
@@ -96,13 +96,16 @@ void* do_shuffle(void* args);
 /* List containing keys to Hash key map (Sort by timestamp) */
 Dict make_key_hash(List k_list);
 
+/* Passing and receiving keys with other shufflers */
+int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx);
 
 /* Shuffler control node */
 typedef struct _shuffler {
   List main_data; /* list of main data (Might be changed to somewhat more dynamic stuff in real program..) */
   BTree shuffler_map; /* map of shuffler nodes */
   TNumCtrl tc; /* Thread number controller */
-  KeyManager k_man;
+  KeyManager k_man; /* key manager */
+	/* mutex */
 } shuffler;
 typedef shuffler* Shuffler;
 
@@ -124,7 +127,11 @@ ULONG job_schedule(
   ULONG*** job_indexes,
   ULONG start_offset);
 
-
+/* Search the shuffler map and find matching ShflNodes */
+ULLONG shfl_map_search(
+	BTree shuffler_map,
+	char* key,
+	ShflNode** found_nodes);
 
 
 
