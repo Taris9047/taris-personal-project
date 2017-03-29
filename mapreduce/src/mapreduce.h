@@ -119,22 +119,13 @@ int DeleteShuffler(Shuffler shfl);
 /* Performs actual shuffling */
 int Shuffle(Shuffler shfl);
 /* Adds a shuffler to shuffler map */
-int AddShflNode(Shuffler shfl, ULONG num_mappers);
+//int AddShflNode(Shuffler shfl, ULONG num_mappers);
 /* job scheduler - return number of jobs */
 ULONG job_schedule(
   ULLONG total_data_length,
   ULONG available_threads,
   ULONG*** job_indexes,
   ULONG start_offset);
-
-/* Search the shuffler map and find matching ShflNodes */
-ULLONG shfl_map_search(
-	BTreeList shuffler_map,
-	char* key,
-	ShflNode** found_nodes);
-
-
-
 
 /* Main methods */
 /* the main handler */

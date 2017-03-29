@@ -44,9 +44,7 @@ static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
 static List BTSearchShflNode(BTreeList btshl, char* key)
 {
 	assert(btshl);
-	List sfl_list;
-	if (!BTLSearch(btshl, (btree_key_t)atoi(key), &sfl_list)) return NULL;
-	else return sfl_list;
+  return BTLSearch(btshl, (btree_key_t)atoi(key));
 }
 
 

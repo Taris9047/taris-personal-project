@@ -19,62 +19,68 @@
 /***********************************************
  Constructors and Destructors
 ************************************************/
+/* Constructor */
 BTreeList NewBTreeList()
 {
-	BTreeList btl = (BTreeList)malloc(sizeof(binary_tree_list));
-	assert(btl);
+  BTreeList btl = (BTreeList)malloc(sizeof(binary_tree_list));
+  assert(btl);
 
-	btl->data_tree = NewBTree();
-	btl->element_num_tree = NewBTree();
-	btl->n_lists = 0;
+  btl->data_tree = NewBTree();
+  btl->element_num_tree = NewBTree();
+  btl->n_lists = 0;
 
-	return btl;
+  return btl;
 }
 
+/* Destructor */
 int DeleteBTreeList(BTreeList btl)
 {
-	assert(btl);
+  assert(btl);
 
-	DeleteBTreeHard(btl->data_tree, DeleteList);
-	DeleteBTreeHard(btl->element_num_tree, NULL);
-	btl->n_lists = 0;
+  DeleteBTreeHard(btl->data_tree, DeleteList);
+  DeleteBTreeHard(btl->element_num_tree, NULL);
+  btl->n_lists = 0;
 
-	return 0;
+  return 0;
 }
 
 
 /***********************************************
  Methods
 ************************************************/
+/* Insert a new data with key */
 int BTLInsert(BTreeList btl, btree_data_t data, btree_key_t key)
 {
-	assert(btl);
+  assert(btl);
 
-	List found_list = \
-		(List)BTSearch(btl->data_tree, key);
-	unsigned long long* found_list_len = \
-		(unsigned long long*)BTSearch(btl->element_num_tree, key);
+  List found_list = \
+    (List)BTSearch(btl->data_tree, key);
+  unsigned long long* found_list_len = \
+    (unsigned long long*)BTSearch(btl->element_num_tree, key);
 
-	if (!found_list && !found_list_len) {
-		BTInsert(btl->data_tree, data, key);
-		found_list_len = (unsigned long long*)malloc(sizeof(unsigned long long));
-		(*found_list_len) = 1;
-		BTInsert(btl->element_num_tree, found_list_len, key);
-	}
-	else if (found_list && found_list_len) {
-		LPush(found_list, data);
-		(*found_list_len)++;
-	}
+  if (!found_list && !found_list_len) {
+    found_list = NewList();
+    LPush(found_list, data);
+    BTInsert(btl->data_tree, found_list, key);
 
-	return 0;
+    found_list_len = \
+      (unsigned long long*)malloc(sizeof(unsigned long long));
+    (*found_list_len) = 1;
+    BTInsert(btl->element_num_tree, found_list_len, key);
+
+    btl->n_lists++;
+  }
+  else if (found_list && found_list_len) {
+    LPush(found_list, data);
+    (*found_list_len)++;
+  }
+
+  return 0;
 }
 
-bool BTLSearch(BTreeList btl, btree_key_t key, List* found_list)
+/* Search the BTL with a key and return the list belongs to the key*/
+List BTLSearch(BTreeList btl, btree_key_t key)
 {
-	assert(btl);
-
-	(*found_list) = (List)BTSearch(btl->data_tree, key);
-
-	if (*found_list) return true;
-	else return false;
+  assert(btl);
+  return (List)BTSearch(btl->data_tree, key);
 }

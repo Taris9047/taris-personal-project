@@ -16,6 +16,8 @@
 #include <assert.h>
 #include <pthread.h>
 
+#include <sys/types.h>
+
 #include "mapreduce.h"
 
 /***********************************************
@@ -254,8 +256,8 @@ void* do_shuffle(void* args)
     KManAcceptKeysFromShflNode(shfl_node->k_man, shfl_node, KeyMap);
 
   /* Let's communicate with other shuffler nodes */
-	/* At this moment, let's just use a single mutex: main_mutex */
-	pr_other_keys(shfl_node, &main_mutex);
+  /* At this moment, let's just use a single mutex: main_mutex */
+  pr_other_keys(shfl_node, &main_mutex);
 
   /*
     After shuffling, KeyMap must have only one key.
@@ -310,58 +312,61 @@ Dict make_key_hash(List k_list)
 /* Passing and receiving keys with other shufflers */
 int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 {
-	assert(shfl_node);
+  assert(shfl_node);
 
-	BTreeList key_map = shfl_node->shuffler_map;
-	List given_keys = shfl_node->keys;
-	const char* assigned_key = shfl_node->assigned_key;
-	ULLONG n_assigned_key = atoi(assigned_key);
-	ULLONG n_keys = LLen(given_keys);
+  BTreeList key_map = shfl_node->shuffler_map;
+  List given_keys = shfl_node->keys;
+  const char* assigned_key = shfl_node->assigned_key;
+  ULLONG n_assigned_key = atoi(assigned_key);
+  ULLONG n_keys = LLen(given_keys);
+  ULLONG i, k;
 
-	if (!key_map || !given_keys || !assigned_key) {
-		fprintf(stderr, "pr_other_keys: Unable to work with insufficient inputs.\n");
-		exit(-1);
-	}
+  if (!key_map || !given_keys || !assigned_key) {
+    fprintf(stderr, "pr_other_keys: Unable to work with insufficient inputs.\n");
+    exit(-1);
+  }
 
-	/* Locking mutex */
-	pthread_mutex_lock(mtx);
+  /* Locking mutex */
+  pthread_mutex_lock(mtx);
 
-	/* We locked the mutex, let's re-distribute keys */
-	ULLONG i, j, tmp_key;
-	ULLONG n_found_shfl_nodes = 0;
-	ShflNode* found_shfl_nodes = NULL;
-	for (i=0; i<n_keys; ++i) {
-		tmp_key = (ULLONG)LAt(given_keys, i);
-		if (tmp_key != n_assigned_key) {
-			// TODO: ShflMapSearch needs to be implemented somewhere...
-			n_found_shfl_nodes = shfl_map_search(key_map, ToStr(tmp_key), &found_shfl_nodes);
-			if (!n_found_shfl_nodes) {
-				/*
-					If we can't find assigned key for this node, assign any node with
-				  assigned_key == NULL, then assign it..
-				*/
+  /* We locked the mutex, let's re-distribute keys */
 
-			}
-			else {
-				/*
-					We've found some shuffle nodes that is assigned for current key.
-					Let's find out how many keys that the node has to work with then
-					assign it or pass to other, same key assigned, node.
-				*/
-				for (j=0; j<n_found_shfl_nodes; ++j) {
-					ULLONG n_key_tmp = LLen(found_shfl_nodes[j]->keys);
-					// if (n_key_tmp > ) {
-					//
-					// }
-				}
-			} /* if (!n_found_shfl_nodes) */
-		} /* (tmp_key != n_assigned_key) */
-	} /* for (i=0; i<n_keys; ++i) */
+  /* Let's manipulate map first */
+  /* Add current shfl_node to the map */
+  BTLInsert(key_map, shfl_node, (btree_key_t)n_assigned_key);
+  /* And remove current shfl_node if it was registered as 0 */
+  List tmp_list = BTLSearch(key_map, 0);
+  for (i=0; i<LLen(tmp_list); ++i) {
+    if (shfl_node == (ShflNode)LAt(tmp_list, i)) {
+      LRemove(tmp_list, i);
+      break;
+    }
+  } /* for (i=0; i<LLen(tmp_list); ++i) */
 
-	/* Releasing mutex */
-	pthread_mutex_unlock(mtx);
+  /* Then, let's pass 'not assigned' keys to other shfl_nodes */
+  ULLONG tmp_key;
+  ShflNode tmp_shfl_node;
+  for (i=0; i<n_keys; ++i) {
+    tmp_key = (ULLONG)LAt(given_keys, i);
+    if (tmp_key == n_assigned_key) continue;
 
-	return 0;
+    tmp_list = BTLSearch(key_map, tmp_key);
+    if (tmp_list) {
+      for (k=0; k<LLen(tmp_list); ++k) {
+        tmp_shfl_node = (ShflNode)LAt(tmp_list, k);
+        if (LLen(tmp_shfl_node->keys) < tmp_shfl_node->n_mappers) {
+          LPush(tmp_shfl_node->keys, (void*)tmp_key);
+          LRemove(tmp_list, k);
+          break;
+        }
+      } /* for (k=0; k<LLen(tmp_list); ++k) */
+    } /* if (tmp_list) */
+  }
+
+  /* Releasing mutex */
+  pthread_mutex_unlock(mtx);
+
+  return 0;
 }
 
 
@@ -404,7 +409,7 @@ int DeleteShuffler(Shuffler shfl)
   shfl->main_data = NULL; /* main data will be freed later in main controller */
 
   /* We don't need the shuffler map anymore */
-	DeleteBTreeList(shfl->shuffler_map);
+  DeleteBTreeList(shfl->shuffler_map);
 
   /* Free the controller */
   free(shfl->tc);
@@ -444,8 +449,8 @@ int Shuffle(Shuffler shfl)
   ULLONG i, j, curr_run_len;
   ShflNode* shfl_nodes;
   ShflNodeArgs* shfl_node_args;
-	Threads thrd_shfl_nodes;
-	char* tmp_key;
+  Threads thrd_shfl_nodes;
+  // char* tmp_key;
   for (j=0; j<schedule_len; ++j) {
     if (j < schedule_len-1) curr_run_len = shfl->tc->shufflers;
     else curr_run_len = given_data_len%shfl->tc->shufflers;
@@ -455,12 +460,13 @@ int Shuffle(Shuffler shfl)
 
     /* Let's make shufflers */
     shfl_nodes = \
-			(ShflNode*)malloc(sizeof(ShflNode)*curr_run_len);
+      (ShflNode*)malloc(sizeof(ShflNode)*curr_run_len);
     shfl_node_args = \
-			(ShflNodeArgs*)malloc(sizeof(ShflNodeArgs)*curr_run_len);
-    List part_data = \
-			LPart(shfl->main_data, (ULLONG*)schedule[j][i], curr_run_len);
+      (ShflNodeArgs*)malloc(sizeof(ShflNodeArgs)*curr_run_len);
+
     for (i=0; i<curr_run_len; ++i) {
+      List part_data = \
+        LPart(shfl->main_data, (ULLONG*)schedule[j], curr_run_len);
       shfl_nodes[i] = \
         new_shfl_node(part_data,
           MAPPERS_PER_SHUFFLER,
@@ -470,23 +476,22 @@ int Shuffle(Shuffler shfl)
       shfl_node_args[i] = \
         NewShflNodeArgs(schedule[j][i], shfl_nodes[i]);
 
-			//BTInsert(shfl->shuffler_map, shfl_nodes[i], schedule[j][i]);
-			BTLInsert(shfl->shuffler_map, shfl_nodes[i], 0);
+      BTLInsert(shfl->shuffler_map, shfl_nodes[i], 0);
 
     } /* for (i=0; i<curr_run_len; ++i) */
 
-		/* Now run the actual shuffling */
-		/* We need a mutex */
-		init_mutex(); /* Initializes main_mutex --> just use this */
+    /* Now run the actual shuffling */
+    /* We need a mutex */
+    init_mutex(); /* Initializes main_mutex --> just use this */
 
-		/* prepare threads */
-		thrd_shfl_nodes = NewThreads(curr_run_len, true, &main_mutex);
-		DeleteThreads(thrd_shfl_nodes);
+    /* prepare threads */
+    thrd_shfl_nodes = NewThreads(curr_run_len, true, &main_mutex);
+    DeleteThreads(thrd_shfl_nodes);
 
-		/* Let's run shuffling !! */
-		RunThreads(thrd_shfl_nodes, do_shuffle, (void**)shfl_node_args);
+    /* Let's run shuffling !! */
+    RunThreads(thrd_shfl_nodes, do_shuffle, (void**)shfl_node_args);
 
-		destroy_mutex();
+    destroy_mutex();
 
     /* Cleaning up this session */
     for (i=0; i<curr_run_len; ++i)
@@ -500,11 +505,11 @@ int Shuffle(Shuffler shfl)
 }
 
 /* Adds a shuffler to shuffler map */
-int AddShflNode(Shuffler shfl, ULONG num_mappers)
-{
-
-  return 0;
-}
+// int AddShflNode(Shuffler shfl, ULONG num_mappers)
+// {
+//
+//   return 0;
+// }
 
 /* job scheduler - return number of jobs */
 ULONG job_schedule(
@@ -539,40 +544,16 @@ ULONG job_schedule(
       else job_ind_max = available_threads;
 
       job_ind[j] = (ULONG*)malloc(sizeof(ULONG)*job_ind_max);
-      for (i=0; i<available_threads; ++i)
-        job_ind[j][i] = i+start_i;
+      for (i=0; i<available_threads; ++i) job_ind[j][i] = i+start_i;
       start_i = available_threads*(j+1);
-    }
-  }
+
+    } /* for (j=0; j<n_jobs; ++j) */
+  } /* if (total_data_length <= available_threads) */
 
   (*job_indexes) = job_ind;
 
   return n_jobs;
 }
-
-/* Search the shuffler map and find matching ShflNodes */
-ULLONG shfl_map_search(
-	BTreeList shuffler_map,
-	char* key,
-	ShflNode** found_nodes)
-{
-	assert(shuffler_map);
-	assert(key);
-
-	List found_nodes_list = NULL;
-	ULLONG n_found_nodes = 0;
-
-	// TODO: Implement BTree find with trait.
-
-
-	DeleteList(found_nodes_list);
-	return n_found_nodes;
-}
-
-
-
-
-
 
 
 
