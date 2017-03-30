@@ -60,24 +60,13 @@ int DeleteKey(Key k)
 /***********************************************
  Mapper stuff
 ************************************************/
-/* Mapper data struct generator */
-MArgs NewMArgs()
+/* Mapper data struct generator with data */
+MArgs NewMArgs(PObj po)
 {
   MArgs ma = (MArgs)malloc(sizeof(mapper_data_args));
   assert(ma);
-
-  ma->po = NULL;
-  // ma->key = NULL;
-  // ma->pid = 0;
-
-  return ma;
-}
-
-/* Mapper data struct generator with data */
-MArgs NewMArgsPO(PObj po)
-{
-  MArgs ma = NewMArgs();
   ma->po = po;
+  ma->key = NULL;
   return ma;
 }
 

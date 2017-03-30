@@ -163,47 +163,42 @@ int delete_shfl_node(ShflNode shfl_node)
 /***********************************************
  Shuffler Node arguments
 ************************************************/
-ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node)
-{
-  ShflNodeArgs sna = (ShflNodeArgs)malloc(sizeof(shuffling_node_args));
-  assert(sna);
-
-  sna->pid = n_pid;
-  sna->rc = 0;
-
-  if (!n_shfl_node) {
-    fprintf(stderr, "NewShflNodeArgs: Unable to initialize shuffler node arg without valid shuffler!!\n");
-    exit(EXIT_FAILURE);
-  }
-
-  sna->shfl_node = n_shfl_node;
-
-  return sna;
-}
-int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args)
-{
-  assert(shfl_node_args);
-  free(shfl_node_args);
-  return 0;
-}
+// ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node)
+// {
+//   ShflNodeArgs sna = (ShflNodeArgs)malloc(sizeof(shuffling_node_args));
+//   assert(sna);
+//
+//   sna->pid = n_pid;
+//   sna->rc = 0;
+//
+//   if (!n_shfl_node) {
+//     fprintf(stderr, "NewShflNodeArgs: Unable to initialize shuffler node arg without valid shuffler!!\n");
+//     exit(EXIT_FAILURE);
+//   }
+//
+//   sna->shfl_node = n_shfl_node;
+//
+//   return sna;
+// }
+// int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args)
+// {
+//   assert(shfl_node_args);
+//   free(shfl_node_args);
+//   return 0;
+// }
 
 /***********************************************
  Shuffler Node - Methods
 ************************************************/
-/* Do the real shuffling job for given node */
+/* Do the real shuffling job for given node - pthread worker */
 void* do_shuffle(void* args)
 {
-  ShflNodeArgs shfl_na = (ShflNodeArgs)args;
-  if (!shfl_na) {
-    fprintf(stderr, "do_shuffle: NULL given!! Nothing to do~~~\n");
-    return NULL;
-  }
+  pth_args _args = (pth_args)args;
 
-  //pid_t my_pid = shfl_na->pid;
-  int rc = shfl_na->rc;
-  ShflNode shfl_node = shfl_na->shfl_node;
+  int rc = _args->rc;
+  ShflNode shfl_node = (ShflNode)_args->data_set;
 
-  ULONG i,j;
+  ULONG i, j;
   List key_list = NewList();
 
   /* Now the shuffling job starts here */
@@ -223,8 +218,6 @@ void* do_shuffle(void* args)
 	printf("Shuffler [%lu], Mapping with %lu mappers...\n",
 		shfl_node->shfl_node_id, shfl_node->n_mappers);
   Threads thr_mappers;
-  MArgs tmp_mapper_args;
-  void** mapper_args;
   for (i=0; i<jobs; ++i) {
     if (map_rem && i==(jobs-1)) curr_threads = map_rem;
     else curr_threads = shfl_node->n_mappers;
@@ -233,17 +226,12 @@ void* do_shuffle(void* args)
     thr_mappers = NewThreads(curr_threads, true, NULL);
 
     /* preparing mapper arguments */
-    mapper_args = (void**)malloc(sizeof(void*)*curr_threads);
+    MArgs* mapper_args = (MArgs*)malloc(sizeof(MArgs)*curr_threads);
     for (j=0; j<curr_threads; ++j) {
-      /* Gotta simplify here later */
-			// TODO: Gotta assign fractured list instead of pointing original lists for
-			// shfl_node->frac_data...
-      PObj tmp_po = (PObj)LAt(shfl_node->frac_data, i*shfl_node->n_mappers+j);
-      /* don't bother to destroy tmp_po. it will be destroyed in the main thread later */
-      tmp_mapper_args = NewMArgs(tmp_po);
-      mapper_args[j] = (void*)tmp_mapper_args;
+      mapper_args[j] = NewMArgs(
+        (PObj)LAt(shfl_node->frac_data, i*shfl_node->n_mappers+j));
     }
-    rc = RunThreads(thr_mappers, mapper, mapper_args);
+    rc = RunThreads(thr_mappers, mapper, (void**)mapper_args);
     for (j=0; j<curr_threads; ++j) {
       LPush(key_list, ((MArgs)mapper_args[j])->key);
       DeleteMArgs(mapper_args[j]);
@@ -280,10 +268,20 @@ void* do_shuffle(void* args)
 	printf(
 		"Shuffler [%lu] is starting reducer job... a.k.a writng to file.\n",
 		shfl_node->shfl_node_id);
-  RDArgs reducer_args = NewRDArgs(shfl_node->keys);
-  reducer((void*)reducer_args);
+  /* We are just using one reducer per shuffler at this moment but who knows? */
+  ULONG reducer_per_shuffler = 1;
+  RDArgs* reducer_args = (RDArgs*)malloc(sizeof(RDArgs)*reducer_per_shuffler);
+  for (i=0; i<reducer_per_shuffler; ++i)
+    reducer_args[i] = NewRDArgs(shfl_node->keys);
+  /* Let's run threaded reducer job */
+  Threads thr_reducers = NewThreads(reducer_per_shuffler, true, NULL);
+  RunThreads(thr_reducers, reducer, (void**)reducer_args);
 
-  DeleteRDArgs(reducer_args);
+  /* Then clean up reducer jobs */
+  for (i=0; i<reducer_per_shuffler; ++i)
+    DeleteRDArgs(reducer_args[i]);
+  free(reducer_args);
+  DeleteThreads(thr_reducers);
 
   /* Free all the craps before finishing all the stuff */
 	printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
@@ -359,6 +357,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
   } /* for (i=0; i<LLen(tmp_list); ++i) */
 
   /* Then, let's pass 'not assigned' keys to other shfl_nodes */
+  /* TODO: Check if it also passes the parsed objects (PObj) */
   ULLONG tmp_key;
   ShflNode tmp_shfl_node;
   for (i=0; i<n_keys; ++i) {
@@ -463,12 +462,15 @@ int Shuffle(Shuffler shfl)
 
   ULLONG i, j, curr_run_len;
   ShflNode* shfl_nodes;
-  ShflNodeArgs* shfl_node_args;
   Threads thrd_shfl_nodes;
   // char* tmp_key;
   for (j=0; j<schedule_len; ++j) {
-    if (j < schedule_len-1) curr_run_len = shfl->tc->shufflers;
-    else curr_run_len = given_data_len%shfl->tc->shufflers;
+    // TODO: Make here less demanding... later
+    if (given_data_len%shfl->tc->shufflers) {
+      if (j < schedule_len-1) curr_run_len = shfl->tc->shufflers;
+      else curr_run_len = given_data_len%shfl->tc->shufflers;
+    }
+    else curr_run_len = shfl->tc->shufflers;
 
     /* Start shuffling */
     shfl->k_man = NewKeyManager();
@@ -476,8 +478,6 @@ int Shuffle(Shuffler shfl)
     /* Let's make shufflers */
     shfl_nodes = \
       (ShflNode*)malloc(sizeof(ShflNode)*curr_run_len);
-    shfl_node_args = \
-      (ShflNodeArgs*)malloc(sizeof(ShflNodeArgs)*curr_run_len);
 
     for (i=0; i<curr_run_len; ++i) {
       List part_data = \
@@ -488,8 +488,6 @@ int Shuffle(Shuffler shfl)
           shfl->shuffler_map,
           shfl->k_man,
           schedule[j][i]);
-      shfl_node_args[i] = \
-        NewShflNodeArgs(schedule[j][i], shfl_nodes[i]);
 
       BTLInsert(shfl->shuffler_map, shfl_nodes[i], 0);
 
@@ -503,7 +501,7 @@ int Shuffle(Shuffler shfl)
     thrd_shfl_nodes = NewThreads(curr_run_len, true, &main_mutex);
 
     /* Let's run shuffling !! */
-    RunThreads(thrd_shfl_nodes, do_shuffle, (void**)shfl_node_args);
+    RunThreads(thrd_shfl_nodes, do_shuffle, (void**)shfl_nodes);
 
     destroy_mutex();
     DeleteThreads(thrd_shfl_nodes);
@@ -512,9 +510,6 @@ int Shuffle(Shuffler shfl)
     for (i=0; i<curr_run_len; ++i)
       delete_shfl_node(shfl_nodes[i]);
     free(shfl_nodes);
-    for (i=0; i<curr_run_len; ++i)
-      DeleteShflNodeArgs(shfl_node_args[i]);
-    free(shfl_node_args);
   } /* for (j=0; j<schedule_len; ++j) */
   return 0;
 }

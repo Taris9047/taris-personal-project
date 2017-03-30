@@ -40,7 +40,7 @@ int DeleteKeyManager(KeyManager k_m);
 List KManGetShflNode(KeyManager kl_m, Key k);
 int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
 int KManAcceptKeysFromShflNode(
-	KeyManager kl_m, ShflNode shfl_node, Dict key_map);
+  KeyManager kl_m, ShflNode shfl_node, Dict key_map);
 
 
 
@@ -57,27 +57,27 @@ int KManAcceptKeysFromShflNode(
 
 /* Key Dict (Dict<List<Key>>>) Statistics tool */
 typedef struct _key_dict_stats {
-	Dict source_dict; /* The Dict<List<Key>>> */
-	/*
+  Dict source_dict; /* The Dict<List<Key>>> */
+  /*
 
-		Dict<List<Key>>
-		{ timestamp: key ... }
+    Dict<List<Key>>
+    { timestamp: key ... }
 
-		--> needs to be converted to ...
+    --> needs to be converted to ...
 
-		List<Tuple>
-		{ (timestamp, number of this timestamp), ... }
+    List<Tuple>
+    { (timestamp, number of this timestamp), ... }
 
-		and
+    and
 
-		List<List<ShflNode>>
-		{ (timestamp, List<ShflNode>), ... }
+    List<List<ShflNode>>
+    { (timestamp, List<ShflNode>), ... }
 
-	*/
-	List key_elements; /* List<Tuple>: Contains key-n_elements pair tuples */
-	List shfl_elements; /* List<List<ShflNode>> */
+  */
+  List key_elements; /* List<Tuple>: Contains key-n_elements pair tuples */
+  List shfl_elements; /* List<List<ShflNode>> */
 
-	ULLONG n_keys;
+  ULLONG n_keys;
 } key_dict_stats;
 typedef key_dict_stats* KeyDictStats;
 /* Constructors and Destructors */

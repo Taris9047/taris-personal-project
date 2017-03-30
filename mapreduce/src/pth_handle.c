@@ -14,6 +14,11 @@
 
 #include "pth_handle.h"
 
+/***********************************************
+ Static Stuffs
+************************************************/
+/* pid_tracking */
+static pid_t pth_handle_current_max_pid = 0;
 
 /***********************************************
  Mutex handling
@@ -85,7 +90,7 @@ void destroy_mutexes()
  Worker argument handling
 ************************************************/
 /* Argument bundle initializer */
-pth_args arg_bundle_init(pid_t pid, void* data)
+pth_args arg_bundle_init(pid_t pid, pth_arg_data_t data)
 {
   pth_args pa = \
     (pth_args)malloc(sizeof(pth_arg_bundle));
@@ -180,12 +185,30 @@ int DeleteThreads(Threads thr)
 int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
 {
   assert(thr);
+
+  /* Let's generate an array of pth_args */
   ULONG i;
   int rc;
+
+  pth_args* pth_args_ary = \
+    (pth_args*)malloc(sizeof(pth_args)*thr->n_threads);
   for (i=0; i<thr->n_threads; ++i) {
-    rc = pthread_create(
-      &thr->threads[i], &thr->thread_attrs[i],
-      worker, (void*)worker_args[i]);
+    if (worker_args)
+      pth_args_ary[i] = \
+        arg_bundle_init(pth_handle_current_max_pid, worker_args[i]);
+    pth_handle_current_max_pid++;
+    pth_args_ary[i]->rc = 0;
+  }
+
+  for (i=0; i<thr->n_threads; ++i) {
+    if (worker_args)
+      rc = pthread_create(
+        &thr->threads[i], &thr->thread_attrs[i],
+        worker, (void*)pth_args_ary[i]);
+    else
+      rc = pthread_create(
+        &thr->threads[i], &thr->thread_attrs[i],
+        worker, NULL);
     if (rc) {
       fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
       exit(-1);
@@ -202,6 +225,12 @@ int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
       }
     }
   }
+
+  /* Clean up the pth_args_ary */
+  for (i=0; i<thr->n_threads; ++i)
+    if (worker_args)
+      arg_bundle_delete(pth_args_ary[i]);
+  pth_handle_current_max_pid -= thr->n_threads;
 
   return rc;
 }

@@ -34,11 +34,9 @@ void destroy_mutex();
 void destroy_mutexes();
 
 
-
-
-
 /* Worker argument handling */
 /* Argument bundle */
+typedef void* pth_arg_data_t;
 typedef struct _pth_arg_bundle {
   pid_t pid; /* process ID */
   int rc; /* error message handler */
@@ -47,7 +45,7 @@ typedef struct _pth_arg_bundle {
 typedef pth_arg_bundle* pth_args;
 
 /* Argument bundle initializer */
-pth_args arg_bundle_init(pid_t pid, void* data);
+pth_args arg_bundle_init(pid_t pid, pth_arg_data_t data);
 int arg_bundle_delete(pth_args pa);
 
 

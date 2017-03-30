@@ -49,8 +49,7 @@ typedef struct _mapper_data_args {
 } mapper_data_args;
 typedef mapper_data_args* MArgs;
 /* Dummy constructor */
-MArgs NewMArgs();
-MArgs NewMArgsPO(PObj po);
+MArgs NewMArgs(PObj po);
 int DeleteMArgs(MArgs ma);
 
 /* mapper - a pthread worker */

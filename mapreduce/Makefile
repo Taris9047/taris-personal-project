@@ -71,8 +71,8 @@ $(DLIBNAME): $(OBJS)
 	$(CC) $(CFLAGS) -fPIC $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 
-$(TESTF_NAME): $(LIBNAME) $(DLIBNAME) test.c test.h
-	$(CC) $(CFLAGS) test.c $(LIBNAME) -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS)
+$(TESTF_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/test.c $(CURR_DIR)/test.h
+	$(CC) $(CFLAGS) $(CURR_DIR)/test.c $(LIBNAME) -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS)
 
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o
