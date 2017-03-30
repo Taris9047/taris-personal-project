@@ -15,6 +15,7 @@
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #include "test.h"
 
@@ -26,19 +27,20 @@ int Initializer(int argc, char** argv, char** fname, ULONG* threads)
 
 	int opt, i;
 
-	while ( (opt = getopt(argc, argv, "fth")) != -1 ) {
+	while ( (opt = getopt(argc, argv, "f:t:h")) != -1 ) {
 		switch (opt) {
 			case 'f':
 				*fname = optarg;
 				break;
 			case 't':
-				*threads = atoi(optarg);
+				*threads = (ULONG)atoi(optarg);
 				break;
 			case 'h':
 				fprintf(stderr, "Usage: %s [-fth] [input data file...]\n", argv[0]);
 				exit(EXIT_FAILURE);
 			default:
-				break;
+				fprintf(stderr, "Usage: %s [-fth] [input data file...]\n", argv[0]);
+				exit(EXIT_FAILURE);
 		}
 	}
 
@@ -78,7 +80,7 @@ int main(int argc, char* argv[])
 	printf("******************************\n");
 
 	char* inf_name = NULL;
-	ULONG n_threads;
+	ULONG n_threads = 0;
 
 	Initializer(argc, argv, &inf_name, &n_threads);
 	printf("\n");
