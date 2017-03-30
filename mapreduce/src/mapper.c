@@ -96,8 +96,9 @@ void* mapper(void* args)
   pth_args _args = (pth_args)args;
   MArgs margs = (MArgs)_args->data_set;
 
+	assert(margs);
+
   pid_t my_pid = _args->pid;
-  //int rc = margs->rc;
 
   PObj po = margs->po;
   margs->key = NewKey(&po->ts, po);

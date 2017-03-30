@@ -355,7 +355,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
     if (shfl_node == (ShflNode)LAt(tmp_list, i)) {
       LRemove(tmp_list, i);
       break;
-    }
+    } /* if (shfl_node == (ShflNode)LAt(tmp_list, i)) */
   } /* for (i=0; i<LLen(tmp_list); ++i) */
 
   /* Then, let's pass 'not assigned' keys to other shfl_nodes */
@@ -373,10 +373,10 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
           LPush(tmp_shfl_node->keys, (void*)tmp_key);
           LRemove(tmp_list, k);
           break;
-        }
+        } /* if (LLen(tmp_shfl_node->keys) < tmp_shfl_node->n_mappers) */
       } /* for (k=0; k<LLen(tmp_list); ++k) */
     } /* if (tmp_list) */
-  }
+  } /* for (i=0; i<n_keys; ++i) */
 
   /* Releasing mutex */
   pthread_mutex_unlock(mtx);

@@ -240,6 +240,9 @@ int LReverse(List l)
     tmp->prev = t;
     tmp = tmp_r;
   }
+  /* Last node */
+  tmp->next = tmp->prev;
+  tmp->prev = NULL;
 
   l->root_node = tmp;
 
