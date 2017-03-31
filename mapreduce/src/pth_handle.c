@@ -220,7 +220,7 @@ int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
     for (i=0; i<thr->n_threads; ++i) {
       rc = pthread_join(thr->threads[i], &thr->status);
       if (rc) {
-        fprintf(stderr, "RunThreads Thread join Error!! returo code: %d\n", rc);
+        fprintf(stderr, "RunThreads Thread join Error!! return code: %d\n", rc);
         exit(-1);
       }
     }

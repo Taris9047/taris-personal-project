@@ -23,7 +23,7 @@ typedef ULLONG mapped_key_t;
 /* key */
 typedef struct _key {
   mapped_key_t ts; /* timestamp */
-  PObj point_data;
+  PObj point_data; /* Parsed object (pointer to original data) */
 } mapped_key;
 typedef mapped_key* Key;
 
@@ -43,13 +43,13 @@ int DeleteKey(Key k);
 */
 /* data struct for mapper */
 typedef struct _mapper_data_args {
-  PObj po;
-  Key key;
-  // pid_t pid;
+  PObj po; /* The parsed object */
+  Key key; /* The Key datatype to populate */
+  pid_t master_shuffler_pid; /* Master shuffler's pid */
 } mapper_data_args;
 typedef mapper_data_args* MArgs;
 /* Dummy constructor */
-MArgs NewMArgs(PObj po);
+MArgs NewMArgs(PObj po, pid_t master_pid);
 int DeleteMArgs(MArgs ma);
 
 /* mapper - a pthread worker */

@@ -61,12 +61,13 @@ int DeleteKey(Key k)
  Mapper stuff
 ************************************************/
 /* Mapper data struct generator with data */
-MArgs NewMArgs(PObj po)
+MArgs NewMArgs(PObj po, pid_t master_pid)
 {
   MArgs ma = (MArgs)malloc(sizeof(mapper_data_args));
   assert(ma);
   ma->po = po;
   ma->key = NULL;
+  ma->master_shuffler_pid = master_pid;
   return ma;
 }
 
@@ -90,7 +91,11 @@ void* mapper(void* args)
   pid_t my_pid = _args->pid;
 
   PObj po = margs->po;
+
   margs->key = NewKey(&po->ts, po);
+
+  printf("Mapper [%d] from Shuffler [%d] has been finished!!\n",
+    my_pid, margs->master_shuffler_pid);
 
   arg_bundle_delete(_args);
 

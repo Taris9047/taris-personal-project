@@ -285,7 +285,7 @@ int DeleteKeyDictStats(KeyDictStats kds)
  Key Dict statistics - Methods
 ************************************************/
 /* Get 'number' of collected mapped keys by key string */
-unsigned long long KDSGetKeyElements(KeyDictStats kds, char* key_str)
+ULLONG KDSGetKeyElements(KeyDictStats kds, char* key_str)
 {
   assert(kds);
   assert(key_str);

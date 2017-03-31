@@ -179,6 +179,8 @@ Dict NewDict()
   d->table = NewList(); /* The DNode linked list */
 	d->key_str = NewList(); /* key string list */
   d->keys = NULL;
+  /* Default hashing: FNV */
+  d->hashing = &hash_str_fnv;
   return d;
 }
 int DeleteDict(Dict d)
