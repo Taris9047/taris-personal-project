@@ -123,10 +123,13 @@ int LPush(List l, list_data_t value)
 list_data_t LPop(List l)
 {
   assert(l);
+  LNode tmp = NULL;
+  list_data_t ret_val;
   if (!l->root_node) return NULL;
   else {
-    (l->len)--;
-    return list_node_pop(&l->root_node);
+    ret_val = list_node_pop(&l->root_node);
+    l->len--;
+    return ret_val;
   }
 }
 
@@ -254,10 +257,9 @@ int LReverse(List l)
 int list_node_push(LNode* l, list_data_t value)
 {
   assert(*l);
-  assert(value);
 
   /* Make sure l is the first node */
-  if ((*l)->prev) list_node_find_root(l);
+  if ((*l)->prev) list_node_find_root(&(*l));
 
   /* If the first node is empty, no need to make another node */
   if (list_node_isempty(*l)) {
@@ -284,16 +286,18 @@ list_data_t list_node_pop(LNode* l)
   LNode tmp = (*l);
 
   /* Make sure l is the first node */
-  if (tmp->prev) list_node_find_root(l);
+  if (tmp->prev) list_node_find_root(&(*l));
 
   /* If the list is empty just return NULL */
   if (list_node_isempty(tmp)) return NULL;
 
   p_val = tmp->value;
 
-  /* If the list is a single node, pop the value only */
+  /* If the list is a single node, destroy it and pop the value only */
   if (!tmp->next) {
     tmp->value = NULL;
+    list_node_destroy(tmp);
+    (*l) = NULL;
     return p_val;
   }
 
@@ -420,7 +424,7 @@ List LPartRng(
 /* Get length of list */
 unsigned long long list_node_len(LNode l)
 {
-  assert(l);
+  if (!l) return 0;
 
   unsigned long long i = 1;
   while (l->next) {

@@ -22,6 +22,7 @@ typedef struct _binary_tree_list {
   BTree data_tree;
   BTree element_num_tree;
   unsigned long long n_lists;
+  unsigned long long n_elements;
 } binary_tree_list;
 typedef binary_tree_list* BTreeList;
 
@@ -33,6 +34,6 @@ int DeleteBTreeList(BTreeList btl);
 int BTLInsert(BTreeList btl, btree_data_t data, btree_key_t key);
 List BTLSearch(BTreeList btl, btree_key_t key);
 
-
+unsigned long long BTreeElements(BTreeList btl);
 
 #endif /* Include guard */

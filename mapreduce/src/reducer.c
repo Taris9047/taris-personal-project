@@ -63,12 +63,12 @@ ImgData NewImgData(List key_list)
     tmp_po = tmp_k->point_data;
 
     img_data->ts = tmp_po->ts;
-    strcpy(tmp_label, tmp_po->label);
+    tmp_label = strdup(tmp_po->label);
     img_data->label = tmp_label;
     pix_data = NewPixelData(tmp_po->x, tmp_po->y, tmp_po->gs);
     BTInsert(pixels, pix_data, pixel_keygen(tmp_po->x, tmp_po->y) );
 
-    DeletePObj(tmp_po);
+    //DeletePObj(tmp_po);
     if (LLen(key_list) == 0) break;
   }
 
@@ -77,6 +77,8 @@ ImgData NewImgData(List key_list)
   img_data->y_size = pix_data->y+1;
 
   img_data->pixel_data = pixels;
+
+  free(tmp_label);
 
   return img_data;
 }

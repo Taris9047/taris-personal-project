@@ -58,12 +58,11 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 
   max_threads = get_pid_max();
 
-  if (total_threads < MAPPERS_PER_SHUFFLER) {
+  if (total_threads < MAPPERS_PER_SHUFFLER)
     sthreads = 1;
-  }
-  else {
-    sthreads = (ULONG)total_threads/MAPPERS_PER_SHUFFLER;
-  }
+  else
+    sthreads = (ULONG)total_threads%MAPPERS_PER_SHUFFLER;
+
   if (total_threads < max_threads)
     mthreads = total_threads-sthreads;
   else
@@ -160,29 +159,7 @@ int delete_shfl_node(ShflNode shfl_node)
 /***********************************************
  Shuffler Node arguments
 ************************************************/
-// ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node)
-// {
-//   ShflNodeArgs sna = (ShflNodeArgs)malloc(sizeof(shuffling_node_args));
-//   assert(sna);
-//
-//   sna->pid = n_pid;
-//   sna->rc = 0;
-//
-//   if (!n_shfl_node) {
-//     fprintf(stderr, "NewShflNodeArgs: Unable to initialize shuffler node arg without valid shuffler!!\n");
-//     exit(EXIT_FAILURE);
-//   }
-//
-//   sna->shfl_node = n_shfl_node;
-//
-//   return sna;
-// }
-// int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args)
-// {
-//   assert(shfl_node_args);
-//   free(shfl_node_args);
-//   return 0;
-// }
+
 
 /***********************************************
  Shuffler Node - Methods
@@ -194,6 +171,7 @@ void* do_shuffle(void* args)
 
   int rc = _args->rc;
   ShflNode shfl_node = (ShflNode)_args->data_set;
+  assert(shfl_node);
 
   ULONG i, j;
   List key_list = NewList();
@@ -203,6 +181,7 @@ void* do_shuffle(void* args)
   ULONG frac_data_len = LLen(shfl_node->frac_data);
   ULONG** jobs_index;
   ULONG map_rem = 0;
+  if (!frac_data_len) return NULL; // Nothing to return if frac_data_len is zero
   if (frac_data_len > shfl_node->n_mappers)
     map_rem = frac_data_len%shfl_node->n_mappers;
   else
@@ -211,17 +190,15 @@ void* do_shuffle(void* args)
 
   ULONG jobs = \
     job_schedule(
-      frac_data_len,
-      shfl_node->n_mappers,
-      &jobs_index, 0);
+      frac_data_len, shfl_node->n_mappers, &jobs_index, 0);
 
   /* Ok, let's spawn mappers */
   printf("Shuffler [%lu], Mapping with %lu mappers...\n",
     shfl_node->shfl_node_id, shfl_node->n_mappers);
   Threads thr_mappers;
+  curr_threads = shfl_node->n_mappers;
   for (i=0; i<jobs; ++i) {
     if (map_rem && i==(jobs-1)) curr_threads = map_rem;
-    else curr_threads = shfl_node->n_mappers;
 
     /* Mappers needs to be joinable but mutex is not required. */
     thr_mappers = NewThreads(curr_threads, true, NULL);
@@ -232,12 +209,12 @@ void* do_shuffle(void* args)
       mapper_args[j] = NewMArgs(
         (PObj)LAt(shfl_node->frac_data, i*shfl_node->n_mappers+j),
         shfl_node->shfl_node_id);
-    }
+    } /* for (j=0; j<curr_threads; ++j) */
     rc = RunThreads(thr_mappers, mapper, (void**)mapper_args);
     for (j=0; j<curr_threads; ++j) {
-      LPush(key_list, ((MArgs)mapper_args[j])->key);
+      LPush(key_list, (((MArgs)mapper_args[j])->key));
       DeleteMArgs(mapper_args[j]);
-    }
+    } /* for (j=0; j<curr_threads; ++j) */
 
     /* Clean up mapper threads for this schedule */
     DeleteThreads(thr_mappers);
@@ -249,6 +226,21 @@ void* do_shuffle(void* args)
   printf("Shuffler [%lu], Mapping has been finished...\n", shfl_node->shfl_node_id);
 
   /* Now "key_list" has all the keys we've read out */
+  /* if this is the ONLY shuffler node.. just finish with reduction job */
+  if (BTreeElements(shfl_node->shuffler_map) == 1) {
+    RDArgs reducer_arg = \
+      NewRDArgs(shfl_node->keys);
+    pth_args _args_for_reducer_worker = \
+      arg_bundle_init(_args->pid, reducer_arg);
+    reducer(_args_for_reducer_worker);
+    printf("Shuffler [%lu], Collected image data...\n", shfl_node->shfl_node_id);
+    /* Now save the file */
+    arg_bundle_delete(_args_for_reducer_worker);
+    DeleteRDArgs(reducer_arg);
+    return NULL;
+  }
+
+
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
   printf("Shuffler [%lu], Processing keymap..\n", shfl_node->shfl_node_id);
   Dict KeyMap = make_key_hash(key_list);
@@ -291,8 +283,7 @@ void* do_shuffle(void* args)
 
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
-  for (i=0; i<jobs; ++i)
-    free(jobs_index[i]);
+  for (i=0; i<jobs; ++i) free(jobs_index[i]);
   free(jobs_index);
 
   DeleteDict(KeyMap);
@@ -352,7 +343,7 @@ int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
 
   /* Let's manipulate map first */
   /* Add current shfl_node to the map */
-  BTLInsert(key_map, shfl_node, (btree_key_t)n_assigned_key);
+  //BTLInsert(key_map, shfl_node, (btree_key_t)n_assigned_key);
   /* And remove current shfl_node if it was registered as 0 */
   List tmp_list = BTLSearch(key_map, 0);
   for (i=0; i<LLen(tmp_list); ++i) {
@@ -467,37 +458,38 @@ int Shuffle(Shuffler shfl)
     job_schedule(given_data_len,
       shfl->tc->shufflers*shfl->tc->mappers_per_shuffler, &schedule, 0);
 
-  ULLONG i, j, curr_run_len;
+  ULLONG i, j;
+  ULLONG n_curr_shufflers, n_curr_mappers;
+  ULLONG n_shufflers_rem, n_mappers_rem;
   ShflNode* shfl_nodes;
   Threads thrd_shfl_nodes;
-  // char* tmp_key;
+  n_shufflers_rem = given_data_len%shfl->tc->shufflers;
+  n_mappers_rem = given_data_len%shfl->tc->mappers_per_shuffler;
+  n_curr_shufflers = shfl->tc->shufflers;
+  n_curr_mappers = shfl->tc->mappers_per_shuffler;
   for (j=0; j<schedule_len; ++j) {
-    // TODO: Make here less demanding... later
-    if (given_data_len%shfl->tc->mappers_per_shuffler) {
-      if (j < schedule_len-1) curr_run_len = shfl->tc->mappers_per_shuffler;
-      else curr_run_len = given_data_len%shfl->tc->mappers_per_shuffler;
-    }
-    else curr_run_len = shfl->tc->mappers_per_shuffler;
+    /* Update n_curr_shufflers and n_curr_mappers */
+    if (n_shufflers_rem && j == schedule_len-1)
+      n_curr_shufflers = n_shufflers_rem;
+    if (n_mappers_rem && j == schedule_len-1)
+      n_curr_mappers = n_mappers_rem;
 
     /* Start shuffling */
     shfl->k_man = NewKeyManager();
 
     /* Let's make shufflers */
     shfl_nodes = \
-      (ShflNode*)malloc(sizeof(ShflNode)*curr_run_len);
+      (ShflNode*)malloc(sizeof(ShflNode)*n_curr_shufflers);
 
-    for (i=0; i< curr_run_len/shfl->tc->mappers_per_shuffler; ++i) {
+    for (i=0; i< n_curr_shufflers; ++i) {
       List part_data = \
-        LPart(shfl->main_data, (ULLONG*)schedule[j], curr_run_len);
+        LPart(shfl->main_data, (ULLONG*)schedule[j], n_curr_mappers);
       shfl_nodes[i] = \
         new_shfl_node(part_data,
           shfl->tc->mappers_per_shuffler,
           shfl->shuffler_map,
           shfl->k_man,
           schedule[j][i]);
-
-      BTLInsert(shfl->shuffler_map, shfl_nodes[i], 0);
-
     } /* for (i=0; i<curr_run_len; ++i) */
 
     /* Now run the actual shuffling */
@@ -505,7 +497,7 @@ int Shuffle(Shuffler shfl)
     init_mutex(); /* Initializes main_mutex --> just use this */
 
     /* prepare threads */
-    thrd_shfl_nodes = NewThreads(curr_run_len, true, &main_mutex);
+    thrd_shfl_nodes = NewThreads(n_curr_shufflers, true, &main_mutex);
 
     /* Let's run shuffling !! */
     RunThreads(thrd_shfl_nodes, do_shuffle, (void**)shfl_nodes);
@@ -514,9 +506,10 @@ int Shuffle(Shuffler shfl)
     DeleteThreads(thrd_shfl_nodes);
 
     /* Cleaning up this session */
-    for (i=0; i<curr_run_len; ++i)
+    for (i=0; i<n_curr_shufflers; ++i)
       delete_shfl_node(shfl_nodes[i]);
     free(shfl_nodes);
+    DeleteBTreeList(shfl->shuffler_map);
   } /* for (j=0; j<schedule_len; ++j) */
   return 0;
 }

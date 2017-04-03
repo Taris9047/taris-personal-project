@@ -117,6 +117,7 @@ PObj parse_line(char* a_line)
   po->line_str = strdup(a_line);
 
   DeleteList(sections);
+  free(str);
 
   return po;
 }

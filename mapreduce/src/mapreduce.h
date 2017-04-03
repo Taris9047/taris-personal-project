@@ -56,13 +56,7 @@ typedef struct _shuffler_node {
 
   List keys; /* List<ULLONG> Deciphered (?) keys from mapper - will be fed into a reducer */
 
-  /*
-    Designated key type.
-    This node will pass other types of keys to other nodes in the map.
-    --> KeyManager will handle it
-    after reading it.
-  */
-  char* assigned_key;
+  char* assigned_key; /* Assigned key */
 
   KeyManager k_man; /* Given by the Shuffler node (see key_shuffle_mapper.h) */
 
@@ -77,16 +71,6 @@ ShflNode new_shfl_node(
   KeyManager n_k_man,
   ULONG id);
 int delete_shfl_node(ShflNode shfl_node);
-
-/* struct for shuffling job */
-// typedef struct _shuffling_node_args {
-//   pid_t pid;
-//   int rc;
-//   ShflNode shfl_node;
-// } shuffling_node_args;
-// typedef shuffling_node_args* ShflNodeArgs;
-// ShflNodeArgs NewShflNodeArgs(pid_t n_pid, ShflNode n_shfl_node);
-// int DeleteShflNodeArgs(ShflNodeArgs shfl_node_args);
 
 
 /* shuffling job at the node - pthread worker */

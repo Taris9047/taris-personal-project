@@ -24,11 +24,10 @@ BTreeList NewBTreeList()
 {
   BTreeList btl = (BTreeList)malloc(sizeof(binary_tree_list));
   assert(btl);
-
   btl->data_tree = NewBTree();
   btl->element_num_tree = NewBTree();
   btl->n_lists = 0;
-
+  btl->n_elements = 0;
   return btl;
 }
 
@@ -36,11 +35,10 @@ BTreeList NewBTreeList()
 int DeleteBTreeList(BTreeList btl)
 {
   assert(btl);
-
   DeleteBTreeHard(btl->data_tree, DeleteList);
   DeleteBTreeHard(btl->element_num_tree, NULL);
   btl->n_lists = 0;
-
+  btl->n_elements = 0;
   return 0;
 }
 
@@ -67,14 +65,13 @@ int BTLInsert(BTreeList btl, btree_data_t data, btree_key_t key)
       (unsigned long long*)malloc(sizeof(unsigned long long));
     (*found_list_len) = 1;
     BTInsert(btl->element_num_tree, found_list_len, key);
-
     btl->n_lists++;
   }
   else if (found_list && found_list_len) {
     LPush(found_list, data);
     (*found_list_len)++;
   }
-
+  btl->n_elements++;
   return 0;
 }
 
@@ -83,4 +80,11 @@ List BTLSearch(BTreeList btl, btree_key_t key)
 {
   assert(btl);
   return (List)BTSearch(btl->data_tree, key);
+}
+
+/* Returns number of elements in this BTL */
+unsigned long long BTreeElements(BTreeList btl)
+{
+  assert(btl);
+  return btl->n_elements;
 }
