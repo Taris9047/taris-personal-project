@@ -125,12 +125,12 @@ ShflNode new_shfl_node(
 
   /* Prepare threads for mappers */
   shn->n_mappers = num_mappers;
-  shn->thread_mappers = \
-    (pthread_t*)malloc(sizeof(pthread_t)*shn->n_mappers);
-  assert(shn->thread_mappers);
+  // shn->thread_mappers = \
+  //   (pthread_t*)malloc(sizeof(pthread_t)*shn->n_mappers);
+  // assert(shn->thread_mappers);
 
   /* Diciphered key container */
-  shn->keys = NULL;
+  shn->keys = NewList();
   /* Key manager */
   shn->k_man = n_k_man;
   /* Assigned key type... as string. default: NULL */
@@ -144,9 +144,11 @@ int delete_shfl_node(ShflNode shfl_node)
   assert(shfl_node);
   shfl_node->shuffler_map = NULL; /* map will be deleted by the main controller */
 
-  ULONG i;
-  for (i=0; i<shfl_node->n_mappers; ++i)
-    free(shfl_node->thread_mappers);
+  if (shfl_node->thread_mappers)
+    DeleteThreads(shfl_node->thread_mappers);
+
+  if (shfl_node->thread_reducers)
+    DeleteThreads(shfl_node->thread_reducers);
 
   DeleteList(shfl_node->keys); /* points data within main data... so, just delete the list */
 
@@ -174,7 +176,6 @@ void* do_shuffle(void* args)
   assert(shfl_node);
 
   ULONG i, j;
-  List key_list = NewList();
 
   /* Now the shuffling job starts here */
   /* Let's assign mappers */
@@ -195,13 +196,13 @@ void* do_shuffle(void* args)
   /* Ok, let's spawn mappers */
   printf("Shuffler [%lu], Mapping with %lu mappers...\n",
     shfl_node->shfl_node_id, shfl_node->n_mappers);
-  Threads thr_mappers;
+
   curr_threads = shfl_node->n_mappers;
   for (i=0; i<jobs; ++i) {
     if (map_rem && i==(jobs-1)) curr_threads = map_rem;
 
     /* Mappers needs to be joinable but mutex is not required. */
-    thr_mappers = NewThreads(curr_threads, true, NULL);
+    shfl_node->thread_mappers = NewThreads(curr_threads, true, NULL);
 
     /* preparing mapper arguments */
     MArgs* mapper_args = (MArgs*)malloc(sizeof(MArgs)*curr_threads);
@@ -210,32 +211,29 @@ void* do_shuffle(void* args)
         (PObj)LAt(shfl_node->frac_data, i*shfl_node->n_mappers+j),
         shfl_node->shfl_node_id);
     } /* for (j=0; j<curr_threads; ++j) */
-    rc = RunThreads(thr_mappers, mapper, (void**)mapper_args);
+    rc = RunThreads(shfl_node->thread_mappers, mapper, (void**)mapper_args);
     for (j=0; j<curr_threads; ++j) {
-      LPush(key_list, (((MArgs)mapper_args[j])->key));
+      LPush(shfl_node->keys, (((MArgs)mapper_args[j])->key));
       DeleteMArgs(mapper_args[j]);
     } /* for (j=0; j<curr_threads; ++j) */
 
     /* Clean up mapper threads for this schedule */
-    DeleteThreads(thr_mappers);
+    DeleteThreads(shfl_node->thread_mappers);
   }
-
-  /* Update current node's key list */
-  shfl_node->keys = key_list;
 
   printf("Shuffler [%lu], Mapping has been finished...\n", shfl_node->shfl_node_id);
 
   /* Now "key_list" has all the keys we've read out */
   /* if this is the ONLY shuffler node.. just finish with reduction job */
   if (BTreeElements(shfl_node->shuffler_map) == 1) {
-    RDArgs reducer_arg = \
-      NewRDArgs(shfl_node->keys);
-    pth_args _args_for_reducer_worker = \
-      arg_bundle_init(_args->pid, reducer_arg);
-    reducer(_args_for_reducer_worker);
+    RDArgs reducer_arg = NewRDArgs(shfl_node->keys);
+    //pth_args _args_for_reducer_worker = arg_bundle_init(_args->pid, reducer_arg);
+    //reducer(_args_for_reducer_worker);
+    reducer_single(reducer_arg);
     printf("Shuffler [%lu], Collected image data...\n", shfl_node->shfl_node_id);
+
     /* Now save the file */
-    arg_bundle_delete(_args_for_reducer_worker);
+    //arg_bundle_delete(_args_for_reducer_worker);
     DeleteRDArgs(reducer_arg);
     return NULL;
   }
@@ -243,8 +241,7 @@ void* do_shuffle(void* args)
 
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
   printf("Shuffler [%lu], Processing keymap..\n", shfl_node->shfl_node_id);
-  Dict KeyMap = make_key_hash(key_list);
-  DeleteList(key_list); /* We don't need list anymore */
+  Dict KeyMap = make_key_hash(shfl_node->keys);
 
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
@@ -272,14 +269,14 @@ void* do_shuffle(void* args)
   for (i=0; i<reducer_per_shuffler; ++i)
     reducer_args[i] = NewRDArgs(shfl_node->keys);
   /* Let's run threaded reducer job */
-  Threads thr_reducers = NewThreads(reducer_per_shuffler, true, NULL);
-  RunThreads(thr_reducers, reducer, (void**)reducer_args);
+  shfl_node->thread_reducers = NewThreads(reducer_per_shuffler, true, NULL);
+  RunThreads(shfl_node->thread_reducers, reducer, (void**)reducer_args);
 
   /* Then clean up reducer jobs */
   for (i=0; i<reducer_per_shuffler; ++i)
     DeleteRDArgs(reducer_args[i]);
   free(reducer_args);
-  DeleteThreads(thr_reducers);
+  DeleteThreads(shfl_node->thread_reducers);
 
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);

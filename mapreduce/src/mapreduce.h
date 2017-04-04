@@ -52,7 +52,8 @@ typedef struct _shuffler_node {
   BTreeList shuffler_map; /* Binary tree contains the whole list of shufflers */
 
   ULONG n_mappers;     /* number of mappers */
-  pthread_t* thread_mappers; /* mapper thoreads */
+  Threads thread_mappers; /* mapper threads */
+  Threads thread_reducers; /* reducer threads */
 
   List keys; /* List<ULLONG> Deciphered (?) keys from mapper - will be fed into a reducer */
 

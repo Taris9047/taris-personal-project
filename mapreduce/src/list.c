@@ -83,7 +83,7 @@ LNode list_node_init()
 int list_node_destroy(LNode l)
 {
   assert(l);
-  LNode tl;
+  LNode tl = NULL;
   while (l) {
     tl = l;
     l = l->next;
@@ -97,7 +97,7 @@ int list_node_destroy(LNode l)
 int list_node_destroy_hard(LNode l, int (*destroyer) () )
 {
   assert(l);
-  LNode tl;
+  LNode tl = NULL;
   while (l) {
     tl = l;
     l = l->next;
@@ -123,7 +123,6 @@ int LPush(List l, list_data_t value)
 list_data_t LPop(List l)
 {
   assert(l);
-  LNode tmp = NULL;
   list_data_t ret_val;
   if (!l->root_node) return NULL;
   else {
@@ -204,7 +203,9 @@ int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () )
   assert(l);
   assert(ind < l->len);
 
-  LNode prev_tmp, next_tmp, tmp = l->root_node;
+  LNode prev_tmp = NULL;
+  LNode next_tmp = NULL;
+  LNode tmp = l->root_node;
 
   unsigned long long i;
   for (i=0; i<=ind; ++i) {
@@ -282,7 +283,7 @@ list_data_t list_node_pop(LNode* l)
 {
   assert(*l);
 
-  list_data_t p_val;
+  list_data_t p_val = NULL;
   LNode tmp = (*l);
 
   /* Make sure l is the first node */
@@ -373,8 +374,30 @@ List AtoL(void* some_array[], unsigned long long arr_len)
   assert(some_array);
   List al = NewList();
   unsigned long long i;
-  for (i=arr_len; i!=0; --i) LPush(al, some_array[i-1]);
+  for (i=arr_len; i!=0; --i)
+    LPush(al, some_array[i-1]);
   return al;
+}
+
+/* Vice versa, list to array */
+list_data_t* LtoA(List l)
+{
+  assert(l);
+  unsigned long long i, a_sz = l->len;
+  LNode tmp = l->root_node;
+
+  list_data_t* ret_ary = \
+    (list_data_t*)malloc(sizeof(list_data_t)*a_sz);
+  assert(ret_ary);
+
+  i = 0;
+  while (tmp) {
+    ret_ary[i] = tmp->value;
+    tmp = tmp->next;
+    ++i;
+  }
+
+  return ret_ary;
 }
 
 /* Generates a new list with given indexes */

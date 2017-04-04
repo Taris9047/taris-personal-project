@@ -27,16 +27,21 @@ typedef struct _pixel_data {
 } pixel_data;
 typedef pixel_data* PixelData;
 /* Constructors and Destructors */
-PixelData NewPixelData(ULONG x, ULONG y, ULONG gs);
+PixelData NewPixelData(const ULONG x, const ULONG y, const ULONG gs);
 int DeletePixelData(PixelData pd);
 
 /* Dummy image data container */
 typedef struct _img_data {
   ULONG x_size;
   ULONG y_size;
-  char* label;
-  mapped_key_t ts;
+  char** label;
+  mapped_key_t* ts;
+
+  PixelData* pix_data;
+
   BTree pixel_data;
+  unsigned long long n_entries;
+
 } img_data;
 typedef img_data* ImgData;
 /* Constructors and Destructors */
@@ -61,9 +66,11 @@ int DeleteRDArgs(RDArgs rda);
   --> another pthread worker
 */
 void* reducer(void* args);
+// Single thread version --> works without pthread
+void* reducer_single(RDArgs args);
 
 /* Keygen for reducer */
-ULLONG pixel_keygen(ULONG a, ULONG b);
+ULLONG pixel_keygen(const ULONG a, const ULONG b);
 
 /* Img file writer */
 int ImgDataWriter(ImgData img_data, char* base_name);

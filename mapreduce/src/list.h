@@ -76,6 +76,8 @@ int LCpy(List l, const List o);
    if this list is freed by DeleteListHard!!
 */
 List AtoL(void* some_array[], unsigned long long arr_len);
+/* Vice versa, list to array */
+list_data_t* LtoA(List l);
 
 /* Generates a new list with given indexes */
 List LPart(

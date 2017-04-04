@@ -92,8 +92,7 @@ void destroy_mutexes()
 /* Argument bundle initializer */
 pth_args arg_bundle_init(pid_t pid, pth_arg_data_t data)
 {
-  pth_args pa = \
-    (pth_args)malloc(sizeof(pth_arg_bundle));
+  pth_args pa = (pth_args)malloc(sizeof(pth_arg_bundle));
   assert(pa);
 
   pa->pid = pid;
