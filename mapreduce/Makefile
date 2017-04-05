@@ -2,7 +2,7 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-CFLAGS=-ggdb3 -std=gnu11 $(WARNS)
+CFLAGS=-ggdb3 -std=gnu11 -pthreads $(WARNS)
 
 SRCDIR=src
 
@@ -63,11 +63,11 @@ endif
 
 all: $(TESTF_NAME) $(LIBNAME)
 
-$(LIBNAME): $(OBJS)
+$(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(AR) rcs $(CURR_DIR)/$(LIBNAMEV) $(OBJS)
 	ln -sfv $(CURR_DIR)/$(LIBNAMEV) $(CURR_DIR)/$(LIBNAME)
 
-$(DLIBNAME): $(OBJS)
+$(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -fPIC $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 

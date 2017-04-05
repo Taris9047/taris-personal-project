@@ -141,7 +141,7 @@ LNode LSearch(List l, list_data_t value)
 }
 
 /* Access the list with an array fashion */
-list_data_t LAt(List l, unsigned long long ind)
+list_data_t LAt(const List l, unsigned long long ind)
 {
   assert(l);
   assert(l->root_node);
@@ -344,7 +344,7 @@ int list_node_assign(LNode l, list_data_t* values, const unsigned long long valu
 /* Some more utils */
 
 /* Get length of list from control node */
-unsigned long long LLen(List l)
+unsigned long long LLen(const List l)
 {
   assert(l);
   return l->len;
@@ -369,7 +369,7 @@ int LCpy(List l, const List o)
 /* Warning!! the source array will be destroyed
    if this list is freed by DeleteListHard
 */
-List AtoL(void* some_array[], unsigned long long arr_len)
+List AtoL(list_data_t some_array[], const unsigned long long arr_len)
 {
   assert(some_array);
   List al = NewList();
@@ -380,7 +380,7 @@ List AtoL(void* some_array[], unsigned long long arr_len)
 }
 
 /* Vice versa, list to array */
-list_data_t* LtoA(List l)
+list_data_t* LtoA(const List l)
 {
   assert(l);
   unsigned long long i, a_sz = l->len;

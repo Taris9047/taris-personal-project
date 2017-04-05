@@ -47,7 +47,7 @@ TNumCtrl thread_num_assign(ULONG total_threads);
 
 /* Shuffler node struct */
 typedef struct _shuffler_node {
-  List frac_data; /* Dataset given to this shuffle node */
+  List frac_data; /* List<PObj>: Dataset given to this shuffle node */
   ULONG shfl_node_id; /* Unique ID of a shuffler (might scrap it and just use pid)*/
   BTreeList shuffler_map; /* Binary tree contains the whole list of shufflers */
 
@@ -55,9 +55,14 @@ typedef struct _shuffler_node {
   Threads thread_mappers; /* mapper threads */
   Threads thread_reducers; /* reducer threads */
 
-  List keys; /* List<ULLONG> Deciphered (?) keys from mapper - will be fed into a reducer */
+  Key* mapped_keys; /* Array of mapped keys */
+  List keys; /* List<Key> Deciphered (?) keys from mapper - will be fed into a reducer */
+  Dict KeyMap; /* Dict<Key>: Sort keys as map */
 
   char* assigned_key; /* Assigned key */
+
+  ULONG jobs; /* how many jobs? usually 1 */
+  ULONG** jobs_index; /* Index store for jobs */
 
   KeyManager k_man; /* Given by the Shuffler node (see key_shuffle_mapper.h) */
 
@@ -89,6 +94,9 @@ typedef struct _shuffler {
   BTreeList shuffler_map; /* map of shuffler nodes */
   TNumCtrl tc; /* Thread number controller */
   KeyManager k_man; /* key manager */
+
+  ShflNode* shfl_nodes;
+  Threads shfl_node_threads;
 	/* mutex */
 } shuffler;
 typedef shuffler* Shuffler;

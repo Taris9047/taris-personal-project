@@ -62,6 +62,7 @@ ImgData NewImgData(List key_list)
 
   img_data->label = \
     (char**)malloc(sizeof(char*)*img_data->n_entries);
+
   assert(img_data->label);
   for (i=0; i<img_data->n_entries; ++i) {
     //tmp_k = (Key)LAt(key_list, i);

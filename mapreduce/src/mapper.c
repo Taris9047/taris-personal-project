@@ -99,5 +99,6 @@ void* mapper(void* args)
 
   arg_bundle_delete(_args);
 
-  pthread_exit((void*)&my_pid);
+  //pthread_exit((void*)&my_pid);
+  return NULL;
 }
