@@ -75,13 +75,16 @@ MArgs NewMArgs(PObj po, pid_t master_pid)
 int DeleteMArgs(MArgs ma)
 {
   assert(ma);
+  ma->po = NULL;
+  ma->key = NULL;
+  ma->master_shuffler_pid = 0;
   free(ma);
   return 0;
 }
 
 
 /* mapper - a pthread worker */
-void* mapper(void* args)
+worker_ret_data_t mapper(void* args)
 {
   pth_args _args = (pth_args)args;
   MArgs margs = (MArgs)_args->data_set;
@@ -89,16 +92,12 @@ void* mapper(void* args)
 	assert(margs);
 
   pid_t my_pid = _args->pid;
-
   PObj po = margs->po;
-
   margs->key = NewKey(&po->ts, po);
 
-  printf("Mapper [%d] from Shuffler [%d] has been finished!!\n",
+  printf(
+    "Mapper [%d] from Shuffler [%d] has been finished!!\n",
     my_pid, margs->master_shuffler_pid);
 
-  arg_bundle_delete(_args);
-
-  //pthread_exit((void*)&my_pid);
-  return NULL;
+  pthread_exit(NULL);
 }

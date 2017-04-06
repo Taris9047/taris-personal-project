@@ -151,7 +151,9 @@ Threads NewThreads(
     pthread_mutex_init(thr->mutex, NULL);
 
   /* Status check pointer */
-  thr->status = NULL;
+  thr->status = \
+    (worker_ret_data_t*)calloc(thr->n_threads, sizeof(worker_ret_data_t));
+  assert(thr->status);
 
   return thr;
 }
@@ -162,26 +164,51 @@ int DeleteThreads(Threads thr)
   assert(thr);
 
   ULONG i;
-  if (thr->threads) {
-    if (thr->joinable) {
-      for (i=0; i<thr->n_threads; ++i)
-        pthread_join(thr->threads[i], &thr->status);
-    }
-    free(thr->threads);
+  if (thr->threads) free(thr->threads);
+
+  if (thr->thread_attrs) {
+    for (i=0; i<thr->n_threads; ++i)
+      pthread_attr_destroy(&thr->thread_attrs[i]);
+    free(thr->thread_attrs);
   }
 
-  if (thr->thread_attrs)
-    free(thr->thread_attrs);
+  if (thr->mutex) pthread_mutex_destroy(thr->mutex);
+  if (thr->status) free(thr->status);
 
-  if (thr->mutex)
-    pthread_mutex_destroy(thr->mutex);
+  free(thr);
+  return 0;
+}
+
+/* Destructor for workers that returns somewhat special datatype */
+int DeleteThreadsHard(Threads thr, int (*res_destroyer)())
+{
+  assert(thr);
+
+  ULONG i;
+  if (thr->threads) free(thr->threads);
+
+  if (thr->thread_attrs) {
+    for (i=0; i<thr->n_threads; ++i)
+      pthread_attr_destroy(&thr->thread_attrs[i]);
+    free(thr->thread_attrs);
+  }
+
+  if (thr->mutex) pthread_mutex_destroy(thr->mutex);
+
+  if (thr->status) {
+    if (res_destroyer) {
+      for (i=0; i<thr->n_threads; ++i)
+        res_destroyer(thr->status[i]);
+    }
+    free(thr->status);
+  }
 
   free(thr);
   return 0;
 }
 
 /* Run, stop, etc. control methods */
-int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
+int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[])
 {
   assert(thr);
 
@@ -191,12 +218,15 @@ int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
 
   pth_args* pth_args_ary = \
     (pth_args*)malloc(sizeof(pth_args)*thr->n_threads);
+  assert(pth_args_ary);
   for (i=0; i<thr->n_threads; ++i) {
-    if (worker_args)
+    if (worker_args) {
       pth_args_ary[i] = \
         arg_bundle_init(pth_handle_current_max_pid, worker_args[i]);
+      pth_args_ary[i]->rc = 0;
+    }
+    else pth_args_ary[i] = NULL;
     pth_handle_current_max_pid++;
-    pth_args_ary[i]->rc = 0;
   }
 
   for (i=0; i<thr->n_threads; ++i) {
@@ -217,7 +247,7 @@ int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
   /* Join threads if thr->joinable is true */
   if (thr->joinable) {
     for (i=0; i<thr->n_threads; ++i) {
-      rc = pthread_join(thr->threads[i], &thr->status);
+      rc = pthread_join(thr->threads[i], &thr->status[i]);
       if (rc) {
         fprintf(stderr, "RunThreads Thread join Error!! return code: %d\n", rc);
         exit(-1);
@@ -227,9 +257,17 @@ int RunThreads(Threads thr, void* (*worker)(), void* worker_args[])
 
   /* Clean up the pth_args_ary */
   for (i=0; i<thr->n_threads; ++i)
-    if (worker_args)
-      arg_bundle_delete(pth_args_ary[i]);
+    if (worker_args) arg_bundle_delete(pth_args_ary[i]);
   pth_handle_current_max_pid -= thr->n_threads;
 
+  free(pth_args_ary);
+
   return rc;
+}
+
+/* Return results */
+worker_ret_data_t* ReturnResults(Threads thr)
+{
+  assert(thr);
+  return thr->status;
 }

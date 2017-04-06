@@ -51,13 +51,14 @@ int arg_bundle_delete(pth_args pa);
 
 
 /* Multiple thread handling */
+typedef void* worker_ret_data_t;
 typedef struct _multiple_threads {
   ULONG n_threads;
   pthread_t* threads;
   pthread_attr_t* thread_attrs;
   bool joinable;
   pthread_mutex_t* mutex;
-  void* status; /* kinda not needed but who know? */
+  worker_ret_data_t* status;
 } multiple_threads;
 typedef multiple_threads* Threads;
 /* Constructors and Destructors */
@@ -66,8 +67,10 @@ Threads NewThreads(
   bool b_joinable,
   pthread_mutex_t* n_mutex);
 int DeleteThreads(Threads thr);
+int DeleteThreadsHard(Threads thr, int (*res_destroyer)());
 /* Run, stop, etc. control methods */
-int RunThreads(Threads thr, void* (*worker)(), void* worker_args[]);
-
+int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[]);
+/* Return results */
+worker_ret_data_t* ReturnResults(Threads thr);
 
 #endif /* Include guard */

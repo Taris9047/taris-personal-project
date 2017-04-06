@@ -35,7 +35,7 @@ BTreeList NewBTreeList()
 int DeleteBTreeList(BTreeList btl)
 {
   assert(btl);
-  DeleteBTreeHard(btl->data_tree, DeleteList);
+  DeleteBTreeHard(btl->data_tree, &DeleteList);
   DeleteBTreeHard(btl->element_num_tree, NULL);
   btl->n_lists = 0;
   btl->n_elements = 0;

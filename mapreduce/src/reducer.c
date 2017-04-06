@@ -48,84 +48,70 @@ ImgData NewImgData(List key_list)
   assert(key_list);
 
   PObj tmp_po = NULL;
-  //Key tmp_k = NULL;
   PixelData max_pix_data = NULL;
   ULLONG i;
+  BTree pix_data_tree = NewBTree();
 
-  ImgData img_data = (ImgData)malloc(sizeof(img_data));
-  assert(img_data);
+  ImgData n_img_data = (ImgData)malloc(sizeof(img_data));
+  assert(n_img_data);
 
-  img_data->n_entries = LLen(key_list);
+  n_img_data->n_entries = LLen(key_list);
   Key* key_ary = (Key*)LtoA(key_list);
 
-  img_data->pixel_data = NewBTree();
+  n_img_data->label = (char**)malloc(sizeof(char*)*n_img_data->n_entries);
+  assert(n_img_data->label);
 
-  img_data->label = \
-    (char**)malloc(sizeof(char*)*img_data->n_entries);
-
-  assert(img_data->label);
-  for (i=0; i<img_data->n_entries; ++i) {
-    //tmp_k = (Key)LAt(key_list, i);
-    //tmp_po = tmp_k->point_data;
-    tmp_po = key_ary[i]->point_data;
-    img_data->label[i] = \
-      (char*)malloc(sizeof(char)*(strlen(tmp_po->label)+1));
-    assert(img_data->label[i]);
-    //img_data->label[i] = strdup(tmp_po->label);
-    strcpy(img_data->label[i], tmp_po->label);
-  }
-
-  img_data->ts = \
+  n_img_data->ts = \
     (mapped_key_t*)malloc(
-      sizeof(mapped_key_t)*img_data->n_entries);
-  assert(img_data->ts);
-  for (i=0; i<img_data->n_entries; ++i) {
-    // tmp_k = (Key)LAt(key_list, i);
-    // tmp_po = tmp_k->point_data;
-    tmp_po = key_ary[i]->point_data;
-    img_data->ts[i] = tmp_po->ts;
-  }
+      sizeof(mapped_key_t)*n_img_data->n_entries);
+  assert(n_img_data->ts);
 
-  img_data->pix_data = \
+  n_img_data->pix_data = \
     (PixelData*)malloc(
-      sizeof(PixelData)*img_data->n_entries);
-  assert(img_data->pix_data);
-  for (i=0; i<img_data->n_entries; ++i) {
-    // tmp_k = (Key)LAt(key_list, i);
-    // tmp_po = tmp_k->point_data;
+      sizeof(PixelData)*n_img_data->n_entries);
+  assert(n_img_data->pix_data);
+
+  for (i=0; i<n_img_data->n_entries; ++i) {
     tmp_po = key_ary[i]->point_data;
-    img_data->pix_data[i] = \
-      NewPixelData(tmp_po->x, tmp_po->y, tmp_po->gs);
-    BTInsert(
-      img_data->pixel_data,
-      img_data->pix_data[i],
+    n_img_data->label[i] = \
+      (char*)malloc(sizeof(char)*(strlen(tmp_po->label)+1));
+    assert(n_img_data->label[i]);
+    strcpy(n_img_data->label[i], tmp_po->label);
+
+    n_img_data->ts[i] = key_ary[i]->point_data->ts;
+
+    n_img_data->pix_data[i] = NewPixelData(tmp_po->x, tmp_po->y, tmp_po->gs);
+    BTInsert(pix_data_tree, n_img_data->pix_data[i],
       pixel_keygen(tmp_po->x, tmp_po->y) );
   }
 
-  max_pix_data = (PixelData)BTGetMax(img_data->pixel_data);
-  img_data->x_size = max_pix_data->x+1;
-  img_data->y_size = max_pix_data->y+1;
+  max_pix_data = (PixelData)BTGetMax(pix_data_tree);
+  n_img_data->x_size = max_pix_data->x+1;
+  n_img_data->y_size = max_pix_data->y+1;
 
-  return img_data;
+  DeleteBTree(pix_data_tree);
+  free(key_ary);
+
+  return n_img_data;
 }
 
-int DeleteImgData(ImgData img_data)
+int DeleteImgData(ImgData n_img_data)
 {
-  assert(img_data);
+  assert(n_img_data);
 
-  ULONG i, j;
+  ULONG i;
 
-  free(img_data->label);
+  if (n_img_data->ts) free(n_img_data->ts);
 
-  PixelData tmp;
-  for (i=0; i<img_data->x_size; ++i) {
-    for (j=0; j<img_data->y_size; ++i) {
-      tmp = (PixelData)BTSearch(img_data->pixel_data, pixel_keygen(i, j));
-      DeletePixelData(tmp);
-    }
-  }
+  for (i=0; i<n_img_data->n_entries; ++i)
+    free(n_img_data->label[i]);
+  free(n_img_data->label);
 
-  DeleteBTree(img_data->pixel_data);
+  for (i=0; i<n_img_data->n_entries; ++i)
+    DeletePixelData(n_img_data->pix_data[i]);
+  free(n_img_data->pix_data);
+
+  free(n_img_data);
 
   return 0;
 }
@@ -146,6 +132,10 @@ RDArgs NewRDArgs(List k)
 int DeleteRDArgs(RDArgs rda)
 {
   assert(rda);
+
+  //if (rda->keys) DeleteList(rda->keys);
+  //if (rda->image_data) DeleteImgData(rda->image_data);
+
   free(rda);
   return 0;
 }
@@ -153,28 +143,21 @@ int DeleteRDArgs(RDArgs rda)
 /***********************************************
  Reducer itself - another pthread worker
 ************************************************/
-void* reducer(void* args)
+worker_ret_data_t reducer(void* args)
 {
+  assert(args);
   pth_args _args = (pth_args)args;
   RDArgs rd_data_set = (RDArgs)_args->data_set;
   pid_t my_pid = _args->pid;
-
-  ImgData i_data = NewImgData(rd_data_set->keys);
-  rd_data_set->image_data = i_data;
-
-  arg_bundle_delete(_args);
-
-  pthread_exit((void*)&my_pid);
-
-  return NULL;
+  rd_data_set->image_data = NewImgData(rd_data_set->keys);
+  pthread_exit(NULL);
 }
 
 // Single thread version --> works without pthread
-void* reducer_single(RDArgs args)
+worker_ret_data_t reducer_single(RDArgs args)
 {
-  ImgData i_data = NewImgData(args->keys);
-  args->image_data = i_data;
-
+  assert(args);
+  args->image_data = NewImgData(args->keys);
   return NULL;
 }
 

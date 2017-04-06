@@ -80,7 +80,7 @@ int delete_shfl_node(ShflNode shfl_node);
 
 
 /* shuffling job at the node - pthread worker */
-void* do_shuffle(void* args);
+worker_ret_data_t do_shuffle(void* args);
 
 /* List containing keys to Hash key map (Sort by timestamp) */
 Dict make_key_hash(List k_list);
@@ -97,6 +97,8 @@ typedef struct _shuffler {
 
   ShflNode* shfl_nodes;
   Threads shfl_node_threads;
+
+  ULONG n_shuffler_nodes;
 	/* mutex */
 } shuffler;
 typedef shuffler* Shuffler;

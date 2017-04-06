@@ -39,14 +39,12 @@ typedef struct _img_data {
 
   PixelData* pix_data;
 
-  BTree pixel_data;
-  unsigned long long n_entries;
-
+  ULLONG n_entries;
 } img_data;
 typedef img_data* ImgData;
 /* Constructors and Destructors */
 ImgData NewImgData(List k);
-int DeleteImgData(ImgData img_data);
+int DeleteImgData(ImgData n_img_data);
 
 
 /* Reducer args struct */
@@ -65,12 +63,12 @@ int DeleteRDArgs(RDArgs rda);
   list of keys
   --> another pthread worker
 */
-void* reducer(void* args);
+worker_ret_data_t reducer(void* args);
 // Single thread version --> works without pthread
-void* reducer_single(RDArgs args);
+worker_ret_data_t reducer_single(RDArgs args);
 
 /* Keygen for reducer */
-ULLONG pixel_keygen(const ULONG a, const ULONG b);
+mapped_key_t pixel_keygen(const ULONG a, const ULONG b);
 
 /* Img file writer */
 int ImgDataWriter(ImgData img_data, char* base_name);

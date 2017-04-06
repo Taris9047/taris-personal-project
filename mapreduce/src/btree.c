@@ -97,8 +97,8 @@ btree_data_t BTSearch(BTree bt, btree_key_t key)
   if (!bt->root_node) return NULL;
 
   BTNode bt_n = bt_search(bt->root_node, key);
-
-  return bt_n->stuff;
+  if (!bt_n) return NULL;
+  else return bt_n->stuff;
 }
 btree_data_t BTGetMax(BTree bt)
 {
@@ -111,7 +111,7 @@ btree_data_t BTGetMax(BTree bt)
     bt_tmp = bt_tmp->right;
   }
 
-  return bt_tmp;
+  return bt_tmp->stuff;
 }
 btree_data_t BTGetMin(BTree bt)
 {
@@ -124,7 +124,7 @@ btree_data_t BTGetMin(BTree bt)
     bt_tmp = bt_tmp->left;
   }
 
-  return bt_tmp;
+  return bt_tmp->stuff;
 }
 
 unsigned long long BTNodes(BTree bt)
@@ -163,6 +163,8 @@ BTNode bt_node_init_data(btree_data_t data)
 /* Destructor */
 void bt_node_free(BTNode b)
 {
+  if (!b) return;
+
   if (b->left) bt_node_free(b->left);
   if (b->right) bt_node_free(b->right);
 
@@ -173,6 +175,8 @@ void bt_node_destroy(BTNode b) { bt_node_free(b); }
 /* Hard destruction... with data ... */
 void bt_node_destroy_hard(BTNode b, int (*destroyer)() )
 {
+  if (!b) return;
+
   if (b->left) bt_node_destroy_hard(b->left, destroyer);
   if (b->right) bt_node_destroy_hard(b->left, destroyer);
 
@@ -185,6 +189,8 @@ void bt_node_destroy_hard(BTNode b, int (*destroyer)() )
 /* Returns number of elements in the node */
 unsigned long bt_len(BTNode b)
 {
+  assert(b);
+
   unsigned long cnt = 0;
   if (b->stuff) cnt++;
 
@@ -199,6 +205,8 @@ unsigned long bt_len(BTNode b)
 /* Returns depth of a tree */
 unsigned long bt_depth(BTNode b)
 {
+  assert(b);
+
   unsigned long cnt = b->depth;
   if (!b->left && !b->right)
     return cnt;
@@ -217,6 +225,8 @@ unsigned long bt_depth(BTNode b)
 /* Insert and remove elements */
 int bt_insert(BTNode b, btree_data_t vpStuff, btree_key_t key)
 {
+  assert(b);
+
   /* If given key is same as root,
      just update root and be done with it. */
   if (key == b->key) {
@@ -240,6 +250,8 @@ int bt_insert(BTNode b, btree_data_t vpStuff, btree_key_t key)
 
 int bt_remove(BTNode b, btree_data_t vpStuff, btree_key_t key)
 {
+  assert(b);
+
   BTNode found_node = bt_search(b, key);
 
   if (!found_node->left && !found_node->right) {
@@ -267,6 +279,7 @@ int bt_remove(BTNode b, btree_data_t vpStuff, btree_key_t key)
 
 int bt_setitem(BTNode b, btree_data_t vpStuff, btree_key_t key)
 {
+  assert(b);
   bt_search(b, key)->stuff = vpStuff;
   return 0;
 }
@@ -275,6 +288,7 @@ int bt_setitem(BTNode b, btree_data_t vpStuff, btree_key_t key)
 /* Uses recursive algorithm.. */
 BTNode bt_search(BTNode b, btree_key_t key)
 {
+  assert(b);
   if (!b) return NULL;
 
   if (key == b->key)
