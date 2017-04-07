@@ -294,10 +294,14 @@ BTNode bt_search(BTNode b, btree_key_t key)
   if (key == b->key)
     return b;
 
-  if (key < b->key)
-    return bt_search(b->left, key);
-  else
-    return bt_search(b->right, key);
+  if (key < b->key) {
+    if (b->left) return bt_search(b->left, key);
+    else return NULL;
+  }
+  else {
+    if (b->right) return bt_search(b->right, key);
+    else return NULL;
+  }
 }
 
 /* Some static functions (mostly misc. utils) */

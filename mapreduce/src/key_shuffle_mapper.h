@@ -39,8 +39,7 @@ int DeleteKeyManager(KeyManager k_m);
 /* Methods */
 List KManGetShflNode(KeyManager kl_m, Key k);
 int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
-int KManAcceptKeysFromShflNode(
-  KeyManager kl_m, ShflNode shfl_node, Dict key_map);
+int KManAcceptKeysFromShflNode(ShflNode shfl_node);
 
 
 

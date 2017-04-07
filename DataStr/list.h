@@ -52,7 +52,7 @@ int list_node_destroy_hard(LNode l, int (*destroyer) () );
 int LPush(List l, list_data_t value);
 list_data_t LPop(List l);
 LNode LSearch(List l, list_data_t value);
-list_data_t LAt(List l, unsigned long long ind);
+list_data_t LAt(const List l, unsigned long long ind);
 unsigned long long LIndex(List l, list_data_t value);
 
 /* Remove a node */
@@ -69,13 +69,15 @@ LNode list_node_search(LNode l, list_data_t value);
 int list_node_assign(LNode l, list_data_t* values, const unsigned long long values_len);
 
 /* Some more utils */
-unsigned long long LLen(List l);
+unsigned long long LLen(const List l);
 int LCpy(List l, const List o);
 /* converts some array to List
    Warning!! the source array will be destroyed
    if this list is freed by DeleteListHard!!
 */
-List AtoL(void* some_array[], unsigned long long arr_len);
+List AtoL(list_data_t some_array[], const unsigned long long arr_len);
+/* Vice versa, list to array */
+list_data_t* LtoA(const List l);
 
 /* Generates a new list with given indexes */
 List LPart(

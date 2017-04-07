@@ -22,18 +22,6 @@
 
 #include "utils.h"
 
-/* Mutex */
-pthread_mutex_t main_mutex; /* regular mutex */
-pthread_mutex_t* mutexes; /* if you need multiple mutex, use this */
-static long num_mutex = 0;
-
-/* Mutex handling */
-void init_mutex();
-void init_mutexes(long num);
-void destroy_mutex();
-void destroy_mutexes();
-
-
 /* Worker argument handling */
 /* Argument bundle */
 typedef void* pth_arg_data_t;

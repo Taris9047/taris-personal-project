@@ -83,7 +83,7 @@ LNode list_node_init()
 int list_node_destroy(LNode l)
 {
   assert(l);
-  LNode tl;
+  LNode tl = NULL;
   while (l) {
     tl = l;
     l = l->next;
@@ -97,7 +97,7 @@ int list_node_destroy(LNode l)
 int list_node_destroy_hard(LNode l, int (*destroyer) () )
 {
   assert(l);
-  LNode tl;
+  LNode tl = NULL;
   while (l) {
     tl = l;
     l = l->next;
@@ -123,10 +123,12 @@ int LPush(List l, list_data_t value)
 list_data_t LPop(List l)
 {
   assert(l);
+  list_data_t ret_val;
   if (!l->root_node) return NULL;
   else {
-    (l->len)--;
-    return list_node_pop(&l->root_node);
+    ret_val = list_node_pop(&l->root_node);
+    l->len--;
+    return ret_val;
   }
 }
 
@@ -139,7 +141,7 @@ LNode LSearch(List l, list_data_t value)
 }
 
 /* Access the list with an array fashion */
-list_data_t LAt(List l, unsigned long long ind)
+list_data_t LAt(const List l, unsigned long long ind)
 {
   assert(l);
   assert(l->root_node);
@@ -201,7 +203,9 @@ int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () )
   assert(l);
   assert(ind < l->len);
 
-  LNode prev_tmp, next_tmp, tmp = l->root_node;
+  LNode prev_tmp = NULL;
+  LNode next_tmp = NULL;
+  LNode tmp = l->root_node;
 
   unsigned long long i;
   for (i=0; i<=ind; ++i) {
@@ -254,10 +258,9 @@ int LReverse(List l)
 int list_node_push(LNode* l, list_data_t value)
 {
   assert(*l);
-  assert(value);
 
   /* Make sure l is the first node */
-  if ((*l)->prev) list_node_find_root(l);
+  if ((*l)->prev) list_node_find_root(&(*l));
 
   /* If the first node is empty, no need to make another node */
   if (list_node_isempty(*l)) {
@@ -280,20 +283,22 @@ list_data_t list_node_pop(LNode* l)
 {
   assert(*l);
 
-  list_data_t p_val;
+  list_data_t p_val = NULL;
   LNode tmp = (*l);
 
   /* Make sure l is the first node */
-  if (tmp->prev) list_node_find_root(l);
+  if (tmp->prev) list_node_find_root(&(*l));
 
   /* If the list is empty just return NULL */
   if (list_node_isempty(tmp)) return NULL;
 
   p_val = tmp->value;
 
-  /* If the list is a single node, pop the value only */
+  /* If the list is a single node, destroy it and pop the value only */
   if (!tmp->next) {
     tmp->value = NULL;
+    list_node_destroy(tmp);
+    (*l) = NULL;
     return p_val;
   }
 
@@ -339,7 +344,7 @@ int list_node_assign(LNode l, list_data_t* values, const unsigned long long valu
 /* Some more utils */
 
 /* Get length of list from control node */
-unsigned long long LLen(List l)
+unsigned long long LLen(const List l)
 {
   assert(l);
   return l->len;
@@ -364,13 +369,35 @@ int LCpy(List l, const List o)
 /* Warning!! the source array will be destroyed
    if this list is freed by DeleteListHard
 */
-List AtoL(void* some_array[], unsigned long long arr_len)
+List AtoL(list_data_t some_array[], const unsigned long long arr_len)
 {
   assert(some_array);
   List al = NewList();
   unsigned long long i;
-  for (i=arr_len; i!=0; --i) LPush(al, some_array[i-1]);
+  for (i=arr_len; i!=0; --i)
+    LPush(al, some_array[i-1]);
   return al;
+}
+
+/* Vice versa, list to array */
+list_data_t* LtoA(const List l)
+{
+  assert(l);
+  unsigned long long i, a_sz = l->len;
+  LNode tmp = l->root_node;
+
+  list_data_t* ret_ary = \
+    (list_data_t*)malloc(sizeof(list_data_t)*a_sz);
+  assert(ret_ary);
+
+  i = 0;
+  while (tmp) {
+    ret_ary[i] = tmp->value;
+    tmp = tmp->next;
+    ++i;
+  }
+
+  return ret_ary;
 }
 
 /* Generates a new list with given indexes */
@@ -420,7 +447,7 @@ List LPartRng(
 /* Get length of list */
 unsigned long long list_node_len(LNode l)
 {
-  assert(l);
+  if (!l) return 0;
 
   unsigned long long i = 1;
   while (l->next) {

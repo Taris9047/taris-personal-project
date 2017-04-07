@@ -66,6 +66,8 @@ typedef struct _shuffler_node {
 
   KeyManager k_man; /* Given by the Shuffler node (see key_shuffle_mapper.h) */
 
+  pthread_mutex_t* master_mutex;
+
 } shuffler_node;
 typedef shuffler_node* ShflNode;
 
@@ -75,6 +77,7 @@ ShflNode new_shfl_node(
   ULONG num_mappers,
   BTreeList shuffle_map,
   KeyManager n_k_man,
+  pthread_mutex_t* mtx,
   ULONG id);
 int delete_shfl_node(ShflNode shfl_node);
 
@@ -86,7 +89,7 @@ worker_ret_data_t do_shuffle(void* args);
 Dict make_key_hash(List k_list);
 
 /* Passing and receiving keys with other shufflers */
-int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx);
+int pr_other_keys(ShflNode shfl_node);
 
 /* Shuffler control node */
 typedef struct _shuffler {
@@ -100,6 +103,7 @@ typedef struct _shuffler {
 
   ULONG n_shuffler_nodes;
 	/* mutex */
+  pthread_mutex_t mutex;
 } shuffler;
 typedef shuffler* Shuffler;
 

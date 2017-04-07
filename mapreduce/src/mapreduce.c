@@ -103,6 +103,7 @@ ShflNode new_shfl_node(
   ULONG num_mappers,
   BTreeList shuffle_map,
   KeyManager n_k_man,
+  pthread_mutex_t* mtx,
   ULONG id)
 {
   assert(frac_main_data);
@@ -145,6 +146,9 @@ ShflNode new_shfl_node(
   /* Assigned key type... as string. default: NULL */
   shn->assigned_key = NULL;
 
+  /* Initialize mutex */
+  shn->master_mutex = mtx;
+
   return shn;
 }
 
@@ -174,6 +178,7 @@ int delete_shfl_node(ShflNode shfl_node)
   free(shfl_node);
 
   /* shfl_node->k_man will be deleted by Shuffler, not here */
+  /* shfl_node->master_mutex will also be deleted by shuffler, not there */
 
   return 0;
 }
@@ -253,19 +258,6 @@ worker_ret_data_t do_shuffle(void* args)
 
   printf("Shuffler [%lu], Mapping has been finished...\n", shfl_node->shfl_node_id);
 
-  /* Now "key_list" has all the keys we've read out */
-  /* if this is the ONLY shuffler node.. just finish with reduction job */
-  RDArgs reducer_arg = NULL;
-  if (BTreeElements(shfl_node->shuffler_map) == 1) {
-    reducer_arg = NewRDArgs(shfl_node->keys);
-    reducer_single(reducer_arg);
-    printf("Shuffler [%lu], Collected image data...\n", shfl_node->shfl_node_id);
-    /* TODO: Let's just remove ImgData for now... */
-    DeleteImgData(reducer_arg->image_data);
-    DeleteRDArgs(reducer_arg);
-    return NULL;
-  }
-
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
   printf("Shuffler [%lu], Processing keymap..\n", shfl_node->shfl_node_id);
   shfl_node->KeyMap = make_key_hash(shfl_node->keys);
@@ -273,11 +265,11 @@ worker_ret_data_t do_shuffle(void* args)
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
   if (!shfl_node->assigned_key)
-    KManAcceptKeysFromShflNode(shfl_node->k_man, shfl_node, shfl_node->KeyMap);
+    KManAcceptKeysFromShflNode(shfl_node);
 
   /* Let's communicate with other shuffler nodes */
   /* At this moment, let's just use a single mutex: main_mutex */
-  pr_other_keys(shfl_node, &main_mutex);
+  pr_other_keys(shfl_node);
 
   /*
     After shuffling, KeyMap must have only one key.
@@ -290,30 +282,20 @@ worker_ret_data_t do_shuffle(void* args)
   printf(
     "Shuffler [%lu] is starting reducer job... a.k.a writng to file.\n",
     shfl_node->shfl_node_id);
-  /* We are just using one reducer per shuffler at this moment but who knows? */
-  ULONG reducer_per_shuffler = 1;
-  RDArgs* reducer_args = (RDArgs*)malloc(sizeof(RDArgs)*reducer_per_shuffler);
-  for (i=0; i<reducer_per_shuffler; ++i)
-    reducer_args[i] = NewRDArgs(shfl_node->keys);
-  /* Let's run threaded reducer job */
-  shfl_node->thread_reducers = NewThreads(reducer_per_shuffler, true, NULL);
-  RunThreads(shfl_node->thread_reducers, reducer, (void**)reducer_args);
+  /* We are just using one reducer per shuffler at this moment. */
 
-  /* Then clean up reducer jobs */
-  for (i=0; i<reducer_per_shuffler; ++i)
-    DeleteRDArgs(reducer_args[i]);
-  free(reducer_args);
-  DeleteThreads(shfl_node->thread_reducers);
+  /* Lets call reducer after finishing up everything key exchange */
+  RDArgs reducer_arg = NewRDArgs(shfl_node->keys);
+  reducer_single(reducer_arg);
+  printf("Shuffler [%lu], Collected image data...\n", shfl_node->shfl_node_id);
+  /* We're just removing data... for now... */
+  DeleteImgData(reducer_arg->image_data);
+  DeleteRDArgs(reducer_arg);
 
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
-  // for (i=0; i<jobs; ++i) free(jobs_index[i]);
-  // free(jobs_index);
-
   DeleteDict(shfl_node->KeyMap);
 
-  /* Reset assigned key before closing this work */
-  shfl_node->assigned_key = NULL;
   return NULL;
 }
 
@@ -343,13 +325,14 @@ Dict make_key_hash(List k_list)
 }
 
 /* Passing and receiving keys with other shufflers */
-int pr_other_keys(ShflNode shfl_node, pthread_mutex_t* mtx)
+int pr_other_keys(ShflNode shfl_node)
 {
   assert(shfl_node);
 
   BTreeList key_map = shfl_node->shuffler_map;
   List given_keys = shfl_node->keys;
   const char* assigned_key = shfl_node->assigned_key;
+  pthread_mutex_t* mtx = shfl_node->master_mutex;
   ULLONG n_assigned_key = atoi(assigned_key);
   ULLONG n_keys = LLen(given_keys);
   ULLONG i, k;
@@ -430,6 +413,7 @@ Shuffler NewShuffler(
   shfl->tc = thread_num_assign(total_threads);
   shfl->k_man = NULL;
   shfl->n_shuffler_nodes = LLen(shfl->main_data);
+  //shfl->mutex = NULL;
 
   return shfl;
 }
@@ -457,6 +441,9 @@ int DeleteShuffler(Shuffler shfl)
       delete_shfl_node(shfl->shfl_nodes[i]);
     free(shfl->shfl_nodes);
   }
+
+  // if (shfl->mutex)
+  //   pthread_mutex_destroy(shfl->mutex);
 
   /* Free the controller */
   free(shfl->tc);
@@ -532,6 +519,7 @@ int Shuffle(Shuffler shfl)
           shfl->tc->mappers_per_shuffler,
           shfl->shuffler_map,
           shfl->k_man,
+          &shfl->mutex,
           j+i);
     } /* for (i=0; i<curr_run_len; ++i) */
 
@@ -540,7 +528,8 @@ int Shuffle(Shuffler shfl)
     //init_mutex(); /* Initializes main_mutex --> just use this */
 
     /* prepare threads */
-    shfl->shfl_node_threads = NewThreads(n_curr_shufflers, true, &main_mutex);
+    shfl->shfl_node_threads = \
+      NewThreads(n_curr_shufflers, true, &shfl->mutex);
     /* Let's run shuffling !! */
     RunThreads(shfl->shfl_node_threads, do_shuffle, (void**)shfl->shfl_nodes);
     DeleteThreads(shfl->shfl_node_threads);

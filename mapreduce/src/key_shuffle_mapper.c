@@ -126,11 +126,8 @@ int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node)
     ...
   }
 */
-int KManAcceptKeysFromShflNode(
-  KeyManager kl_m, ShflNode shfl_node, Dict key_map)
+int KManAcceptKeysFromShflNode(ShflNode shfl_node)
 {
-  assert(kl_m);
-  assert(key_map);
   assert(shfl_node);
 
   char** shfl_key_str_array;
@@ -140,8 +137,8 @@ int KManAcceptKeysFromShflNode(
   if (shfl_node->assigned_key) return SHFL_HAS_ASSIGNED_KEY;
 
   /* If manager's database is empty? */
-  KeyDictStats kds = NewKeyDictStats(key_map);
-  kl_m->n_keys = kds->n_keys;
+  KeyDictStats kds = NewKeyDictStats(shfl_node->KeyMap);
+  shfl_node->k_man->n_keys = kds->n_keys;
 
   /*
     Key assignment priorities.
@@ -150,18 +147,22 @@ int KManAcceptKeysFromShflNode(
     3. If all taken, take lease found one (KDS needs min function)
     --> We have the same amount of data from any timestamp.
         So, just place most unpopular one first.
+
+    Blame and remarks
+    --> What if we have all the different keys? (Nothing is popular?)
+    --> What if we only have ONE shuffler?
   */
 
   /* 1. Look for most common keys */
   shfl_key_str_array = KDSGetSortedNumKey(kds);
   List sfl_tmp; /* Temporary List<ShflNode> */
-  for (i=kl_m->n_keys; i; --i) {
+  for (i=shfl_node->k_man->n_keys; i!=0; --i) {
     /* , search the tree if the most common key exists */
     sfl_tmp = \
       BTLSearch(
-        shfl_node->shuffler_map, atoi(shfl_key_str_array[i]));
+        shfl_node->shuffler_map, atoi(shfl_key_str_array[i-1]));
     if (!LLen(sfl_tmp)) {
-      shfl_node->assigned_key = shfl_key_str_array[i];
+      shfl_node->assigned_key = shfl_key_str_array[i-1];
     }
   }
   /* If we couldn't find suitable node yet, just assign most unpopular node */
@@ -169,8 +170,11 @@ int KManAcceptKeysFromShflNode(
     shfl_node->assigned_key = shfl_key_str_array[0];
 
   /* update the Dict key_map and shfl_node */
-  LPush((List)DGet(key_map, shfl_node->assigned_key), shfl_node->assigned_key);
-  BTLInsert(shfl_node->shuffler_map, shfl_node, (btree_key_t)atoi(shfl_node->assigned_key));
+  LPush(
+    (List)DGet(shfl_node->KeyMap, shfl_node->assigned_key),
+    shfl_node->assigned_key);
+  BTLInsert(
+    shfl_node->shuffler_map, shfl_node, (btree_key_t)atoi(shfl_node->assigned_key));
 
   DeleteKeyDictStats(kds);
 
@@ -190,6 +194,7 @@ int KManAcceptKeysFromShflNode(
  Key Dict statistics - Static stuffs
 ************************************************/
 /* Convert source dict to tuple list (List<Tuple>) */
+/* Tuple structure: (string key, how many ShflNodes with the key) */
 static List key_convert_dict(Dict d)
 {
   assert(d);
@@ -198,14 +203,13 @@ static List key_convert_dict(Dict d)
   Tuple tmp_tuple = NULL;
 
   ULLONG i, dict_size = d->size;
-  List dict_str_array = d->key_str;
-  ULLONG* t_ull;
+  ULLONG *tmp_k_len;
   for (i=0; i<dict_size; ++i) {
     tmp_tuple = NewTuple(2);
-    TSet(tmp_tuple, 0, (char*)LAt(dict_str_array, i));
-    t_ull = (ULLONG*)malloc(sizeof(ULLONG));
-    (*t_ull) = LLen( (List)DGet(d, (List)LAt(dict_str_array, i) ));
-    TSet(tmp_tuple, 1, t_ull);
+    TSet(tmp_tuple, 0, (char*)LAt(d->key_str, i));
+    tmp_k_len = (ULLONG*)malloc(sizeof(ULLONG));
+    (*tmp_k_len) = LLen((List)DGet(d, (char*)LAt(d->key_str, i)));
+    TSet( tmp_tuple, 1, tmp_k_len);
     LPush(tup_list, tmp_tuple);
   }
 
@@ -213,6 +217,7 @@ static List key_convert_dict(Dict d)
 }
 
 /* Convert source dict to tuple list of (List<List<ShflNode>>) */
+/* Tuple structure: (string key, List<List<ShflNode>> ) */
 static List shfl_convert_dict(Dict d)
 {
   assert(d);
@@ -221,14 +226,11 @@ static List shfl_convert_dict(Dict d)
   Tuple tmp_tuple = NULL;
 
   ULLONG i, dict_size = d->size;
-  List dict_str_array = d->key_str;
-  List* t_list;
+  List* t_list = (List*)malloc(sizeof(List)*dict_size);
   for (i=0; i<dict_size; ++i) {
     tmp_tuple = NewTuple(2);
-    TSet(tmp_tuple, 0, (char*)LAt(dict_str_array, i));
-    t_list = (List*)malloc(sizeof(List));
-    (*t_list) = (List)DGet( d, (List)LAt(dict_str_array, i) );
-    TSet(tmp_tuple, 1, t_list);
+    TSet(tmp_tuple, 0, (char*)LAt(d->key_str, i));
+    TSet(tmp_tuple, 1, (List)DGet(d, (char*)LAt(d->key_str, i)));
     LPush(tup_list, tmp_tuple);
   }
 
@@ -240,8 +242,8 @@ static int comp_tuple(const void* elem1, const void* elem2)
 {
   Tuple a = (Tuple)elem1;
   Tuple b = (Tuple)elem2;
-  if (a->data[0] > b->data[0]) return 1;
-  if (a->data[0] < b->data[0]) return -1;
+  if (atoi(a->data[0]) > atoi(b->data[0])) return 1;
+  if (atoi(a->data[0]) < atoi(b->data[0])) return -1;
   return 0;
 }
 

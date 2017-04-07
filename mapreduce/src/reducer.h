@@ -64,11 +64,14 @@ int DeleteRDArgs(RDArgs rda);
   --> another pthread worker
 */
 worker_ret_data_t reducer(void* args);
-// Single thread version --> works without pthread
+/* Single threaded version. For now ... */
 worker_ret_data_t reducer_single(RDArgs args);
 
 /* Keygen for reducer */
-mapped_key_t pixel_keygen(const ULONG a, const ULONG b);
+static inline mapped_key_t pixel_keygen(const ULONG a, const ULONG b)
+{
+  return (mapped_key_t)( (a+b+1)*(a+b)/2 + b );
+}
 
 /* Img file writer */
 int ImgDataWriter(ImgData img_data, char* base_name);

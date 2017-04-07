@@ -31,9 +31,8 @@ typedef unsigned long dict_key_t;
 
 /* Node design */
 typedef struct _dict_node {
-  dict_data_t data;
-  dict_key_t key;
-	char* key_str;
+  dict_data_t data; /* Actual data */
+  dict_key_t key;   /* Numeric (or.. hashed) key */
 } dict_node;
 typedef dict_node* DNode;
 
@@ -53,9 +52,9 @@ typedef struct _dictionary {
     Linked list data structure that holds the nodes
     --> might change to BTree later...
   */
-  List table;
-	List key_str;
-  dict_key_t* keys; // just holding the keys.. (may not needed?)
+  List table;       /* Actually holds the DNodes with data */
+	List key_str;     /* List of key strings List<char*> */
+  dict_key_t* keys; /* Array of numeric keys (may not needed?) */
   dict_key_t (*hashing)(); /* Hashing function */
 
 } dictionary;
