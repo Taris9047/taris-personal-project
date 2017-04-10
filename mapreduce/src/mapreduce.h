@@ -53,7 +53,7 @@ typedef struct _shuffler_node {
 
   ULONG n_mappers;     /* number of mappers */
   Threads thread_mappers; /* mapper threads */
-  Threads thread_reducers; /* reducer threads */
+  //Threads thread_reducers; /* reducer threads */
 
   Key* mapped_keys; /* Array of mapped keys */
   List keys; /* List<Key> Deciphered (?) keys from mapper - will be fed into a reducer */
@@ -91,6 +91,10 @@ Dict make_key_hash(List k_list);
 /* Passing and receiving keys with other shufflers */
 int pr_other_keys(ShflNode shfl_node);
 
+/* reducer job handler - pthread worker */
+/* Argument is actually the KeyManager */
+worker_ret_data_t do_reduce(void* args);
+
 /* Shuffler control node */
 typedef struct _shuffler {
   List main_data; /* list of main data (Might be changed to somewhat more dynamic stuff in real program..) */
@@ -98,10 +102,15 @@ typedef struct _shuffler {
   TNumCtrl tc; /* Thread number controller */
   KeyManager k_man; /* key manager */
 
+  /* Shuffler stuff */
   ShflNode* shfl_nodes;
   Threads shfl_node_threads;
-
   ULONG n_shuffler_nodes;
+
+  /* Reducer stuff */
+  Threads reducer_threads;
+  List reducer_args; /* List<List<Key>>: arranged key list. */
+
 	/* mutex */
   pthread_mutex_t mutex;
 } shuffler;

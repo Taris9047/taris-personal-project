@@ -187,6 +187,7 @@ int DeleteDict(Dict d)
 {
   assert(d);
   DeleteListHard(d->table, &DeleteDNode);
+  DeleteListHard(d->key_str, NULL);
   free(d->keys);
   free(d);
   return 0;

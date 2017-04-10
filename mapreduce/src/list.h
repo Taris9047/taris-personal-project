@@ -54,6 +54,7 @@ list_data_t LPop(List l);
 LNode LSearch(List l, list_data_t value);
 list_data_t LAt(const List l, unsigned long long ind);
 unsigned long long LIndex(List l, list_data_t value);
+int LAttach(List l, const List o);
 
 /* Remove a node */
 int LRemove(List l, unsigned long long ind);

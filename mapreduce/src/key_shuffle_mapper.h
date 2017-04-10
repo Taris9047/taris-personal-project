@@ -24,34 +24,6 @@
 struct _shuffler_node;
 typedef struct _shuffler_node* ShflNode;
 
-/* Key list manager (Super simple implementation for now) */
-typedef struct _key_manager {
-  Dict shufflers;   /* Dictionary that holds key-shuffler mapping */
-  Key* mapped_keys; /* The keys that this mapper has */
-  ULLONG n_keys; /* Number of keys */
-} key_manager;
-typedef key_manager* KeyManager;
-
-/* Constructors and destructors */
-KeyManager NewKeyManager();
-int DeleteKeyManager(KeyManager k_m);
-
-/* Methods */
-List KManGetShflNode(KeyManager kl_m, Key k);
-int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
-int KManAcceptKeysFromShflNode(ShflNode shfl_node);
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* Key Dict (Dict<List<Key>>>) Statistics tool */
@@ -77,10 +49,13 @@ typedef struct _key_dict_stats {
   List shfl_elements; /* List<List<ShflNode>> */
 
   ULLONG n_keys;
+  ShflNode source_shfl_node;
+
 } key_dict_stats;
 typedef key_dict_stats* KeyDictStats;
+
 /* Constructors and Destructors */
-KeyDictStats NewKeyDictStats(Dict sd);
+KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node);
 int DeleteKeyDictStats(KeyDictStats kds);
 
 /* Methods */
@@ -93,6 +68,47 @@ char* KDSGetMinNumKey(KeyDictStats kds);
 /* Awwwww crap, just return the sorted array!! */
 /* Remember: don't free everything!! it also destroys char* in dict */
 char** KDSGetSortedNumKey(KeyDictStats kds);
+
+
+
+
+
+
+
+
+/* Key list manager (Super simple implementation for now) */
+typedef struct _key_manager {
+  Dict shufflers;   /* Dict<List<ShflNode>> Dictionary that holds key-shuffler mapping */
+  // Dict n_shufflers; /* how many shufflers on a key --> not necessary, just call LLen() */
+  char** mapped_keys_str; /* The keys that this mapper has... as string */
+  Key* mapped_keys; /* The keys that this mapper has */
+  ULLONG n_keys; /* Number of keys */
+} key_manager;
+typedef key_manager* KeyManager;
+
+/* Constructors and destructors */
+KeyManager NewKeyManager();
+int DeleteKeyManager(KeyManager k_m);
+
+/* Methods */
+List KManGetShflNode(KeyManager kl_m, Key k);
+int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
+int KManAcceptKeysFromShflNode(ShflNode shfl_node);
+int KManReport(KeyManager kl_m, KeyDictStats kds);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #endif /* Include guard */

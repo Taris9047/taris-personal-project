@@ -20,177 +20,6 @@
 #include "btree.h"
 
 /***********************************************
- Key list manager - Static functions
-************************************************/
-/* Do I have the key? let me find out */
-static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
-{
-  assert(k_m);
-  assert(k);
-  if (!k_m->n_keys) return false;
-
-  ULLONG i;
-  for (i=0; i<k_m->n_keys; ++i) {
-    if (k_m->mapped_keys[i]->ts == k->ts) {
-      *index = i;
-      return true;
-    }
-  }
-  *index = 0;
-  return false;
-}
-
-/* Search BTreeList<ShflNode> by key -> returns List<ShflNode> */
-// static List BTSearchShflNode(BTreeList btshl, char* key)
-// {
-//   assert(btshl);
-//   return BTLSearch(btshl, (btree_key_t)atoi(key));
-// }
-
-
-
-/***********************************************
- Key list manager - Constructors and Destructors
-************************************************/
-KeyManager NewKeyManager()
-{
-  KeyManager k_m = (KeyManager)malloc(sizeof(key_manager));
-  assert(k_m);
-  k_m->shufflers = NewDict();
-  DSetHashFunc(k_m->shufflers, &hash_str_jenkins);
-  k_m->mapped_keys = NULL;
-  k_m->n_keys = 0;
-  return k_m;
-}
-
-int DeleteKeyManager(KeyManager k_m)
-{
-  assert(k_m);
-  DeleteDict(k_m->shufflers);
-  if (k_m->mapped_keys) free(k_m->mapped_keys);
-  k_m->n_keys = 0;
-  free(k_m);
-  return 0;
-}
-
-
-/***********************************************
- Key list manager - Methods
-************************************************/
-/* Returns a list of shuffler nodes by given key */
-List KManGetShflNode(KeyManager kl_m, Key k)
-{
-  assert(kl_m);
-  assert(k);
-
-  ULLONG k_index;
-  List shfl_nodes;
-
-  if (!exist_key(kl_m, k, &k_index)) return NULL;
-  char* dict_key = ToStr(k->ts);
-  shfl_nodes = (List)DGet(kl_m->shufflers, dict_key);
-  free(dict_key);
-
-  return shfl_nodes;
-}
-
-/* Add shuffler node with key */
-int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node)
-{
-  assert(kl_m);
-  assert(k);
-  assert(shfl_node);
-
-  char* dict_key = ToStr(k->ts);
-
-  List tmp_shufflers_at_k = (List)DGet(kl_m->shufflers, dict_key);
-  List new_shuffler_list = NULL;
-  if (tmp_shufflers_at_k)
-    LPush(tmp_shufflers_at_k, shfl_node);
-  else {
-    new_shuffler_list = NewList();
-    LPush(new_shuffler_list, shfl_node);
-    DInsert(kl_m->shufflers, new_shuffler_list, dict_key);
-  }
-
-  free(dict_key);
-  return 0;
-}
-
-/* Collects reported keys from a shuffler node */
-/* Maybe this function needs to run under mutex? */
-/*
-  KeyMap Dictionary loos like..
-  KeyMap = {
-    string_timestamp: Key (pointer to the key)
-    ...
-  }
-*/
-int KManAcceptKeysFromShflNode(ShflNode shfl_node)
-{
-  assert(shfl_node);
-
-  char** shfl_key_str_array;
-  ULLONG i;
-
-  /* No need to run key assignment if already assigned */
-  if (shfl_node->assigned_key) return SHFL_HAS_ASSIGNED_KEY;
-
-  /* If manager's database is empty? */
-  KeyDictStats kds = NewKeyDictStats(shfl_node->KeyMap);
-  shfl_node->k_man->n_keys = kds->n_keys;
-
-  /*
-    Key assignment priorities.
-    1. More numbers. (KDS needs max function)
-    2. If other shuffler has it already, then take second max.
-    3. If all taken, take lease found one (KDS needs min function)
-    --> We have the same amount of data from any timestamp.
-        So, just place most unpopular one first.
-
-    Blame and remarks
-    --> What if we have all the different keys? (Nothing is popular?)
-    --> What if we only have ONE shuffler?
-  */
-
-  /* 1. Look for most common keys */
-  shfl_key_str_array = KDSGetSortedNumKey(kds);
-  List sfl_tmp; /* Temporary List<ShflNode> */
-  for (i=shfl_node->k_man->n_keys; i!=0; --i) {
-    /* , search the tree if the most common key exists */
-    sfl_tmp = \
-      BTLSearch(
-        shfl_node->shuffler_map, atoi(shfl_key_str_array[i-1]));
-    if (!LLen(sfl_tmp)) {
-      shfl_node->assigned_key = shfl_key_str_array[i-1];
-    }
-  }
-  /* If we couldn't find suitable node yet, just assign most unpopular node */
-  if (!shfl_node->assigned_key)
-    shfl_node->assigned_key = shfl_key_str_array[0];
-
-  /* update the Dict key_map and shfl_node */
-  LPush(
-    (List)DGet(shfl_node->KeyMap, shfl_node->assigned_key),
-    shfl_node->assigned_key);
-  BTLInsert(
-    shfl_node->shuffler_map, shfl_node, (btree_key_t)atoi(shfl_node->assigned_key));
-
-  DeleteKeyDictStats(kds);
-
-  return 0;
-}
-
-
-
-
-
-
-
-
-
-
-/***********************************************
  Key Dict statistics - Static stuffs
 ************************************************/
 /* Convert source dict to tuple list (List<Tuple>) */
@@ -209,7 +38,7 @@ static List key_convert_dict(Dict d)
     TSet(tmp_tuple, 0, (char*)LAt(d->key_str, i));
     tmp_k_len = (ULLONG*)malloc(sizeof(ULLONG));
     (*tmp_k_len) = LLen((List)DGet(d, (char*)LAt(d->key_str, i)));
-    TSet( tmp_tuple, 1, tmp_k_len);
+    TSet(tmp_tuple, 1, tmp_k_len);
     LPush(tup_list, tmp_tuple);
   }
 
@@ -224,13 +53,14 @@ static List shfl_convert_dict(Dict d)
   List tup_list = NewList();
 
   Tuple tmp_tuple = NULL;
+  char* tmp_k_str;
 
   ULLONG i, dict_size = d->size;
-  List* t_list = (List*)malloc(sizeof(List)*dict_size);
   for (i=0; i<dict_size; ++i) {
     tmp_tuple = NewTuple(2);
-    TSet(tmp_tuple, 0, (char*)LAt(d->key_str, i));
-    TSet(tmp_tuple, 1, (List)DGet(d, (char*)LAt(d->key_str, i)));
+    tmp_k_str = (char*)LAt(d->key_str, i);
+    TSet(tmp_tuple, 0, tmp_k_str);
+    TSet(tmp_tuple, 1, (List)DGet(d, tmp_k_str));
     LPush(tup_list, tmp_tuple);
   }
 
@@ -250,15 +80,17 @@ static int comp_tuple(const void* elem1, const void* elem2)
 /***********************************************
  Key Dict statistics - Constructors and Destructors
 ************************************************/
-KeyDictStats NewKeyDictStats(Dict sd)
+KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node)
 {
   assert(sd);
+  assert(s_shfl_node);
   KeyDictStats kds = (KeyDictStats)malloc(sizeof(key_dict_stats));
   assert(kds);
   kds->source_dict = sd;
   kds->key_elements = key_convert_dict(kds->source_dict);
   kds->shfl_elements = shfl_convert_dict(kds->source_dict);
   kds->n_keys = LLen(kds->key_elements);
+  kds->source_shfl_node = s_shfl_node;
   return kds;
 }
 
@@ -374,4 +206,173 @@ char** KDSGetSortedNumKey(KeyDictStats kds)
   free(sort_bed);
 
   return sorted_key_list;
+}
+
+
+
+
+
+
+
+
+/***********************************************
+ Key list manager - Static functions
+************************************************/
+/* Do I have the key? let me find out */
+static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
+{
+  assert(k_m);
+  assert(k);
+  if (!k_m->n_keys) return false;
+
+  ULLONG i;
+  for (i=0; i<k_m->n_keys; ++i) {
+    if (k_m->mapped_keys[i]->ts == k->ts) {
+      *index = i;
+      return true;
+    }
+  }
+  *index = 0;
+  return false;
+}
+
+
+
+
+/***********************************************
+ Key list manager - Constructors and Destructors
+************************************************/
+KeyManager NewKeyManager()
+{
+  KeyManager k_m = (KeyManager)malloc(sizeof(key_manager));
+  assert(k_m);
+  k_m->shufflers = NewDict();
+  DSetHashFunc(k_m->shufflers, &hash_str_jenkins);
+  k_m->mapped_keys_str = NULL;
+  k_m->mapped_keys = NULL;
+  k_m->n_keys = 0;
+  return k_m;
+}
+
+int DeleteKeyManager(KeyManager k_m)
+{
+  assert(k_m);
+  DeleteDict(k_m->shufflers);
+  if (k_m->mapped_keys) free(k_m->mapped_keys);
+  if (k_m->mapped_keys_str) free(k_m->mapped_keys_str);
+  k_m->n_keys = 0;
+  free(k_m);
+  return 0;
+}
+
+
+/***********************************************
+ Key list manager - Methods
+************************************************/
+/* Returns a list of shuffler nodes by given key */
+List KManGetShflNode(KeyManager kl_m, Key k)
+{
+  assert(kl_m);
+  assert(k);
+
+  ULLONG k_index;
+  List shfl_nodes;
+
+  if (!exist_key(kl_m, k, &k_index)) return NULL;
+  char* dict_key = ToStr(k->ts);
+  shfl_nodes = (List)DGet(kl_m->shufflers, dict_key);
+  free(dict_key);
+
+  return shfl_nodes;
+}
+
+/* Add shuffler node with key */
+int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node)
+{
+  assert(kl_m);
+  assert(k);
+  assert(shfl_node);
+
+  char* dict_key = ToStr(k->ts);
+
+  List tmp_shufflers_at_k = (List)DGet(kl_m->shufflers, dict_key);
+  List new_shuffler_list = NULL;
+  if (tmp_shufflers_at_k)
+    LPush(tmp_shufflers_at_k, shfl_node);
+  else {
+    new_shuffler_list = NewList();
+    LPush(new_shuffler_list, shfl_node);
+    DInsert(kl_m->shufflers, new_shuffler_list, dict_key);
+  }
+
+  free(dict_key);
+  return 0;
+}
+
+/* Collects reported keys from a shuffler node */
+/* Maybe this function needs to run under mutex? */
+/*
+  KeyMap Dictionary loos like..
+  KeyMap = {
+    string_timestamp: Key (pointer to the key)
+    ...
+  }
+*/
+int KManAcceptKeysFromShflNode(ShflNode shfl_node)
+{
+  assert(shfl_node);
+
+  KeyManager manager = shfl_node->k_man;
+  assert(manager);
+
+  /* If manager's database is empty? */
+  KeyDictStats kds = NewKeyDictStats(shfl_node->KeyMap, shfl_node);
+  /* Report current findings to manager, which is actually owned by Shuffler */
+  KManReport(manager, kds);
+  /* Wipe up current report since we've reported everything already */
+  DeleteKeyDictStats(kds);
+
+  return 0;
+}
+
+/* Report Key findings to manager */
+/* Main idea: Map key - shfl_node */
+int KManReport(KeyManager kl_m, KeyDictStats kds)
+{
+  assert(kl_m);
+  assert(kds);
+
+  ULLONG i;
+  kl_m->n_keys = LLen(kds->shfl_elements);
+  Tuple tmp_k_tuple = NULL;
+  List tmp_shfl_node_list = NULL;
+  List tmp_sfn_km = NULL;
+
+  /* Let's process keys first */
+  if (kl_m->mapped_keys) free(kl_m->mapped_keys);
+  kl_m->mapped_keys = \
+    (Key*)malloc(sizeof(Key)*kl_m->n_keys);
+  if (kl_m->mapped_keys_str) free(kl_m->mapped_keys_str);
+  kl_m->mapped_keys_str = \
+    (char**)malloc(sizeof(char*)*kl_m->n_keys);
+  for (i=0; i<kl_m->n_keys; ++i) {
+    tmp_k_tuple = (Tuple)LAt(kds->key_elements, i);
+    kl_m->mapped_keys_str[i] = (char*)TAt(tmp_k_tuple, 0);
+    kl_m->mapped_keys[i] = (Key)TAt(tmp_k_tuple, 1);
+    tmp_shfl_node_list = (List)LAt(kds->shfl_elements, i);
+    /* And... dont' forget shfl_nodes */
+    tmp_sfn_km = (List)DGet(kl_m->shufflers, kl_m->mapped_keys_str[i]);
+    if ( !tmp_sfn_km ) {
+      DInsert(kl_m->shufflers, tmp_shfl_node_list, kl_m->mapped_keys_str[i]);
+    }
+    else {
+      /*
+        We're 'Injecting' collected List<ShflNode>
+        to existing List found in kl_m->shufflers
+      */
+      LAttach(tmp_sfn_km, tmp_shfl_node_list);
+    }
+  } /* for (i=0; i<kl_m->n_keys; ++i) */
+
+  return 0;
 }

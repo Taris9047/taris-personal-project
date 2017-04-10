@@ -141,7 +141,7 @@ ShflNode new_shfl_node(
   shn->k_man = n_k_man;
 
   /* Reducers ... currently, not used */
-  shn->thread_reducers = NULL;
+  //shn->thread_reducers = NULL;
 
   /* Assigned key type... as string. default: NULL */
   shn->assigned_key = NULL;
@@ -163,8 +163,8 @@ int delete_shfl_node(ShflNode shfl_node)
   if (shfl_node->thread_mappers)
     DeleteThreads(shfl_node->thread_mappers);
 
-  if (shfl_node->thread_reducers)
-    DeleteThreads(shfl_node->thread_reducers);
+//  if (shfl_node->thread_reducers)
+//    DeleteThreads(shfl_node->thread_reducers);
 
   /* Erase the linked list too... But it's got corrupted!! */
   if (shfl_node->KeyMap) DeleteDict(shfl_node->KeyMap);
@@ -260,37 +260,19 @@ worker_ret_data_t do_shuffle(void* args)
 
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
   printf("Shuffler [%lu], Processing keymap..\n", shfl_node->shfl_node_id);
+
+  /* KeyMap:
+    key_type_t: List<Key>,
+    key_type_t: List<Key>,...
+  */
   shfl_node->KeyMap = make_key_hash(shfl_node->keys);
 
   /* Now KeyMap has collection of keys */
   /* Report my findings to Key manager */
+  pthread_mutex_lock(shfl_node->master_mutex);
   if (!shfl_node->assigned_key)
     KManAcceptKeysFromShflNode(shfl_node);
-
-  /* Let's communicate with other shuffler nodes */
-  /* At this moment, let's just use a single mutex: main_mutex */
-  pr_other_keys(shfl_node);
-
-  /*
-    After shuffling, KeyMap must have only one key.
-    Taking that key.
-  */
-  if (shfl_node->keys) DeleteList(shfl_node->keys);
-  shfl_node->keys = DGet(shfl_node->KeyMap, shfl_node->assigned_key);
-
-  /* Start reducer job */
-  printf(
-    "Shuffler [%lu] is starting reducer job... a.k.a writng to file.\n",
-    shfl_node->shfl_node_id);
-  /* We are just using one reducer per shuffler at this moment. */
-
-  /* Lets call reducer after finishing up everything key exchange */
-  RDArgs reducer_arg = NewRDArgs(shfl_node->keys);
-  reducer_single(reducer_arg);
-  printf("Shuffler [%lu], Collected image data...\n", shfl_node->shfl_node_id);
-  /* We're just removing data... for now... */
-  DeleteImgData(reducer_arg->image_data);
-  DeleteRDArgs(reducer_arg);
+  pthread_mutex_unlock(shfl_node->master_mutex);
 
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
@@ -315,11 +297,23 @@ Dict make_key_hash(List k_list)
   ULLONG i;
   ULLONG k_list_len = LLen(k_list);
   Key tmp_k;
+  List tmp_k_list = NewList(); /* List<ULLONG> */
+  List tmp_list;
 
   for (i=0; i<k_list_len; ++i) {
     tmp_k = (Key)LAt(k_list, i);
-    DInsert(key_map, tmp_k, ToStr(tmp_k->ts));
+    if (LSearch(tmp_k_list, &tmp_k->ts)) {
+      tmp_list = (List)DGet(key_map, ToStr(tmp_k->ts));
+      LPush(tmp_list, tmp_k);
+    }
+    else {
+      tmp_list = NewList();
+      LPush(tmp_k_list, &tmp_k->ts);
+      LPush(tmp_list, tmp_k);
+      DInsert(key_map, tmp_list, ToStr(tmp_k->ts));
+    }
   }
+  DeleteList(tmp_k_list);
 
   return key_map;
 }
@@ -387,7 +381,14 @@ int pr_other_keys(ShflNode shfl_node)
 }
 
 
+/* reducer job handler - pthread worker */
+/* Argument is actually the KeyManager */
+worker_ret_data_t do_reduce(void* args)
+{
+  KeyManager man = (ShflNode)args->k_man;
 
+  return NULL;
+}
 
 
 
@@ -413,6 +414,9 @@ Shuffler NewShuffler(
   shfl->tc = thread_num_assign(total_threads);
   shfl->k_man = NULL;
   shfl->n_shuffler_nodes = LLen(shfl->main_data);
+  shfl->shfl_node_threads = NULL;
+  shfl->reducer_threads = NULL;
+  shfl->reducer_args = NULL;
   //shfl->mutex = NULL;
 
   return shfl;
@@ -482,7 +486,7 @@ int Shuffle(Shuffler shfl)
     job_schedule(given_data_len,
       n_shufflers*shfl->tc->mappers_per_shuffler, &schedule, 0);
 
-  ULLONG i, j;
+  ULLONG i, j, k;
   ULLONG n_curr_shufflers, n_curr_mappers;
   ULLONG n_shufflers_rem, n_mappers_rem;
 
@@ -533,7 +537,33 @@ int Shuffle(Shuffler shfl)
     /* Let's run shuffling !! */
     RunThreads(shfl->shfl_node_threads, do_shuffle, (void**)shfl->shfl_nodes);
     DeleteThreads(shfl->shfl_node_threads);
-    //destroy_mutex();
+
+    /* Then, reduce the data from key manager
+       -> number of shufflers must be the same as mappers */
+    /* TODO: Write do_reduce() */
+    /* TODO: Write Key list divider for reducers (This is actual shuffling...) */
+    ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
+    if (n_curr_shufflers >= shfl->k_man->n_keys) {
+      n_curr_keys = shfl->k_man->n_keys;
+      n_reducer_jobs = 1;
+    }
+    else {
+      n_curr_keys = n_curr_shufflers;
+      n_reducer_jobs = n_curr_keys/n_curr_shufflers;
+      reducer_job_rem = n_curr_keys%n_curr_shufflers;
+      if (reducer_job_rem) n_reducer_jobs++;
+    }
+    for (k=0; k<n_reducer_jobs; ++k) {
+      if (reducer_job_rem && k == n_reducer_jobs-1) n_curr_keys = reducer_job_rem;
+      for (i=0; i<n_curr_keys; ++i) {
+        shfl->reducer_threads = NewThreads(n_curr_shufflers, true, NULL);
+        /* We just need a link to manager but RunThreads asks an array... */
+        RunThreads(shfl->reducer_threads, do_reduce, (void**)shfl->shfl_nodes);
+        DeleteThreads(shfl->reducer_threads);
+      }
+    }
+
+    /* TODO: This section causes SIGSEGV. Fix it. */
     /* Cleaning up this session */
     for (i=0; i<n_curr_shufflers; ++i) {
       delete_shfl_node(shfl->shfl_nodes[i]);
