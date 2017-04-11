@@ -39,6 +39,7 @@ int DeleteDNode(DNode dn)
 {
   assert(dn);
   dn->data = NULL;
+  dn->key = 0;
   free(dn);
   return 0;
 }

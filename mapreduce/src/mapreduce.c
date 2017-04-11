@@ -140,9 +140,6 @@ ShflNode new_shfl_node(
   /* Key manager */
   shn->k_man = n_k_man;
 
-  /* Reducers ... currently, not used */
-  //shn->thread_reducers = NULL;
-
   /* Assigned key type... as string. default: NULL */
   shn->assigned_key = NULL;
 
@@ -276,6 +273,7 @@ worker_ret_data_t do_shuffle(void* args)
 
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
+  /* TODO: Ok, simply deleteing the dict doesn't help. We need to scan through all the data (List format) and free them */
   DeleteDict(shfl_node->KeyMap);
 
   return NULL;
@@ -385,7 +383,12 @@ int pr_other_keys(ShflNode shfl_node)
 /* Argument is actually the KeyManager */
 worker_ret_data_t do_reduce(void* args)
 {
-  KeyManager man = (ShflNode)args->k_man;
+  assert(args);
+  pth_args _args = (pth_args)args;
+  KeyManager man = (KeyManager)_args->data_set;
+  assert(man);
+
+
 
   return NULL;
 }
@@ -417,7 +420,6 @@ Shuffler NewShuffler(
   shfl->shfl_node_threads = NULL;
   shfl->reducer_threads = NULL;
   shfl->reducer_args = NULL;
-  //shfl->mutex = NULL;
 
   return shfl;
 }
@@ -540,7 +542,6 @@ int Shuffle(Shuffler shfl)
 
     /* Then, reduce the data from key manager
        -> number of shufflers must be the same as mappers */
-    /* TODO: Write do_reduce() */
     /* TODO: Write Key list divider for reducers (This is actual shuffling...) */
     ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
     if (n_curr_shufflers >= shfl->k_man->n_keys) {
