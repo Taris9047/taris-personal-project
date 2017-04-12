@@ -92,7 +92,12 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 
 
 
+/***********************************************
+ Shuffler Node - Static functions
+************************************************/
 
+/* Custom destructor for List<Key> */
+static int delete_keymap_data(List keymap_data);
 
 /***********************************************
  Shuffler Node - Constructors and Destructors
@@ -149,7 +154,7 @@ ShflNode new_shfl_node(
   return shn;
 }
 
-/* destructor */
+/* Destructor */
 int delete_shfl_node(ShflNode shfl_node)
 {
   assert(shfl_node);
@@ -157,18 +162,19 @@ int delete_shfl_node(ShflNode shfl_node)
 
   shfl_node->shuffler_map = NULL; /* map will be deleted by the main controller */
 
+  /* Remove mapper threads */
   if (shfl_node->thread_mappers)
     DeleteThreads(shfl_node->thread_mappers);
 
-//  if (shfl_node->thread_reducers)
-//    DeleteThreads(shfl_node->thread_reducers);
-
   /* Erase the linked list too... But it's got corrupted!! */
-  if (shfl_node->KeyMap) DeleteDict(shfl_node->KeyMap);
-  if (shfl_node->keys) DeleteList(shfl_node->keys);
+  if (shfl_node->KeyMap)
+    DeleteDictHard(shfl_node->KeyMap, &delete_keymap_data);
+  if (shfl_node->keys)
+    DeleteList(shfl_node->keys);
 
   /* Free up jobs index */
-  for (i=0; i<shfl_node->jobs; ++i) free(shfl_node->jobs_index[i]);
+  for (i=0; i<shfl_node->jobs; ++i)
+    free(shfl_node->jobs_index[i]);
   free(shfl_node->jobs_index);
 
   /* Finally, free the shfl_node */
@@ -184,7 +190,6 @@ int delete_shfl_node(ShflNode shfl_node)
 /***********************************************
  Shuffler Node arguments
 ************************************************/
-
 
 /***********************************************
  Shuffler Node - Methods
@@ -250,7 +255,6 @@ worker_ret_data_t do_shuffle(void* args)
     /* Clean up mapper threads for this schedule */
     for (j=0; j<curr_mappers; ++j) DeleteMArgs(mapper_args[j]);
     free(mapper_args);
-    //DeleteThreads(shfl_node->thread_mappers);
   }
 
   printf("Shuffler [%lu], Mapping has been finished...\n", shfl_node->shfl_node_id);
@@ -273,10 +277,16 @@ worker_ret_data_t do_shuffle(void* args)
 
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
-  /* TODO: Ok, simply deleteing the dict doesn't help. We need to scan through all the data (List format) and free them */
-  DeleteDict(shfl_node->KeyMap);
 
   return NULL;
+}
+
+/* Custom destructor for List<Key> */
+static int delete_keymap_data(List keymap_data)
+{
+  assert(keymap_data);
+  DeleteList(keymap_data);
+  return 0;
 }
 
 /* List containing keys to Hash key map (Sort by timestamp) */
@@ -447,9 +457,6 @@ int DeleteShuffler(Shuffler shfl)
       delete_shfl_node(shfl->shfl_nodes[i]);
     free(shfl->shfl_nodes);
   }
-
-  // if (shfl->mutex)
-  //   pthread_mutex_destroy(shfl->mutex);
 
   /* Free the controller */
   free(shfl->tc);

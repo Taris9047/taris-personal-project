@@ -63,6 +63,7 @@ typedef dictionary* Dict;
 /* Dictionary constructors and destructors */
 Dict NewDict();
 int DeleteDict(Dict d);
+int DeleteDictHard(Dict d, int (*data_destroyer) ());
 
 /* Dictionary methods */
 /* Setup hashing function */

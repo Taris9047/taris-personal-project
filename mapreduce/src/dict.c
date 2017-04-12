@@ -172,6 +172,7 @@ static int remove_key(
 /***************************************
  Dict - Constructors and Destructors
 ****************************************/
+/* Constructor */
 Dict NewDict()
 {
   Dict d = (Dict)malloc(sizeof(dictionary));
@@ -184,6 +185,8 @@ Dict NewDict()
   d->hashing = &hash_str_fnv;
   return d;
 }
+
+/* Destructor for most cases */
 int DeleteDict(Dict d)
 {
   assert(d);
@@ -194,8 +197,28 @@ int DeleteDict(Dict d)
   return 0;
 }
 
+/* Destructor for some special cases */
+int DeleteDictHard(Dict d, int (*data_destroyer) ())
+{
+  assert(d);
 
+  unsigned long long i, n_keys = LLen(d->key_str);
+  char* tmp_key_str = NULL;
+  dict_data_t tmp_data = NULL;
+  for (i=0; i<n_keys; ++i) {
+    tmp_key_str = (char*)LAt(d->key_str, i);
+    tmp_data = DGet(d, tmp_key_str);
+    data_destroyer(tmp_data);
+  }
 
+  DeleteListHard(d->key_str, NULL);
+  DeleteListHard(d->table, &DeleteDNode);
+
+  free(d->keys);
+  free(d);
+
+  return 0;
+}
 
 
 
