@@ -15,8 +15,9 @@ import string
 import random
 import datetime as dt
 
-img_res_x = 32*6
-img_res_y = 32*6
+rows = 8 # bump it to 32 later...
+img_res_x = rows*6
+img_res_y = rows*6
 grey_scale_max = 2**24
 
 def rand_char_gen():
@@ -46,7 +47,7 @@ def img_gen():
 			for _ in range(img_res_x)]
 	img_data["label"] = ''
 
-	label_len = random.randrange(8)+1
+	label_len = random.randrange(15)+1
 	for i in range(label_len):
 		img_data["label"] += rand_char_gen()
 

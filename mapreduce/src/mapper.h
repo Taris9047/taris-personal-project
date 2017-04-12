@@ -33,6 +33,7 @@ Key NewKey(mapped_key_t* ts, PObj po);
 bool KeyTsEq(Key k, Key o);
 /* Key destroyer */
 int DeleteKey(Key k);
+int DeleteKeyHard(Key k);
 
 /* pthead interface */
 /*

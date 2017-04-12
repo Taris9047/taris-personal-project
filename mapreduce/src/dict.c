@@ -255,13 +255,19 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
   if (!d->hashing) k = *(const dict_key_t*)inp_key;
   else k = d->hashing(inp_key);
 
+  /* Assume that inp_key will be destroyed or lost.
+   * So, duplicate the string to store it to the dict.
+   * They will be freed when the dict is subject to
+   * deletion. */
+  char* key_str = strdup(inp_key);
+
   DNode tmp_dnode = search_node(d, k);
   if (tmp_dnode) tmp_dnode->data = inp_data;
   else {
     /* cannot find the key. Let's make it!! */
     tmp_dnode = NewDNode(inp_data, k);
     LPush(d->table, tmp_dnode);
-		LPush(d->key_str, (list_data_t)inp_key);
+    LPush(d->key_str, key_str);
     append_keys(&d->keys, k, &d->size);
   }
 

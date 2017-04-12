@@ -61,7 +61,7 @@ TNumCtrl thread_num_assign(ULONG total_threads)
   if (total_threads < MAPPERS_PER_SHUFFLER)
     sthreads = 1;
   else
-    sthreads = (ULONG)total_threads%MAPPERS_PER_SHUFFLER;
+    sthreads = (ULONG)total_threads/MAPPERS_PER_SHUFFLER;
 
   if (total_threads < max_threads)
     mthreads = total_threads-sthreads;
@@ -99,11 +99,17 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 /* Custom destructor for List<Key> */
 static int delete_keymap_data(List keymap_data);
 
+/* List containing keys to Hash key map (Sort by timestamp) */
+static Dict make_key_hash(List k_list);
+
+/* Passing and receiving keys with other shufflers */
+static int pr_other_keys(ShflNode shfl_node);
+
 /***********************************************
  Shuffler Node - Constructors and Destructors
 ************************************************/
 /* Constructor */
-ShflNode new_shfl_node(
+ShflNode NewShflNode(
   List frac_main_data,
   ULONG num_mappers,
   BTreeList shuffle_map,
@@ -155,14 +161,14 @@ ShflNode new_shfl_node(
 }
 
 /* Destructor */
-int delete_shfl_node(ShflNode shfl_node)
+int DeleteShflNode(ShflNode shfl_node)
 {
   assert(shfl_node);
   ULLONG i;
 
-  shfl_node->shuffler_map = NULL; /* map will be deleted by the main controller */
+  /* map will be deleted by the main controller */
+  shfl_node->shuffler_map = NULL;
 
-  /* Remove mapper threads */
   if (shfl_node->thread_mappers)
     DeleteThreads(shfl_node->thread_mappers);
 
@@ -170,7 +176,8 @@ int delete_shfl_node(ShflNode shfl_node)
   if (shfl_node->KeyMap)
     DeleteDictHard(shfl_node->KeyMap, &delete_keymap_data);
   if (shfl_node->keys)
-    DeleteList(shfl_node->keys);
+    DeleteListHard(shfl_node->keys, &DeleteKey);
+  if (shfl_node->mapped_keys) free(shfl_node->mapped_keys);
 
   /* Free up jobs index */
   for (i=0; i<shfl_node->jobs; ++i)
@@ -217,7 +224,8 @@ worker_ret_data_t do_shuffle(void* args)
   ULONG curr_mappers = 0;
 
   shfl_node->jobs = \
-    job_schedule(frac_data_len, shfl_node->n_mappers, &shfl_node->jobs_index, 0);
+    job_schedule(
+      frac_data_len, shfl_node->n_mappers, &shfl_node->jobs_index, 0);
 
   /* Ok, let's spawn mappers */
   printf("Shuffler [%lu], Mapping with %lu mappers...\n",
@@ -297,7 +305,7 @@ static int delete_keymap_data(List keymap_data)
     ...
   }
 */
-Dict make_key_hash(List k_list)
+static Dict make_key_hash(List k_list)
 {
   assert(k_list);
   Dict key_map = NewDict();
@@ -305,20 +313,28 @@ Dict make_key_hash(List k_list)
   ULLONG i;
   ULLONG k_list_len = LLen(k_list);
   Key tmp_k;
-  List tmp_k_list = NewList(); /* List<ULLONG> */
-  List tmp_list;
+  List tmp_k_list = NULL; /* List<ULLONG> */
+  List tmp_list = NULL; /* List<Key> */
+  char* tmp_key_str = NULL;
 
   for (i=0; i<k_list_len; ++i) {
     tmp_k = (Key)LAt(k_list, i);
-    if (LSearch(tmp_k_list, &tmp_k->ts)) {
-      tmp_list = (List)DGet(key_map, ToStr(tmp_k->ts));
-      LPush(tmp_list, tmp_k);
+    if (tmp_k_list) {
+      if (LSearch(tmp_k_list, &tmp_k->ts)) {
+        tmp_key_str = ToStr(tmp_k->ts);
+        tmp_list = (List)DGet(key_map, tmp_key_str);
+        LPush(tmp_list, tmp_k);
+        free(tmp_key_str);
+      }
     }
     else {
+      tmp_key_str = ToStr(tmp_k->ts);
       tmp_list = NewList();
+      if (!tmp_k_list) tmp_k_list = NewList();
       LPush(tmp_k_list, &tmp_k->ts);
       LPush(tmp_list, tmp_k);
-      DInsert(key_map, tmp_list, ToStr(tmp_k->ts));
+      DInsert(key_map, tmp_list, tmp_key_str);
+      free(tmp_key_str);
     }
   }
   DeleteList(tmp_k_list);
@@ -327,7 +343,7 @@ Dict make_key_hash(List k_list)
 }
 
 /* Passing and receiving keys with other shufflers */
-int pr_other_keys(ShflNode shfl_node)
+static int pr_other_keys(ShflNode shfl_node)
 {
   assert(shfl_node);
 
@@ -391,6 +407,7 @@ int pr_other_keys(ShflNode shfl_node)
 
 /* reducer job handler - pthread worker */
 /* Argument is actually the KeyManager */
+/* TODO: Finish do_reduce up later */
 worker_ret_data_t do_reduce(void* args)
 {
   assert(args);
@@ -415,9 +432,7 @@ worker_ret_data_t do_reduce(void* args)
  Shuffler - Constructors and Destructors
 ************************************************/
 /* Constructors */
-Shuffler NewShuffler(
-  List main_data,
-  ULONG total_threads)
+Shuffler NewShuffler(List main_data, ULONG total_threads)
 {
   Shuffler shfl = (Shuffler)malloc(sizeof(shuffler));
   assert(shfl);
@@ -439,24 +454,24 @@ int DeleteShuffler(Shuffler shfl)
 {
   assert(shfl);
 
-  ULONG i;
-
   shfl->main_data = NULL; /* main data will be freed later in main controller */
 
-  if (shfl->shuffler_map)
-    DeleteBTreeList(shfl->shuffler_map);
+//  if (shfl->shuffler_map)
+//    DeleteBTreeList(shfl->shuffler_map);
 
-  if (shfl->k_man)
-    DeleteKeyManager(shfl->k_man);
+//  if (shfl->k_man)
+//    DeleteKeyManager(shfl->k_man);
 
-  if (shfl->shfl_node_threads)
-    DeleteThreads(shfl->shfl_node_threads);
+  /* Thread elements should have been cleaned up by users! */
+//  if (shfl->shfl_node_threads)
+//    DeleteThreads(shfl->shfl_node_threads);
+//
+//  if (shfl->reducer_threads)
+//    DeleteThreads(shfl->reducer_threads);
 
-  if (shfl->shfl_nodes) {
-    for (i=0; i<shfl->n_shuffler_nodes; ++i)
-      delete_shfl_node(shfl->shfl_nodes[i]);
-    free(shfl->shfl_nodes);
-  }
+  /* Freeing each shfl_node should have been finished within Shuffler() */
+//  if (shfl->shfl_nodes)
+//    free(shfl->shfl_nodes);
 
   /* Free the controller */
   free(shfl->tc);
@@ -527,7 +542,7 @@ int Shuffle(Shuffler shfl)
       part_data[i] = \
         LPart(shfl->main_data, (ULLONG*)schedule[j], n_curr_mappers);
       shfl->shfl_nodes[i] = \
-        new_shfl_node(
+        NewShflNode(
           part_data[i],
           shfl->tc->mappers_per_shuffler,
           shfl->shuffler_map,
@@ -571,15 +586,17 @@ int Shuffle(Shuffler shfl)
       }
     }
 
-    /* TODO: This section causes SIGSEGV. Fix it. */
     /* Cleaning up this session */
     for (i=0; i<n_curr_shufflers; ++i) {
-      delete_shfl_node(shfl->shfl_nodes[i]);
+      DeleteShflNode(shfl->shfl_nodes[i]);
       DeleteList(part_data[i]);
     }
     free(part_data);
     free(shfl->shfl_nodes);
+
+    /* Freeing up shuffler map and key_manager */
     DeleteBTreeList(shfl->shuffler_map);
+    DeleteKeyManager(shfl->k_man);
   } /* for (j=0; j<schedule_len; ++j) */
 
   /* Also cleaning up schedule */

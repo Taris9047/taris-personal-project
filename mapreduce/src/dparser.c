@@ -75,7 +75,7 @@ List parse_txt_file(char* f_name)
 
 /* parse a single line */
 /* Super duper dumb and simple parser */
-PObj parse_line(char* a_line)
+PObj parse_line(const char* a_line)
 {
   assert(a_line);
 
@@ -85,6 +85,7 @@ PObj parse_line(char* a_line)
   char* token;
   char* str = strdup(a_line);
   char* tmp;
+  char* str_saved = str;
 
   List sections = NewList();
 
@@ -117,7 +118,8 @@ PObj parse_line(char* a_line)
   po->line_str = strdup(a_line);
 
   DeleteList(sections);
-  free(str);
+  /* Due to strsep's mechanism, freeing the backup */
+  free(str_saved);
 
   return po;
 }

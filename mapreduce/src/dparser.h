@@ -40,7 +40,7 @@ typedef parse_obj* PObj;
 /* read the text file and return parsed objects */
 List parse_txt_file(char* f_name);
 /* parse a single line */
-PObj parse_line(char* a_line);
+PObj parse_line(const char* a_line);
 
 /* Destructor */
 int DeletePObj(PObj po);

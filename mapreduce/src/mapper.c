@@ -48,12 +48,16 @@ bool KeyTsEq(Key k, Key o)
 int DeleteKey(Key k)
 {
   assert(k);
-  /*
-    If we decide to drop a key from memory,
-    Let's drop the original data from memory as well...
-  */
-  if (k->point_data) DeletePObj(k->point_data);
+  free(k);
+  return 0;
+}
 
+/* Key destroyer - Destroys PObjs (parsed data) as well */
+int DeleteKeyHard(Key k)
+{
+  assert(k);
+  if (k->point_data) DeletePObj(k->point_data);
+  free(k);
   return 0;
 }
 

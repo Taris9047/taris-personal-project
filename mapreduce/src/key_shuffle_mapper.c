@@ -97,7 +97,6 @@ KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node)
 int DeleteKeyDictStats(KeyDictStats kds)
 {
   assert(kds);
-  //DeleteListHard(kds->key_elements, DeleteTuple);
 
   ULLONG i, k_el_size = LLen(kds->key_elements);
   Tuple tmp_tuple;
@@ -105,10 +104,17 @@ int DeleteKeyDictStats(KeyDictStats kds)
     /* do not destroy key string. they came from original dict */
     /* But remove the numbers */
     tmp_tuple = (Tuple)LAt(kds->key_elements, i);
+    // free((char*)TAt(tmp_tuple,0));
     free((ULLONG*)TAt(tmp_tuple,1));
     DeleteTuple(tmp_tuple);
   }
+  DeleteList(kds->key_elements);
 
+  for (i=0; i<k_el_size; ++i) {
+    tmp_tuple = (Tuple)LAt(kds->key_elements, i);
+    /* This tuple has shfl_node... So we don't need to drop them here */
+    DeleteTuple(tmp_tuple);
+  }
   DeleteList(kds->shfl_elements);
 
   free(kds);

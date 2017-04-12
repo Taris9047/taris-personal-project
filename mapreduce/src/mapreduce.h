@@ -72,24 +72,18 @@ typedef struct _shuffler_node {
 typedef shuffler_node* ShflNode;
 
 /* Constructors and Destructors for shuffler nodes */
-ShflNode new_shfl_node(
+ShflNode NewShflNode(
   List frac_main_data,
   ULONG num_mappers,
   BTreeList shuffle_map,
   KeyManager n_k_man,
   pthread_mutex_t* mtx,
   ULONG id);
-int delete_shfl_node(ShflNode shfl_node);
+int DeleteShflNode(ShflNode shfl_node);
 
 
 /* shuffling job at the node - pthread worker */
 worker_ret_data_t do_shuffle(void* args);
-
-/* List containing keys to Hash key map (Sort by timestamp) */
-Dict make_key_hash(List k_list);
-
-/* Passing and receiving keys with other shufflers */
-int pr_other_keys(ShflNode shfl_node);
 
 /* reducer job handler - pthread worker */
 /* Argument is actually the KeyManager */

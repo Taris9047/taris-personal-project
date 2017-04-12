@@ -89,5 +89,7 @@ int main(int argc, char* argv[])
 
   map_reduce(inf_name, n_threads);
 
+  fprintf(stdout, "\nJobs finished!!\n");
+
   return 0;
 }
