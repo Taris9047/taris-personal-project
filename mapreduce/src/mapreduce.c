@@ -52,9 +52,9 @@ TNumCtrl thread_num_assign(ULONG total_threads)
 {
   assert(total_threads > 3);
 
-  ULONG sthreads;
-  ULONG mthreads;
-  ULONG max_threads;
+  ULONG sthreads;    /* Shuffler threads */
+  ULONG mthreads;    /* Mapper threads */
+  ULONG max_threads; /* Max threads that system supports */
 
   max_threads = get_pid_max();
 
@@ -64,9 +64,9 @@ TNumCtrl thread_num_assign(ULONG total_threads)
     sthreads = (ULONG)total_threads/MAPPERS_PER_SHUFFLER;
 
   if (total_threads < max_threads)
-    mthreads = total_threads-sthreads;
+    mthreads = (total_threads-sthreads)/sthreads;
   else
-    mthreads = total_threads-sthreads-1;
+    mthreads = (total_threads-sthreads-1)/sthreads;
 
   printf("We have total %lu assigned threads to this program:\n", total_threads);
   printf("So, we will assign threads as...\n");
@@ -77,10 +77,7 @@ TNumCtrl thread_num_assign(ULONG total_threads)
   if (total_threads >= max_threads)
     printf("Reserved one thread for main controller\n");
 
-  TNumCtrl p_thread_num_ctrl = NewTNumCtrl(
-    total_threads, mthreads, sthreads);
-
-  return p_thread_num_ctrl;
+  return NewTNumCtrl(total_threads, mthreads, sthreads);
 }
 
 
@@ -101,9 +98,6 @@ static int delete_keymap_data(List keymap_data);
 
 /* List containing keys to Hash key map (Sort by timestamp) */
 static Dict make_key_hash(List k_list);
-
-/* Passing and receiving keys with other shufflers */
-static int pr_other_keys(ShflNode shfl_node);
 
 /***********************************************
  Shuffler Node - Constructors and Destructors
@@ -258,7 +252,8 @@ worker_ret_data_t do_shuffle(void* args)
     }
 
     /* Assign mapped keys to key list */
-    shfl_node->keys = AtoL((list_data_t*)shfl_node->mapped_keys, curr_mappers);
+    shfl_node->keys = \
+      AtoL((list_data_t*)shfl_node->mapped_keys, curr_mappers);
 
     /* Clean up mapper threads for this schedule */
     for (j=0; j<curr_mappers; ++j) DeleteMArgs(mapper_args[j]);
@@ -301,7 +296,7 @@ static int delete_keymap_data(List keymap_data)
 /*
   KeyMap Dictionary loos like..
   KeyMap = {
-    string_timestamp: Key (pointer to the key)
+    string_timestamp: List<Key>
     ...
   }
 */
@@ -313,95 +308,32 @@ static Dict make_key_hash(List k_list)
   ULLONG i;
   ULLONG k_list_len = LLen(k_list);
   Key tmp_k;
-  List tmp_k_list = NULL; /* List<ULLONG> */
+  List tmp_k_list = NewList(); /* List<ULLONG> */
   List tmp_list = NULL; /* List<Key> */
   char* tmp_key_str = NULL;
 
   for (i=0; i<k_list_len; ++i) {
     tmp_k = (Key)LAt(k_list, i);
-    if (tmp_k_list) {
-      if (LSearch(tmp_k_list, &tmp_k->ts)) {
-        tmp_key_str = ToStr(tmp_k->ts);
-        tmp_list = (List)DGet(key_map, tmp_key_str);
-        LPush(tmp_list, tmp_k);
-        free(tmp_key_str);
-      }
+    tmp_key_str = ToStr(tmp_k->ts);
+    if (LSearch(tmp_k_list, &tmp_k->ts)) {
+      /* Found the key in the dict */
+      tmp_list = (List)DGet(key_map, tmp_key_str);
+      LPush(tmp_list, tmp_k);
     }
     else {
-      tmp_key_str = ToStr(tmp_k->ts);
+      /* Looks like we've got a new key */
       tmp_list = NewList();
-      if (!tmp_k_list) tmp_k_list = NewList();
       LPush(tmp_k_list, &tmp_k->ts);
       LPush(tmp_list, tmp_k);
       DInsert(key_map, tmp_list, tmp_key_str);
-      free(tmp_key_str);
+      tmp_list = NULL;
     }
+    free(tmp_key_str);
   }
+
   DeleteList(tmp_k_list);
 
   return key_map;
-}
-
-/* Passing and receiving keys with other shufflers */
-static int pr_other_keys(ShflNode shfl_node)
-{
-  assert(shfl_node);
-
-  BTreeList key_map = shfl_node->shuffler_map;
-  List given_keys = shfl_node->keys;
-  const char* assigned_key = shfl_node->assigned_key;
-  pthread_mutex_t* mtx = shfl_node->master_mutex;
-  ULLONG n_assigned_key = atoi(assigned_key);
-  ULLONG n_keys = LLen(given_keys);
-  ULLONG i, k;
-
-  if (!key_map || !given_keys || !assigned_key) {
-    fprintf(stderr, "pr_other_keys: Unable to work with insufficient inputs.\n");
-    exit(-1);
-  }
-
-  /* Locking mutex */
-  pthread_mutex_lock(mtx);
-
-  /* We locked the mutex, let's re-distribute keys */
-
-  /* Let's manipulate map first */
-  /* Add current shfl_node to the map */
-  //BTLInsert(key_map, shfl_node, (btree_key_t)n_assigned_key);
-  /* And remove current shfl_node if it was registered as 0 */
-  List tmp_list = BTLSearch(key_map, 0);
-  for (i=0; i<LLen(tmp_list); ++i) {
-    if (shfl_node == (ShflNode)LAt(tmp_list, i)) {
-      LRemove(tmp_list, i);
-      break;
-    } /* if (shfl_node == (ShflNode)LAt(tmp_list, i)) */
-  } /* for (i=0; i<LLen(tmp_list); ++i) */
-
-  /* Then, let's pass 'not assigned' keys to other shfl_nodes */
-  /* TODO: Check if it also passes the parsed objects (PObj) */
-  ULLONG tmp_key;
-  ShflNode tmp_shfl_node;
-  for (i=0; i<n_keys; ++i) {
-    tmp_key = (ULLONG)LAt(given_keys, i);
-    if (tmp_key == n_assigned_key) continue;
-
-    tmp_list = BTLSearch(key_map, tmp_key);
-    if (tmp_list) {
-      for (k=0; k<LLen(tmp_list); ++k) {
-        tmp_shfl_node = (ShflNode)LAt(tmp_list, k);
-        if (LLen(tmp_shfl_node->keys) < tmp_shfl_node->n_mappers) {
-          LPush(tmp_shfl_node->keys, (void*)tmp_key);
-          LRemove(tmp_list, k);
-          break;
-        } /* if (LLen(tmp_shfl_node->keys) < tmp_shfl_node->n_mappers) */
-      } /* for (k=0; k<LLen(tmp_list); ++k) */
-    } /* if (tmp_list) */
-  } /* for (i=0; i<n_keys; ++i) */
-
-  /* Releasing mutex */
-  pthread_mutex_unlock(mtx);
-
-  return 0;
 }
 
 
@@ -453,25 +385,6 @@ Shuffler NewShuffler(List main_data, ULONG total_threads)
 int DeleteShuffler(Shuffler shfl)
 {
   assert(shfl);
-
-  shfl->main_data = NULL; /* main data will be freed later in main controller */
-
-//  if (shfl->shuffler_map)
-//    DeleteBTreeList(shfl->shuffler_map);
-
-//  if (shfl->k_man)
-//    DeleteKeyManager(shfl->k_man);
-
-  /* Thread elements should have been cleaned up by users! */
-//  if (shfl->shfl_node_threads)
-//    DeleteThreads(shfl->shfl_node_threads);
-//
-//  if (shfl->reducer_threads)
-//    DeleteThreads(shfl->reducer_threads);
-
-  /* Freeing each shfl_node should have been finished within Shuffler() */
-//  if (shfl->shfl_nodes)
-//    free(shfl->shfl_nodes);
 
   /* Free the controller */
   free(shfl->tc);
@@ -552,15 +465,20 @@ int Shuffle(Shuffler shfl)
     } /* for (i=0; i<curr_run_len; ++i) */
 
     /* Now run the actual shuffling */
-    /* We need a mutex */
-    //init_mutex(); /* Initializes main_mutex --> just use this */
-
-    /* prepare threads */
+    /* preparing threads */
     shfl->shfl_node_threads = \
       NewThreads(n_curr_shufflers, true, &shfl->mutex);
     /* Let's run shuffling !! */
     RunThreads(shfl->shfl_node_threads, do_shuffle, (void**)shfl->shfl_nodes);
     DeleteThreads(shfl->shfl_node_threads);
+
+    /*
+      TODO: Ok, we've collected and reported data to the shfl->k_man
+      Let's re-distribute.
+    */
+    if (shfl->k_man->shufflers->len > 1) {
+
+    }
 
     /* Then, reduce the data from key manager
        -> number of shufflers must be the same as mappers */
@@ -698,8 +616,6 @@ int map_reduce(char* fname, ULONG threads)
 void print_pobj_stats(char* fname, List pol)
 {
   assert(pol);
-
   printf("%s Readout Complete!!\n", fname);
-
   printf("Total pixel data entries: %llu\n", LLen(pol));
 }

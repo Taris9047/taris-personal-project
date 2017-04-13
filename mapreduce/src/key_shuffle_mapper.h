@@ -34,19 +34,16 @@ typedef struct _key_dict_stats {
     Dict<List<Key>>
     { timestamp: key ... }
 
-    --> needs to be converted to ...
+    --> needs to be collected to ...
 
-    List<Tuple>
-    { (timestamp, number of this timestamp), ... }
+    collected_data
+    List<Tuple(char*, Key)>
 
-    and
-
-    List<List<ShflNode>>
-    { (timestamp, List<ShflNode>), ... }
+    collected_keys as string
+    List<char*>
 
   */
-  List key_elements; /* List<Tuple>: Contains key-n_elements pair tuples */
-  List shfl_elements; /* List<List<ShflNode>> */
+  List collected_data;
 
   ULLONG n_keys;
   ShflNode source_shfl_node;
@@ -78,11 +75,12 @@ char** KDSGetSortedNumKey(KeyDictStats kds);
 
 /* Key list manager (Super simple implementation for now) */
 typedef struct _key_manager {
-  Dict shufflers;   /* Dict<List<ShflNode>> Dictionary that holds key-shuffler mapping */
-  // Dict n_shufflers; /* how many shufflers on a key --> not necessary, just call LLen() */
-  char** mapped_keys_str; /* The keys that this mapper has... as string */
-  Key* mapped_keys; /* The keys that this mapper has */
+  List shufflers;   /* List<ShflNode>: list of shufflers */
+  List mapped_keys_str; /* List<char*> The keys that this mapper has... as string */
+  List mapped_keys; /* List<Key> The keys that this mapper has */
   ULLONG n_keys; /* Number of keys */
+
+  Dict coll_map; /* Dictionary of collection, Dict<key_string, List<Key> */
 } key_manager;
 typedef key_manager* KeyManager;
 
@@ -91,24 +89,7 @@ KeyManager NewKeyManager();
 int DeleteKeyManager(KeyManager k_m);
 
 /* Methods */
-List KManGetShflNode(KeyManager kl_m, Key k);
-int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node);
 int KManAcceptKeysFromShflNode(ShflNode shfl_node);
 int KManReport(KeyManager kl_m, KeyDictStats kds);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif /* Include guard */

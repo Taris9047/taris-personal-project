@@ -179,6 +179,11 @@ int LAttach(List l, const List o)
   LNode l_end = l->root_node, o_start = o->root_node;
 
   /* Some kinky cases */
+  if (!l_end) {
+    l->root_node = o_start;
+    l->len = o->len;
+    return 0;
+  }
   if (list_node_isempty(l_end)) {
     list_node_destroy(l->root_node);
     l->root_node = o_start;

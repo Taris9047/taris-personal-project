@@ -22,46 +22,30 @@
 /***********************************************
  Key Dict statistics - Static stuffs
 ************************************************/
-/* Convert source dict to tuple list (List<Tuple>) */
-/* Tuple structure: (string key, how many ShflNodes with the key) */
-static List key_convert_dict(Dict d)
+/* Convert source dict to tuple list (List<Tuple(char*, Key)>) */
+static List linearlize_dict(Dict d)
 {
   assert(d);
+
   List tup_list = NewList();
-
   Tuple tmp_tuple = NULL;
+  Key tmp_k = NULL;
+  ULLONG i, j, tmp_l_len, d_n_keys = d->size;
+  List tmp_list = NULL;
+  char* tmp_str_d_k = NULL;
 
-  ULLONG i, dict_size = d->size;
-  ULLONG *tmp_k_len;
-  for (i=0; i<dict_size; ++i) {
-    tmp_tuple = NewTuple(2);
-    TSet(tmp_tuple, 0, (char*)LAt(d->key_str, i));
-    tmp_k_len = (ULLONG*)malloc(sizeof(ULLONG));
-    (*tmp_k_len) = LLen((List)DGet(d, (char*)LAt(d->key_str, i)));
-    TSet(tmp_tuple, 1, tmp_k_len);
-    LPush(tup_list, tmp_tuple);
-  }
-
-  return tup_list;
-}
-
-/* Convert source dict to tuple list of (List<List<ShflNode>>) */
-/* Tuple structure: (string key, List<List<ShflNode>> ) */
-static List shfl_convert_dict(Dict d)
-{
-  assert(d);
-  List tup_list = NewList();
-
-  Tuple tmp_tuple = NULL;
-  char* tmp_k_str;
-
-  ULLONG i, dict_size = d->size;
-  for (i=0; i<dict_size; ++i) {
-    tmp_tuple = NewTuple(2);
-    tmp_k_str = (char*)LAt(d->key_str, i);
-    TSet(tmp_tuple, 0, tmp_k_str);
-    TSet(tmp_tuple, 1, (List)DGet(d, tmp_k_str));
-    LPush(tup_list, tmp_tuple);
+  for (i=0; i<d_n_keys; ++i) {
+    tmp_str_d_k = (char*)LAt(d->key_str, i);
+    tmp_list = (List)DGet(d, tmp_str_d_k);
+    tmp_l_len = tmp_list->len;
+    for (j=0; j<tmp_l_len; ++j) {
+      tmp_k = (Key)LAt(tmp_list, j);
+      tmp_tuple = NewTuple(2);
+      TSet(tmp_tuple, 0, strdup(tmp_str_d_k));
+      TSet(tmp_tuple, 1, tmp_k);
+      LPush(tup_list, tmp_tuple);
+      tmp_tuple = NULL;
+    }
   }
 
   return tup_list;
@@ -80,6 +64,20 @@ static int comp_tuple(const void* elem1, const void* elem2)
 /***********************************************
  Key Dict statistics - Constructors and Destructors
 ************************************************/
+/*
+
+  Dict<List<Key>>
+  { timestamp: key ... }
+
+  --> needs to be collected to ...
+
+  collected_data
+  List<Tuple(char*, Key)>
+
+  collected_keys as string
+  List<char*>
+
+*/
 KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node)
 {
   assert(sd);
@@ -87,9 +85,8 @@ KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node)
   KeyDictStats kds = (KeyDictStats)malloc(sizeof(key_dict_stats));
   assert(kds);
   kds->source_dict = sd;
-  kds->key_elements = key_convert_dict(kds->source_dict);
-  kds->shfl_elements = shfl_convert_dict(kds->source_dict);
-  kds->n_keys = LLen(kds->key_elements);
+  kds->collected_data = linearlize_dict(kds->source_dict);
+  kds->n_keys = LLen(sd->key_str);
   kds->source_shfl_node = s_shfl_node;
   return kds;
 }
@@ -98,24 +95,15 @@ int DeleteKeyDictStats(KeyDictStats kds)
 {
   assert(kds);
 
-  ULLONG i, k_el_size = LLen(kds->key_elements);
+  ULLONG i, k_el_size = LLen(kds->collected_data);
   Tuple tmp_tuple;
-  for (i=0; i<k_el_size; ++i) {
-    /* do not destroy key string. they came from original dict */
-    /* But remove the numbers */
-    tmp_tuple = (Tuple)LAt(kds->key_elements, i);
-    // free((char*)TAt(tmp_tuple,0));
-    free((ULLONG*)TAt(tmp_tuple,1));
-    DeleteTuple(tmp_tuple);
-  }
-  DeleteList(kds->key_elements);
 
   for (i=0; i<k_el_size; ++i) {
-    tmp_tuple = (Tuple)LAt(kds->key_elements, i);
-    /* This tuple has shfl_node... So we don't need to drop them here */
+    tmp_tuple = (Tuple)LAt(kds->collected_data, i);
+    free(tmp_tuple->data[0]);
+    /* We'll keep the keys since they'll be dealt with shfl_node destructor */
     DeleteTuple(tmp_tuple);
   }
-  DeleteList(kds->shfl_elements);
 
   free(kds);
   return 0;
@@ -130,10 +118,10 @@ ULLONG KDSGetKeyElements(KeyDictStats kds, char* key_str)
   assert(kds);
   assert(key_str);
 
-  ULLONG i, k_elements, elements = LLen(kds->key_elements);
+  ULLONG i, k_elements, elements = LLen(kds->collected_data);
   for (i=0; i<elements; ++i) {
-    if ( strcmp(key_str, (char*)TAt((Tuple)LAt(kds->key_elements, i), 0) ) ) {
-      k_elements = *(ULLONG*)TAt((Tuple)LAt(kds->key_elements, i), 1);
+    if ( strcmp(key_str, (char*)TAt((Tuple)LAt(kds->collected_data, i), 0) ) ) {
+      k_elements = *(ULLONG*)TAt((Tuple)LAt(kds->collected_data, i), 1);
       return k_elements;
     }
     else return 0;
@@ -153,7 +141,7 @@ char* KDSGetMaxNumKey(KeyDictStats kds)
 
   ULLONG i;
   for (i=0; i<kds->n_keys; ++i)
-    sort_bed[i] = TAt((Tuple)LAt(kds->key_elements, i), 0);
+    sort_bed[i] = TAt((Tuple)LAt(kds->collected_data, i), 0);
 
   qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
 
@@ -175,7 +163,7 @@ char* KDSGetMinNumKey(KeyDictStats kds)
 
   ULLONG i;
   for (i=0; i<kds->n_keys; ++i)
-    sort_bed[i] = TAt((Tuple)LAt(kds->key_elements, i), 0);
+    sort_bed[i] = TAt((Tuple)LAt(kds->collected_data, i), 0);
 
   qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
 
@@ -199,7 +187,7 @@ char** KDSGetSortedNumKey(KeyDictStats kds)
 
   ULLONG i;
   for (i=0; i<kds->n_keys; ++i)
-    sort_bed[i] = (Tuple)LAt(kds->key_elements, i);
+    sort_bed[i] = (Tuple)LAt(kds->collected_data, i);
 
   qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
 
@@ -230,19 +218,21 @@ static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
   assert(k_m);
   assert(k);
   if (!k_m->n_keys) return false;
+  if (!k_m->mapped_keys->len) return false;
 
   ULLONG i;
+  Key tmp_key;
   for (i=0; i<k_m->n_keys; ++i) {
-    if (k_m->mapped_keys[i]->ts == k->ts) {
-      *index = i;
+    tmp_key = (Key)LAt(k_m->mapped_keys, i);
+    if (tmp_key->ts == k->ts) {
+      (*index) = i;
       return true;
     }
   }
-  *index = 0;
+  (*index) = 0;
+
   return false;
 }
-
-
 
 
 /***********************************************
@@ -252,10 +242,11 @@ KeyManager NewKeyManager()
 {
   KeyManager k_m = (KeyManager)malloc(sizeof(key_manager));
   assert(k_m);
-  k_m->shufflers = NewDict();
-  DSetHashFunc(k_m->shufflers, &hash_str_jenkins);
-  k_m->mapped_keys_str = NULL;
-  k_m->mapped_keys = NULL;
+  k_m->shufflers = NewList();
+  k_m->mapped_keys_str = NewList();
+  k_m->mapped_keys = NewList();
+  k_m->coll_map = NewDict();
+  DSetHashFunc(k_m->coll_map, &hash_str_jenkins);
   k_m->n_keys = 0;
   return k_m;
 }
@@ -263,9 +254,10 @@ KeyManager NewKeyManager()
 int DeleteKeyManager(KeyManager k_m)
 {
   assert(k_m);
-  DeleteDict(k_m->shufflers);
-  if (k_m->mapped_keys) free(k_m->mapped_keys);
-  if (k_m->mapped_keys_str) free(k_m->mapped_keys_str);
+  DeleteList(k_m->shufflers);
+  DeleteList(k_m->mapped_keys);
+  DeleteListHard(k_m->mapped_keys_str, NULL);
+  DeleteDict(k_m->coll_map);
   k_m->n_keys = 0;
   free(k_m);
   return 0;
@@ -275,46 +267,6 @@ int DeleteKeyManager(KeyManager k_m)
 /***********************************************
  Key list manager - Methods
 ************************************************/
-/* Returns a list of shuffler nodes by given key */
-List KManGetShflNode(KeyManager kl_m, Key k)
-{
-  assert(kl_m);
-  assert(k);
-
-  ULLONG k_index;
-  List shfl_nodes;
-
-  if (!exist_key(kl_m, k, &k_index)) return NULL;
-  char* dict_key = ToStr(k->ts);
-  shfl_nodes = (List)DGet(kl_m->shufflers, dict_key);
-  free(dict_key);
-
-  return shfl_nodes;
-}
-
-/* Add shuffler node with key */
-int KManAddShflNode(KeyManager kl_m, Key k, ShflNode shfl_node)
-{
-  assert(kl_m);
-  assert(k);
-  assert(shfl_node);
-
-  char* dict_key = ToStr(k->ts);
-
-  List tmp_shufflers_at_k = (List)DGet(kl_m->shufflers, dict_key);
-  List new_shuffler_list = NULL;
-  if (tmp_shufflers_at_k)
-    LPush(tmp_shufflers_at_k, shfl_node);
-  else {
-    new_shuffler_list = NewList();
-    LPush(new_shuffler_list, shfl_node);
-    DInsert(kl_m->shufflers, new_shuffler_list, dict_key);
-  }
-
-  free(dict_key);
-  return 0;
-}
-
 /* Collects reported keys from a shuffler node */
 /* Maybe this function needs to run under mutex? */
 /*
@@ -335,50 +287,46 @@ int KManAcceptKeysFromShflNode(ShflNode shfl_node)
   KeyDictStats kds = NewKeyDictStats(shfl_node->KeyMap, shfl_node);
   /* Report current findings to manager, which is actually owned by Shuffler */
   KManReport(manager, kds);
-  /* Wipe up current report since we've reported everything already */
+  /* Wipe up current report since we've received everything already */
   DeleteKeyDictStats(kds);
 
   return 0;
 }
 
-/* Report Key findings to manager */
-/* Main idea: Map key - shfl_node */
+/* Process report from a shfl_node (or kds) */
 int KManReport(KeyManager kl_m, KeyDictStats kds)
 {
   assert(kl_m);
   assert(kds);
 
-  ULLONG i;
-  kl_m->n_keys = LLen(kds->shfl_elements);
-  Tuple tmp_k_tuple = NULL;
-  List tmp_shfl_node_list = NULL;
-  List tmp_sfn_km = NULL;
+  Tuple tmp_tuple;
+  char* tmp_key_str;
+  Key tmp_key;
+  ULLONG i, kds_data_len = kds->collected_data->len;
+  List dict_Key_list;
 
-  /* Let's process keys first */
-  if (kl_m->mapped_keys) free(kl_m->mapped_keys);
-  kl_m->mapped_keys = \
-    (Key*)malloc(sizeof(Key)*kl_m->n_keys);
-  if (kl_m->mapped_keys_str) free(kl_m->mapped_keys_str);
-  kl_m->mapped_keys_str = \
-    (char**)malloc(sizeof(char*)*kl_m->n_keys);
-  for (i=0; i<kl_m->n_keys; ++i) {
-    tmp_k_tuple = (Tuple)LAt(kds->key_elements, i);
-    kl_m->mapped_keys_str[i] = (char*)TAt(tmp_k_tuple, 0);
-    kl_m->mapped_keys[i] = (Key)TAt(tmp_k_tuple, 1);
-    tmp_shfl_node_list = (List)LAt(kds->shfl_elements, i);
-    /* And... dont' forget shfl_nodes */
-    tmp_sfn_km = (List)DGet(kl_m->shufflers, kl_m->mapped_keys_str[i]);
-    if ( !tmp_sfn_km ) {
-      DInsert(kl_m->shufflers, tmp_shfl_node_list, kl_m->mapped_keys_str[i]);
+  /* Let's unpack kds and update coll_map */
+  for (i=0; i<kds_data_len; ++i) {
+    tmp_tuple = (Tuple)LAt(kds->collected_data, i);
+    tmp_key_str = strdup((char*)TAt(tmp_tuple, 0));
+    tmp_key = (Key)TAt(tmp_tuple, 1);
+
+    /* Updating the List stuff */
+    LPush(kl_m->mapped_keys_str, tmp_key_str);
+    LPush(kl_m->mapped_keys, tmp_key);
+
+    dict_Key_list = NULL;
+    dict_Key_list = (List)DGet(kl_m->coll_map, tmp_key_str);
+    if (!dict_Key_list) {
+      dict_Key_list = NewList();
+      DInsert(kl_m->coll_map, dict_Key_list, tmp_key_str);
     }
-    else {
-      /*
-        We're 'Injecting' collected List<ShflNode>
-        to existing List found in kl_m->shufflers
-      */
-      LAttach(tmp_sfn_km, tmp_shfl_node_list);
-    }
-  } /* for (i=0; i<kl_m->n_keys; ++i) */
+    LPush(dict_Key_list, tmp_key);
+    kl_m->n_keys++;
+  }
+
+  /* Finally, update this kds shuffler */
+  LPush(kl_m->shufflers, kds->source_shfl_node);
 
   return 0;
 }

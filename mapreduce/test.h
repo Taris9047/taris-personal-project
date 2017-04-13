@@ -15,7 +15,7 @@
 
 #include "src/mapreduce.h"
 
-#define DEF_THREADS 4
+#define DEF_THREADS 10
 #define DEF_INF_NAME "./data.txt"
 
 int Initializer(int argc, char** argv, char** fname, ULONG* threads);
