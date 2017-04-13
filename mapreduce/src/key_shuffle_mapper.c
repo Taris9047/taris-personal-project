@@ -213,26 +213,26 @@ char** KDSGetSortedNumKey(KeyDictStats kds)
  Key list manager - Static functions
 ************************************************/
 /* Do I have the key? let me find out */
-static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
-{
-  assert(k_m);
-  assert(k);
-  if (!k_m->n_keys) return false;
-  if (!k_m->mapped_keys->len) return false;
-
-  ULLONG i;
-  Key tmp_key;
-  for (i=0; i<k_m->n_keys; ++i) {
-    tmp_key = (Key)LAt(k_m->mapped_keys, i);
-    if (tmp_key->ts == k->ts) {
-      (*index) = i;
-      return true;
-    }
-  }
-  (*index) = 0;
-
-  return false;
-}
+// static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
+// {
+//   assert(k_m);
+//   assert(k);
+//   if (!k_m->n_keys) return false;
+//   if (!k_m->mapped_keys->len) return false;
+//
+//   ULLONG i;
+//   Key tmp_key;
+//   for (i=0; i<k_m->n_keys; ++i) {
+//     tmp_key = (Key)LAt(k_m->mapped_keys, i);
+//     if (tmp_key->ts == k->ts) {
+//       (*index) = i;
+//       return true;
+//     }
+//   }
+//   (*index) = 0;
+//
+//   return false;
+// }
 
 
 /***********************************************

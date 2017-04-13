@@ -33,7 +33,6 @@ TNumCtrl NewTNumCtrl(
   tnc->total_threads = n_total_threads;
   tnc->mappers_per_shuffler = n_mappers_per_shuffler;
   tnc->shufflers = n_shufflers;
-
   return tnc;
 }
 
@@ -483,8 +482,8 @@ int Shuffle(Shuffler shfl)
        -> number of shufflers must be the same as mappers */
     /* TODO: Write Key list divider for reducers (This is actual shuffling...) */
     ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
-    if (n_curr_shufflers >= shfl->k_man->n_keys) {
-      n_curr_keys = shfl->k_man->n_keys;
+    if (n_curr_shufflers >= key_var) {
+      n_curr_keys = key_var;
       n_reducer_jobs = 1;
     }
     else {
