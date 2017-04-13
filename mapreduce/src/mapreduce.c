@@ -1,3 +1,12 @@
+/**
+ * @Author: taris
+ * @Date:   2017-04-13T07:35:54-05:00
+ * @Last modified by:   taris
+ * @Last modified time: 2017-04-13T07:57:55-05:00
+ */
+
+
+
 /***********************************************
 
  Test program for map reduction library
@@ -336,6 +345,7 @@ static Dict make_key_hash(List k_list)
       DInsert(key_map, tmp_list, tmp_key_str);
       free(tmp_key_str);
     }
+    tmp_list = NULL;
   }
   DeleteList(tmp_k_list);
 
