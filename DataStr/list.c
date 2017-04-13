@@ -171,6 +171,40 @@ unsigned long long LIndex(List l, list_data_t value)
   return i;
 }
 
+/* Attach given List (o) to me (l) */
+/* Be sure to keep o alive later... if one deletes o, you're in stupid truble */
+int LAttach(List l, const List o)
+{
+  assert(l); assert(o);
+  LNode l_end = l->root_node, o_start = o->root_node;
+
+  /* Some kinky cases */
+  if (!l_end) {
+    l->root_node = o_start;
+    l->len = o->len;
+    return 0;
+  }
+  if (list_node_isempty(l_end)) {
+    list_node_destroy(l->root_node);
+    l->root_node = o_start;
+    l->len = o->len;
+    return 0;
+  }
+  else if (list_node_isempty(o_start)) {
+    /* given node is empty... just do nothing */
+    return 0;
+  }
+  else if (!list_node_isempty(l_end) && !list_node_isempty(o_start)) {
+    node_trav(&l_end);
+    l_end->next = o_start;
+    o_start->prev = l_end;
+    l->len += o->len;
+    return 0;
+  }
+  /* Shall not reach here */
+  return 0;
+}
+
 /* Remove a node at index i */
 int LRemove(List l, unsigned long long ind)
 {

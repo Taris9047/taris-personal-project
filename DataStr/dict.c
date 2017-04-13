@@ -20,6 +20,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "dict.h"
 
@@ -39,6 +40,7 @@ int DeleteDNode(DNode dn)
 {
   assert(dn);
   dn->data = NULL;
+  dn->key = 0;
   free(dn);
   return 0;
 }
@@ -171,6 +173,7 @@ static int remove_key(
 /***************************************
  Dict - Constructors and Destructors
 ****************************************/
+/* Constructor */
 Dict NewDict()
 {
   Dict d = (Dict)malloc(sizeof(dictionary));
@@ -179,19 +182,44 @@ Dict NewDict()
   d->table = NewList(); /* The DNode linked list */
 	d->key_str = NewList(); /* key string list */
   d->keys = NULL;
+  /* Default hashing: FNV */
+  d->hashing = &hash_str_fnv;
   return d;
 }
+
+/* Destructor for most cases */
 int DeleteDict(Dict d)
 {
   assert(d);
   DeleteListHard(d->table, &DeleteDNode);
+  DeleteListHard(d->key_str, NULL);
   free(d->keys);
   free(d);
   return 0;
 }
 
+/* Destructor for some special cases */
+int DeleteDictHard(Dict d, int (*data_destroyer) ())
+{
+  assert(d);
 
+  unsigned long long i, n_keys = LLen(d->key_str);
+  char* tmp_key_str = NULL;
+  dict_data_t tmp_data = NULL;
+  for (i=0; i<n_keys; ++i) {
+    tmp_key_str = (char*)LAt(d->key_str, i);
+    tmp_data = DGet(d, tmp_key_str);
+    data_destroyer(tmp_data);
+  }
 
+  DeleteListHard(d->key_str, NULL);
+  DeleteListHard(d->table, &DeleteDNode);
+
+  free(d->keys);
+  free(d);
+
+  return 0;
+}
 
 
 
@@ -228,13 +256,19 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
   if (!d->hashing) k = *(const dict_key_t*)inp_key;
   else k = d->hashing(inp_key);
 
+  /* Assume that inp_key will be destroyed or lost.
+   * So, duplicate the string to store it to the dict.
+   * They will be freed when the dict is subject to
+   * deletion. */
+  char* key_str = strdup(inp_key);
+
   DNode tmp_dnode = search_node(d, k);
   if (tmp_dnode) tmp_dnode->data = inp_data;
   else {
     /* cannot find the key. Let's make it!! */
     tmp_dnode = NewDNode(inp_data, k);
     LPush(d->table, tmp_dnode);
-		LPush(d->key_str, (list_data_t)inp_key);
+    LPush(d->key_str, key_str);
     append_keys(&d->keys, k, &d->size);
   }
 
@@ -277,6 +311,7 @@ List DGetKeys(Dict d)
   assert(d);
   return d->key_str;
 }
+
 
 
 
