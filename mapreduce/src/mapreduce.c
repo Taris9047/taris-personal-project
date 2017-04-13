@@ -476,9 +476,8 @@ int Shuffle(Shuffler shfl)
       TODO: Ok, we've collected and reported data to the shfl->k_man
       Let's re-distribute.
     */
-    if (shfl->k_man->shufflers->len > 1) {
-
-    }
+    ULONG key_var; /* how many kind of keys we have now? */
+    key_var = shfl->k_man->coll_map->key_str->len;
 
     /* Then, reduce the data from key manager
        -> number of shufflers must be the same as mappers */

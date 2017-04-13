@@ -119,8 +119,7 @@ int DeleteShuffler(Shuffler shfl);
 /* Methods */
 /* Performs actual shuffling */
 int Shuffle(Shuffler shfl);
-/* Adds a shuffler to shuffler map */
-//int AddShflNode(Shuffler shfl, ULONG num_mappers);
+
 /* job scheduler - return number of jobs */
 ULONG job_schedule(
   ULLONG total_data_length,
