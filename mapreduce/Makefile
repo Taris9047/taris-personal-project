@@ -81,3 +81,4 @@ clean:
 	rm -rfv *.stackdump
 	rm -rfv ./$(TESTF_NAME)
 	rm -rfv ./__pycache__
+	rm -rfv *.img
