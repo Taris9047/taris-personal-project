@@ -92,11 +92,9 @@ TNumCtrl thread_num_assign(ULONG total_threads)
  Shuffler Node - Static functions
 ************************************************/
 
-/* Custom destructor for List<Key> */
-static int delete_keymap_data(List keymap_data);
-
 /* List containing keys to Hash key map (Sort by timestamp) */
 static Dict make_key_hash(List k_list);
+static int delete_key_hash(Dict k_hash);
 
 /***********************************************
  Shuffler Node - Constructors and Destructors
@@ -162,26 +160,35 @@ int DeleteShflNode(ShflNode shfl_node)
   /* map will be deleted by the main controller */
   shfl_node->shuffler_map = NULL;
 
-  if (shfl_node->thread_mappers)
-    DeleteThreads(shfl_node->thread_mappers);
-
   /* Erase the linked list too... But it's got corrupted!! */
-  if (shfl_node->KeyMap)
-    DeleteDictHard(shfl_node->KeyMap, &delete_keymap_data);
-  if (shfl_node->keys)
-    DeleteListHard(shfl_node->keys, &DeleteKey);
+  if (shfl_node->keys) DeleteList(shfl_node->keys);
   if (shfl_node->mapped_keys) free(shfl_node->mapped_keys);
+  if (shfl_node->KeyMap) delete_key_hash(shfl_node->KeyMap);
+  /* Keys will be destroyed with KeyManager wipe by shfl */
 
   /* Free up jobs index */
   for (i=0; i<shfl_node->jobs; ++i)
     free(shfl_node->jobs_index[i]);
   free(shfl_node->jobs_index);
+  shfl_node->jobs = 0;
 
-  /* Finally, free the shfl_node */
-  free(shfl_node);
+  /* KeyManager will be dealt with parent thread so, leave it */
+  shfl_node->k_man = NULL;
+
+  /* So does assigned key */
+  if (shfl_node->assigned_key)
+    free(shfl_node->assigned_key);
+
+  /* We don't need frac data List anymore */
+  if (shfl_node->frac_data)
+    DeleteList(shfl_node->frac_data);
 
   /* shfl_node->k_man will be deleted by Shuffler, not here */
-  /* shfl_node->master_mutex will also be deleted by shuffler, not there */
+  /* shfl_node->master_mutex will also be deleted by shuffler, not here */
+  shfl_node->master_mutex = NULL;
+
+  /* Free the shfl_node itself!! */
+  free(shfl_node);
 
   return 0;
 }
@@ -212,9 +219,9 @@ worker_ret_data_t do_shuffle(void* args)
   if (!frac_data_len) return NULL; // Nothing to return if frac_data_len is zero
   if (frac_data_len > shfl_node->n_mappers)
     map_rem = frac_data_len%shfl_node->n_mappers;
-  else
-    map_rem = 0;
+  else map_rem = 0;
   ULONG curr_mappers = 0;
+  MArgs* mapper_args;
 
   shfl_node->jobs = \
     job_schedule(
@@ -225,8 +232,8 @@ worker_ret_data_t do_shuffle(void* args)
     shfl_node->shfl_node_id, shfl_node->n_mappers);
 
   curr_mappers = shfl_node->n_mappers;
-  MArgs* mapper_args = NULL;
   for (i=0; i<shfl_node->jobs; ++i) {
+    mapper_args = NULL;
     if (map_rem && i==(shfl_node->jobs-1)) curr_mappers = map_rem;
 
     /* Mappers needs to be joinable but mutex is not required. */
@@ -257,22 +264,23 @@ worker_ret_data_t do_shuffle(void* args)
     /* Clean up mapper threads for this schedule */
     for (j=0; j<curr_mappers; ++j) DeleteMArgs(mapper_args[j]);
     free(mapper_args);
-  }
+
+    DeleteThreads(shfl_node->thread_mappers);
+  } /* for (i=0; i<shfl_node->jobs; ++i) */
 
   printf("Shuffler [%lu], Mapping has been finished...\n", shfl_node->shfl_node_id);
 
   /* Ok, we've got keys in mapper_args. Before shuffling, we need to sort them out... */
   printf("Shuffler [%lu], Processing keymap..\n", shfl_node->shfl_node_id);
 
+  /* Now KeyMap has collection of keys */
+  /* Report my findings to Key manager */
+  pthread_mutex_lock(shfl_node->master_mutex);
   /* KeyMap:
     key_type_t: List<Key>,
     key_type_t: List<Key>,...
   */
   shfl_node->KeyMap = make_key_hash(shfl_node->keys);
-
-  /* Now KeyMap has collection of keys */
-  /* Report my findings to Key manager */
-  pthread_mutex_lock(shfl_node->master_mutex);
   if (!shfl_node->assigned_key)
     KManAcceptKeysFromShflNode(shfl_node);
   pthread_mutex_unlock(shfl_node->master_mutex);
@@ -280,15 +288,7 @@ worker_ret_data_t do_shuffle(void* args)
   /* Free all the craps before finishing all the stuff */
   printf("Shuffler [%lu] is cleaning up...\n", shfl_node->shfl_node_id);
 
-  return NULL;
-}
-
-/* Custom destructor for List<Key> */
-static int delete_keymap_data(List keymap_data)
-{
-  assert(keymap_data);
-  DeleteList(keymap_data);
-  return 0;
+  pthread_exit(NULL);
 }
 
 /* List containing keys to Hash key map (Sort by timestamp) */
@@ -308,13 +308,14 @@ static Dict make_key_hash(List k_list)
   ULLONG k_list_len = LLen(k_list);
   Key tmp_k;
   List tmp_k_list = NewList(); /* List<ULLONG> */
-  List tmp_list = NULL; /* List<Key> */
-  char* tmp_key_str = NULL;
+  List tmp_list; /* List<Key> */
+  char* tmp_key_str;
 
   for (i=0; i<k_list_len; ++i) {
     tmp_k = (Key)LAt(k_list, i);
     tmp_key_str = ToStr(tmp_k->ts);
-    if (LSearch(tmp_k_list, &tmp_k->ts)) {
+    tmp_list = NULL;
+    if (LSearch(tmp_k_list, tmp_k->point_data)) {
       /* Found the key in the dict */
       tmp_list = (List)DGet(key_map, tmp_key_str);
       LPush(tmp_list, tmp_k);
@@ -322,19 +323,41 @@ static Dict make_key_hash(List k_list)
     else {
       /* Looks like we've got a new key */
       tmp_list = NewList();
-      LPush(tmp_k_list, &tmp_k->ts);
+      LPush(tmp_k_list, tmp_k->point_data);
       LPush(tmp_list, tmp_k);
       DInsert(key_map, tmp_list, tmp_key_str);
-      tmp_list = NULL;
     }
+    tmp_list = NULL;
+    tmp_k = NULL;
     free(tmp_key_str);
   }
-
   DeleteList(tmp_k_list);
-
   return key_map;
 }
 
+/* Delete the key hash */
+static int delete_key_hash(Dict k_hash)
+{
+  assert(k_hash);
+
+  DNode tmp_dn;
+  List tmp_l;
+  ULLONG i, tbl_len = k_hash->table->len;
+
+  for (i=0; i<tbl_len; ++i) {
+    /* tmp_l is List<Key> */
+    tmp_dn = (DNode)LAt(k_hash->table, i);
+    tmp_l = (List)tmp_dn->data;
+    DeleteList(tmp_l); /* Keys will be deleted later */
+    DeleteDNode(tmp_dn);
+  }
+  DeleteList(k_hash->table);
+  DeleteListHard(k_hash->key_str, NULL);
+  free(k_hash->keys);
+  k_hash->hashing = NULL;
+  free(k_hash);
+  return 0;
+}
 
 /* reducer job handler - pthread worker */
 /* Argument is actually the KeyManager */
@@ -343,12 +366,17 @@ worker_ret_data_t do_reduce(void* args)
 {
   assert(args);
   pth_args _args = (pth_args)args;
-  KeyManager man = (KeyManager)_args->data_set;
-  assert(man);
+  List KeyList = (List)_args->data_set;
+
+  if (!KeyList) return NULL;
+
+  printf(
+    "Reducer [%d] received List<Key> of length: %llu\n",
+    _args->pid, KeyList->len);
 
 
 
-  return NULL;
+  pthread_exit(NULL);
 }
 
 
@@ -422,9 +450,14 @@ int Shuffle(Shuffler shfl)
     job_schedule(given_data_len,
       n_shufflers*shfl->tc->mappers_per_shuffler, &schedule, 0);
 
-  ULLONG i, j, k;
+  ULLONG i, j, k, key_var; /* how many kind of keys we have now? */
   ULLONG n_curr_shufflers, n_curr_mappers;
   ULLONG n_shufflers_rem, n_mappers_rem;
+  ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
+
+  List* do_reduce_args = NULL;
+  List* part_data = NULL;
+  char* tmp_coll_map_str = NULL;
 
   n_shufflers_rem = given_data_len%shfl->tc->shufflers;
   n_mappers_rem = given_data_len%shfl->tc->mappers_per_shuffler;
@@ -445,14 +478,21 @@ int Shuffle(Shuffler shfl)
     shfl->shfl_nodes = \
       (ShflNode*)malloc(sizeof(ShflNode)*n_curr_shufflers);
 
+    /* TODO: Partitioning the data is kind of wrong! Fix it!! */
     printf(
       "Assigning shufflers/mappers for data (as index) %lu to %lu...\n",
-      schedule[j][0], schedule[j][n_curr_mappers-1]);
-    List* part_data = (List*)malloc(sizeof(List)*n_curr_shufflers);
+      schedule[j][0], schedule[j][n_curr_mappers*n_curr_shufflers-1]);
+    part_data = (List*)malloc(sizeof(List)*n_curr_shufflers);
     assert(part_data);
+    ULONG** sub_schedule = \
+      (ULONG**)malloc(sizeof(ULONG*)*n_curr_shufflers);
     for (i=0; i<n_curr_shufflers; ++i) {
+      sub_schedule[i] = (ULONG*)malloc(sizeof(ULONG)*n_curr_mappers);
+      for (k=0; k<n_curr_mappers; ++k)
+        sub_schedule[i][k] = schedule[j][k+i*n_curr_mappers];
       part_data[i] = \
-        LPart(shfl->main_data, (ULLONG*)schedule[j], n_curr_mappers);
+        LPart(
+          shfl->main_data, (ULLONG*)sub_schedule[i], n_curr_mappers);
       shfl->shfl_nodes[i] = \
         NewShflNode(
           part_data[i],
@@ -461,7 +501,9 @@ int Shuffle(Shuffler shfl)
           shfl->k_man,
           &shfl->mutex,
           j+i);
+      free(sub_schedule[i]);
     } /* for (i=0; i<curr_run_len; ++i) */
+    free(sub_schedule);
 
     /* Now run the actual shuffling */
     /* preparing threads */
@@ -471,17 +513,11 @@ int Shuffle(Shuffler shfl)
     RunThreads(shfl->shfl_node_threads, do_shuffle, (void**)shfl->shfl_nodes);
     DeleteThreads(shfl->shfl_node_threads);
 
-    /*
-      TODO: Ok, we've collected and reported data to the shfl->k_man
-      Let's re-distribute.
-    */
-    ULONG key_var; /* how many kind of keys we have now? */
     key_var = shfl->k_man->coll_map->key_str->len;
 
     /* Then, reduce the data from key manager
        -> number of shufflers must be the same as mappers */
     /* TODO: Write Key list divider for reducers (This is actual shuffling...) */
-    ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
     if (n_curr_shufflers >= key_var) {
       n_curr_keys = key_var;
       n_reducer_jobs = 1;
@@ -494,18 +530,28 @@ int Shuffle(Shuffler shfl)
     }
     for (k=0; k<n_reducer_jobs; ++k) {
       if (reducer_job_rem && k == n_reducer_jobs-1) n_curr_keys = reducer_job_rem;
+      /* preparing arguments for do_reduce */
+      do_reduce_args = (List*)malloc(sizeof(List)*n_reducer_jobs);
+      tmp_coll_map_str = NULL;
       for (i=0; i<n_curr_keys; ++i) {
-        shfl->reducer_threads = NewThreads(n_curr_shufflers, true, NULL);
-        /* We just need a link to manager but RunThreads asks an array... */
-        RunThreads(shfl->reducer_threads, do_reduce, (void**)shfl->shfl_nodes);
-        DeleteThreads(shfl->reducer_threads);
+        tmp_coll_map_str = \
+          (char*)LAt(shfl->k_man->coll_map->key_str, k*(n_curr_keys)+i);
+        do_reduce_args[i] = (List)DGet(shfl->k_man->coll_map, tmp_coll_map_str);
+        tmp_coll_map_str = NULL;
       }
+
+      shfl->reducer_threads = NewThreads(n_curr_shufflers, true, NULL);
+      /* We just need a link to manager but RunThreads asks an array... */
+      RunThreads(shfl->reducer_threads, do_reduce, (void**)do_reduce_args);
+      DeleteThreads(shfl->reducer_threads);
+
+      free(do_reduce_args);
     }
 
     /* Cleaning up this session */
     for (i=0; i<n_curr_shufflers; ++i) {
       DeleteShflNode(shfl->shfl_nodes[i]);
-      DeleteList(part_data[i]);
+      //DeleteList(part_data[i]);
     }
     free(part_data);
     free(shfl->shfl_nodes);

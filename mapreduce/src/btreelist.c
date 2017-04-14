@@ -39,6 +39,7 @@ int DeleteBTreeList(BTreeList btl)
   DeleteBTreeHard(btl->element_num_tree, NULL);
   btl->n_lists = 0;
   btl->n_elements = 0;
+  free(btl);
   return 0;
 }
 

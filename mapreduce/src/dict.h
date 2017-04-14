@@ -39,7 +39,7 @@ typedef dict_node* DNode;
 /* Node Constructors and Destructors */
 DNode NewDNode(dict_data_t inp_data, dict_key_t inp_key);
 int DeleteDNode(DNode dn);
-
+int DeleteDNodeHard(DNode dn, int (*destroyer)());
 
 
 /* macro for dict read */

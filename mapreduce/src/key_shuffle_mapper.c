@@ -35,17 +35,19 @@ static List linearlize_dict(Dict d)
   char* tmp_str_d_k = NULL;
 
   for (i=0; i<d_n_keys; ++i) {
-    tmp_str_d_k = (char*)LAt(d->key_str, i);
+    tmp_str_d_k = strdup((char*)LAt(d->key_str, i));
     tmp_list = (List)DGet(d, tmp_str_d_k);
     tmp_l_len = tmp_list->len;
     for (j=0; j<tmp_l_len; ++j) {
       tmp_k = (Key)LAt(tmp_list, j);
       tmp_tuple = NewTuple(2);
-      TSet(tmp_tuple, 0, strdup(tmp_str_d_k));
+      TSet(tmp_tuple, 0, tmp_str_d_k);
       TSet(tmp_tuple, 1, tmp_k);
       LPush(tup_list, tmp_tuple);
       tmp_tuple = NULL;
+      tmp_k = NULL;
     }
+    tmp_str_d_k = NULL;
   }
 
   return tup_list;
@@ -78,15 +80,15 @@ static int comp_tuple(const void* elem1, const void* elem2)
   List<char*>
 
 */
-KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node)
+KeyDictStats NewKeyDictStats(ShflNode s_shfl_node)
 {
-  assert(sd);
   assert(s_shfl_node);
+  assert(s_shfl_node->KeyMap);
   KeyDictStats kds = (KeyDictStats)malloc(sizeof(key_dict_stats));
   assert(kds);
-  kds->source_dict = sd;
+  kds->source_dict = s_shfl_node->KeyMap;
   kds->collected_data = linearlize_dict(kds->source_dict);
-  kds->n_keys = LLen(sd->key_str);
+  kds->n_keys = LLen(s_shfl_node->KeyMap->key_str);
   kds->source_shfl_node = s_shfl_node;
   return kds;
 }
@@ -98,13 +100,20 @@ int DeleteKeyDictStats(KeyDictStats kds)
   ULLONG i, k_el_size = LLen(kds->collected_data);
   Tuple tmp_tuple;
 
+  /* Leave the source dict and shfl_node */
+  kds->source_dict = NULL;
+  kds->source_shfl_node = NULL;
+
   for (i=0; i<k_el_size; ++i) {
     tmp_tuple = (Tuple)LAt(kds->collected_data, i);
-    free(tmp_tuple->data[0]);
+    free(tmp_tuple->data[0]); /* Deleting char* */
+    tmp_tuple->data[1] = NULL;
     /* We'll keep the keys since they'll be dealt with shfl_node destructor */
     DeleteTuple(tmp_tuple);
   }
+  DeleteList(kds->collected_data);
 
+  kds->n_keys = 0;
   free(kds);
   return 0;
 }
@@ -212,28 +221,27 @@ char** KDSGetSortedNumKey(KeyDictStats kds)
 /***********************************************
  Key list manager - Static functions
 ************************************************/
-/* Do I have the key? let me find out */
-// static bool exist_key(KeyManager k_m, Key k, ULLONG* index)
-// {
-//   assert(k_m);
-//   assert(k);
-//   if (!k_m->n_keys) return false;
-//   if (!k_m->mapped_keys->len) return false;
-//
-//   ULLONG i;
-//   Key tmp_key;
-//   for (i=0; i<k_m->n_keys; ++i) {
-//     tmp_key = (Key)LAt(k_m->mapped_keys, i);
-//     if (tmp_key->ts == k->ts) {
-//       (*index) = i;
-//       return true;
-//     }
-//   }
-//   (*index) = 0;
-//
-//   return false;
-// }
+/* Some custom coll_map destructor */
+static int delete_coll_map(Dict cmap)
+{
+  assert(cmap);
 
+  ULLONG i, key_str_len = LLen(cmap->key_str);
+  List tmp_list;
+  DNode tmp_dnode;
+  for (i=0; i<key_str_len; ++i) {
+    tmp_dnode = (DNode)LAt(cmap->table, i);
+    tmp_list = (List)tmp_dnode->data;
+    DeleteList(tmp_list);
+    DeleteDNode(tmp_dnode);
+  }
+  DeleteList(cmap->table);
+  DeleteListHard(cmap->key_str, NULL);
+  cmap->hashing = NULL;
+  free(cmap->keys);
+  free(cmap);
+  return 0;
+}
 
 /***********************************************
  Key list manager - Constructors and Destructors
@@ -255,9 +263,9 @@ int DeleteKeyManager(KeyManager k_m)
 {
   assert(k_m);
   DeleteList(k_m->shufflers);
-  DeleteList(k_m->mapped_keys);
+  delete_coll_map(k_m->coll_map);
+  DeleteListHard(k_m->mapped_keys, &DeleteKey);
   DeleteListHard(k_m->mapped_keys_str, NULL);
-  DeleteDict(k_m->coll_map);
   k_m->n_keys = 0;
   free(k_m);
   return 0;
@@ -284,7 +292,7 @@ int KManAcceptKeysFromShflNode(ShflNode shfl_node)
   assert(manager);
 
   /* If manager's database is empty? */
-  KeyDictStats kds = NewKeyDictStats(shfl_node->KeyMap, shfl_node);
+  KeyDictStats kds = NewKeyDictStats(shfl_node);
   /* Report current findings to manager, which is actually owned by Shuffler */
   KManReport(manager, kds);
   /* Wipe up current report since we've received everything already */
@@ -308,7 +316,7 @@ int KManReport(KeyManager kl_m, KeyDictStats kds)
   /* Let's unpack kds and update coll_map */
   for (i=0; i<kds_data_len; ++i) {
     tmp_tuple = (Tuple)LAt(kds->collected_data, i);
-    tmp_key_str = strdup((char*)TAt(tmp_tuple, 0));
+    tmp_key_str = (char*)TAt(tmp_tuple, 0);
     tmp_key = (Key)TAt(tmp_tuple, 1);
 
     /* Updating the List stuff */
@@ -323,6 +331,7 @@ int KManReport(KeyManager kl_m, KeyDictStats kds)
     }
     LPush(dict_Key_list, tmp_key);
     kl_m->n_keys++;
+    tmp_key_str = NULL;
   }
 
   /* Finally, update this kds shuffler */

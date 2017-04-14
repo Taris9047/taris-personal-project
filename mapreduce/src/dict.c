@@ -45,6 +45,16 @@ int DeleteDNode(DNode dn)
   return 0;
 }
 
+int DeleteDNodeHard(DNode dn, int (*destroyer)())
+{
+  assert(dn);
+  if (destroyer) destroyer(dn->data);
+  else free(dn->data);
+  dn->key = 0;
+  free(dn);
+  return 0;
+}
+
 /***************************************
  Dict - static functions
 ****************************************/
@@ -193,6 +203,8 @@ int DeleteDict(Dict d)
   assert(d);
   DeleteListHard(d->table, &DeleteDNode);
   DeleteListHard(d->key_str, NULL);
+  d->size = 0;
+  d->hashing = NULL;
   free(d->keys);
   free(d);
   return 0;
@@ -204,16 +216,14 @@ int DeleteDictHard(Dict d, int (*data_destroyer) ())
   assert(d);
 
   unsigned long long i, n_keys = LLen(d->key_str);
-  char* tmp_key_str = NULL;
-  dict_data_t tmp_data = NULL;
-  for (i=0; i<n_keys; ++i) {
-    tmp_key_str = (char*)LAt(d->key_str, i);
-    tmp_data = DGet(d, tmp_key_str);
-    data_destroyer(tmp_data);
-  }
 
+  DNode tmp_dnode;
+  for (i=0; i<n_keys; ++i) {
+    tmp_dnode = (DNode)LAt(d->table, i);
+    DeleteDNodeHard(tmp_dnode, data_destroyer);
+  }
+  DeleteList(d->table);
   DeleteListHard(d->key_str, NULL);
-  DeleteListHard(d->table, &DeleteDNode);
 
   free(d->keys);
   free(d);
@@ -260,12 +270,13 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
    * So, duplicate the string to store it to the dict.
    * They will be freed when the dict is subject to
    * deletion. */
-  char* key_str = strdup(inp_key);
+  char* key_str = NULL;
 
   DNode tmp_dnode = search_node(d, k);
   if (tmp_dnode) tmp_dnode->data = inp_data;
   else {
     /* cannot find the key. Let's make it!! */
+    key_str = strdup(inp_key);
     tmp_dnode = NewDNode(inp_data, k);
     LPush(d->table, tmp_dnode);
     LPush(d->key_str, key_str);

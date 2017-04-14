@@ -52,7 +52,7 @@ typedef struct _key_dict_stats {
 typedef key_dict_stats* KeyDictStats;
 
 /* Constructors and Destructors */
-KeyDictStats NewKeyDictStats(Dict sd, ShflNode s_shfl_node);
+KeyDictStats NewKeyDictStats(ShflNode s_shfl_node);
 int DeleteKeyDictStats(KeyDictStats kds);
 
 /* Methods */
@@ -80,7 +80,7 @@ typedef struct _key_manager {
   List mapped_keys; /* List<Key> The keys that this mapper has */
   ULLONG n_keys; /* Number of keys */
 
-  Dict coll_map; /* Dictionary of collection, Dict<key_string, List<Key> */
+  Dict coll_map; /* Dictionary of collection, Dict<key_string, List<Key>> */
 } key_manager;
 typedef key_manager* KeyManager;
 

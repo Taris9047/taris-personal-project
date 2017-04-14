@@ -48,6 +48,8 @@ bool KeyTsEq(Key k, Key o)
 int DeleteKey(Key k)
 {
   assert(k);
+  k->ts = 0;
+  k->point_data = NULL; /* They will be deleted by the main program */
   free(k);
   return 0;
 }

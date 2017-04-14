@@ -53,12 +53,22 @@ def img_gen():
 
 	return img_data
 
+"""@get_unique_rand_num
+
+"""
+def get_unique_rand_num(max_rng, n_avoid):
+	while (True):
+		ret_num = random.randrange(max_rng)
+		if ret_num != n_avoid:
+			break
+	return ret_num
+
 """@shuffle_data
 
 	Shuffle list of data stirngs
 
 """
-def shuffle_data(data):
+def shuffle_data(data, n_shfl=None):
 	if not isinstance(data, list):
 		data = [data]
 
@@ -67,15 +77,16 @@ def shuffle_data(data):
 	if data_len < 2:
 		return data
 
-	for i in range(data_len):
-		ti = random.randrange(data_len)
+	if not n_shfl:
+		n_shfl = int(data_len/2)
 
-		if i == ti:
-			continue
+	for n in range(n_shfl):
+		for i in range(data_len):
+			ti = get_unique_rand_num(data_len, i)
 
-		tmp = data[i];
-		data[i] = data[ti]
-		data[ti] = tmp
+			tmp = data[i];
+			data[i] = data[ti]
+			data[ti] = tmp
 
 	return data
 
@@ -121,7 +132,7 @@ def main():
 	for i in range(data_size):
 		an_img_data_set = rand_data_gen()
 		data_set += an_img_data_set
-		print("Data set generated %d/%d" % (i, data_size))
+		print("Data set generated %d/%d" % (i+1, data_size))
 	data_set = shuffle_data(data_set)
 
 	dataf_name = 'data.txt'
