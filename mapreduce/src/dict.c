@@ -252,7 +252,7 @@ int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
 	DNode tmp_dnode;
 	for (i=0; i<d->size; ++i) {
 		tmp_dnode = (DNode)LAt(d->table, i);
-		tmp_dnode->key = d->hashing((const char*)LAt(d->key_str, i));
+		tmp_dnode->key = d->hashing((char*)LAt(d->key_str, i));
 	}
 
   return 0;
@@ -262,9 +262,7 @@ int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
 int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
 {
   assert(d);
-  dict_key_t k;
-  if (!d->hashing) k = *(const dict_key_t*)inp_key;
-  else k = d->hashing(inp_key);
+  dict_key_t k = d->hashing(inp_key);
 
   /* Assume that inp_key will be destroyed or lost.
    * So, duplicate the string to store it to the dict.
@@ -290,10 +288,7 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
 dict_data_t DGet(Dict d, const void* inp_key)
 {
   assert(d);
-  dict_key_t k;
-  if (!d->hashing) k = *(const dict_key_t*)inp_key;
-  else k = d->hashing(inp_key);
-
+  dict_key_t k = d->hashing(inp_key);
   return search(d, k);
 }
 
@@ -301,9 +296,7 @@ dict_data_t DGet(Dict d, const void* inp_key)
 int DRemove(Dict d, const void* inp_key)
 {
   assert(d);
-  dict_key_t k;
-  if (!d->hashing) k = *(const dict_key_t*)inp_key;
-  else k = d->hashing(inp_key);
+  dict_key_t k = d->hashing(inp_key);
 
   DNode tmp_dnode = search_node(d, k);
   if (!tmp_dnode) return 0; /* Key isn't here, nothing to do */
@@ -358,7 +351,7 @@ char* sh_to_str(const short a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%d", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%d", a);
   return output;
 }
@@ -366,7 +359,7 @@ char* i_to_str(const int a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%d", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%d", a);
   return output;
 }
@@ -374,7 +367,7 @@ char* ui_to_str(const unsigned int a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%u", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%u", a);
   return output;
 }
@@ -382,7 +375,7 @@ char* l_to_str(const long a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%ld", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%ld", a);
   return output;
 }
@@ -390,7 +383,7 @@ char* ul_to_str(const unsigned long a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%lu", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%lu", a);
   return output;
 }
@@ -398,7 +391,7 @@ char* ll_to_str(const long long a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%lld", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%lld", a);
   return output;
 }
@@ -406,7 +399,7 @@ char* ull_to_str(const unsigned long long a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%llu", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%llu", a);
   return output;
 }
@@ -414,7 +407,7 @@ char* f_to_str(const float a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%f", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%f", a);
   return output;
 }
@@ -422,7 +415,7 @@ char* d_to_str(const double a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%f", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%f", a);
   return output;
 }
@@ -430,7 +423,7 @@ char* ld_to_str(const long double a)
 {
   char* output;
   unsigned long long len = snprintf(NULL, 0, "%Lf", a);
-  output = (char*)malloc(sizeof(char)*len);
+  output = STRMALLOC(len);
   sprintf(output, "%Lf", a);
   return output;
 }

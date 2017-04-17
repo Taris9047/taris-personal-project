@@ -99,7 +99,11 @@ int DeleteThreads(Threads thr)
   assert(thr);
 
   ULONG i;
-  if (thr->threads) free(thr->threads);
+  if (!thr->joinable) {
+    for (i=0; i<thr->n_threads; ++i)
+      pthread_detach(thr->threads[i]);
+  }
+  free(thr->threads);
 
   if (thr->thread_attrs) {
     for (i=0; i<thr->n_threads; ++i)
@@ -120,7 +124,11 @@ int DeleteThreadsHard(Threads thr, int (*res_destroyer)())
   assert(thr);
 
   ULONG i;
-  if (thr->threads) free(thr->threads);
+  if (!thr->joinable) {
+    for (i=0; i<thr->n_threads; ++i)
+      pthread_detach(thr->threads[i]);
+  }
+  free(thr->threads);
 
   if (thr->thread_attrs) {
     for (i=0; i<thr->n_threads; ++i)
@@ -137,7 +145,6 @@ int DeleteThreadsHard(Threads thr, int (*res_destroyer)())
     }
     free(thr->status);
   }
-
   free(thr);
   return 0;
 }
@@ -154,25 +161,28 @@ int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[])
   pth_args* pth_args_ary = \
     (pth_args*)malloc(sizeof(pth_args)*thr->n_threads);
   assert(pth_args_ary);
+
   for (i=0; i<thr->n_threads; ++i) {
     if (worker_args) {
       pth_args_ary[i] = \
         arg_bundle_init(pth_handle_current_max_pid, worker_args[i]);
-      pth_args_ary[i]->rc = 0;
     }
     else pth_args_ary[i] = NULL;
     pth_handle_current_max_pid++;
   }
 
   for (i=0; i<thr->n_threads; ++i) {
-    if (worker_args)
+    if (worker_args) {
       rc = pthread_create(
         &thr->threads[i], &thr->thread_attrs[i],
         worker, (void*)pth_args_ary[i]);
-    else
+    }
+    else {
       rc = pthread_create(
         &thr->threads[i], &thr->thread_attrs[i],
         worker, NULL);
+    }
+
     if (rc) {
       fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
       exit(-1);
@@ -183,6 +193,7 @@ int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[])
   if (thr->joinable) {
     for (i=0; i<thr->n_threads; ++i) {
       rc = pthread_join(thr->threads[i], &thr->status[i]);
+
       if (rc) {
         fprintf(stderr, "RunThreads Thread join Error!! return code: %d\n", rc);
         exit(-1);

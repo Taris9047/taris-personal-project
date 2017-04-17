@@ -28,11 +28,11 @@ static List linearlize_dict(Dict d)
   assert(d);
 
   List tup_list = NewList();
-  Tuple tmp_tuple = NULL;
-  Key tmp_k = NULL;
+  Tuple volatile tmp_tuple = NULL;
+  Key volatile tmp_k = NULL;
   ULLONG i, j, tmp_l_len, d_n_keys = d->size;
-  List tmp_list = NULL;
-  char* tmp_str_d_k = NULL;
+  List volatile tmp_list = NULL;
+  char* volatile tmp_str_d_k = NULL;
 
   for (i=0; i<d_n_keys; ++i) {
     tmp_str_d_k = strdup((char*)LAt(d->key_str, i));
@@ -46,9 +46,9 @@ static List linearlize_dict(Dict d)
       LPush(tup_list, tmp_tuple);
       tmp_tuple = NULL;
       tmp_k = NULL;
-    }
+    } /* for (j=0; j<tmp_l_len; ++j) */
     tmp_str_d_k = NULL;
-  }
+  } /* for (i=0; i<d_n_keys; ++i) */
 
   return tup_list;
 }
@@ -98,15 +98,16 @@ int DeleteKeyDictStats(KeyDictStats kds)
   assert(kds);
 
   ULLONG i, k_el_size = LLen(kds->collected_data);
-  Tuple tmp_tuple;
+  Tuple volatile tmp_tuple;
 
-  /* Leave the source dict and shfl_node */
+  /* Leave the source dict and shfl_node, they will be destroyed by
+     DeleteShflNode later... */
   kds->source_dict = NULL;
   kds->source_shfl_node = NULL;
 
   for (i=0; i<k_el_size; ++i) {
     tmp_tuple = (Tuple)LAt(kds->collected_data, i);
-    free(tmp_tuple->data[0]); /* Deleting char* */
+    if (tmp_tuple->data[0]) free(tmp_tuple->data[0]);
     tmp_tuple->data[1] = NULL;
     /* We'll keep the keys since they'll be dealt with shfl_node destructor */
     DeleteTuple(tmp_tuple);
@@ -122,14 +123,14 @@ int DeleteKeyDictStats(KeyDictStats kds)
  Key Dict statistics - Methods
 ************************************************/
 /* Get 'number' of collected mapped keys by key string */
-ULLONG KDSGetKeyElements(KeyDictStats kds, char* key_str)
+ULLONG KDSGetKeyElements(KeyDictStats kds, const char* key_str)
 {
   assert(kds);
   assert(key_str);
 
   ULLONG i, k_elements, elements = LLen(kds->collected_data);
   for (i=0; i<elements; ++i) {
-    if ( strcmp(key_str, (char*)TAt((Tuple)LAt(kds->collected_data, i), 0) ) ) {
+    if ( !strcmp(key_str, (char*)TAt((Tuple)LAt(kds->collected_data, i), 0)) ) {
       k_elements = *(ULLONG*)TAt((Tuple)LAt(kds->collected_data, i), 1);
       return k_elements;
     }
@@ -154,15 +155,14 @@ char* KDSGetMaxNumKey(KeyDictStats kds)
 
   qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
 
-  char* max_key = strdup((char*)TAt(sort_bed[kds->n_keys-1], 0));
+  char* max_key = strdup((char*)TAt(sort_bed[0], kds->n_keys-1));
 
   free(sort_bed);
 
   return max_key;
 }
 
-/* Vice versa, min */
-char* KDSGetMinNumKey(KeyDictStats kds)
+char* DSGetMinNumKey(KeyDictStats kds)
 {
   assert(kds);
 
@@ -176,11 +176,11 @@ char* KDSGetMinNumKey(KeyDictStats kds)
 
   qsort(sort_bed, kds->n_keys, sizeof(Tuple), comp_tuple);
 
-  char* max_key = strdup((char*)TAt(sort_bed[0], 0));
+  char* min_key = strdup((char*)TAt(sort_bed[0], 0));
 
   free(sort_bed);
 
-  return max_key;
+  return min_key;
 }
 
 /* Awwwww crap, just return the sorted array!! */
@@ -227,11 +227,12 @@ static int delete_coll_map(Dict cmap)
   assert(cmap);
 
   ULLONG i, key_str_len = LLen(cmap->key_str);
-  List tmp_list;
-  DNode tmp_dnode;
+  List volatile tmp_list;
+  DNode volatile tmp_dnode;
   for (i=0; i<key_str_len; ++i) {
-    tmp_dnode = (DNode)LAt(cmap->table, i);
-    tmp_list = (List)tmp_dnode->data;
+    tmp_dnode = tableAt(cmap->table, i);
+    tmp_list = (List)tmp_dnode->data; /* Returns List<Key> */
+    /* The actual Key objects will be deleted elsewhere */
     DeleteList(tmp_list);
     DeleteDNode(tmp_dnode);
   }
@@ -307,16 +308,16 @@ int KManReport(KeyManager kl_m, KeyDictStats kds)
   assert(kl_m);
   assert(kds);
 
-  Tuple tmp_tuple;
-  char* tmp_key_str;
-  Key tmp_key;
+  Tuple volatile tmp_tuple;
+  char* volatile tmp_key_str;
+  Key volatile tmp_key;
   ULLONG i, kds_data_len = kds->collected_data->len;
-  List dict_Key_list;
+  List volatile dict_Key_list;
 
   /* Let's unpack kds and update coll_map */
   for (i=0; i<kds_data_len; ++i) {
     tmp_tuple = (Tuple)LAt(kds->collected_data, i);
-    tmp_key_str = (char*)TAt(tmp_tuple, 0);
+    tmp_key_str = strdup((char*)TAt(tmp_tuple, 0));
     tmp_key = (Key)TAt(tmp_tuple, 1);
 
     /* Updating the List stuff */
@@ -332,7 +333,7 @@ int KManReport(KeyManager kl_m, KeyDictStats kds)
     LPush(dict_Key_list, tmp_key);
     kl_m->n_keys++;
     tmp_key_str = NULL;
-  }
+  } /* for (i=0; i<kds_data_len; ++i) */
 
   /* Finally, update this kds shuffler */
   LPush(kl_m->shufflers, kds->source_shfl_node);

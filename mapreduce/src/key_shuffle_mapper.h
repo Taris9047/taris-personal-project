@@ -57,7 +57,7 @@ int DeleteKeyDictStats(KeyDictStats kds);
 
 /* Methods */
 /* Get number of collected mapped keys by key string */
-ULLONG KDSGetKeyElements(KeyDictStats kds, char* key_str);
+ULLONG KDSGetKeyElements(KeyDictStats kds, const char* key_str);
 /* Get key string with most number of mapped keys */
 char* KDSGetMaxNumKey(KeyDictStats kds);
 /* Vice versa, min */

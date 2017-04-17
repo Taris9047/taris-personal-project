@@ -59,8 +59,6 @@ typedef struct _shuffler_node {
   List keys; /* List<Key> Deciphered (?) keys from mapper - will be fed into a reducer */
   Dict KeyMap; /* Dict<Key>: Sort keys as map */
 
-  char* assigned_key; /* Assigned key */
-
   ULONG jobs; /* how many jobs? usually 1 */
   ULONG** jobs_index; /* Index store for jobs */
 
