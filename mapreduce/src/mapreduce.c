@@ -470,9 +470,9 @@ int Shuffle(Shuffler shfl)
     job_schedule(given_data_len,
       n_shufflers*shfl->tc->mappers_per_shuffler, &schedule, 0);
 
-  ULLONG i, j, k, key_var; /* how many kind of keys we have now? */
-  ULLONG n_curr_shufflers, n_curr_mappers;
-  ULLONG n_shufflers_rem, n_mappers_rem;
+  ULONG i, j, k, key_var; /* how many kind of keys we have now? */
+  ULONG n_curr_shufflers, n_curr_mappers;
+  ULONG n_shufflers_rem, n_mappers_rem;
   ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
 
   List* do_reduce_args = NULL;
@@ -540,6 +540,7 @@ int Shuffle(Shuffler shfl)
     if (n_curr_shufflers >= key_var) {
       n_curr_keys = key_var;
       n_reducer_jobs = 1;
+      reducer_job_rem = 0;
     }
     else {
       n_curr_keys = n_curr_shufflers;
@@ -559,7 +560,7 @@ int Shuffle(Shuffler shfl)
         tmp_coll_map_str = NULL;
       } /* for (i=0; i<n_curr_keys; ++i) */
 
-      shfl->reducer_threads = NewThreads(n_curr_shufflers, true, NULL);
+      shfl->reducer_threads = NewThreads(n_curr_keys, true, NULL);
       /* We just need a link to manager but RunThreads asks an array... */
       RunThreads(shfl->reducer_threads, do_reduce, (void**)do_reduce_args);
       DeleteThreads(shfl->reducer_threads);
