@@ -259,6 +259,7 @@ worker_ret_data_t do_shuffle(void* args)
     free(mapper_args);
 
     DeleteThreads(shfl_node->thread_mappers);
+    shfl_node->thread_mappers = NULL;
   } /* for (i=0; i<shfl_node->jobs; ++i) */
 
   printf("Shuffler [%lu], Mapping has been finished...\n", shfl_node->shfl_node_id);

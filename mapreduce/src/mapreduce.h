@@ -53,7 +53,6 @@ typedef struct _shuffler_node {
 
   ULONG n_mappers;     /* number of mappers */
   Threads thread_mappers; /* mapper threads */
-  //Threads thread_reducers; /* reducer threads */
 
   Key* mapped_keys; /* Array of mapped keys */
   List keys; /* List<Key> Deciphered (?) keys from mapper - will be fed into a reducer */

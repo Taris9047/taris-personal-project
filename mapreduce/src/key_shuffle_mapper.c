@@ -35,13 +35,13 @@ static List linearlize_dict(Dict d)
   char* volatile tmp_str_d_k = NULL;
 
   for (i=0; i<d_n_keys; ++i) {
-    tmp_str_d_k = strdup((char*)LAt(d->key_str, i));
+    tmp_str_d_k = (char*)LAt(d->key_str, i);
     tmp_list = (List)DGet(d, tmp_str_d_k);
     tmp_l_len = tmp_list->len;
     for (j=0; j<tmp_l_len; ++j) {
       tmp_k = (Key)LAt(tmp_list, j);
       tmp_tuple = NewTuple(2);
-      TSet(tmp_tuple, 0, tmp_str_d_k);
+      TSet(tmp_tuple, 0, strdup(tmp_str_d_k));
       TSet(tmp_tuple, 1, tmp_k);
       LPush(tup_list, tmp_tuple);
       tmp_tuple = NULL;
