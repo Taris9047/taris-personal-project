@@ -19,6 +19,8 @@
 #include "mapper.h"
 #include "reducer.h"
 
+extern bool key_exists_in_list(List str_list, const char* key_str);
+
 /***********************************************
  Pixel data handler
 ************************************************/
@@ -149,10 +151,39 @@ worker_ret_data_t reducer(void* args)
 {
   assert(args);
   pth_args _args = (pth_args)args;
-  RDArgs rd_data_set = (RDArgs)_args->data_set;
-  pid_t my_pid = _args->pid;
-  printf("Reducer [%d] generating image data...\n", my_pid);
-  rd_data_set->image_data = NewImgData(rd_data_set->keys);
+  RDArgs rd_args = (RDArgs)_args->data_set;
+  List KeyList = rd_args->keys;
+  Dict rd = rd_args->report_data;
+  pthread_mutex_t* mtx = rd_args->mtx;
+
+  char* volatile tmp_key_str = NULL;
+  ULLONG i, klen = LLen(KeyList);
+  List volatile tmp_list;
+  Key volatile tmp_k;
+
+  if (!KeyList) return NULL;
+
+  pthread_mutex_lock(mtx);
+  printf(
+    "Reducer [%d] received List<Key> of length: %llu\n",
+    _args->pid, KeyList->len);
+
+  for (i=0; i<klen; ++i) {
+    tmp_k = (Key)LAt(KeyList, i);
+    tmp_key_str = ToStr(tmp_k->ts);
+    if (key_exists_in_list(rd->key_str, tmp_key_str)) {
+      tmp_list = (List)DGet(rd, tmp_key_str);
+      LPush(tmp_list, tmp_k->point_data);
+    }
+    else {
+      tmp_list = NewList();
+      LPush(tmp_list, tmp_k->point_data);
+      DInsert(rd, tmp_list, tmp_key_str);
+    }
+    free(tmp_key_str);
+  }
+  pthread_mutex_unlock(mtx);
+
   pthread_exit(NULL);
 }
 

@@ -11,12 +11,13 @@ VERNUM_SHORT=0.0
 
 CURR_DIR := $(shell pwd)
 
-CC_DETECT := `command -v clang`
-ifeq ($(CC_DETECT), "")
-	CC=gcc
-else
-	CC=clang
-endif
+# CC_DETECT := `command -v clang`
+# ifeq ($(CC_DETECT), "")
+# 	CC=gcc
+# else
+# 	CC=clang
+# endif
+CC=gcc
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)

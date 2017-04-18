@@ -81,6 +81,8 @@ ShflNode NewShflNode(
   ULONG id);
 int DeleteShflNode(ShflNode shfl_node);
 
+/* Some key finder utils */
+bool key_exists_in_list(List str_list, const char* key_str);
 
 /* shuffling job at the node - pthread worker */
 worker_ret_data_t do_shuffle(void* args);
@@ -130,6 +132,7 @@ int Report(Dict r);
 ULONG job_schedule(
   ULLONG total_data_length,
   ULONG available_threads,
+  ULONG* rem_data_length,
   ULONG*** job_indexes,
   ULONG start_offset);
 

@@ -213,17 +213,14 @@ worker_ret_data_t do_shuffle(void* args)
   /* Now the shuffling job starts here */
   /* Let's assign mappers */
   ULONG frac_data_len = LLen(shfl_node->frac_data);
-  ULONG map_rem = 0;
-  if (!frac_data_len) return NULL; // Nothing to return if frac_data_len is zero
-  if (frac_data_len > shfl_node->n_mappers)
-    map_rem = frac_data_len%shfl_node->n_mappers;
-  else map_rem = 0;
-  ULONG curr_mappers = 0;
+  ULONG map_rem = 0, curr_mappers = 0;
   MArgs* mapper_args;
+
+  if (!frac_data_len) return NULL; // Nothing to return if frac_data_len is zero
 
   shfl_node->jobs = \
     job_schedule(
-      frac_data_len, shfl_node->n_mappers, &shfl_node->jobs_index, 0);
+      frac_data_len, shfl_node->n_mappers, &map_rem, &shfl_node->jobs_index, 0);
 
   /* Ok, let's spawn mappers */
   printf("Shuffler [%lu], Mapping with %lu mappers...\n",
@@ -384,51 +381,6 @@ static int delete_key_hash(Dict k_hash)
   return 0;
 }
 
-/* reducer job handler - pthread worker */
-/* Argument is actually the KeyManager */
-/* TODO: Finish do_reduce up later */
-worker_ret_data_t do_reduce(void* args)
-{
-  assert(args);
-  pth_args _args = (pth_args)args;
-  RDArgs rd_args = (RDArgs)_args->data_set;
-  List KeyList = rd_args->keys;
-  Dict rd = rd_args->report_data;
-  pthread_mutex_t* mtx = rd_args->mtx;
-
-  char* volatile tmp_key_str = NULL;
-  ULLONG i, klen = LLen(KeyList);
-  List volatile tmp_list;
-  Key volatile tmp_k;
-
-  if (!KeyList) return NULL;
-
-  pthread_mutex_lock(mtx);
-  printf(
-    "Reducer [%d] received List<Key> of length: %llu\n",
-    _args->pid, KeyList->len);
-
-  for (i=0; i<klen; ++i) {
-    tmp_k = (Key)LAt(KeyList, i);
-    tmp_key_str = ToStr(tmp_k->ts);
-    if (key_exists_in_list(rd->key_str, tmp_key_str)) {
-      tmp_list = (List)DGet(rd, tmp_key_str);
-      LPush(tmp_list, tmp_k->point_data);
-    }
-    else {
-      tmp_list = NewList();
-      LPush(tmp_list, tmp_k->point_data);
-      DInsert(rd, tmp_list, tmp_key_str);
-    }
-    free(tmp_key_str);
-  }
-  pthread_mutex_unlock(mtx);
-
-  pthread_exit(NULL);
-}
-
-
-
 
 
 /***********************************************
@@ -520,24 +472,24 @@ int Shuffle(Shuffler shfl)
   if (given_data_len < shfl->tc->shufflers) n_shufflers = given_data_len;
 
   ULONG **schedule, **sub_schedule;
-  ULONG schedule_len = \
-    job_schedule(given_data_len,
-      n_shufflers*shfl->tc->mappers_per_shuffler, &schedule, 0);
-
   ULONG i, j, k, key_var; /* how many kind of keys we have now? */
   ULONG n_curr_shufflers, n_curr_mappers;
   ULONG n_shufflers_rem, n_mappers_rem;
   ULONG n_curr_keys, n_reducer_jobs, reducer_job_rem;
 
+  ULONG schedule_len = \
+    job_schedule(given_data_len,
+      n_shufflers*shfl->tc->mappers_per_shuffler,
+      &n_shufflers_rem,
+      &schedule, 0);
+
   List* do_reduce_args = NULL;
   List* part_data = NULL;
   char* volatile tmp_coll_map_str = NULL;
-
   RDArgs* reducer_args_ary = NULL;
 
-  n_shufflers_rem = given_data_len%shfl->tc->shufflers;
   n_mappers_rem = given_data_len%shfl->tc->mappers_per_shuffler;
-  n_curr_shufflers = shfl->tc->shufflers;
+  n_curr_shufflers = n_shufflers;
   n_curr_mappers = shfl->tc->mappers_per_shuffler;
   for (j=0; j<schedule_len; ++j) {
     /* Update n_curr_shufflers and n_curr_mappers */
@@ -547,7 +499,7 @@ int Shuffle(Shuffler shfl)
       n_curr_mappers = n_mappers_rem;
 
     /****************************
-     * Mapping part...
+     * Mapping part             *
      ****************************/
     shfl->k_man = NewKeyManager();
     shfl->shuffler_map = NewBTreeList();
@@ -594,26 +546,20 @@ int Shuffle(Shuffler shfl)
 
     /* Then, reduce the data from key manager
        -> number of shufflers must be the same as mappers */
-    if (n_curr_shufflers >= key_var) {
-      n_curr_keys = key_var;
-      n_reducer_jobs = 1;
-      reducer_job_rem = 0;
-    }
-    else {
-      n_curr_keys = n_curr_shufflers;
-      n_reducer_jobs = n_curr_keys/n_curr_shufflers;
-      reducer_job_rem = n_curr_keys%n_curr_shufflers;
-      if (reducer_job_rem) n_reducer_jobs++;
-    } /* if (n_curr_shufflers >= key_var) */
+    n_reducer_jobs = \
+      job_schedule(
+        key_var, n_curr_shufflers, &reducer_job_rem, NULL, 0);
+    n_curr_keys = n_curr_shufflers;
     for (k=0; k<n_reducer_jobs; ++k) {
-      if (reducer_job_rem && k == n_reducer_jobs-1) n_curr_keys = reducer_job_rem;
+      if (reducer_job_rem && k == n_reducer_jobs-1)
+        n_curr_keys = reducer_job_rem;
       /* preparing arguments for do_reduce */
       reducer_args_ary = (RDArgs*)malloc(sizeof(RDArgs)*n_curr_keys);
       do_reduce_args = (List*)malloc(sizeof(List)*n_curr_keys);
       tmp_coll_map_str = NULL;
       for (i=0; i<n_curr_keys; ++i) {
         tmp_coll_map_str = \
-          (char*)LAt(shfl->k_man->coll_map->key_str, k*(n_curr_keys)+i);
+          (char*)LAt(shfl->k_man->coll_map->key_str, k*n_curr_keys+i);
         do_reduce_args[i] = (List)DGet(shfl->k_man->coll_map, tmp_coll_map_str);
         reducer_args_ary[i] = NewRDArgs(do_reduce_args[i], shfl->result);
         reducer_args_ary[i]->mtx = &shfl->mutex;
@@ -622,7 +568,7 @@ int Shuffle(Shuffler shfl)
 
       shfl->reducer_threads = NewThreads(n_curr_keys, true, NULL);
       /* We just need a link to manager but RunThreads asks an array... */
-      RunThreads(shfl->reducer_threads, do_reduce, (void**)reducer_args_ary);
+      RunThreads(shfl->reducer_threads, reducer, (void**)reducer_args_ary);
       DeleteThreads(shfl->reducer_threads);
       /* No need to free each do_reduce_args elements. They will be
          freed with KeyManager */
@@ -680,6 +626,7 @@ int Report(Dict r)
 ULONG job_schedule(
   ULLONG total_data_length,
   ULONG available_threads,
+  ULONG* rem_data_length,
   ULONG*** job_indexes,
   ULONG start_offset)
 {
@@ -697,6 +644,7 @@ ULONG job_schedule(
     job_ind[0] = (ULONG*)malloc(sizeof(ULONG)*total_data_length);
 
     for (i=0; i<total_data_length; ++i) job_ind[0][i] = i+start_i;
+    n_data_rem = total_data_length;
   }
   else {
     n_jobs = ul_div(total_data_length, available_threads, &n_data_rem);
@@ -710,12 +658,18 @@ ULONG job_schedule(
 
       job_ind[j] = (ULONG*)malloc(sizeof(ULONG)*job_ind_max);
       for (i=0; i<available_threads; ++i) job_ind[j][i] = i+start_i;
-      start_i = available_threads*(j+1);
+      start_i += available_threads;
 
     } /* for (j=0; j<n_jobs; ++j) */
   } /* if (total_data_length <= available_threads) */
 
-  (*job_indexes) = job_ind;
+  if (rem_data_length) (*rem_data_length) = n_data_rem;
+
+  if (job_indexes != NULL) (*job_indexes) = job_ind;
+  else {
+    for (i=0; i<n_jobs; ++i) free(job_ind[i]);
+    free(job_ind);
+  }
 
   return n_jobs;
 }
