@@ -65,6 +65,8 @@ typedef struct _shuffler_node {
 
   pthread_mutex_t* master_mutex;
 
+  Dict reduced_data; /* pointer to main data holder */
+
 } shuffler_node;
 typedef shuffler_node* ShflNode;
 
@@ -75,6 +77,7 @@ ShflNode NewShflNode(
   BTreeList shuffle_map,
   KeyManager n_k_man,
   pthread_mutex_t* mtx,
+  Dict r_dict,
   ULONG id);
 int DeleteShflNode(ShflNode shfl_node);
 
@@ -102,7 +105,10 @@ typedef struct _shuffler {
   Threads reducer_threads;
   List reducer_args; /* List<List<Key>>: arranged key list. */
 
-	/* mutex */
+  /* Result Dict */
+  Dict result;
+
+  /* mutex */
   pthread_mutex_t mutex;
 } shuffler;
 typedef shuffler* Shuffler;
@@ -116,6 +122,9 @@ int DeleteShuffler(Shuffler shfl);
 /* Methods */
 /* Performs actual shuffling */
 int Shuffle(Shuffler shfl);
+
+/* Report result */
+int Report(Dict r);
 
 /* job scheduler - return number of jobs */
 ULONG job_schedule(

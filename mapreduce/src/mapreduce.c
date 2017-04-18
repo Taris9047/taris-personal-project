@@ -106,11 +106,13 @@ ShflNode NewShflNode(
   BTreeList shuffle_map,
   KeyManager n_k_man,
   pthread_mutex_t* mtx,
+  Dict r_dict,
   ULONG id)
 {
   assert(frac_main_data);
   assert(shuffle_map);
   assert(n_k_man);
+  assert(r_dict);
 
   ShflNode shn = (ShflNode)malloc(sizeof(shuffler_node));
   assert(shn);
@@ -144,6 +146,9 @@ ShflNode NewShflNode(
 
   /* Initialize mutex */
   shn->master_mutex = mtx;
+
+  /* Report here */
+  shn->reduced_data = r_dict;
 
   return shn;
 }
@@ -386,15 +391,38 @@ worker_ret_data_t do_reduce(void* args)
 {
   assert(args);
   pth_args _args = (pth_args)args;
-  List KeyList = (List)_args->data_set;
+  RDArgs rd_args = (RDArgs)_args->data_set;
+  List KeyList = rd_args->keys;
+  Dict rd = rd_args->report_data;
+  pthread_mutex_t* mtx = rd_args->mtx;
+
+  char* volatile tmp_key_str = NULL;
+  ULLONG i, klen = LLen(KeyList);
+  List volatile tmp_list;
+  Key volatile tmp_k;
 
   if (!KeyList) return NULL;
 
+  pthread_mutex_lock(mtx);
   printf(
     "Reducer [%d] received List<Key> of length: %llu\n",
     _args->pid, KeyList->len);
 
-
+  for (i=0; i<klen; ++i) {
+    tmp_k = (Key)LAt(KeyList, i);
+    tmp_key_str = ToStr(tmp_k->ts);
+    if (key_exists_in_list(rd->key_str, tmp_key_str)) {
+      tmp_list = (List)DGet(rd, tmp_key_str);
+      LPush(tmp_list, tmp_k->point_data);
+    }
+    else {
+      tmp_list = NewList();
+      LPush(tmp_list, tmp_k->point_data);
+      DInsert(rd, tmp_list, tmp_key_str);
+    }
+    free(tmp_key_str);
+  }
+  pthread_mutex_unlock(mtx);
 
   pthread_exit(NULL);
 }
@@ -403,8 +431,32 @@ worker_ret_data_t do_reduce(void* args)
 
 
 
+/***********************************************
+ Shuffler - static functions
+************************************************/
+static int delete_result(Dict rd)
+{
+  assert(rd);
 
+  DNode volatile tmp_dn;
+  List volatile tmp_l;
+  ULLONG i, tbl_len = rd->table->len;
 
+  for (i=0; i<tbl_len; ++i) {
+    /* tmp_l is List<Key> */
+    tmp_dn = tableAt(rd->table, i);
+    tmp_l = (List)tmp_dn->data;
+    DeleteList(tmp_l); /* Keys will be deleted later */
+    DeleteDNode(tmp_dn);
+  }
+  DeleteList(rd->table);
+  DeleteListHard(rd->key_str, NULL);
+  free(rd->keys);
+  rd->hashing = NULL;
+  free(rd);
+
+  return 0;
+}
 
 
 /***********************************************
@@ -424,6 +476,7 @@ Shuffler NewShuffler(List main_data, ULONG total_threads)
   shfl->shfl_node_threads = NULL;
   shfl->reducer_threads = NULL;
   shfl->reducer_args = NULL;
+  shfl->result = NewDict();
 
   return shfl;
 }
@@ -435,6 +488,7 @@ int DeleteShuffler(Shuffler shfl)
 
   /* Free the controller */
   free(shfl->tc);
+  delete_result(shfl->result);
   free(shfl);
 
   return 0;
@@ -479,6 +533,8 @@ int Shuffle(Shuffler shfl)
   List* part_data = NULL;
   char* volatile tmp_coll_map_str = NULL;
 
+  RDArgs* reducer_args_ary = NULL;
+
   n_shufflers_rem = given_data_len%shfl->tc->shufflers;
   n_mappers_rem = given_data_len%shfl->tc->mappers_per_shuffler;
   n_curr_shufflers = shfl->tc->shufflers;
@@ -520,6 +576,7 @@ int Shuffle(Shuffler shfl)
           shfl->shuffler_map,
           shfl->k_man,
           &shfl->mutex,
+          shfl->result,
           j+i);
       free(sub_schedule[i]);
     } /* for (i=0; i<curr_run_len; ++i) */
@@ -551,21 +608,26 @@ int Shuffle(Shuffler shfl)
     for (k=0; k<n_reducer_jobs; ++k) {
       if (reducer_job_rem && k == n_reducer_jobs-1) n_curr_keys = reducer_job_rem;
       /* preparing arguments for do_reduce */
+      reducer_args_ary = (RDArgs*)malloc(sizeof(RDArgs)*n_curr_keys);
       do_reduce_args = (List*)malloc(sizeof(List)*n_curr_keys);
       tmp_coll_map_str = NULL;
       for (i=0; i<n_curr_keys; ++i) {
         tmp_coll_map_str = \
           (char*)LAt(shfl->k_man->coll_map->key_str, k*(n_curr_keys)+i);
         do_reduce_args[i] = (List)DGet(shfl->k_man->coll_map, tmp_coll_map_str);
+        reducer_args_ary[i] = NewRDArgs(do_reduce_args[i], shfl->result);
+        reducer_args_ary[i]->mtx = &shfl->mutex;
         tmp_coll_map_str = NULL;
       } /* for (i=0; i<n_curr_keys; ++i) */
 
       shfl->reducer_threads = NewThreads(n_curr_keys, true, NULL);
       /* We just need a link to manager but RunThreads asks an array... */
-      RunThreads(shfl->reducer_threads, do_reduce, (void**)do_reduce_args);
+      RunThreads(shfl->reducer_threads, do_reduce, (void**)reducer_args_ary);
       DeleteThreads(shfl->reducer_threads);
       /* No need to free each do_reduce_args elements. They will be
          freed with KeyManager */
+      for (i=0; i<n_curr_keys; ++i) DeleteRDArgs(reducer_args_ary[i]);
+      free(reducer_args_ary);
       free(do_reduce_args);
     } /* for (k=0; k<n_reducer_jobs; ++k) */
 
@@ -586,6 +648,31 @@ int Shuffle(Shuffler shfl)
   /* Also cleaning up schedule */
   for (i=0; i<schedule_len; ++i) free(schedule[i]);
   free(schedule);
+  return 0;
+}
+
+/* Report data */
+int Report(Dict r)
+{
+  assert(r);
+
+  printf("\n*** Mapreduce report ***\n");
+  printf("Total %llu images found!!\n", LLen(r->table));
+
+  ULLONG i, t_ts, n_imgs = LLen(r->table);
+  List volatile tmp_list;
+  ULLONG n_curr_data, n_tot_data = 0;
+
+  for (i=0; i<n_imgs; ++i) {
+    tmp_list = (List)DGet(r, (char*)LAt(r->key_str, i));
+    t_ts = ((PObj)LAt(tmp_list, 0))->ts;
+    n_curr_data = LLen(tmp_list);
+    n_tot_data += n_curr_data;
+    printf("Image with timestamp: %llu has %llu pixels\n", t_ts, n_curr_data);
+  }
+
+  printf("Thus, total %llu pixel data are recovered.\n", n_tot_data);
+
   return 0;
 }
 
@@ -661,6 +748,9 @@ int map_reduce(char* fname, ULONG threads)
 
   /* Really running shuffling -> Reducing job */
   Shuffle(mr_shfl);
+
+  /* Report result */
+  Report(mr_shfl->result);
 
   /* Delete my craps */
   DeleteShuffler(mr_shfl);

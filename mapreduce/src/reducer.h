@@ -18,6 +18,7 @@
 #include "pth_handle.h"
 #include "list.h"
 #include "btree.h"
+#include "dict.h"
 
 /* Pixel data struct */
 typedef struct _pixel_data {
@@ -51,10 +52,12 @@ int DeleteImgData(ImgData n_img_data);
 typedef struct _reducer_args {
   List keys;
   ImgData image_data;
+  Dict report_data;
+  pthread_mutex_t* mtx;
 } reducer_args;
 typedef reducer_args* RDArgs;
 /* Constructors and Destructors */
-RDArgs NewRDArgs(List k);
+RDArgs NewRDArgs(List k, Dict rd);
 int DeleteRDArgs(RDArgs rda);
 
 /*

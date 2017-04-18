@@ -123,11 +123,12 @@ int DeleteImgData(ImgData n_img_data)
 /***********************************************
  Reducer Argument struct handler
 ************************************************/
-RDArgs NewRDArgs(List k)
+RDArgs NewRDArgs(List k, Dict rd)
 {
   RDArgs rda = (RDArgs)malloc(sizeof(reducer_args));
   assert(rda);
   rda->keys = k;
+  rda->report_data = rd;
   return rda;
 }
 int DeleteRDArgs(RDArgs rda)
