@@ -1,5 +1,4 @@
-
-ls// task sink
+// task sink
 // Binds PULL socket to tcp://localhost:5558
 // Collects results from workers via that socket
 

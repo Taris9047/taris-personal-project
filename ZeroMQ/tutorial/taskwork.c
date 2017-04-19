@@ -20,7 +20,7 @@ int main (void)
   zmq_connect (sender, "tcp://localhost:5558");
 
   // Process tasks forever
-  char volatile *string;
+  char *string;
   while (1) {
     string = s_recv (receiver);
     printf("%s.", string);

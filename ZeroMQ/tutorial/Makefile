@@ -8,14 +8,26 @@ TARGETS=hello_client hello_server weather_client weather_server \
 
 all: $(TARGETS)
 
-$(TARGETS): $(SOURCES)
-	$(CC) $(CFLAGS) hello_server.c -o hello_server
-	$(CC) $(CFLAGS) hello_client.c -o hello_client
-	$(CC) $(CFLAGS) weather_server.c -o weather_server
-	$(CC) $(CFLAGS) weather_client.c -o weather_client
-	$(CC) $(CFLAGS) taskvent.c -o taskvent
-	$(CC) $(CFLAGS) tasksink.c -o tasksink
-	$(CC) $(CFLAGS) taskwork.c -o taskwork
+hello_client: hello_client.c
+	$(CC) $(CFLAGS) $< -o $@
+
+hello_server: hello_server.c
+	$(CC) $(CFLAGS) $< -o $@
+
+weather_server: weather_server.c
+	$(CC) $(CFLAGS) $< -o $@
+
+weather_client: weather_client.c
+	$(CC) $(CFLAGS) $< -o $@
+
+taskvent: taskvent.c
+	$(CC) $(CFLAGS) $< -o $@
+
+tasksink: tasksink.c
+	$(CC) $(CFLAGS) $< -o $@
+
+taskwork: taskwork.c
+	$(CC) $(CFLAGS) $< -o $@
 
 clean:
 	rm -rfv $(TARGETS)
