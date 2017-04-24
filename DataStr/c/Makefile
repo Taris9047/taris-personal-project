@@ -30,10 +30,10 @@ LIBNAME=libdatastr.a
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(LIBNAME) test.c test.cpp
+all: $(LIBNAME) test.c
 	$(CC) $(CFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
 
-release: $(LIBNAME) test.c test.cpp
+release: $(LIBNAME) test.c
 	$(CC) $(RCFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
 
 $(LIBNAME): $(OBJS)

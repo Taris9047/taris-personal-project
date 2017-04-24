@@ -214,9 +214,7 @@ int LRemove(List l, unsigned long long ind)
   LNode prev_tmp, next_tmp, tmp = l->root_node;
 
   unsigned long long i;
-  for (i=0; i<=ind; ++i) {
-    tmp = tmp->next;
-  }
+  for (i=0; i<=ind; ++i) tmp = tmp->next;
 
   prev_tmp = tmp->prev;
   next_tmp = tmp->next;
@@ -239,12 +237,10 @@ int LRemoveHard(List l, unsigned long long ind, int (*destroyer) () )
 
   LNode prev_tmp = NULL;
   LNode next_tmp = NULL;
-  LNode tmp = l->root_node;
+  LNode volatile tmp = l->root_node;
 
   unsigned long long i;
-  for (i=0; i<=ind; ++i) {
-    tmp = tmp->next;
-  }
+  for (i=0; i<=ind; ++i) tmp = tmp->next;
 
   prev_tmp = tmp->prev;
   next_tmp = tmp->next;

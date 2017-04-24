@@ -26,11 +26,8 @@ static char* _strdup(const char *s)
 {
   size_t len = strlen (s) + 1;
   void *new = malloc (len);
-
-  if (new == NULL)
-    return NULL;
-
-  return (char *) memcpy (new, s, len);
+  if (new == NULL) return NULL;
+  return (char*) memcpy(new, s, len);
 }
 
 
@@ -105,9 +102,10 @@ int myRandom (int size) {
   i = numArr[n];
   numArr[n] = numArr[numNums-1];
   numNums--;
+
   if (numNums == 0) {
     free (numArr);
-    numArr = 0;
+    numArr = NULL;
   }
 
   return i;
@@ -123,37 +121,36 @@ int main (void)
 
   Dict test_dict = NewDict();
   DSetHashFunc(test_dict, &hash_str_fnv);
+	List volatile key_list;
 
   Dummy* dums = (Dummy*)malloc(sizeof(dictionary)*DICT_ELEMENT_SIZE);
   assert(dums);
 
-  int i; char* tmp_str = NULL; int tmp_str_len;
+  int i, tmp_str_len;
+	char* volatile tmp_str = NULL;
+	char* volatile s = NULL;
   for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
-    tmp_str_len = snprintf(NULL, 0, "Dummy node [%s]", ToStr(Encode(i)));
-    tmp_str = (char*)malloc(sizeof(char)*tmp_str_len);
-    sprintf(tmp_str, "Dummy node [%s]", ToStr(Encode(i)) );
-    dums[i] = NewDummy( tmp_str );
+		s = ToStr(Encode(i));
+    tmp_str_len = snprintf(NULL, 0, "Dummy node [%s]", s);
+    tmp_str = (char*)malloc(sizeof(char)*(tmp_str_len+1));
+    sprintf(tmp_str, "Dummy node [%s]", s);
+    dums[i] = NewDummy(tmp_str);
+		free(tmp_str);
+		free(s);
   }
 
   printf("Inserting Dummies!!\n");
   for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
-    printf("Inserting with string \"%s\", Hashed as: %lu \n", dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
+    printf(
+			"Inserting with string \"%s\", Hashed as: %lu \n",
+			dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
     DInsert(test_dict, dums[i], dums[i]->dummy_name);
   }
 
   printf("\nDictionary readout test...\n");
 
-  List key_list = DGetKeys(test_dict);
+  key_list = DGetKeys(test_dict);
   printf("dict has %llu keys\n", LLen(key_list));
-  // printf("dict_keys:");
-  // for (i=0; i<test_dict->size; ++i)
-  //   printf(" %lu", (dict_key_t)LAt(key_list, i));
-  // printf("\n");
-  // printf("dict_keys (direct access):\n");
-  // for (i=0; i<test_dict->size; ++i)
-  //   printf(" %lu", test_dict->keys[i]);
-  // printf("\n");
-  DeleteList(key_list);
 
   printf("\nRemoval test ... \n");
   for (i=0; i<ELEMENTS_TO_REMOVE; ++i) {
@@ -162,20 +159,11 @@ int main (void)
     DRemove(test_dict, dums[del_ind]->dummy_name);
   }
 
-  key_list = DGetKeys(test_dict);
   printf("dict has %llu keys\n", LLen(key_list));
-  // printf("dict_keys:");
-  // for (i=0; i<test_dict->size; ++i)
-  //   printf(" %lu", (dict_key_t)LAt(key_list, i));
-  // printf("\n");
-  // printf("dict_keys (direct access):\n");
-  // for (i=0; i<test_dict->size; ++i)
-  //   printf(" %lu", test_dict->keys[i]);
-  // printf("\n");
-  DeleteList(key_list);
 
   for (i=0; i<DICT_ELEMENT_SIZE; ++i)
     DeleteDummy(dums[i]);
+	free(dums);
   DeleteDict(test_dict);
 
   return 0;

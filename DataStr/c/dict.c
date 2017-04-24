@@ -189,8 +189,8 @@ Dict NewDict()
   Dict d = (Dict)malloc(sizeof(dictionary));
   assert(d);
   d->size = 0;
-  d->table = NewList(); /* The DNode linked list */
-	d->key_str = NewList(); /* key string list */
+  d->table = NewList(); /* The DNode linked list: List<DNode> */
+	d->key_str = NewList(); /* key string list: List<char*> */
   d->keys = NULL;
   /* Default hashing: FNV */
   d->hashing = &hash_str_fnv;
@@ -217,7 +217,7 @@ int DeleteDictHard(Dict d, int (*data_destroyer) ())
 
   unsigned long long i, n_keys = LLen(d->key_str);
 
-  DNode tmp_dnode;
+  DNode volatile tmp_dnode;
   for (i=0; i<n_keys; ++i) {
     tmp_dnode = (DNode)LAt(d->table, i);
     DeleteDNodeHard(tmp_dnode, data_destroyer);
@@ -249,7 +249,7 @@ int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
 
 	/* update hashed keys */
 	unsigned long long i;
-	DNode tmp_dnode;
+	DNode volatile tmp_dnode;
 	for (i=0; i<d->size; ++i) {
 		tmp_dnode = (DNode)LAt(d->table, i);
 		tmp_dnode->key = d->hashing((char*)LAt(d->key_str, i));
@@ -270,7 +270,7 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
    * deletion. */
   char* key_str = NULL;
 
-  DNode tmp_dnode = search_node(d, k);
+  DNode volatile tmp_dnode = search_node(d, k);
   if (tmp_dnode) tmp_dnode->data = inp_data;
   else {
     /* cannot find the key. Let's make it!! */
@@ -298,7 +298,7 @@ int DRemove(Dict d, const void* inp_key)
   assert(d);
   dict_key_t k = d->hashing(inp_key);
 
-  DNode tmp_dnode = search_node(d, k);
+  DNode volatile tmp_dnode = search_node(d, k);
   if (!tmp_dnode) return 0; /* Key isn't here, nothing to do */
 
 	unsigned long long rem_index = LIndex(d->table, tmp_dnode);
