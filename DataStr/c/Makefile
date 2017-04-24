@@ -32,11 +32,9 @@ LIBNAME=libdatastr.a
 
 all: $(LIBNAME) test.c test.cpp
 	$(CC) $(CFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
-	$(CXX) $(CXXFLAGS) test.cpp $(LIBNAME) -o $(TESTF_NAME)_cpp $(LIBS)
 
 release: $(LIBNAME) test.c test.cpp
 	$(CC) $(RCFLAGS) test.c $(LIBNAME) -o $(TESTF_NAME) $(LIBS)
-	$(CXX) $(RCXXFLAGS) test.cpp $(LIBNAME) -o $(TESTF_NAME)_cpp $(LIBS)
 
 $(LIBNAME): $(OBJS)
 	$(AR) rcs $@ $(OBJS)
@@ -48,4 +46,3 @@ clean:
 	rm -rfv *.so *.dll *.pyc
 	rm -rfv *.dSYM
 	rm -rfv ./$(TESTF_NAME)
-	rm -rfv ./$(TESTF_NAME)_cpp
