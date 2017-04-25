@@ -37,6 +37,8 @@ typedef struct _num {
     void* v_ptr;
   } np;
 
+  size_t d_size;
+
   /* Some custom operation function pointers */
   struct _num* (*oper_add) ();
   struct _num* (*oper_sub) ();
@@ -48,21 +50,19 @@ typedef num* Num;
 
 /* Constructors and Destructors */
 Num NewNum();
-Num NewNumData(NumType nt, void* data);
 Num NewNumInteger(const int64_t num);
 Num NewNumFloat(const double num);
 Num NewNumBoolian(const bool b);
-Num NewNumGeneric(const void* data);
+Num NewNumGeneric(void* data, size_t data_size);
 int DeleteNum(Num n);
 
+/* Some macros */
+#define NEW_INTEGER(N) NewNumInteger((int64_t)N)
+#define NEW_FLOAT(N) NewNumFloat((double)N)
+#define NEW_BOOL(N) NewNumBoolian((bool)N)
+#define NEW_NUM(N) NewNumGeneric(&N, sizeof(N))
+
 /* Arithematic operations */
-int SetUpOperations(
-  Num n,
-  Num (*op_add)(),
-  Num (*op_sub)(),
-  Num (*op_mul)(),
-  Num (*op_div)(),
-  Num (*op_rem)());
 Num AddNum(Num A, Num B);
 Num SubNum(Num A, Num B);
 Num MulNum(Num A, Num B);

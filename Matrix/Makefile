@@ -11,13 +11,13 @@ VERNUM_SHORT=0.0
 
 CURR_DIR := $(shell pwd)
 
-# CC_DETECT := `command -v clang`
-# ifeq ($(CC_DETECT), "")
-# 	CC=gcc
-# else
-# 	CC=clang
-# endif
-CC=gcc
+CC_DETECT := `command -v clang`
+ifeq ($(CC_DETECT), "")
+	CC=gcc
+else
+	CC=clang
+endif
+# CC=gcc
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
@@ -33,9 +33,9 @@ endif
 LIBS=-lm -L. -lpthread
 AR=ar
 
-LIB_PROJ_NAME := matrix
+LIB_PROJ_NAME := tmatrix
 
-TESTF_NAME=matrix_test
+TESTF_NAME=tmatrix_test
 
 SOURCES=$(filter-out test.c, $(wildcard $(CURR_DIR)/$(SRCDIR)/*.c $(CURR_DIR)/$(SRCDIR)/*.C $(CURR_DIR)/$(SRCDIR)/*.m))
 HEADERS=$(filter-out test.h, $(wildcard $(CURR_DIR)/$(SRCDIR)/*.h))
@@ -73,7 +73,8 @@ $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 
 $(TESTF_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/test.c $(CURR_DIR)/test.h
-	$(CC) $(CFLAGS) $(CURR_DIR)/test.c $(LIBNAME) -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS)
+	$(CC) $(CFLAGS) $(CURR_DIR)/test.c $(LIBNAME) \
+    -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS) -I./$(SRCDIR)
 
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o

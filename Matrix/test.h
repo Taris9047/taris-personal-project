@@ -13,6 +13,6 @@
 #ifndef MATRIX_TEST_PROGRAM_H
 #define MATRIX_TEST_PROGRAM_H
 
-
+#include "tmatrix.h"
 
 #endif /* Include guard */

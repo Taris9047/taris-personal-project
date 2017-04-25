@@ -1,24 +1,16 @@
 /***********************************************
 
- test program for matrix
+ The matrix manager (Provides some utility stuffs)
 
  Implementation file
 
  Written by Taylor Shin
 
- Apr. 24th 2017
+ Apr. 25th 2017
 
 ************************************************/
-
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "test.h"
-
-int main(int argc, char* argv[])
-{
-  printf("Printf tmatrix test\n");
-
-  return 0;
-}
+#include "tmatrix.h"
