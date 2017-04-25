@@ -54,6 +54,7 @@ Num NewNumInteger(const int64_t num);
 Num NewNumFloat(const double num);
 Num NewNumBoolian(const bool b);
 Num NewNumGeneric(void* data, size_t data_size);
+Num CopyNum(Num n);
 int DeleteNum(Num n);
 
 /* Some macros */
@@ -63,6 +64,7 @@ int DeleteNum(Num n);
 #define NEW_NUM(N) NewNumGeneric(&N, sizeof(N))
 
 /* Arithematic operations */
+NumType ret_Num_type(NumType A, NumType B);
 Num AddNum(Num A, Num B);
 Num SubNum(Num A, Num B);
 Num MulNum(Num A, Num B);

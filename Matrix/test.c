@@ -18,7 +18,9 @@
 
 int main(int argc, char* argv[])
 {
-  printf("Printf tmatrix test\n");
+  printf("tmatrix test...\n");
+
+
 
   return 0;
 }

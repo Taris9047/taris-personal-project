@@ -17,21 +17,15 @@
 
 #include "num.h"
 #include "pth_handle.h"
+#include "list.h"
 #include "btree.h"
-
-/* Each sparse matrix data node */
-typedef struct _sparse_node {
-  uint64_t r;
-  uint64_t c;
-  Num data;
-} sparse_node, *SPNode;
 
 /* Sparse matrix */
 typedef struct _sparse_matrix {
   uint64_t rows;
   uint64_t cols;
   NumType ntype; /* Type of Num */
-  BTree matrix_data; /* BTree<SPNode> */
+  BTree matrix_data; /* BTree<Num> */
 } sparse_matrix;
 typedef sparse_matrix* SMatrix;
 
@@ -57,5 +51,8 @@ SMatrix SMatrixSCSub(SMatrix A, Num sc);
 SMatrix SMatrixSCMul(SMatrix A, Num sc);
 SMatrix SMatrixSCDiv(SMatrix A, Num sc);
 SMatrix SMatrixSCRem(SMatrix A, Num sc);
+
+/* Some other operations */
+SMatrix SMatrixTranspose(SMatrix A);
 
 #endif /* Include guard */

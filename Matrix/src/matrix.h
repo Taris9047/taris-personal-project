@@ -50,4 +50,8 @@ Matrix MatrixSCMul(Matrix A, Num sc);
 Matrix MatrixSCDiv(Matrix A, Num sc);
 Matrix MatrixSCRem(Matrix A, Num sc);
 
+/* Some other operations */
+Matrix MatrixTranspose(Matrix A);
+
+
 #endif /* Include guard */

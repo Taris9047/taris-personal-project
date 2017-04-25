@@ -100,6 +100,50 @@ Num NewNumGeneric(void* data, size_t data_size)
   return n;
 }
 
+Num CopyNum(Num n)
+{
+  assert(n);
+  Num new_n = (Num)malloc(sizeof(num));
+  assert(new_n);
+
+  new_n->ntype = n->ntype;
+  new_n->d_size = n->d_size;
+
+  int inum;
+  double dnum;
+  bool bdata;
+  void* vptr;
+  switch (new_n->d_size) {
+  case Integer:
+    inum = (int64_t)(*n->np.i_ptr);
+    new_n->np.i_ptr = (int64_t*)malloc(sizeof(int64_t));
+    (*new_n->np.i_ptr) = inum;
+    break;
+  case Float:
+    dnum = (double)(*n->np.f_ptr);
+    new_n->np.f_ptr = (double*)malloc(sizeof(double));
+    (*new_n->np.f_ptr) = dnum;
+    break;
+  case Boolian:
+    bdata = (bool)(*n->np.b_ptr);
+    new_n->np.b_ptr = (bool*)malloc(sizeof(bool));
+    (*new_n->np.b_ptr) = bdata;
+    break;
+  default:
+    vptr = malloc(sizeof(new_n->d_size));
+    memcpy(vptr, n->np.v_ptr, new_n->d_size);
+    new_n->np.v_ptr = vptr;
+    break;
+  }
+
+  /* Operator assignment macro */
+  SETUP_OP(
+    new_n, n->oper_add, n->oper_sub, n->oper_mul,
+    n->oper_div, n->oper_rem)
+
+  return new_n;
+}
+
 int DeleteNum(Num n)
 {
   assert(n);
@@ -128,28 +172,26 @@ int DeleteNum(Num n)
  Num: Operations
 ************************************************/
 /* Arithematic operation result type conversion */
-static NumType ret_Num_type(Num A, Num B)
+NumType ret_Num_type(NumType A, NumType B)
 {
-  assert (A && B);
-
   /*
     Generic case: Let the user decide what to do
     --> just return Any type
   */
-  if (A->ntype == Any || B->ntype == Any) return Any;
+  if (A == Any || B == Any) return Any;
 
   /*
     Kinky boolian case: Just return any number is NOT Boolian
   */
-  if (A->ntype == Boolian && B->ntype == Boolian) return Boolian;
-  else if (A->ntype != Boolian) return A->ntype;
-  else if (B->ntype != Boolian) return B->ntype;
+  if (A == Boolian && B == Boolian) return Boolian;
+  else if (A != Boolian) return A;
+  else if (B != Boolian) return B;
 
   /* Int with Float will be converted to Float */
-  if (A->ntype == Float || B->ntype == Float) return Float;
+  if (A == Float || B == Float) return Float;
 
   /* Both Integer case: return Integer */
-  if (A->ntype == Integer && B->ntype == Integer) return Integer;
+  if (A == Integer && B == Integer) return Integer;
 
   /* Shall NOT REACH HERE!! */
   return Any;
@@ -225,7 +267,7 @@ Num AddNum(Num A, Num B)
 {
   assert(A && B);
   Num C = NewNum();
-  C->ntype = ret_Num_type(A, B);
+  C->ntype = ret_Num_type(A->ntype, B->ntype);
 
   switch (C->ntype) {
   case Integer: /* Which means A and B are both Integers */
@@ -264,7 +306,7 @@ Num SubNum(Num A, Num B)
 {
   assert(A && B);
   Num C = NewNum();
-  C->ntype = ret_Num_type(A, B);
+  C->ntype = ret_Num_type(A->ntype, B->ntype);
 
   switch (C->ntype) {
   case Integer: /* Which means A and B are both Integers */
@@ -303,7 +345,7 @@ Num MulNum(Num A, Num B)
 {
   assert(A && B);
   Num C = NewNum();
-  C->ntype = ret_Num_type(A, B);
+  C->ntype = ret_Num_type(A->ntype, B->ntype);
 
   switch (C->ntype) {
   case Integer: /* Which means A and B are both Integers */
@@ -342,7 +384,7 @@ Num DivNum(Num A, Num B)
 {
   assert(A && B);
   Num C = NewNum();
-  C->ntype = ret_Num_type(A, B);
+  C->ntype = ret_Num_type(A->ntype, B->ntype);
 
   switch (C->ntype) {
   case Integer: /* Which means A and B are both Integers */
@@ -381,7 +423,7 @@ Num RemNum(Num A, Num B)
 {
   assert(A && B);
   Num C = NewNum();
-  C->ntype = ret_Num_type(A, B);
+  C->ntype = ret_Num_type(A->ntype, B->ntype);
 
   switch (C->ntype) {
   case Integer: /* Which means A and B are both Integers */
