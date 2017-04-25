@@ -33,6 +33,9 @@ fi
 CURRPWD=$PWD
 BLD_DIR=$HOME/.zmq_build
 
+if [ -d $BLD_DIR ]; then
+	rm -rf $BLD_DIR
+fi
 mkdir -p $BLD_DIR
 cd $BLD_DIR
 
@@ -66,11 +69,6 @@ fi
 # cleanup
 cd $CURRPWD
 rm -rf $BLD_DIR
-
-
-
-
-
 
 
 
