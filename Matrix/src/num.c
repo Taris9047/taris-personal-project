@@ -144,6 +144,66 @@ Num CopyNum(Num n)
   return new_n;
 }
 
+Num NumZero(NumType num_type, void* v_zero, size_t v_zero_sz)
+{
+  Num n = NewNum();
+  n->ntype = num_type;
+
+  int64_t i_zero = 0;
+  double d_zero = 0.0;
+  bool b_zero = false;
+  switch (n->ntype) {
+  case Integer:
+    n->np.i_ptr = (int64_t*)malloc(sizeof(int64_t));
+    (*n->np.i_ptr) = i_zero;
+    break;
+  case Float:
+    n->np.f_ptr = (double*)malloc(sizeof(double));
+    (*n->np.f_ptr) = d_zero;
+    break;
+  case Boolian:
+    n->np.b_ptr = (bool*)malloc(sizeof(bool));
+    (*n->np.b_ptr) = b_zero;
+    break;
+  default:
+    n->np.v_ptr = malloc(v_zero_sz);
+    memcpy(n->np.v_ptr, v_zero, v_zero_sz);
+    break;
+  }
+
+  return n;
+}
+
+Num NumOne(NumType num_type, void* v_one, size_t v_one_sz)
+{
+  Num n = NewNum();
+  n->ntype = num_type;
+
+  int64_t i_one = 0;
+  double d_one = 0.0;
+  bool b_one = false;
+  switch (n->ntype) {
+  case Integer:
+    n->np.i_ptr = (int64_t*)malloc(sizeof(int64_t));
+    (*n->np.i_ptr) = i_one;
+    break;
+  case Float:
+    n->np.f_ptr = (double*)malloc(sizeof(double));
+    (*n->np.f_ptr) = d_one;
+    break;
+  case Boolian:
+    n->np.b_ptr = (bool*)malloc(sizeof(bool));
+    (*n->np.b_ptr) = b_one;
+    break;
+  default:
+    n->np.v_ptr = malloc(v_one_sz);
+    memcpy(n->np.v_ptr, v_one, v_one_sz);
+    break;
+  }
+
+  return n;
+}
+
 int DeleteNum(Num n)
 {
   assert(n);
@@ -201,7 +261,7 @@ NumType ret_Num_type(NumType A, NumType B)
   Convert to Float
   --> Does not affect Any type.
 */
-static Num conv_to_float(Num N)
+static void conv_to_float(Num N)
 {
   assert(N);
   int num;
@@ -214,7 +274,7 @@ static Num conv_to_float(Num N)
     (*N->np.f_ptr) = (double)num;
     break;
   case Float:
-    return N;
+    return;
   case Boolian:
     logic = (bool)(*N->np.b_ptr);
     free(N->np.b_ptr);
@@ -223,11 +283,10 @@ static Num conv_to_float(Num N)
     else (*N->np.f_ptr) = 0.0;
     break;
   case Any:
-    return N;
+    return;
   }
   N->ntype = Float;
   NUM_N_OPER_INIT(N)
-  return N;
 }
 
 /*
@@ -275,8 +334,8 @@ Num AddNum(Num A, Num B)
     (*C->np.i_ptr) = (*A->np.i_ptr) + (*B->np.i_ptr);
     break;
   case Float:
-    if (A->ntype != Float) A = conv_to_float(A);
-    else B = conv_to_float(B);
+    if (A->ntype != Float) conv_to_float(A);
+    else conv_to_float(B);
     C->np.f_ptr = (double*)malloc(sizeof(double));
     (*C->np.f_ptr) = (*A->np.f_ptr) + (*B->np.f_ptr);
     break;
@@ -314,8 +373,8 @@ Num SubNum(Num A, Num B)
     (*C->np.i_ptr) = (*A->np.i_ptr) - (*B->np.i_ptr);
     break;
   case Float:
-    if (A->ntype != Float) A = conv_to_float(A);
-    else B = conv_to_float(B);
+    if (A->ntype != Float) conv_to_float(A);
+    else conv_to_float(B);
     C->np.f_ptr = (double*)malloc(sizeof(double));
     (*C->np.f_ptr) = (*A->np.f_ptr) - (*B->np.f_ptr);
     break;
@@ -353,8 +412,8 @@ Num MulNum(Num A, Num B)
     (*C->np.i_ptr) = (*A->np.i_ptr) * (*B->np.i_ptr);
     break;
   case Float:
-    if (A->ntype != Float) A = conv_to_float(A);
-    else B = conv_to_float(B);
+    if (A->ntype != Float) conv_to_float(A);
+    else conv_to_float(B);
     C->np.f_ptr = (double*)malloc(sizeof(double));
     (*C->np.f_ptr) = (*A->np.f_ptr) * (*B->np.f_ptr);
     break;
@@ -392,8 +451,8 @@ Num DivNum(Num A, Num B)
     (*C->np.i_ptr) = (*A->np.i_ptr) / (*B->np.i_ptr);
     break;
   case Float:
-    if (A->ntype != Float) A = conv_to_float(A);
-    else B = conv_to_float(B);
+    if (A->ntype != Float) conv_to_float(A);
+    else conv_to_float(B);
     C->np.f_ptr = (double*)malloc(sizeof(double));
     (*C->np.f_ptr) = (*A->np.f_ptr) / (*B->np.f_ptr);
     break;
@@ -431,8 +490,8 @@ Num RemNum(Num A, Num B)
     (*C->np.i_ptr) = (*A->np.i_ptr) % (*B->np.i_ptr);
     break;
   case Float:
-    if (A->ntype != Float) A = conv_to_float(A);
-    else B = conv_to_float(B);
+    if (A->ntype != Float) conv_to_float(A);
+    else conv_to_float(B);
     C->np.f_ptr = (double*)malloc(sizeof(double));
     (*C->np.f_ptr) = (*A->np.f_ptr) / (*B->np.f_ptr);
     break;
@@ -459,4 +518,165 @@ Num RemNum(Num A, Num B)
   }
 
   return C;
+}
+
+
+/***********************************************
+ Num: Incremental Operations (Updates first Num input)
+************************************************/
+int IncAddNum(Num A, Num B)
+{
+  assert(A); assert(B);
+  A->ntype = ret_Num_type(A->ntype, B->ntype);
+
+  Num tmp_num = NULL;
+  void* tmp_data = NULL;
+  switch (A->ntype) {
+  case Integer:
+    (*A->np.i_ptr) += (*B->np.i_ptr);
+    break;
+  case Float:
+    if (A->ntype != Float) conv_to_float(A);
+    else if (B->ntype != Float) conv_to_float(B);
+    (*A->np.f_ptr) += (*B->np.f_ptr);
+    break;
+  case Boolian:
+    /* Addition: OR */
+    (*A->np.b_ptr) = (*A->np.b_ptr) || (*B->np.b_ptr);
+    break;
+  default:
+    A->oper_add(A, B);
+    tmp_data = tmp_num->np.v_ptr;
+    free(tmp_num);
+    free(A->np.v_ptr); // TODO: might think about for some special cases... */
+    A->np.v_ptr = tmp_data;
+  }
+
+  return 0;
+}
+
+int IncSubNum(Num A, Num B)
+{
+  assert(A); assert(B);
+  A->ntype = ret_Num_type(A->ntype, B->ntype);
+
+  Num tmp_num = NULL;
+  void* tmp_data = NULL;
+  switch (A->ntype) {
+  case Integer:
+    (*A->np.i_ptr) -= (*B->np.i_ptr);
+    break;
+  case Float:
+    if (A->ntype != Float) conv_to_float(A);
+    else if (B->ntype != Float) conv_to_float(B);
+    (*A->np.f_ptr) -= (*B->np.f_ptr);
+    break;
+  case Boolian:
+    /* Subtraction: NOR */
+    (*A->np.b_ptr) = !((*A->np.b_ptr) || (*B->np.b_ptr));
+    break;
+  default:
+    tmp_num = A->oper_sub(A, B);
+    tmp_data = tmp_num->np.v_ptr;
+    free(tmp_num);
+    free(A->np.v_ptr); // TODO: might think about for some special cases... */
+    A->np.v_ptr = tmp_data;
+  }
+
+  return 0;
+}
+
+int IncMulNum(Num A, Num B)
+{
+  assert(A); assert(B);
+  A->ntype = ret_Num_type(A->ntype, B->ntype);
+
+  Num tmp_num = NULL;
+  void* tmp_data = NULL;
+  switch (A->ntype) {
+  case Integer:
+    (*A->np.i_ptr) *= (*B->np.i_ptr);
+    break;
+  case Float:
+    if (A->ntype != Float) conv_to_float(A);
+    else if (B->ntype != Float) conv_to_float(B);
+    (*A->np.f_ptr) *= (*B->np.f_ptr);
+    break;
+  case Boolian:
+    /* Multiplication: AND */
+    (*A->np.b_ptr) = (*A->np.b_ptr) && (*B->np.b_ptr);
+    break;
+  default:
+    A->oper_mul(A, B);
+    tmp_data = tmp_num->np.v_ptr;
+    free(tmp_num);
+    free(A->np.v_ptr); // TODO: might think about for some special cases... */
+    A->np.v_ptr = tmp_data;
+  }
+
+  return 0;
+}
+
+int IncDivNum(Num A, Num B)
+{
+  assert(A); assert(B);
+  A->ntype = ret_Num_type(A->ntype, B->ntype);
+
+  Num tmp_num = NULL;
+  void* tmp_data = NULL;
+  switch (A->ntype) {
+  case Integer:
+    (*A->np.i_ptr) /= (*B->np.i_ptr);
+    break;
+  case Float:
+    if (A->ntype != Float) conv_to_float(A);
+    else if (B->ntype != Float) conv_to_float(B);
+    (*A->np.f_ptr) /= (*B->np.f_ptr);
+    break;
+  case Boolian:
+    /* Multiplication: NAND */
+    (*A->np.b_ptr) = !((*A->np.b_ptr) && (*B->np.b_ptr));
+    break;
+  default:
+    A->oper_div(A, B);
+    tmp_data = tmp_num->np.v_ptr;
+    free(tmp_num);
+    free(A->np.v_ptr); // TODO: might think about for some special cases... */
+    A->np.v_ptr = tmp_data;
+  }
+
+  return 0;
+}
+
+int IncRemNum(Num A, Num B)
+{
+  assert(A); assert(B);
+  A->ntype = ret_Num_type(A->ntype, B->ntype);
+
+  Num tmp_num = NULL;
+  void* tmp_data = NULL;
+  switch (A->ntype) {
+  case Integer:
+    (*A->np.i_ptr) %= (*B->np.i_ptr);
+    break;
+  case Float:
+    if (A->ntype != Float) conv_to_float(A);
+    else if (B->ntype != Float) conv_to_float(B);
+    (*A->np.f_ptr) /= (*B->np.f_ptr);
+    break;
+  case Boolian:
+    /* Multiplication: XOR */
+    (*A->np.b_ptr) = \
+      (!(*A->np.b_ptr) && (*B->np.b_ptr)) || \
+      ((*A->np.b_ptr) && !(*B->np.b_ptr));
+    break;
+  default:
+    tmp_num = A->oper_rem(A, B);
+    tmp_data = tmp_num->np.v_ptr;
+    free(tmp_num);
+    free(A->np.v_ptr); // TODO: might think about for some special cases... */
+    A->np.v_ptr = tmp_data;
+  }
+
+  return 0;
 }
