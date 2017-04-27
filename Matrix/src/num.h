@@ -81,4 +81,7 @@ int IncMulNum(Num A, Num B);
 int IncDivNum(Num A, Num B);
 int IncRemNum(Num A, Num B);
 
+/* Some utils */
+char* NumToStr(Num n);
+
 #endif /* Include guard */

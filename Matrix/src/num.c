@@ -680,3 +680,38 @@ int IncRemNum(Num A, Num B)
 
   return 0;
 }
+
+/* Some utils */
+char* NumToStr(Num n)
+{
+  assert(n);
+  char* n_str;
+  int s_len;
+  switch (n->ntype) {
+  case Integer:
+    s_len = snprintf(NULL, 0, "%lu", *n->np.i_ptr);
+    n_str = (char*)malloc(sizeof(char)*(s_len+1));
+    sprintf(n_str, "%lu", *n->np.i_ptr);
+    break;
+  case Float:
+    s_len = snprintf(NULL, 0, "%.6f", *n->np.f_ptr);
+    n_str = (char*)malloc(sizeof(char)*(s_len+1));
+    sprintf(n_str, "%.6f", *n->np.f_ptr);
+    break;
+  case Boolian:
+    if (*n->np.b_ptr) {
+      n_str = (char*)malloc(sizeof(char)*5);
+      sprintf(n_str, "True");
+    }
+    else {
+      n_str = (char*)malloc(sizeof(char)*6);
+      sprintf(n_str, "False");
+    }
+    break;
+  default:
+    n_str = (char*)malloc(sizeof(char)*9);
+    sprintf(n_str, "##DATA##");
+    break;
+  }
+  return n_str;
+}

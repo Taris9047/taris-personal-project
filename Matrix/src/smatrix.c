@@ -16,15 +16,6 @@
 
 #include "smatrix.h"
 
-/* key generator for sparse matrix binary tree */
-#ifdef SPM_KEY_GEN
-#undef SPM_KEY_GEN
-#endif
-/* Implementing Szudzik's function --> only viable for unsigned integers */
-#define SPM_KEY_GEN(a, b) \
-  a >= b ? a*a+a+b : a+b*b
-
-
 /***********************************************
   Constructors and Destructors
 ************************************************/
@@ -229,22 +220,107 @@ SMatrix SMatrixMul(SMatrix A, SMatrix B)
 ************************************************/
 SMatrix SMatrixSCAdd(SMatrix A, Num sc)
 {
+  assert(A); assert(sc);
+  SMatrix Ret = NewSMatrix();
+  Ret->rows = A->rows;
+  Ret->cols = A->cols;
+  Ret->ntype = ret_Num_type(A->ntype, sc->ntype);
+
+  uint64_t i, j;
+  Num volatile tmp_a_elem;
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->rows; ++j) {
+      tmp_a_elem = SMatrixAt(A, i, j);
+      BTInsert(
+        Ret->matrix_data, AddNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
+    }
+  }
+
+  return Ret;
 }
 
 SMatrix SMatrixSCSub(SMatrix A, Num sc)
 {
+  assert(A); assert(sc);
+  SMatrix Ret = NewSMatrix();
+  Ret->rows = A->rows;
+  Ret->cols = A->cols;
+  Ret->ntype = ret_Num_type(A->ntype, sc->ntype);
+
+  uint64_t i, j;
+  Num volatile tmp_a_elem;
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->rows; ++j) {
+      tmp_a_elem = SMatrixAt(A, i, j);
+      BTInsert(
+        Ret->matrix_data, SubNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
+    }
+  }
+
+  return Ret;
 }
 
 SMatrix SMatrixSCMul(SMatrix A, Num sc)
 {
+  assert(A); assert(sc);
+  SMatrix Ret = NewSMatrix();
+  Ret->rows = A->rows;
+  Ret->cols = A->cols;
+  Ret->ntype = ret_Num_type(A->ntype, sc->ntype);
+
+  uint64_t i, j;
+  Num volatile tmp_a_elem;
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->rows; ++j) {
+      tmp_a_elem = SMatrixAt(A, i, j);
+      BTInsert(
+        Ret->matrix_data, MulNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
+    }
+  }
+
+  return Ret;
 }
 
 SMatrix SMatrixSCDiv(SMatrix A, Num sc)
 {
+  assert(A); assert(sc);
+  SMatrix Ret = NewSMatrix();
+  Ret->rows = A->rows;
+  Ret->cols = A->cols;
+  Ret->ntype = ret_Num_type(A->ntype, sc->ntype);
+
+  uint64_t i, j;
+  Num volatile tmp_a_elem;
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->rows; ++j) {
+      tmp_a_elem = SMatrixAt(A, i, j);
+      BTInsert(
+        Ret->matrix_data, DivNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
+    }
+  }
+
+  return Ret;
 }
 
 SMatrix SMatrixSCRem(SMatrix A, Num sc)
 {
+  assert(A); assert(sc);
+  SMatrix Ret = NewSMatrix();
+  Ret->rows = A->rows;
+  Ret->cols = A->cols;
+  Ret->ntype = ret_Num_type(A->ntype, sc->ntype);
+
+  uint64_t i, j;
+  Num volatile tmp_a_elem;
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->rows; ++j) {
+      tmp_a_elem = SMatrixAt(A, i, j);
+      BTInsert(
+        Ret->matrix_data, RemNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
+    }
+  }
+
+  return Ret;
 }
 
 

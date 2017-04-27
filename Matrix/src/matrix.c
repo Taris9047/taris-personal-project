@@ -230,7 +230,8 @@ int MatrixSet(Matrix mat, uint64_t r, uint64_t c, Num n_data)
 ************************************************/
 static void* matrix_arith_worker(void* args)
 {
-  MatWorkArgs mwargs = (MatWorkArgs)args;
+  pth_args pargs = (pth_args)args;
+  MatWorkArgs mwargs = (MatWorkArgs)pargs->data_set;
 
   uint64_t i;
   assert(mwargs->array_a_size == mwargs->array_b_size);
@@ -304,48 +305,96 @@ Matrix MatrixSub(Matrix A, Matrix B)
   return C;
 }
 
+/* Matrix multiplication stuff */
+typedef struct _mat_mul_args {
+  Num* array_a;
+  uint64_t array_a_size;
+  Num** matrix_b;
+  uint64_t mat_b_rows;
+  uint64_t mat_b_cols;
+  Num* array_c;
+  uint64_t array_c_size;
+} mat_mul_args;
+typedef mat_mul_args* MatMulArgs;
+
+static MatMulArgs NewMatMulArgs(Num* A, uint64_t A_sz, Num** B_mat, uint64_t B_r_sz, uint64_t B_c_sz)
+{
+  assert(A); assert(B_mat);
+  assert(A_sz == B_r_sz);
+  MatMulArgs mma = (MatMulArgs)malloc(sizeof(mat_mul_args));
+  assert(mma);
+
+  mma->array_a = A;
+  mma->array_a_size = A_sz;
+  mma->matrix_b = B_mat;
+  mma->mat_b_rows = B_r_sz;
+  mma->mat_b_cols = B_c_sz;
+  mma->array_c = (Num*)malloc(sizeof(Num)*B_c_sz);
+  assert(mma->array_c);
+  mma->array_c_size = B_c_sz;
+
+  return mma;
+}
+
+static int DeleteMatMulArgs(MatMulArgs mma)
+{
+  assert(mma);
+  free(mma);
+  return 0;
+}
+
+/* Matrix multiplication worker */
+static void* matrix_mul_worker(void* args)
+{
+  pth_args pargs = (pth_args)args;
+  MatMulArgs mma = (MatMulArgs)pargs->data_set;
+
+  assert(mma);
+  assert(mma->array_a);
+  assert(mma->matrix_b);
+
+  uint64_t i, j;
+  NumType nt = mma->array_a[0]->ntype;
+  Num volatile tmp_num;
+  Num volatile tmp_num_mul;
+  for (i=0; i<mma->mat_b_cols; ++i) {
+    mma->array_c[i] = NumZero(nt, NULL, 0);
+    for (j=0; j<mma->array_a_size; ++j) {
+      tmp_num_mul = MulNum(mma->array_a[j], mma->matrix_b[j][i]);
+      IncAddNum(mma->array_c[i], tmp_num_mul);
+      DeleteNum(tmp_num_mul);
+    }
+  }
+  return NULL;
+}
+
 Matrix MatrixMul(Matrix A, Matrix B)
 {
   assert(A); assert(B);
   assert(A->cols == B->rows);
 
   Matrix C = NewMatrix();
-  C->rows = B->cols;
-  C->cols = A->rows;
+  C->rows = A->rows;
+  C->cols = B->cols;
   C->ntype = ret_Num_type(A->ntype, B->ntype);
 
-  uint64_t i, j;
-  MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
-  /* Extracting b column */
-  Num** Bcols = (Num**)malloc(sizeof(Num*)*B->cols);
-  assert(Bcols);
-  for (i=0; i<B->cols; ++i) {
-    Bcols[i] = (Num*)malloc(sizeof(Num)*B->rows);
-    assert(Bcols[i]);
-    for (j=0; j<B->rows; ++j)
-      Bcols[i][j] = B->matrix_array[j][i];
-  }
-  for (i=0; i<B->cols; ++i) {
-    work_args[i] = NewMatWorkArgs(
-      A->matrix_array[i], A->rows,
-      Bcols[i], B->cols, &MulNum);
+  uint64_t i;
+  MatMulArgs* work_args = \
+    (MatMulArgs*)malloc(sizeof(MatMulArgs)*A->rows);
+  for (i=0; i<A->rows; ++i) {
+    work_args[i] = NewMatMulArgs(
+      A->matrix_array[i], A->cols,
+      B->matrix_array, B->rows, B->cols);
   }
   Threads op_thr = NewThreads(A->rows, true, NULL);
-  RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
+  RunThreads(op_thr, matrix_mul_worker, (void**)work_args);
 
   C->matrix_array = (Num**)malloc(sizeof(Num*)*C->rows);
   for (i=0; i<C->rows; ++i) {
     C->matrix_array[i] = work_args[i]->array_c;
-    DeleteMatWorkArgs(work_args[i]);
+    DeleteMatMulArgs(work_args[i]);
   }
   free(work_args);
-  for (i=0; i<B->cols; ++i) {
-    for (j=0; j<B->rows; ++j)
-      Bcols[i][j] = NULL;
-    free(Bcols[i]);
-  }
-  free(Bcols);
   DeleteThreads(op_thr);
   return C;
 }

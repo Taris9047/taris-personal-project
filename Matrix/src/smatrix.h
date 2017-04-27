@@ -20,6 +20,14 @@
 #include "list.h"
 #include "btree.h"
 
+/* key generator for sparse matrix binary tree */
+#ifdef SPM_KEY_GEN
+#undef SPM_KEY_GEN
+#endif
+/* Implementing Szudzik's function --> only viable for unsigned integers */
+#define SPM_KEY_GEN(a, b) \
+  a >= b ? a*a+a+b : a+b*b
+
 /* Sparse matrix */
 typedef struct _sparse_matrix {
   uint64_t rows;
