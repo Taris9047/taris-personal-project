@@ -1,3 +1,12 @@
+/**
+ * @Author: taris
+ * @Date:   2017-04-28T07:27:59-05:00
+ * @Last modified by:   taris
+ * @Last modified time: 2017-04-28T07:29:14-05:00
+ */
+
+
+
 /***********************************************
 
  matrix library
@@ -355,7 +364,6 @@ static void* matrix_mul_worker(void* args)
 
   uint64_t i, j;
   NumType nt = mma->array_a[0]->ntype;
-  Num volatile tmp_num;
   Num volatile tmp_num_mul;
   for (i=0; i<mma->mat_b_cols; ++i) {
     mma->array_c[i] = NumZero(nt, NULL, 0);
