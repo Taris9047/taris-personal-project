@@ -15,11 +15,28 @@
 #include "pth_handle.h"
 
 /***********************************************
+  Utility stuff
+************************************************/
+/* Checking up available threads */
+uint64_t pth_handle_get_soft_limit()
+{
+  struct rlimit r_lim;
+  getrlimit(RLIMIT_NPROC, &r_lim);
+  return (uint64_t)(r_lim.rlim_cur-1);
+}
+
+uint64_t pth_handle_get_hard_limit()
+{
+  struct rlimit r_lim;
+  getrlimit(RLIMIT_NPROC, &r_lim);
+  return (uint64_t)(r_lim.rlim_max-1);
+}
+
+/***********************************************
  Static Stuffs
 ************************************************/
 /* pid_tracking */
 static pid_t pth_handle_current_max_pid = 0;
-
 
 /***********************************************
  Worker argument handling
@@ -52,13 +69,13 @@ int arg_bundle_delete(pth_args pa)
 ************************************************/
 /* Constructor */
 Threads NewThreads(
-  uint32_t num_threads,
+  uint64_t num_threads,
   bool b_joinable,
   pthread_mutex_t* n_mutex)
 {
   assert(num_threads > 0);
 
-  uint32_t i;
+  uint64_t i;
   Threads thr = (Threads)malloc(sizeof(multiple_threads));
   assert(thr);
 
@@ -90,6 +107,9 @@ Threads NewThreads(
     (worker_ret_data_t*)calloc(thr->n_threads, sizeof(worker_ret_data_t));
   assert(thr->status);
 
+  /* Thread num limit: Default - soft mode */
+  thr->hard_mode = false;
+
   return thr;
 }
 
@@ -98,7 +118,7 @@ int DeleteThreads(Threads thr)
 {
   assert(thr);
 
-  uint32_t i;
+  uint64_t i;
   if (!thr->joinable) {
     for (i=0; i<thr->n_threads; ++i)
       pthread_detach(thr->threads[i]);
@@ -123,7 +143,7 @@ int DeleteThreadsHard(Threads thr, int (*res_destroyer)())
 {
   assert(thr);
 
-  uint32_t i;
+  uint64_t i;
   if (!thr->joinable) {
     for (i=0; i<thr->n_threads; ++i)
       pthread_detach(thr->threads[i]);
@@ -155,8 +175,13 @@ int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[])
   assert(thr);
 
   /* Let's generate an array of pth_args */
-  uint32_t i;
+  uint64_t i, n_sec;
   int rc;
+  uint64_t max_threads;
+  if (!thr->hard_mode)
+    max_threads = pth_handle_get_soft_limit();
+  else
+    max_threads = pth_handle_get_hard_limit();
 
   pth_args* pth_args_ary = \
     (pth_args*)malloc(sizeof(pth_args)*thr->n_threads);
@@ -171,35 +196,89 @@ int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[])
     pth_handle_current_max_pid++;
   }
 
-  for (i=0; i<thr->n_threads; ++i) {
-    if (worker_args) {
-      rc = pthread_create(
-        &thr->threads[i], &thr->thread_attrs[i],
-        worker, (void*)pth_args_ary[i]);
-    }
-    else {
-      rc = pthread_create(
-        &thr->threads[i], &thr->thread_attrs[i],
-        worker, NULL);
-    }
-
-    if (rc) {
-      fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
-      exit(-1);
-    }
-  }
-
-  /* Join threads if thr->joinable is true */
-  if (thr->joinable) {
+  /* If we have small enough threads! Just run it */
+  if (thr->n_threads <= max_threads) {
     for (i=0; i<thr->n_threads; ++i) {
-      rc = pthread_join(thr->threads[i], &thr->status[i]);
+      if (worker_args) {
+        rc = pthread_create(
+          &thr->threads[i], &thr->thread_attrs[i],
+          worker, (void*)pth_args_ary[i]);
+      }
+      else {
+        rc = pthread_create(
+          &thr->threads[i], &thr->thread_attrs[i],
+          worker, NULL);
+      }
 
       if (rc) {
-        fprintf(stderr, "RunThreads Thread join Error!! return code: %d\n", rc);
+        fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
         exit(-1);
       }
     }
-  }
+
+    /* Join threads if thr->joinable is true */
+    if (thr->joinable) {
+      for (i=0; i<thr->n_threads; ++i) {
+        rc = pthread_join(thr->threads[i], &thr->status[i]);
+
+        if (rc) {
+          fprintf(stderr, "RunThreads Thread join Error!! return code: %d\n", rc);
+          exit(-1);
+        }
+      }
+    }
+
+  } /* if (thr->n_threads <= max_threads) */
+  /* If we have too much thread request, let's handle them section by section */
+  else {
+    uint64_t curr_section_len;
+    uint64_t n_sections;
+    uint64_t rem_section;
+    n_sections = thr->n_threads/max_threads;
+    rem_section = thr->n_threads%max_threads;
+    if (rem_section) n_sections++;
+    curr_section_len = max_threads;
+
+    for (n_sec=0; n_sec<n_sections; ++n_sec) {
+      if (rem_section && n_sec == n_sections-1)
+        curr_section_len = rem_section;
+
+      for (i=0; i<curr_section_len; ++i) {
+        if (worker_args) {
+          rc = pthread_create(
+            &thr->threads[i+max_threads*n_sec],
+            &thr->thread_attrs[i+max_threads*n_sec],
+            worker, (void*)pth_args_ary[i+max_threads*n_sec]);
+        }
+        else {
+          rc = pthread_create(
+            &thr->threads[i+max_threads*n_sec],
+            &thr->thread_attrs[i+max_threads*n_sec],
+            worker, NULL);
+        }
+
+        if (rc) {
+          fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
+          exit(-1);
+        }
+      } /* for (i=0; i<curr_section_len; ++i) */
+
+      /* Join threads if thr->joinable is true */
+      if (thr->joinable) {
+        for (i=0; i<curr_section_len; ++i) {
+          rc = pthread_join(
+            thr->threads[i+max_threads*n_sec],
+            &thr->status[i+max_threads*n_sec]);
+
+          if (rc) {
+            fprintf(stderr, "RunThreads Thread join Error!! return code: %d\n", rc);
+            exit(-1);
+          }
+        } /* for (i=0; i<thr->n_threads; ++i) */
+      } /* if (thr->joinable) */
+
+    } /* for (n_sec=0; n_sec<n_sections; ++n_sec) */
+  } /* if (thr->n_threads <= max_threads) */
 
   /* Clean up the pth_args_ary */
   for (i=0; i<thr->n_threads; ++i)
@@ -216,4 +295,19 @@ worker_ret_data_t* ReturnResults(Threads thr)
 {
   assert(thr);
   return thr->status;
+}
+
+/* Set thread number limit */
+int SetHardMode(Threads thr)
+{
+  assert(thr);
+  thr->hard_mode = true;
+  return 0;
+}
+
+int SetSoftMode(Threads thr)
+{
+  assert(thr);
+  thr->hard_mode = false;
+  return 0;
 }

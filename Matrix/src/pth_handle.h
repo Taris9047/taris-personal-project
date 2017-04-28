@@ -14,15 +14,18 @@
 #define MATRIX_PTH_HANDLER_H
 
 #include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <pthread.h>
 #include <stdbool.h>
-#include <sys/types.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/resource.h>
 
-// TODO: Failed to run a matrix with more than 200000 rows.
-// We need to implement some ways to throttle the number of threads.
+/* Utility stuff */
+/* Checking up available threads */
+uint64_t pth_handle_get_soft_limit();
+uint64_t pth_handle_get_hard_limit();
 
 /* Worker argument handling */
 /* Argument bundle */
@@ -43,22 +46,26 @@ int arg_bundle_delete(pth_args pa);
 /* Multiple thread handling */
 typedef void* worker_ret_data_t;
 typedef struct _multiple_threads {
-  uint32_t n_threads;
+  uint64_t n_threads;
   pthread_t* threads;
   pthread_attr_t* thread_attrs;
   bool joinable;
   pthread_mutex_t* mutex;
   worker_ret_data_t* status;
+  bool hard_mode;
 } multiple_threads;
 typedef multiple_threads* Threads;
 /* Constructors and Destructors */
 Threads NewThreads(
-  uint32_t num_threads, bool b_joinable, pthread_mutex_t* n_mutex);
+  uint64_t num_threads, bool b_joinable, pthread_mutex_t* n_mutex);
 int DeleteThreads(Threads thr);
 int DeleteThreadsHard(Threads thr, int (*res_destroyer)());
 /* Run, stop, etc. control methods */
 int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[]);
 /* Return results */
 worker_ret_data_t* ReturnResults(Threads thr);
+/* Set thread number limit */
+int SetHardMode(Threads thr);
+int SetSoftMode(Threads thr);
 
 #endif /* Include guard */

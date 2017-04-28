@@ -59,10 +59,12 @@ else ifneq (, $(findstring darwin, $(SYS)))
 	DLIBNAME=lib$(LIB_PROJ_NAME).so
 endif
 
+UTILS=get_thrd_limit
+
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(TESTF_NAME) $(LIBNAME)
+all: $(TESTF_NAME) $(LIBNAME) $(UTILS)
 
 $(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(AR) rcs $(CURR_DIR)/$(LIBNAMEV) $(OBJS)
@@ -76,6 +78,10 @@ $(TESTF_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/test.c $(CURR_DIR)/test.h
 	$(CC) $(CFLAGS) $(CURR_DIR)/test.c $(LIBNAME) \
     -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS) -I./$(SRCDIR)
 
+$(UTILS): get_thrd_limit.c
+	$(CC) $(CFLAGS) $(CURR_DIR)/get_thrd_limit.c -o get_thrd_limit
+
+
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o
 	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
@@ -84,3 +90,4 @@ clean:
 	rm -rfv ./$(TESTF_NAME)
 	rm -rfv ./__pycache__
 	rm -rfv *.img
+	rm -rfv ./$(UTILS)
