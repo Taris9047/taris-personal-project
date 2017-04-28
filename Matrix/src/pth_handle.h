@@ -21,6 +21,9 @@
 #include <sys/types.h>
 #include <stdint.h>
 
+// TODO: Failed to run a matrix with more than 200000 rows.
+// We need to implement some ways to throttle the number of threads.
+
 /* Worker argument handling */
 /* Argument bundle */
 typedef void* pth_arg_data_t;
@@ -50,9 +53,7 @@ typedef struct _multiple_threads {
 typedef multiple_threads* Threads;
 /* Constructors and Destructors */
 Threads NewThreads(
-  uint32_t num_threads,
-  bool b_joinable,
-  pthread_mutex_t* n_mutex);
+  uint32_t num_threads, bool b_joinable, pthread_mutex_t* n_mutex);
 int DeleteThreads(Threads thr);
 int DeleteThreadsHard(Threads thr, int (*res_destroyer)());
 /* Run, stop, etc. control methods */
