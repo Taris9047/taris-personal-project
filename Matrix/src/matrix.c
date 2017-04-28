@@ -89,6 +89,88 @@ Matrix NewMatrix()
   return m;
 }
 
+/* Multithreaded Matrix Assignment */
+typedef struct _mat_init_args {
+  NumType ntype;
+  uint64_t one_index;
+  bool has_one;
+  bool array_given;
+  void** _data;
+  uint64_t data_len;
+  size_t data_elem_size;
+  Num* Num_array;
+} mat_init_args;
+typedef mat_init_args* MatInitArgs;
+/* Constructors and Destructors for MatInitArgs */
+static MatInitArgs NewMatInitArgs(
+  NumType nt, bool h_one, uint64_t o_ind, \
+  void** n_data, uint64_t n_data_len, size_t d_size)
+{
+  MatInitArgs mia = (MatInitArgs)malloc(sizeof(mat_init_args));
+  assert(mia);
+
+  mia->ntype = nt;
+  mia->has_one = h_one;
+  mia->one_index = o_ind;
+  mia->_data = n_data;
+  mia->data_len = n_data_len;
+  mia->data_elem_size = d_size;
+  mia->Num_array = NULL;
+
+  return mia;
+}
+static int DeleteMatInitArgs(MatInitArgs mia)
+{
+  assert(mia);
+  //if (mia->_data) free(mia->_data);
+  free(mia);
+  return 0;
+}
+
+/* Matrix assignment worker */
+static void* mat_init_worker(void* args)
+{
+  pth_args _args = (pth_args)args;
+  MatInitArgs mia = (MatInitArgs)_args->data_set;
+  assert(mia);
+
+  uint64_t i;
+  mia->Num_array = (Num*)malloc(sizeof(Num)*mia->data_len);
+  assert(mia->Num_array);
+
+  /* Initialize with data case */
+  if (mia->_data) {
+    for (i=0; i<mia->data_len; ++i) {
+      mia->Num_array[i] = \
+        NewNumData(mia->_data[i], mia->ntype, mia->data_elem_size);
+    }
+  }
+  /* Initialize without data case: zero matrix or unit matrix */
+  else {
+    if (mia->has_one) {
+      for (i=0; i<mia->data_len; ++i) {
+        if (i==mia->one_index) {
+          mia->Num_array[i] = \
+            NumOne(mia->ntype, NULL, 0);
+        }
+        else {
+          mia->Num_array[i] = \
+            NumZero(mia->ntype, NULL, 0);
+        }
+      } /* for (i=0; i<mia->data_len; ++i) */
+    } /* if (mia->has_one) */
+    else {
+      for (i=0; i<mia->data_len; ++i) {
+        mia->Num_array[i] = \
+          NumZero(mia->ntype, NULL, 0);
+      } /* for (i=0; i<mia->data_len; ++i) */
+    } /* if (mia->has_one) */
+  } /* if (mia->_data) */
+
+  return NULL;
+}
+
+
 Matrix NewZeroMatrix(uint64_t n_rows, uint64_t n_cols, NumType n_type)
 {
   Matrix m = (Matrix)malloc(sizeof(matrix));
@@ -98,33 +180,27 @@ Matrix NewZeroMatrix(uint64_t n_rows, uint64_t n_cols, NumType n_type)
   m->cols = n_cols;
   m->ntype = n_type;
 
-  uint64_t i, j;
+  uint64_t i;
 
   m->matrix_array = (Num**)malloc(sizeof(Num*)*m->rows);
   assert(m->matrix_array);
+
+  MatInitArgs* mi_data_array = \
+    (MatInitArgs*)malloc(sizeof(MatInitArgs)*m->rows);
+  for (i=0; i<m->rows; ++i)
+    mi_data_array[i] = NewMatInitArgs(
+      m->ntype, false, 0, NULL, m->cols, 0);
+
+  Threads mat_init_thrd = \
+    NewThreads(m->rows, true, NULL);
+  RunThreads(mat_init_thrd, mat_init_worker, (void**)mi_data_array);
+
   for (i=0; i<m->rows; ++i) {
-    m->matrix_array[i] = (Num*)malloc(sizeof(Num)*m->cols);
-    assert(m->matrix_array[i]);
+    m->matrix_array[i] = mi_data_array[i]->Num_array;
+    DeleteMatInitArgs(mi_data_array[i]);
   }
-  /* TODO: Make this assignment multithreaded */
-  for (i=0; i<m->rows; ++i) {
-    for (j=0; j<m->cols; ++j) {
-      switch (m->ntype) {
-      case Integer:
-        m->matrix_array[i][j] = NewNumInteger(0);
-        break;
-      case Float:
-        m->matrix_array[i][j] = NewNumFloat(0.0);
-        break;
-      case Boolian:
-        m->matrix_array[i][j] = NewNumBoolian(false);
-        break;
-      default:
-        m->matrix_array[i][j] = NewNumGeneric(NULL, 0);
-        break;
-      } /* switch (m->ntype) */
-    } /* for (j=0; j<m->cols; ++j) */
-  } /* for (i=0; i<m->rows; ++i) */
+  free(mi_data_array);
+  DeleteThreads(mat_init_thrd);
 
   return m;
 }
@@ -134,37 +210,31 @@ Matrix NewUnitMatrix(uint64_t size, NumType n_type)
   Matrix m = (Matrix)malloc(sizeof(matrix));
   assert(m);
 
-  uint64_t i, j;
+  m->rows = size;
+  m->cols = size;
+  m->ntype = n_type;
+
+  uint64_t i;
 
   m->matrix_array = (Num**)malloc(sizeof(Num*)*m->rows);
   assert(m->matrix_array);
-  for (i=0; i<m->rows; ++i) {
-    m->matrix_array[i] = (Num*)malloc(sizeof(Num)*m->cols);
-    assert(m->matrix_array[i]);
-  }
 
-  /* TODO: Make this assignment multithreaded, too */
+  MatInitArgs* mi_data_array = \
+    (MatInitArgs*)malloc(sizeof(MatInitArgs)*m->rows);
+  for (i=0; i<m->rows; ++i)
+    mi_data_array[i] = NewMatInitArgs(
+      m->ntype, true, i, NULL, m->cols, 0);
+
+  Threads mat_init_thrd = \
+    NewThreads(m->rows, true, NULL);
+  RunThreads(mat_init_thrd, mat_init_worker, (void**)mi_data_array);
+
   for (i=0; i<m->rows; ++i) {
-    for (j=0; j<m->cols; ++j) {
-      switch (m->ntype) {
-      case Integer:
-        if (i==j) m->matrix_array[i][j] = NewNumInteger(1);
-        else m->matrix_array[i][j] = NewNumInteger(0);
-        break;
-      case Float:
-        if (i==j) m->matrix_array[i][j] = NewNumFloat(1.0);
-        else m->matrix_array[i][j] = NewNumFloat(0.0);
-        break;
-      case Boolian:
-        if (i==j) m->matrix_array[i][j] = NewNumBoolian(true);
-        else m->matrix_array[i][j] = NewNumBoolian(false);
-        break;
-      default:
-        m->matrix_array[i][j] = NewNumGeneric(NULL, 0);
-        break;
-      } /* switch (m->ntype) */
-    } /* for (j=0; j<m->cols; ++j) */
-  } /* for (i=0; i<m->rows; ++i) */
+    m->matrix_array[i] = mi_data_array[i]->Num_array;
+    DeleteMatInitArgs(mi_data_array[i]);
+  }
+  free(mi_data_array);
+  DeleteThreads(mat_init_thrd);
 
   return m;
 }
@@ -195,25 +265,63 @@ Matrix CopyMatrix(Matrix mat)
   return m;
 }
 
-int DeleteMatrix(Matrix mat)
+typedef struct _row_to_free {
+  uint64_t len;
+  Num* Num_array;
+} row_to_free;
+typedef row_to_free* RowToFree;
+static RowToFree NewRowToFree(Num* row, uint64_t row_len)
 {
-  assert(mat);
-
-  uint64_t i, j;
-
-  /* TODO: convert this part with pthread */
-  if (mat->matrix_array)
-    for (i=0; i<mat->rows; ++i)
-      for (j=0; j<mat->cols; ++j)
-        DeleteNum(mat->matrix_array[i][j]);
-
-  for (i=0; i<mat->rows; ++i) free(mat->matrix_array[i]);
-  free(mat->matrix_array);
-  free(mat);
-
+  assert(row);
+  RowToFree rtf = (RowToFree)malloc(sizeof(row_to_free));
+  assert(rtf);
+  rtf->len = row_len;
+  rtf->Num_array = row;
+  return rtf;
+}
+static int DeleteRowToFree(RowToFree rtf)
+{
+  assert(rtf);
+  free(rtf);
   return 0;
 }
 
+static void* del_mat_worker(void* args)
+{
+  pth_args _args = (pth_args)args;
+  RowToFree rtf = (RowToFree)_args->data_set;
+
+  uint64_t i;
+  for (i=0; i<rtf->len; ++i)
+    DeleteNum(rtf->Num_array[i]);
+
+  free(rtf->Num_array);
+  return NULL;
+}
+
+int DeleteMatrix(Matrix mat)
+{
+  assert(mat);
+  uint64_t i;
+
+  RowToFree* rtf_array = (RowToFree*)malloc(sizeof(RowToFree)*mat->rows);
+  assert(rtf_array);
+  for (i=0; i<mat->rows; ++i)
+    rtf_array[i] = \
+      NewRowToFree(mat->matrix_array[i], mat->cols);
+
+  Threads free_thr = NewThreads(mat->rows, true, NULL);
+  RunThreads(free_thr, del_mat_worker, (void**)rtf_array);
+  DeleteThreads(free_thr);
+
+  for (i=0; i<mat->rows; ++i)
+    DeleteRowToFree(rtf_array[i]);
+  free(rtf_array);
+
+  free(mat->matrix_array);
+  free(mat);
+  return 0;
+}
 
 /***********************************************
   Access Methods

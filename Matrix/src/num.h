@@ -55,6 +55,7 @@ Num NewNumInteger(const int64_t num);
 Num NewNumFloat(const double num);
 Num NewNumBoolian(const bool b);
 Num NewNumGeneric(void* data, size_t data_size);
+Num NewNumData(void* data, NumType nt, size_t data_size);
 Num CopyNum(Num n);
 Num NumZero(NumType num_type, void* v_zero, size_t v_zero_sz);
 Num NumOne(NumType num_type, void* v_one, size_t v_one_sz);

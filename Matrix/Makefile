@@ -2,7 +2,9 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-CFLAGS=-ggdb3 -std=gnu11 -pthreads $(WARNS)
+#OPT=-O3
+OPT=-ggdb3
+CFLAGS=$(OPT) -std=gnu11 -pthreads $(WARNS)
 
 SRCDIR=src
 
@@ -23,11 +25,11 @@ UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
 ifeq ($(UNAME), darwin)
 	CC=gcc
-	CFLAGS=-ggdb3 $(WARNS)
+	CFLAGS=$(OPT) $(WARNS)
 endif
 
 ifeq ($(UNAME), linux)
-	CFLAGS=-ggdb3 -fPIC $(WARNS)
+	CFLAGS=$(OPT) -fPIC $(WARNS)
 endif
 
 LIBS=-lm -L. -lpthread

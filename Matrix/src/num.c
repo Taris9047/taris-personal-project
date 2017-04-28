@@ -100,6 +100,45 @@ Num NewNumGeneric(void* data, size_t data_size)
   return n;
 }
 
+Num NewNumData(void* data, NumType nt, size_t data_size)
+{
+  Num n = (Num)malloc(sizeof(struct _num));
+  assert(n);
+
+  int64_t i_tmp;
+  double d_tmp;
+  bool b_tmp;
+  void* v_tmp;
+  n->ntype = nt;
+  switch (n->ntype) {
+  case Integer:
+    i_tmp = (*(int64_t*)data);
+    n->np.i_ptr = (int64_t*)malloc(sizeof(int64_t));
+    assert(n->np.i_ptr);
+    (*n->np.i_ptr) = i_tmp;
+    break;
+  case Float:
+    d_tmp = (*(double*)data);
+    n->np.f_ptr = (double*)malloc(sizeof(double));
+    assert(n->np.f_ptr);
+    (*n->np.f_ptr) = d_tmp;
+    break;
+  case Boolian:
+    b_tmp = (*(bool*)data);
+    n->np.b_ptr = (bool*)malloc(sizeof(bool));
+    assert(n->np.b_ptr);
+    (*n->np.b_ptr) = b_tmp;
+    break;
+  default:
+    v_tmp = data;
+    n->np.v_ptr = malloc(sizeof(data_size));
+    assert(n->np.v_ptr);
+    memcpy(n->np.v_ptr, v_tmp, data_size);
+    break;
+  }
+  return n;
+}
+
 Num CopyNum(Num n)
 {
   assert(n);

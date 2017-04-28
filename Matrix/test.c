@@ -76,8 +76,8 @@ int main(int argc, char* argv[])
 
   printf("Generating a Matrix of size: [%lu by %lu]\n", mat_cols, mat_rows);
   B = NewZeroMatrix(mat_cols, mat_rows, Integer);
-  for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->cols; ++j) {
+  for (i=0; i<B->rows; ++i) {
+    for (j=0; j<B->cols; ++j) {
       rnd_Num = rand_Num(Integer);
       MatrixSet(B, i, j, rnd_Num);
       DeleteNum(rnd_Num);

@@ -82,7 +82,8 @@ SMatrix CopySMatrix(SMatrix smat)
   Num volatile tmp_num;
   for (i=0; i<sm->rows; ++i) {
     for (j=0; j<sm->cols; ++j) {
-      tmp_num = BTSearch(sm->matrix_data, SPM_KEY_GEN(i, j));
+      tmp_num = BTSearch(smat->matrix_data, SPM_KEY_GEN(i, j));
+      BTInsert(sm->matrix_data, tmp_num, SPM_KEY_GEN(i, j));
     }
   }
 
