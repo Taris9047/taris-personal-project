@@ -728,9 +728,9 @@ char* NumToStr(Num n)
   int s_len;
   switch (n->ntype) {
   case Integer:
-    s_len = snprintf(NULL, 0, "%lu", *n->np.i_ptr);
+    s_len = snprintf(NULL, 0, "%ld", *n->np.i_ptr);
     n_str = (char*)malloc(sizeof(char)*(s_len+1));
-    sprintf(n_str, "%lu", *n->np.i_ptr);
+    sprintf(n_str, "%ld", *n->np.i_ptr);
     break;
   case Float:
     s_len = snprintf(NULL, 0, "%.6f", *n->np.f_ptr);

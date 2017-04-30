@@ -22,10 +22,10 @@ Num rand_Num(NumType nt)
   Num n;
   switch (nt) {
   case Integer:
-    n = NewNumInteger((int64_t)rand()%NUM_MAX);
+    n = NewNumInteger((int64_t)(rand()%NUM_MAX*pow(-1, rand())));
     break;
   case Float:
-    n = NewNumFloat((double)rand()/(RAND_MAX/NUM_MAX+1));
+    n = NewNumFloat((double)(rand()/(RAND_MAX/NUM_MAX+1)*pow(-1, rand())));
     break;
   case Boolian:
     if ((int)rand()) n = NumOne(Boolian, NULL, 0);
