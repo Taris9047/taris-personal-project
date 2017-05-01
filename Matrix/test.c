@@ -11,6 +11,7 @@
 ************************************************/
 
 #include <time.h>
+#include <sys/time.h>
 
 #include "test.h"
 
@@ -39,6 +40,115 @@ Num rand_Num(NumType nt)
 }
 
 /***********************************************
+  Test functions
+************************************************/
+/* Test Regular Heap based matrix */
+double TestMatrix(uint64_t rows, uint64_t cols)
+{
+  double elapsed_time;
+  struct timeval t1, t2;
+  uint64_t i, j;
+  Matrix A, B;
+  Num volatile rnd_Num;
+
+  gettimeofday(&t1, NULL);
+
+  printf("Generating a Matrix of size: [%lu by %lu]\n", rows, cols);
+  A = NewZeroMatrix(rows, cols, Integer);
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->cols; ++j) {
+      rnd_Num = rand_Num(Integer);
+      MatrixSet(A, i, j, rnd_Num);
+      DeleteNum(rnd_Num);
+    }
+  }
+  printf("Printing A:\n");
+  PrintMatrix(A);
+
+  printf("Generating a Matrix of size: [%lu by %lu]\n", cols, rows);
+  B = NewZeroMatrix(cols, rows, Integer);
+  for (i=0; i<B->rows; ++i) {
+    for (j=0; j<B->cols; ++j) {
+      rnd_Num = rand_Num(Integer);
+      MatrixSet(B, i, j, rnd_Num);
+      DeleteNum(rnd_Num);
+    }
+  }
+  printf("Printing B:\n");
+  PrintMatrix(B);
+
+  printf("Performing A*B\n");
+  Matrix C = MatrixMul(A, B);
+  printf("The result is [%lu, %lu] Matrix below...\n", C->rows, C->cols);
+  PrintMatrix(C);
+
+  printf("Cleaning up...\n");
+  DeleteMatrix(A);
+  DeleteMatrix(B);
+  DeleteMatrix(C);
+
+  gettimeofday(&t2, NULL);
+  elapsed_time = (t2.tv_sec-t1.tv_sec)*1000.0;
+  elapsed_time += (t2.tv_usec-t1.tv_usec)/1000.0;
+
+  return elapsed_time;
+}
+
+/* Test Sparse matrix */
+double TestSMatrix(uint64_t rows, uint64_t cols)
+{
+  double elapsed_time;
+  struct timeval t1, t2;
+  uint64_t i, j;
+  SMatrix A, B;
+  Num volatile rnd_Num;
+
+  gettimeofday(&t1, NULL);
+
+  printf("Generating a SMatrix of size: [%lu by %lu]\n", rows, cols);
+  A = NewZeroSMatrix(rows, cols, Integer);
+  for (i=0; i<A->rows; ++i) {
+    for (j=0; j<A->cols; ++j) {
+      rnd_Num = rand_Num(Integer);
+      SMatrixSet(A, i, j, rnd_Num);
+      DeleteNum(rnd_Num);
+    }
+  }
+  printf("Printing A:\n");
+  PrintSMatrix(A);
+
+  printf("Generating a SMatrix of size: [%lu by %lu]\n", cols, rows);
+  B = NewZeroSMatrix(cols, rows, Integer);
+  for (i=0; i<B->rows; ++i) {
+    for (j=0; j<B->cols; ++j) {
+      rnd_Num = rand_Num(Integer);
+      SMatrixSet(B, i, j, rnd_Num);
+      DeleteNum(rnd_Num);
+    }
+  }
+  printf("Printing B:\n");
+  PrintSMatrix(B);
+
+  printf("Performing A*B\n");
+  SMatrix C = SMatrixMul(A, B);
+  printf("The result is [%lu, %lu] SMatrix below...\n", C->rows, C->cols);
+  PrintSMatrix(C);
+
+  printf("Cleaning up...\n");
+  DeleteSMatrix(A);
+  DeleteSMatrix(B);
+  DeleteSMatrix(C);
+
+  gettimeofday(&t2, NULL);
+  elapsed_time = (t2.tv_sec-t1.tv_sec)*1000.0;
+  elapsed_time += (t2.tv_usec-t1.tv_usec)/1000.0;
+
+  return elapsed_time;
+}
+
+
+
+/***********************************************
   The main function...
 ************************************************/
 int main(int argc, char* argv[])
@@ -58,44 +168,16 @@ int main(int argc, char* argv[])
 
   srand(time(NULL));
 
-  uint64_t i, j;
-  Matrix A, B;
-  Num volatile rnd_Num;
-  printf("Generating a Matrix of size: [%lu by %lu]\n", mat_rows, mat_cols);
-  A = NewZeroMatrix(mat_rows, mat_cols, Integer);
-  for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->cols; ++j) {
-      rnd_Num = rand_Num(Integer);
-      MatrixSet(A, i, j, rnd_Num);
-      DeleteNum(rnd_Num);
-    }
-  }
+  double elapsed_time_matrix, elapsed_time_smatrix;
 
-  printf("Printing A:\n");
-  PrintMatrix(A);
-
-  printf("Generating a Matrix of size: [%lu by %lu]\n", mat_cols, mat_rows);
-  B = NewZeroMatrix(mat_cols, mat_rows, Integer);
-  for (i=0; i<B->rows; ++i) {
-    for (j=0; j<B->cols; ++j) {
-      rnd_Num = rand_Num(Integer);
-      MatrixSet(B, i, j, rnd_Num);
-      DeleteNum(rnd_Num);
-    }
-  }
-
-  printf("Printing B:\n");
-  PrintMatrix(B);
-
-  printf("Performing A*B\n");
-  Matrix C = MatrixMul(A, B);
-  printf("The result is [%lu, %lu] Matrix below...\n", C->rows, C->cols);
-  PrintMatrix(C);
-
-  printf("Cleaning up...\n");
-  DeleteMatrix(A);
-  DeleteMatrix(B);
-  DeleteMatrix(C);
+  printf("Testing regular heap based Matrix.\n");
+  elapsed_time_matrix = TestMatrix(mat_rows, mat_cols);
+  printf("[Matrix] Elapsed time: %f ms.\n", elapsed_time_matrix);
+  printf("\n");
+  printf("Testing binary tree based sparse matrix: SMatrix. \n");
+  elapsed_time_smatrix = TestSMatrix(mat_rows, mat_cols);
+  printf("[SMatrix] Elapsed time: %f ms.\n", elapsed_time_smatrix);
+  printf("\n");
 
   return 0;
 }

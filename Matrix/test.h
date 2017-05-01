@@ -21,11 +21,18 @@
 
 #include "tmatrix.h"
 
-#define MATRIX_ROWS 4
-#define MATRIX_COLS 4
+#define MATRIX_ROWS 5
+#define MATRIX_COLS 5
 
 #define NUM_MAX 100
 
+/* RNG */
 Num rand_Num(NumType nt);
+
+/* Test Regular Heap based matrix */
+double TestMatrix(uint64_t rows, uint64_t cols);
+
+/* Test Sparse matrix */
+double TestSMatrix(uint64_t rows, uint64_t cols);
 
 #endif /* Include guard */

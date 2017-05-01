@@ -16,6 +16,8 @@
 
 #include "smatrix.h"
 
+extern uint64_t SPM_KEY_GEN(uint64_t a, uint64_t b);
+
 /***********************************************
   Constructors and Destructors
 ************************************************/
@@ -42,7 +44,7 @@ SMatrix NewZeroSMatrix(uint64_t n_rows, uint64_t n_cols, NumType n_type)
   uint64_t i, j;
   Num volatile tmp_num;
   for (i=0; i<mat->rows; ++i) {
-    for (j=0; j<mat->rows; ++j) {
+    for (j=0; j<mat->cols; ++j) {
       tmp_num = NumZero(n_type, NULL, 0);
       BTInsert(mat->matrix_data, tmp_num, SPM_KEY_GEN(i, j));
     }
@@ -61,7 +63,7 @@ SMatrix NewUnitSMatrix(uint64_t size, NumType n_type)
   uint64_t i, j;
   Num volatile tmp_num;
   for (i=0; i<mat->rows; ++i) {
-    for (j=0; j<mat->rows; ++j) {
+    for (j=0; j<mat->cols; ++j) {
       if (i==j) tmp_num = NumOne(n_type, NULL, 0);
       else tmp_num = NumZero(n_type, NULL, 0);
       BTInsert(mat->matrix_data, tmp_num, SPM_KEY_GEN(i, j));
@@ -141,7 +143,7 @@ SMatrix SMatrixAdd(SMatrix A, SMatrix B)
   Num volatile tmp_b_n;
   Num volatile tmp_res_n;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_n = BTSearch(A->matrix_data, SPM_KEY_GEN(i, j));
       tmp_b_n = BTSearch(B->matrix_data, SPM_KEY_GEN(i, j));
       tmp_res_n = AddNum(tmp_a_n, tmp_b_n);
@@ -169,7 +171,7 @@ SMatrix SMatrixSub(SMatrix A, SMatrix B)
   Num volatile tmp_b_n;
   Num volatile tmp_res_n;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_n = BTSearch(A->matrix_data, SPM_KEY_GEN(i, j));
       tmp_b_n = BTSearch(B->matrix_data, SPM_KEY_GEN(i, j));
       tmp_res_n = SubNum(tmp_a_n, tmp_b_n);
@@ -230,7 +232,7 @@ SMatrix SMatrixSCAdd(SMatrix A, Num sc)
   uint64_t i, j;
   Num volatile tmp_a_elem;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_elem = SMatrixAt(A, i, j);
       BTInsert(
         Ret->matrix_data, AddNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
@@ -251,7 +253,7 @@ SMatrix SMatrixSCSub(SMatrix A, Num sc)
   uint64_t i, j;
   Num volatile tmp_a_elem;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_elem = SMatrixAt(A, i, j);
       BTInsert(
         Ret->matrix_data, SubNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
@@ -272,7 +274,7 @@ SMatrix SMatrixSCMul(SMatrix A, Num sc)
   uint64_t i, j;
   Num volatile tmp_a_elem;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_elem = SMatrixAt(A, i, j);
       BTInsert(
         Ret->matrix_data, MulNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
@@ -293,7 +295,7 @@ SMatrix SMatrixSCDiv(SMatrix A, Num sc)
   uint64_t i, j;
   Num volatile tmp_a_elem;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_elem = SMatrixAt(A, i, j);
       BTInsert(
         Ret->matrix_data, DivNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
@@ -314,7 +316,7 @@ SMatrix SMatrixSCRem(SMatrix A, Num sc)
   uint64_t i, j;
   Num volatile tmp_a_elem;
   for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->rows; ++j) {
+    for (j=0; j<A->cols; ++j) {
       tmp_a_elem = SMatrixAt(A, i, j);
       BTInsert(
         Ret->matrix_data, RemNum(tmp_a_elem, sc), SPM_KEY_GEN(i, j));
