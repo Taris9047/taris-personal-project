@@ -31,6 +31,14 @@
   X->oper_div = OP_DIV; \
   X->oper_rem = OP_REM;
 
+/* small utility that determines double is zero */
+static bool is_dbl_zero(double n)
+{
+  if (n == 0.0) return true;
+  if (n <= DBL_EPSILON) return true;
+  return false;
+}
+
 /***********************************************
  Num: Constructors and Destructors
 ************************************************/
@@ -40,6 +48,8 @@ Num NewNum()
   assert(n);
   n->ntype = Any;
   n->np.v_ptr = NULL;
+  n->zero = NULL;
+  n->f_compare = NULL;
   n->d_size = 0;
   NUM_N_OPER_INIT(n)
   return n;
@@ -47,9 +57,7 @@ Num NewNum()
 
 Num NewNumInteger(const int64_t num)
 {
-  Num n = (Num)malloc(sizeof(struct _num));
-  assert(n);
-
+  Num n = NewNum();
   n->ntype = Integer;
   n->np.i_ptr = (int64_t*)malloc(sizeof(int64_t));
   assert(n->np.i_ptr);
@@ -61,9 +69,7 @@ Num NewNumInteger(const int64_t num)
 
 Num NewNumFloat(const double num)
 {
-  Num n = (Num)malloc(sizeof(struct _num));
-  assert(n);
-
+  Num n = NewNum();
   n->ntype = Float;
   n->np.f_ptr = (double*)malloc(sizeof(double));
   assert(n->np.f_ptr);
@@ -75,9 +81,7 @@ Num NewNumFloat(const double num)
 
 Num NewNumBoolian(const bool b)
 {
-  Num n = (Num)malloc(sizeof(struct _num));
-  assert(n);
-
+  Num n = NewNum();
   n->ntype = Boolian;
   n->np.b_ptr = (bool*)malloc(sizeof(bool));
   assert(n->np.b_ptr);
@@ -89,10 +93,7 @@ Num NewNumBoolian(const bool b)
 
 Num NewNumGeneric(void* data, size_t data_size)
 {
-  Num n = (Num)malloc(sizeof(struct _num));
-  assert(n);
-
-  n->ntype = Any;
+  Num n = NewNum();
   n->np.v_ptr = malloc(data_size);
   memcpy(n->np.v_ptr, data, data_size);
   n->d_size = data_size;
@@ -102,14 +103,14 @@ Num NewNumGeneric(void* data, size_t data_size)
 
 Num NewNumData(void* data, NumType nt, size_t data_size)
 {
-  Num n = (Num)malloc(sizeof(struct _num));
-  assert(n);
+  Num n = NewNum();
 
   int64_t i_tmp;
   double d_tmp;
   bool b_tmp;
   void* v_tmp;
   n->ntype = nt;
+
   switch (n->ntype) {
   case Integer:
     i_tmp = (*(int64_t*)data);
@@ -142,8 +143,7 @@ Num NewNumData(void* data, NumType nt, size_t data_size)
 Num CopyNum(Num n)
 {
   assert(n);
-  Num new_n = (Num)malloc(sizeof(num));
-  assert(new_n);
+  Num new_n = NewNum();
 
   new_n->ntype = n->ntype;
   new_n->d_size = n->d_size;
@@ -195,18 +195,26 @@ Num NumZero(NumType num_type, void* v_zero, size_t v_zero_sz)
   case Integer:
     n->np.i_ptr = (int64_t*)malloc(sizeof(int64_t));
     (*n->np.i_ptr) = i_zero;
+    if (n->zero) free(n->zero);
+    n->zero = NULL;
     break;
   case Float:
     n->np.f_ptr = (double*)malloc(sizeof(double));
     (*n->np.f_ptr) = d_zero;
+    if (n->zero) free(n->zero);
+    n->zero = NULL;
     break;
   case Boolian:
     n->np.b_ptr = (bool*)malloc(sizeof(bool));
     (*n->np.b_ptr) = b_zero;
+    if (n->zero) free(n->zero);
+    n->zero = NULL;
     break;
   default:
     n->np.v_ptr = malloc(v_zero_sz);
     memcpy(n->np.v_ptr, v_zero, v_zero_sz);
+    n->zero = malloc(v_zero_sz);
+    memcpy(n->zero, v_zero, v_zero_sz);
     break;
   }
 
@@ -262,6 +270,7 @@ int DeleteNum(Num n)
     break;
   }
 
+  if (n->zero) free(n->zero);
   free(n);
 
   return 0;
@@ -325,6 +334,7 @@ static void conv_to_float(Num N)
     return;
   }
   N->ntype = Float;
+  N->zero = NULL;
   NUM_N_OPER_INIT(N)
 }
 
@@ -753,4 +763,30 @@ char* NumToStr(Num n)
     break;
   }
   return n_str;
+}
+
+/* Zero detection */
+bool NumIsZero(Num n)
+{
+  assert(n);
+  bool iszero = false;
+  int comp_result;
+
+  switch (n->ntype) {
+  case Integer:
+    if (!(*n->np.i_ptr)) iszero = true;
+    break;
+  case Float:
+    iszero = is_dbl_zero(*n->np.f_ptr);
+    break;
+  case Boolian:
+    if (!(*n->np.b_ptr)) iszero = true;
+    break;
+  default:
+    comp_result = n->f_compare(n->np.v_ptr, n->zero);
+    if (!comp_result) iszero = true;
+    break;
+  }
+
+  return iszero;
 }

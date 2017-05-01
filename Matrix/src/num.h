@@ -13,6 +13,8 @@
 #ifndef MATRIX_NUM_FORMAT_H
 #define MATRIX_NUM_FORMAT_H
 
+#include <math.h>
+#include <float.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -37,6 +39,10 @@ typedef struct _num {
     bool* b_ptr;
     void* v_ptr;
   } np;
+
+  /* Only used when v_ptr is used */
+  void* zero;
+  bool (*f_compare) ();
 
   size_t d_size;
 
@@ -84,5 +90,6 @@ int IncRemNum(Num A, Num B);
 
 /* Some utils */
 char* NumToStr(Num n);
+bool NumIsZero(Num n);
 
 #endif /* Include guard */

@@ -131,6 +131,8 @@ char* SPrintSMatrix(SMatrix sm)
     fprintf(stream, "\n");
   } /* for (i=0; i<m->rows; ++i) */
 
+  fprintf(stream, "Fill Ratio: %.2f %%\n", SMatrixFillRatio(sm)*100.0);
+
   fclose(stream);
   return mat_string;
 }

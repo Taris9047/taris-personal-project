@@ -18,6 +18,8 @@
 #ifndef MAPREDUCE_BTREE_H
 #define MAPREDUCE_BTREE_H
 
+#include <stdbool.h>
+
 /* datatype */
 typedef void* btree_data_t;
 typedef unsigned int btree_key_t;
@@ -28,6 +30,7 @@ typedef struct _bintree_node {
   struct _bintree_node *right;
   struct _bintree_node *parent;
 
+  bool locked;
   unsigned long depth;
 
   btree_key_t key;
@@ -44,9 +47,7 @@ typedef bintree_root* BTree;
 
 /* Methods */
 /* Constructors and Destructors */
-BTree BTNew();
 BTree NewBTree();
-int BTDelete(BTree bt);
 int DeleteBTree(BTree bt);
 int DeleteBTreeHard(BTree bt, int (*destroyer)());
 
@@ -75,10 +76,11 @@ unsigned long bt_depth(BTNode b);
 /* Insert and remove elements */
 int bt_insert(BTNode b, btree_data_t vpStuff, btree_key_t key);
 int bt_remove(BTNode b, btree_data_t vpStuff, btree_key_t key);
+int bt_lock(BTNode b);
+int bt_unlock(BTNode b);
 
 /* Get/set item from node */
 // kinda pointless...
-// btree_data_t BTGetItem(BTNode b, unsigned long key);
 int bt_setitem(BTNode b, btree_data_t vpStuff, btree_key_t key);
 
 /* Search node for specific item

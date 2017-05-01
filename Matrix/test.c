@@ -170,11 +170,11 @@ int main(int argc, char* argv[])
 
   double elapsed_time_matrix, elapsed_time_smatrix;
 
-  printf("Testing regular heap based Matrix.\n");
+  printf(">>> Testing regular heap based Matrix.\n");
   elapsed_time_matrix = TestMatrix(mat_rows, mat_cols);
   printf("[Matrix] Elapsed time: %f ms.\n", elapsed_time_matrix);
   printf("\n");
-  printf("Testing binary tree based sparse matrix: SMatrix. \n");
+  printf(">>> Testing binary tree based sparse matrix: SMatrix. \n");
   elapsed_time_smatrix = TestSMatrix(mat_rows, mat_cols);
   printf("[SMatrix] Elapsed time: %f ms.\n", elapsed_time_smatrix);
   printf("\n");

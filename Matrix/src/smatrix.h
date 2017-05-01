@@ -30,6 +30,7 @@ typedef struct _sparse_matrix {
   uint64_t cols;
   NumType ntype; /* Type of Num */
   BTree matrix_data; /* BTree<Num> */
+  Num Zero; /* Just a zero num */
 } sparse_matrix;
 typedef sparse_matrix* SMatrix;
 
@@ -58,5 +59,6 @@ SMatrix SMatrixSCRem(SMatrix A, Num sc);
 
 /* Some other operations */
 SMatrix SMatrixTranspose(SMatrix A);
+double SMatrixFillRatio(SMatrix sm);
 
 #endif /* Include guard */
