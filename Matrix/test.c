@@ -18,15 +18,21 @@
 /***********************************************
   some crappy stuff
 ************************************************/
+int oops_zero()
+{
+  if (rand()%NUM_MAX>(NUM_MAX/3)) return 0;
+  else return 1;
+}
+
 Num rand_Num(NumType nt)
 {
   Num n;
   switch (nt) {
   case Integer:
-    n = NewNumInteger((int64_t)(rand()%NUM_MAX*pow(-1, rand())));
+    n = NewNumInteger((int64_t)(oops_zero()*rand()%NUM_MAX*pow(-1, rand())));
     break;
   case Float:
-    n = NewNumFloat((double)(rand()/(RAND_MAX/NUM_MAX+1)*pow(-1, rand())));
+    n = NewNumFloat((double)(oops_zero()*rand()/(RAND_MAX/NUM_MAX+1)*pow(-1, rand())));
     break;
   case Boolian:
     if ((int)rand()) n = NumOne(Boolian, NULL, 0);

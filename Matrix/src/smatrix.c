@@ -9,6 +9,20 @@
  Apr. 24th 2017
 
 ************************************************/
+/*
+
+  TODO: The data structure has some flow...
+
+  We need to be able to access the entire elements with some kind of
+  index database so that we can only operate with valid elements which is
+  the whole point of sparse matrix.
+
+  For this, we need to implement another data structore to deal with
+  matrix indices which hold 'valid' elements. Current BTree<Num>
+  isn't enough. We need some List<Tuple<uint64_t, uint64_t>>
+  or another BTree<Tuple<uint64_t, uint64_t>>...
+
+*/
 
 #include <assert.h>
 #include <stdlib.h>
@@ -116,9 +130,12 @@ int SMatrixSet(SMatrix smat, uint64_t r, uint64_t c, Num n_data)
   assert(smat);
   if (r >= smat->rows || c >= smat->cols) return -1;
 
+  /* no need to set anything with zero. */
   if (NumIsZero(n_data)) return 0;
 
-  Num volatile tmp_num = BTSearch(smat->matrix_data, SPM_KEY_GEN(r, c));
+  Num volatile tmp_num = \
+    BTSearch(smat->matrix_data, SPM_KEY_GEN(r, c));
+
   if (tmp_num) DeleteNum(tmp_num);
   tmp_num = CopyNum(n_data);
   BTInsert(smat->matrix_data, tmp_num, SPM_KEY_GEN(r, c));
@@ -291,7 +308,7 @@ SMatrix SMatrixSCMul(SMatrix A, Num sc)
 {
   assert(A); assert(sc);
 
-  if (NumIsZero(sc)) return NewZeroSMatrix(sc->rows, sc->cols, sc->ntype);
+  if (NumIsZero(sc)) return NewZeroSMatrix(A->rows, A->cols, A->ntype);
 
   SMatrix Ret = NewSMatrix();
   Ret->rows = A->rows;

@@ -253,7 +253,7 @@ Num NumOne(NumType num_type, void* v_one, size_t v_one_sz)
 
 int DeleteNum(Num n)
 {
-  assert(n);
+  if (!n) return 0;
 
   switch (n->ntype) {
   case Integer:
