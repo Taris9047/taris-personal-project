@@ -12,10 +12,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "dict.h"
 
-#define DICT_ELEMENT_SIZE 5000
+#define DICT_ELEMENT_SIZE 100
 #define ELEMENTS_TO_REMOVE DICT_ELEMENT_SIZE/3
 
 #define Encode(n) (n+37+1)*(n+37)/2+n
@@ -150,16 +151,18 @@ int main (void)
   printf("\nDictionary readout test...\n");
 
   key_list = DGetKeys(test_dict);
-  printf("dict has %llu keys\n", LLen(key_list));
+  printf("dict has %lu keys\n", LLen(key_list));
 
   printf("\nRemoval test ... \n");
   for (i=0; i<ELEMENTS_TO_REMOVE; ++i) {
-    unsigned long long del_ind = myRandom(DICT_ELEMENT_SIZE);
-    printf("Removing dums[%llu]...\n", del_ind);
+    uint64_t del_ind = myRandom(DICT_ELEMENT_SIZE);
+    printf("Removing dums[%lu]...\n", del_ind);
     DRemove(test_dict, dums[del_ind]->dummy_name);
   }
 
-  printf("dict has %llu keys\n", LLen(key_list));
+  printf("\n");
+  printf("Removed %d keys\n", ELEMENTS_TO_REMOVE);
+  printf("dict has %lu keys\n", LLen(key_list));
 
   for (i=0; i<DICT_ELEMENT_SIZE; ++i)
     DeleteDummy(dums[i]);

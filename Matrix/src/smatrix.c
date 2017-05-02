@@ -135,8 +135,8 @@ int SMatrixSet(SMatrix smat, uint64_t r, uint64_t c, Num n_data)
 
   Num volatile tmp_num = \
     BTSearch(smat->matrix_data, SPM_KEY_GEN(r, c));
-
   if (tmp_num) DeleteNum(tmp_num);
+
   tmp_num = CopyNum(n_data);
   BTInsert(smat->matrix_data, tmp_num, SPM_KEY_GEN(r, c));
   return 0;

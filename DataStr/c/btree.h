@@ -18,9 +18,12 @@
 #ifndef MAPREDUCE_BTREE_H
 #define MAPREDUCE_BTREE_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /* datatype */
 typedef void* btree_data_t;
-typedef unsigned int btree_key_t;
+typedef uint64_t btree_key_t;
 
 /* Binary tree node */
 typedef struct _bintree_node {
@@ -28,7 +31,8 @@ typedef struct _bintree_node {
   struct _bintree_node *right;
   struct _bintree_node *parent;
 
-  unsigned long depth;
+  bool locked;
+  uint64_t depth;
 
   btree_key_t key;
   btree_data_t stuff;
@@ -38,15 +42,13 @@ typedef bintree_node* BTNode;
 /* Binary tree control node */
 typedef struct _bintree_root {
   BTNode root_node;
-  unsigned long long nodes;
+  uint64_t nodes;
 } bintree_root;
 typedef bintree_root* BTree;
 
 /* Methods */
 /* Constructors and Destructors */
-BTree BTNew();
 BTree NewBTree();
-int BTDelete(BTree bt);
 int DeleteBTree(BTree bt);
 int DeleteBTreeHard(BTree bt, int (*destroyer)());
 
@@ -57,7 +59,7 @@ int BTSet(BTree bt, btree_data_t stuff, btree_key_t key);
 btree_data_t BTSearch(BTree bt, btree_key_t key);
 btree_data_t BTGetMax(BTree bt);
 btree_data_t BTGetMin(BTree bt);
-unsigned long long BTNodes(BTree bt);
+uint64_t BTNodes(BTree bt);
 
 /* Initializers */
 BTNode bt_node_init();
@@ -69,16 +71,17 @@ void bt_node_destroy(BTNode b);
 void bt_node_destroy_hard(BTNode b, int (*destroyer)() );
 
 /* Getting some statistics */
-unsigned long bt_len(BTNode b);
-unsigned long bt_depth(BTNode b);
+uint64_t bt_len(BTNode b);
+uint64_t bt_depth(BTNode b);
 
 /* Insert and remove elements */
 int bt_insert(BTNode b, btree_data_t vpStuff, btree_key_t key);
 int bt_remove(BTNode b, btree_data_t vpStuff, btree_key_t key);
+int bt_lock(BTNode b);
+int bt_unlock(BTNode b);
 
 /* Get/set item from node */
 // kinda pointless...
-// btree_data_t BTGetItem(BTNode b, unsigned long key);
 int bt_setitem(BTNode b, btree_data_t vpStuff, btree_key_t key);
 
 /* Search node for specific item

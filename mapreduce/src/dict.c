@@ -62,7 +62,7 @@ int DeleteDNodeHard(DNode dn, int (*destroyer)())
 static dict_data_t tbl_search(List tbl, dict_key_t k)
 {
   assert(tbl);
-  unsigned long long i, tbl_len = LLen(tbl);
+  uint64_t i, tbl_len = LLen(tbl);
   DNode tmp_dnode;
   for (i=0; i<tbl_len; ++i) {
     tmp_dnode = tableAt(tbl, i);
@@ -75,7 +75,7 @@ static dict_data_t tbl_search(List tbl, dict_key_t k)
 static DNode tbl_search_node(List tbl, dict_key_t k)
 {
   assert(tbl);
-  unsigned long long i, tbl_len = LLen(tbl);
+  uint64_t i, tbl_len = LLen(tbl);
   DNode tmp_dnode;
   for (i=0; i<tbl_len; ++i) {
     tmp_dnode = tableAt(tbl, i);
@@ -89,7 +89,7 @@ static dict_data_t search(Dict d, dict_key_t k)
 {
   assert(d);
 
-  unsigned long long i;
+  uint64_t i;
   for (i=0; i<d->size; ++i)
     if (k == d->keys[i]) return tbl_search(d->table, k);
 
@@ -101,7 +101,7 @@ static DNode search_node(Dict d, dict_key_t k)
 {
   assert(d);
 
-  unsigned long long i;
+  uint64_t i;
   for (i=0; i<d->size; ++i)
     if (k == d->keys[i]) return tbl_search_node(d->table, k);
 
@@ -112,7 +112,7 @@ static DNode search_node(Dict d, dict_key_t k)
 static int append_keys(
   dict_key_t** keys,
   dict_key_t n_key,
-  unsigned long long* keys_len)
+  uint64_t* keys_len)
 {
   if (!(*keys_len)) free(*keys);
 
@@ -123,7 +123,7 @@ static int append_keys(
     return 0;
   }
 
-  unsigned long long i;
+  uint64_t i;
   dict_key_t *new_keys, *tmp_keys;
   new_keys = (dict_key_t*)malloc(sizeof(dict_key_t)*((*keys_len)+1));
   for (i=0; i<(*keys_len); ++i) new_keys[i] = (*keys)[i];
@@ -142,15 +142,15 @@ static int append_keys(
 static int remove_key(
   dict_key_t** keys,
   dict_key_t k,
-  unsigned long long* keys_len)
+  uint64_t* keys_len)
 {
   if (!(*keys_len)) free(*keys);
 
   if (!(*keys)) return -1; /* Nothing to remove */
 
-  unsigned long long k_ind;
+  uint64_t k_ind;
   bool k_found = false;
-  unsigned long long i;
+  uint64_t i;
   for (i=0; i<(*keys_len); ++i) {
     if ((*keys)[i] == k) {
       k_ind = i;
@@ -189,8 +189,8 @@ Dict NewDict()
   Dict d = (Dict)malloc(sizeof(dictionary));
   assert(d);
   d->size = 0;
-  d->table = NewList(); /* The DNode linked list */
-	d->key_str = NewList(); /* key string list */
+  d->table = NewList(); /* The DNode linked list: List<DNode> */
+	d->key_str = NewList(); /* key string list: List<char*> */
   d->keys = NULL;
   /* Default hashing: FNV */
   d->hashing = &hash_str_fnv;
@@ -215,9 +215,9 @@ int DeleteDictHard(Dict d, int (*data_destroyer) ())
 {
   assert(d);
 
-  unsigned long long i, n_keys = LLen(d->key_str);
+  uint64_t i, n_keys = LLen(d->key_str);
 
-  DNode tmp_dnode;
+  DNode volatile tmp_dnode;
   for (i=0; i<n_keys; ++i) {
     tmp_dnode = (DNode)LAt(d->table, i);
     DeleteDNodeHard(tmp_dnode, data_destroyer);
@@ -248,8 +248,8 @@ int DSetHashFunc(Dict d, dict_key_t (*hashing) ())
   d->hashing = hashing;
 
 	/* update hashed keys */
-	unsigned long long i;
-	DNode tmp_dnode;
+	uint64_t i;
+	DNode volatile tmp_dnode;
 	for (i=0; i<d->size; ++i) {
 		tmp_dnode = (DNode)LAt(d->table, i);
 		tmp_dnode->key = d->hashing((char*)LAt(d->key_str, i));
@@ -270,7 +270,7 @@ int DInsert(Dict d, dict_data_t inp_data, const void* inp_key)
    * deletion. */
   char* key_str = NULL;
 
-  DNode tmp_dnode = search_node(d, k);
+  DNode volatile tmp_dnode = search_node(d, k);
   if (tmp_dnode) tmp_dnode->data = inp_data;
   else {
     /* cannot find the key. Let's make it!! */
@@ -298,10 +298,10 @@ int DRemove(Dict d, const void* inp_key)
   assert(d);
   dict_key_t k = d->hashing(inp_key);
 
-  DNode tmp_dnode = search_node(d, k);
+  DNode volatile tmp_dnode = search_node(d, k);
   if (!tmp_dnode) return 0; /* Key isn't here, nothing to do */
 
-	unsigned long long rem_index = LIndex(d->table, tmp_dnode);
+	uint64_t rem_index = LIndex(d->table, tmp_dnode);
   LRemoveHard(d->table, rem_index, &DeleteDNode);
 	LRemoveHard(d->key_str, rem_index, NULL);
   remove_key(&d->keys, k, &d->size);
@@ -350,7 +350,7 @@ List DGetKeys(Dict d)
 char* sh_to_str(const short a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%d", a);
+  uint64_t len = snprintf(NULL, 0, "%d", a);
   output = STRMALLOC(len);
   sprintf(output, "%d", a);
   return output;
@@ -358,7 +358,7 @@ char* sh_to_str(const short a)
 char* i_to_str(const int a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%d", a);
+  uint64_t len = snprintf(NULL, 0, "%d", a);
   output = STRMALLOC(len);
   sprintf(output, "%d", a);
   return output;
@@ -366,7 +366,7 @@ char* i_to_str(const int a)
 char* ui_to_str(const unsigned int a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%u", a);
+  uint64_t len = snprintf(NULL, 0, "%u", a);
   output = STRMALLOC(len);
   sprintf(output, "%u", a);
   return output;
@@ -374,7 +374,7 @@ char* ui_to_str(const unsigned int a)
 char* l_to_str(const long a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%ld", a);
+  uint64_t len = snprintf(NULL, 0, "%ld", a);
   output = STRMALLOC(len);
   sprintf(output, "%ld", a);
   return output;
@@ -382,7 +382,7 @@ char* l_to_str(const long a)
 char* ul_to_str(const unsigned long a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%lu", a);
+  uint64_t len = snprintf(NULL, 0, "%lu", a);
   output = STRMALLOC(len);
   sprintf(output, "%lu", a);
   return output;
@@ -390,7 +390,7 @@ char* ul_to_str(const unsigned long a)
 char* ll_to_str(const long long a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%lld", a);
+  uint64_t len = snprintf(NULL, 0, "%lld", a);
   output = STRMALLOC(len);
   sprintf(output, "%lld", a);
   return output;
@@ -398,7 +398,7 @@ char* ll_to_str(const long long a)
 char* ull_to_str(const unsigned long long a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%llu", a);
+  uint64_t len = snprintf(NULL, 0, "%llu", a);
   output = STRMALLOC(len);
   sprintf(output, "%llu", a);
   return output;
@@ -406,7 +406,7 @@ char* ull_to_str(const unsigned long long a)
 char* f_to_str(const float a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%f", a);
+  uint64_t len = snprintf(NULL, 0, "%f", a);
   output = STRMALLOC(len);
   sprintf(output, "%f", a);
   return output;
@@ -414,7 +414,7 @@ char* f_to_str(const float a)
 char* d_to_str(const double a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%f", a);
+  uint64_t len = snprintf(NULL, 0, "%f", a);
   output = STRMALLOC(len);
   sprintf(output, "%f", a);
   return output;
@@ -422,7 +422,7 @@ char* d_to_str(const double a)
 char* ld_to_str(const long double a)
 {
   char* output;
-  unsigned long long len = snprintf(NULL, 0, "%Lf", a);
+  uint64_t len = snprintf(NULL, 0, "%Lf", a);
   output = STRMALLOC(len);
   sprintf(output, "%Lf", a);
   return output;

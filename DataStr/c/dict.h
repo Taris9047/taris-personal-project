@@ -20,6 +20,7 @@
  #define C_IMPLEMENTATION_DICTIONARY_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "list.h"
 #include "hash.h"
@@ -27,7 +28,7 @@
 
 /* Some hefty typedef */
 typedef list_data_t dict_data_t;
-typedef unsigned long dict_key_t;
+typedef uint64_t dict_key_t;
 
 /* Node design */
 typedef struct _dict_node {
@@ -47,7 +48,7 @@ int DeleteDNodeHard(DNode dn, int (*destroyer)());
 
 /* The Dict itself */
 typedef struct _dictionary {
-  unsigned long long size; /* Size of table */
+  uint64_t size; /* Size of table */
   /*
     Linked list data structure that holds the nodes
     --> might change to BTree later...

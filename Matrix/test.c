@@ -16,11 +16,11 @@
 #include "test.h"
 
 /***********************************************
-  some crappy stuff
+  RNG stuff
 ************************************************/
-int oops_zero()
+int oops_zero(int ratio)
 {
-  if (rand()%NUM_MAX>(NUM_MAX/3)) return 0;
+  if (rand()%NUM_MAX>(NUM_MAX/ratio)) return 0;
   else return 1;
 }
 
@@ -29,10 +29,10 @@ Num rand_Num(NumType nt)
   Num n;
   switch (nt) {
   case Integer:
-    n = NewNumInteger((int64_t)(oops_zero()*rand()%NUM_MAX*pow(-1, rand())));
+    n = NewNumInteger((int64_t)(oops_zero(2)*rand()%NUM_MAX*pow(-1, rand())));
     break;
   case Float:
-    n = NewNumFloat((double)(oops_zero()*rand()/(RAND_MAX/NUM_MAX+1)*pow(-1, rand())));
+    n = NewNumFloat((double)(oops_zero(2)*rand()/(RAND_MAX/NUM_MAX+1)*pow(-1, rand())));
     break;
   case Boolian:
     if ((int)rand()) n = NumOne(Boolian, NULL, 0);
@@ -45,43 +45,89 @@ Num rand_Num(NumType nt)
   return n;
 }
 
+
+/***********************************************
+  MatrixData handlers
+************************************************/
+MatrixData GenerateMatrixData(uint64_t rows, uint64_t cols, NumType nt)
+{
+  assert(rows>0 && cols>0);
+
+  MatrixData mdata = (MatrixData)tmalloc(sizeof(mat_data));
+  assert(mdata);
+
+  mdata->ntype = nt;
+  mdata->rows = rows;
+  mdata->cols = cols;
+
+  uint64_t i, j;
+
+  mdata->matrix_data = (Num**)tmalloc(sizeof(Num*)*rows);
+  for (i=0; i<rows; ++i) {
+    mdata->matrix_data[i] = (Num*)tmalloc(sizeof(Num)*cols);
+    for (j=0; j<cols; ++j)
+      mdata->matrix_data[i][j] = rand_Num(mdata->ntype);
+  }
+
+  return mdata;
+}
+
+static int DeleteMatrixData(MatrixData md)
+{
+  assert(md);
+
+  uint64_t i, j;
+  if (md->matrix_data) {
+    for (i=0; i<md->rows; ++i)
+      for (j=0; j<md->cols; ++j)
+        DeleteNum(md->matrix_data[i][j]);
+    for (i=0; i<md->rows; ++i)
+      free(md->matrix_data[i]);
+    free(md->matrix_data);
+  }
+
+  free(md);
+  return 0;
+}
+
+
 /***********************************************
   Test functions
 ************************************************/
 /* Test Regular Heap based matrix */
-double TestMatrix(uint64_t rows, uint64_t cols)
+double TestMatrix(MatrixData matrix_data)
 {
+  assert(matrix_data);
+
   double elapsed_time;
   struct timeval t1, t2;
   uint64_t i, j;
   Matrix A, B;
-  Num volatile rnd_Num;
 
   gettimeofday(&t1, NULL);
 
-  printf("Generating a Matrix of size: [%lu by %lu]\n", rows, cols);
-  A = NewZeroMatrix(rows, cols, Integer);
-  for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->cols; ++j) {
-      rnd_Num = rand_Num(Integer);
-      MatrixSet(A, i, j, rnd_Num);
-      DeleteNum(rnd_Num);
-    }
+  printf("Generating a Matrix of size [%lu by %lu] as A\n", matrix_data->rows, matrix_data->cols);
+
+  A = NewMatrix();
+  A->ntype = matrix_data->ntype;
+  A->rows = matrix_data->rows;
+  A->cols = matrix_data->cols;
+  A->matrix_array = (Num**)tmalloc(sizeof(Num*)*matrix_data->rows);
+  for (i=0; i<matrix_data->rows; ++i) {
+    A->matrix_array[i] = (Num*)tmalloc(sizeof(Num)*matrix_data->cols);
+    for (j=0; j<matrix_data->cols; ++j)
+      A->matrix_array[i][j] = CopyNum(matrix_data->matrix_data[i][j]);
   }
   printf("Printing A:\n");
   PrintMatrix(A);
+  printf("\n");
 
-  printf("Generating a Matrix of size: [%lu by %lu]\n", cols, rows);
-  B = NewZeroMatrix(cols, rows, Integer);
-  for (i=0; i<B->rows; ++i) {
-    for (j=0; j<B->cols; ++j) {
-      rnd_Num = rand_Num(Integer);
-      MatrixSet(B, i, j, rnd_Num);
-      DeleteNum(rnd_Num);
-    }
-  }
+  printf("Performing Transpose on the matrix...\n");
+  B = MatrixTranspose(A);
+  printf("Resulting [%lu by %lu] Matrix B\n", B->rows, B->cols);
   printf("Printing B:\n");
   PrintMatrix(B);
+  printf("\n");
 
   printf("Performing A*B\n");
   Matrix C = MatrixMul(A, B);
@@ -101,39 +147,36 @@ double TestMatrix(uint64_t rows, uint64_t cols)
 }
 
 /* Test Sparse matrix */
-double TestSMatrix(uint64_t rows, uint64_t cols)
+double TestSMatrix(MatrixData matrix_data)
 {
+  assert(matrix_data);
+
   double elapsed_time;
   struct timeval t1, t2;
   uint64_t i, j;
   SMatrix A, B;
-  Num volatile rnd_Num;
 
   gettimeofday(&t1, NULL);
 
-  printf("Generating a SMatrix of size: [%lu by %lu]\n", rows, cols);
-  A = NewZeroSMatrix(rows, cols, Integer);
-  for (i=0; i<A->rows; ++i) {
-    for (j=0; j<A->cols; ++j) {
-      rnd_Num = rand_Num(Integer);
-      SMatrixSet(A, i, j, rnd_Num);
-      DeleteNum(rnd_Num);
-    }
-  }
+  printf("Generating a SMatrix of size [%lu by %lu] as A\n", matrix_data->rows, matrix_data->cols);
+  A = NewSMatrix();
+  A->ntype = matrix_data->ntype;
+  A->rows = matrix_data->rows;
+  A->cols = matrix_data->cols;
+  A->Zero = NumZero(A->ntype, NULL, 0);
+  for (i=0; i<A->rows; ++i)
+    for (j=0; j<A->cols; ++j)
+      SMatrixSet(A, i, j, matrix_data->matrix_data[i][j]);
   printf("Printing A:\n");
   PrintSMatrix(A);
+  printf("\n");
 
-  printf("Generating a SMatrix of size: [%lu by %lu]\n", cols, rows);
-  B = NewZeroSMatrix(cols, rows, Integer);
-  for (i=0; i<B->rows; ++i) {
-    for (j=0; j<B->cols; ++j) {
-      rnd_Num = rand_Num(Integer);
-      SMatrixSet(B, i, j, rnd_Num);
-      DeleteNum(rnd_Num);
-    }
-  }
+  printf("Performing Transpose on the matrix...\n");
+  B = SMatrixTranspose(A);
+  printf("Resulting [%lu by %lu] Matrix B\n", B->rows, B->cols);
   printf("Printing B:\n");
   PrintSMatrix(B);
+  printf("\n");
 
   printf("Performing A*B\n");
   SMatrix C = SMatrixMul(A, B);
@@ -151,6 +194,7 @@ double TestSMatrix(uint64_t rows, uint64_t cols)
 
   return elapsed_time;
 }
+
 
 
 
@@ -176,14 +220,21 @@ int main(int argc, char* argv[])
 
   double elapsed_time_matrix, elapsed_time_smatrix;
 
+  printf("Creating some data to play with..\n");
+  MatrixData matrix_data = \
+    GenerateMatrixData(mat_rows, mat_cols, DATA_TYPE);
+
   printf(">>> Testing regular heap based Matrix.\n");
-  elapsed_time_matrix = TestMatrix(mat_rows, mat_cols);
+  elapsed_time_matrix = TestMatrix(matrix_data);
   printf("[Matrix] Elapsed time: %f ms.\n", elapsed_time_matrix);
-  printf("\n");
+  printf("\n=====================================================\n");
   printf(">>> Testing binary tree based sparse matrix: SMatrix. \n");
-  elapsed_time_smatrix = TestSMatrix(mat_rows, mat_cols);
+  elapsed_time_smatrix = TestSMatrix(matrix_data);
   printf("[SMatrix] Elapsed time: %f ms.\n", elapsed_time_smatrix);
   printf("\n");
+
+  printf("Cleaning up data...\n");
+  DeleteMatrixData(matrix_data);
 
   return 0;
 }

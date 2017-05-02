@@ -80,7 +80,7 @@ static int DeleteMatWorkArgs(MatWorkArgs mwargs)
 ************************************************/
 Matrix NewMatrix()
 {
-  Matrix m = (Matrix)malloc(sizeof(matrix));
+  Matrix m = (Matrix)tmalloc(sizeof(matrix));
   assert(m);
   m->rows = 0;
   m->cols = 0;
@@ -106,7 +106,7 @@ static MatInitArgs NewMatInitArgs(
   NumType nt, bool h_one, uint64_t o_ind, \
   void** n_data, uint64_t n_data_len, size_t d_size)
 {
-  MatInitArgs mia = (MatInitArgs)malloc(sizeof(mat_init_args));
+  MatInitArgs mia = (MatInitArgs)tmalloc(sizeof(mat_init_args));
   assert(mia);
 
   mia->ntype = nt;
@@ -135,7 +135,7 @@ static void* mat_init_worker(void* args)
   assert(mia);
 
   uint64_t i;
-  mia->Num_array = (Num*)malloc(sizeof(Num)*mia->data_len);
+  mia->Num_array = (Num*)tmalloc(sizeof(Num)*mia->data_len);
   assert(mia->Num_array);
 
   /* Initialize with data case */
@@ -173,7 +173,7 @@ static void* mat_init_worker(void* args)
 
 Matrix NewZeroMatrix(uint64_t n_rows, uint64_t n_cols, NumType n_type)
 {
-  Matrix m = (Matrix)malloc(sizeof(matrix));
+  Matrix m = (Matrix)tmalloc(sizeof(matrix));
   assert(m);
 
   m->rows = n_rows;
@@ -182,11 +182,11 @@ Matrix NewZeroMatrix(uint64_t n_rows, uint64_t n_cols, NumType n_type)
 
   uint64_t i;
 
-  m->matrix_array = (Num**)malloc(sizeof(Num*)*m->rows);
+  m->matrix_array = (Num**)tmalloc(sizeof(Num*)*m->rows);
   assert(m->matrix_array);
 
   MatInitArgs* mi_data_array = \
-    (MatInitArgs*)malloc(sizeof(MatInitArgs)*m->rows);
+    (MatInitArgs*)tmalloc(sizeof(MatInitArgs)*m->rows);
   for (i=0; i<m->rows; ++i)
     mi_data_array[i] = NewMatInitArgs(
       m->ntype, false, 0, NULL, m->cols, 0);
@@ -207,7 +207,7 @@ Matrix NewZeroMatrix(uint64_t n_rows, uint64_t n_cols, NumType n_type)
 
 Matrix NewUnitMatrix(uint64_t size, NumType n_type)
 {
-  Matrix m = (Matrix)malloc(sizeof(matrix));
+  Matrix m = (Matrix)tmalloc(sizeof(matrix));
   assert(m);
 
   m->rows = size;
@@ -216,11 +216,11 @@ Matrix NewUnitMatrix(uint64_t size, NumType n_type)
 
   uint64_t i;
 
-  m->matrix_array = (Num**)malloc(sizeof(Num*)*m->rows);
+  m->matrix_array = (Num**)tmalloc(sizeof(Num*)*m->rows);
   assert(m->matrix_array);
 
   MatInitArgs* mi_data_array = \
-    (MatInitArgs*)malloc(sizeof(MatInitArgs)*m->rows);
+    (MatInitArgs*)tmalloc(sizeof(MatInitArgs)*m->rows);
   for (i=0; i<m->rows; ++i)
     mi_data_array[i] = NewMatInitArgs(
       m->ntype, true, i, NULL, m->cols, 0);
@@ -242,7 +242,7 @@ Matrix NewUnitMatrix(uint64_t size, NumType n_type)
 Matrix CopyMatrix(Matrix mat)
 {
   assert(mat);
-  Matrix m = (Matrix)malloc(sizeof(matrix));
+  Matrix m = (Matrix)tmalloc(sizeof(matrix));
   assert(m);
 
   uint64_t i, j;
@@ -251,10 +251,10 @@ Matrix CopyMatrix(Matrix mat)
   m->cols = mat->cols;
   m->ntype = mat->ntype;
 
-  m->matrix_array = (Num**)malloc(sizeof(Num*)*m->rows);
+  m->matrix_array = (Num**)tmalloc(sizeof(Num*)*m->rows);
   assert(m->matrix_array);
   for (i=0; i<m->rows; ++i) {
-    m->matrix_array[i] = (Num*)malloc(sizeof(Num)*m->cols);
+    m->matrix_array[i] = (Num*)tmalloc(sizeof(Num)*m->cols);
     assert(m->matrix_array[i]);
   }
 
@@ -273,7 +273,7 @@ typedef row_to_free* RowToFree;
 static RowToFree NewRowToFree(Num* row, uint64_t row_len)
 {
   assert(row);
-  RowToFree rtf = (RowToFree)malloc(sizeof(row_to_free));
+  RowToFree rtf = (RowToFree)tmalloc(sizeof(row_to_free));
   assert(rtf);
   rtf->len = row_len;
   rtf->Num_array = row;
@@ -304,7 +304,7 @@ int DeleteMatrix(Matrix mat)
   assert(mat);
   uint64_t i;
 
-  RowToFree* rtf_array = (RowToFree*)malloc(sizeof(RowToFree)*mat->rows);
+  RowToFree* rtf_array = (RowToFree*)tmalloc(sizeof(RowToFree)*mat->rows);
   assert(rtf_array);
   for (i=0; i<mat->rows; ++i)
     rtf_array[i] = \
@@ -353,7 +353,7 @@ static void* matrix_arith_worker(void* args)
   uint64_t i;
   assert(mwargs->array_a_size == mwargs->array_b_size);
 
-  mwargs->array_c = (Num*)malloc(sizeof(Num)*mwargs->array_c_size);
+  mwargs->array_c = (Num*)tmalloc(sizeof(Num)*mwargs->array_c_size);
   for (i=0; i<mwargs->array_a_size; ++i)
     mwargs->array_c[i] = \
       mwargs->operator(mwargs->array_a[i], mwargs->array_b[i]);
@@ -374,7 +374,7 @@ Matrix MatrixAdd(Matrix A, Matrix B)
 
   uint64_t i;
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -383,7 +383,7 @@ Matrix MatrixAdd(Matrix A, Matrix B)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  C->matrix_array = (Num**)malloc(sizeof(Num*)*C->rows);
+  C->matrix_array = (Num**)tmalloc(sizeof(Num*)*C->rows);
   for (i=0; i<C->rows; ++i) {
     C->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -404,7 +404,7 @@ Matrix MatrixSub(Matrix A, Matrix B)
 
   uint64_t i;
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -413,7 +413,7 @@ Matrix MatrixSub(Matrix A, Matrix B)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  C->matrix_array = (Num**)malloc(sizeof(Num*)*C->rows);
+  C->matrix_array = (Num**)tmalloc(sizeof(Num*)*C->rows);
   for (i=0; i<C->rows; ++i) {
     C->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -438,7 +438,7 @@ static MatMulArgs NewMatMulArgs(Num* A, uint64_t A_sz, Num** B_mat, uint64_t B_r
 {
   assert(A); assert(B_mat);
   assert(A_sz == B_r_sz);
-  MatMulArgs mma = (MatMulArgs)malloc(sizeof(mat_mul_args));
+  MatMulArgs mma = (MatMulArgs)tmalloc(sizeof(mat_mul_args));
   assert(mma);
 
   mma->array_a = A;
@@ -446,7 +446,7 @@ static MatMulArgs NewMatMulArgs(Num* A, uint64_t A_sz, Num** B_mat, uint64_t B_r
   mma->matrix_b = B_mat;
   mma->mat_b_rows = B_r_sz;
   mma->mat_b_cols = B_c_sz;
-  mma->array_c = (Num*)malloc(sizeof(Num)*B_c_sz);
+  mma->array_c = (Num*)tmalloc(sizeof(Num)*B_c_sz);
   assert(mma->array_c);
   mma->array_c_size = B_c_sz;
 
@@ -496,7 +496,7 @@ Matrix MatrixMul(Matrix A, Matrix B)
 
   uint64_t i;
   MatMulArgs* work_args = \
-    (MatMulArgs*)malloc(sizeof(MatMulArgs)*A->rows);
+    (MatMulArgs*)tmalloc(sizeof(MatMulArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatMulArgs(
       A->matrix_array[i], A->cols,
@@ -505,7 +505,7 @@ Matrix MatrixMul(Matrix A, Matrix B)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_mul_worker, (void**)work_args);
 
-  C->matrix_array = (Num**)malloc(sizeof(Num*)*C->rows);
+  C->matrix_array = (Num**)tmalloc(sizeof(Num*)*C->rows);
   for (i=0; i<C->rows; ++i) {
     C->matrix_array[i] = work_args[i]->array_c;
     DeleteMatMulArgs(work_args[i]);
@@ -525,7 +525,7 @@ Matrix MatrixSCAdd(Matrix A, Num sc)
   assert(A); assert(sc);
   /* Let's make scalar array */
   uint64_t i;
-  Num* sc_ary = (Num*)malloc(sizeof(Num)*A->cols);
+  Num* sc_ary = (Num*)tmalloc(sizeof(Num)*A->cols);
   assert(sc_ary);
   for (i=0; i<A->cols; ++i) sc_ary[i] = CopyNum(sc);
 
@@ -535,7 +535,7 @@ Matrix MatrixSCAdd(Matrix A, Num sc)
   mat->cols = A->cols;
 
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -545,7 +545,7 @@ Matrix MatrixSCAdd(Matrix A, Num sc)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  mat->matrix_array = (Num**)malloc(sizeof(Num*)*mat->rows);
+  mat->matrix_array = (Num**)tmalloc(sizeof(Num*)*mat->rows);
   for (i=0; i<mat->rows; ++i) {
     mat->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -560,7 +560,7 @@ Matrix MatrixSCSub(Matrix A, Num sc)
   assert(A); assert(sc);
   /* Let's make scalar array */
   uint64_t i;
-  Num* sc_ary = (Num*)malloc(sizeof(Num)*A->cols);
+  Num* sc_ary = (Num*)tmalloc(sizeof(Num)*A->cols);
   assert(sc_ary);
   for (i=0; i<A->cols; ++i) sc_ary[i] = CopyNum(sc);
 
@@ -570,7 +570,7 @@ Matrix MatrixSCSub(Matrix A, Num sc)
   mat->cols = A->cols;
 
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -580,7 +580,7 @@ Matrix MatrixSCSub(Matrix A, Num sc)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  mat->matrix_array = (Num**)malloc(sizeof(Num*)*mat->rows);
+  mat->matrix_array = (Num**)tmalloc(sizeof(Num*)*mat->rows);
   for (i=0; i<mat->rows; ++i) {
     mat->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -595,7 +595,7 @@ Matrix MatrixSCMul(Matrix A, Num sc)
   assert(A); assert(sc);
   /* Let's make scalar array */
   uint64_t i;
-  Num* sc_ary = (Num*)malloc(sizeof(Num)*A->cols);
+  Num* sc_ary = (Num*)tmalloc(sizeof(Num)*A->cols);
   assert(sc_ary);
   for (i=0; i<A->cols; ++i) sc_ary[i] = CopyNum(sc);
 
@@ -605,7 +605,7 @@ Matrix MatrixSCMul(Matrix A, Num sc)
   mat->cols = A->cols;
 
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -615,7 +615,7 @@ Matrix MatrixSCMul(Matrix A, Num sc)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  mat->matrix_array = (Num**)malloc(sizeof(Num*)*mat->rows);
+  mat->matrix_array = (Num**)tmalloc(sizeof(Num*)*mat->rows);
   for (i=0; i<mat->rows; ++i) {
     mat->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -630,7 +630,7 @@ Matrix MatrixSCDiv(Matrix A, Num sc)
   assert(A); assert(sc);
   /* Let's make scalar array */
   uint64_t i;
-  Num* sc_ary = (Num*)malloc(sizeof(Num)*A->cols);
+  Num* sc_ary = (Num*)tmalloc(sizeof(Num)*A->cols);
   assert(sc_ary);
   for (i=0; i<A->cols; ++i) sc_ary[i] = CopyNum(sc);
 
@@ -640,7 +640,7 @@ Matrix MatrixSCDiv(Matrix A, Num sc)
   mat->cols = A->cols;
 
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -650,7 +650,7 @@ Matrix MatrixSCDiv(Matrix A, Num sc)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  mat->matrix_array = (Num**)malloc(sizeof(Num*)*mat->rows);
+  mat->matrix_array = (Num**)tmalloc(sizeof(Num*)*mat->rows);
   for (i=0; i<mat->rows; ++i) {
     mat->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -665,7 +665,7 @@ Matrix MatrixSCRem(Matrix A, Num sc)
   assert(A); assert(sc);
   /* Let's make scalar array */
   uint64_t i;
-  Num* sc_ary = (Num*)malloc(sizeof(Num)*A->cols);
+  Num* sc_ary = (Num*)tmalloc(sizeof(Num)*A->cols);
   assert(sc_ary);
   for (i=0; i<A->cols; ++i) sc_ary[i] = CopyNum(sc);
 
@@ -675,7 +675,7 @@ Matrix MatrixSCRem(Matrix A, Num sc)
   mat->cols = A->cols;
 
   MatWorkArgs* work_args = \
-    (MatWorkArgs*)malloc(sizeof(MatWorkArgs)*A->rows);
+    (MatWorkArgs*)tmalloc(sizeof(MatWorkArgs)*A->rows);
   for (i=0; i<A->rows; ++i) {
     work_args[i] = NewMatWorkArgs(
       A->matrix_array[i], A->rows,
@@ -685,7 +685,7 @@ Matrix MatrixSCRem(Matrix A, Num sc)
   Threads op_thr = NewThreads(A->rows, true, NULL);
   RunThreads(op_thr, matrix_arith_worker, (void**)work_args);
 
-  mat->matrix_array = (Num**)malloc(sizeof(Num*)*mat->rows);
+  mat->matrix_array = (Num**)tmalloc(sizeof(Num*)*mat->rows);
   for (i=0; i<mat->rows; ++i) {
     mat->matrix_array[i] = work_args[i]->array_c;
     DeleteMatWorkArgs(work_args[i]);
@@ -710,10 +710,10 @@ Matrix MatrixTranspose(Matrix A)
   mat->ntype = A->ntype;
 
   uint64_t i, j;
-  mat->matrix_array = (Num**)malloc(sizeof(Num*)*mat->rows);
+  mat->matrix_array = (Num**)tmalloc(sizeof(Num*)*mat->rows);
   assert(mat->matrix_array);
   for (i=0; i<A->cols; ++i) {
-    mat->matrix_array[i] = (Num*)malloc(sizeof(Num)*A->rows);
+    mat->matrix_array[i] = (Num*)tmalloc(sizeof(Num)*A->rows);
     for (j=0; j<A->rows; ++j)
       mat->matrix_array[i][j] = CopyNum(A->matrix_array[j][i]);
   }

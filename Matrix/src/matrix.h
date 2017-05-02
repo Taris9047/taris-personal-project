@@ -15,6 +15,7 @@
 
 #include <stdint.h>
 
+#include "utils.h"
 #include "num.h"
 #include "pth_handle.h"
 

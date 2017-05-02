@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include "btree.h"
 
@@ -34,7 +35,7 @@ static BTNode MakeNode(btree_data_t init_data, BTNode parent_node, btree_key_t k
 //static int Swap(BTNode A, BTNode B);
 
 /* Constructors and Destructors */
-BTree BTNew()
+BTree NewBTree()
 {
   BTree bt = (BTree)malloc(sizeof(bintree_root));
   assert(bt);
@@ -44,21 +45,13 @@ BTree BTNew()
 
   return bt;
 }
-BTree NewBTree()
-{
-  return BTNew();
-}
 
-int BTDelete(BTree bt)
+int DeleteBTree(BTree bt)
 {
   assert(bt);
   if (bt->root_node) bt_node_destroy(bt->root_node);
   free(bt);
   return 0;
-}
-int DeleteBTree(BTree bt)
-{
-  return BTDelete(bt);
 }
 
 /* hard delete: destroys all the data as well */
@@ -127,7 +120,7 @@ btree_data_t BTGetMin(BTree bt)
   return bt_tmp->stuff;
 }
 
-unsigned long long BTNodes(BTree bt)
+uint64_t BTNodes(BTree bt)
 {
   assert(bt);
   return bt->nodes;
@@ -139,14 +132,13 @@ BTNode bt_node_init()
 {
   BTNode b = (BTNode)malloc(sizeof(bintree_node));
   assert(b);
-
   b->depth = 0;
   b->key = 0;
   b->left = NULL;
   b->right = NULL;
   b->parent = NULL;
   b->stuff = NULL;
-
+  b->locked = false;
   return b;
 }
 
@@ -154,8 +146,7 @@ BTNode bt_node_init_data(btree_data_t data)
 {
   BTNode b = bt_node_init();
   b->stuff = data;
-  b->key = (unsigned long)data;
-
+  b->key = (uint64_t)data;
   return b;
 }
 
@@ -187,11 +178,11 @@ void bt_node_destroy_hard(BTNode b, int (*destroyer)() )
 
 /* Getting some statics */
 /* Returns number of elements in the node */
-unsigned long bt_len(BTNode b)
+uint64_t bt_len(BTNode b)
 {
   assert(b);
 
-  unsigned long cnt = 0;
+  uint64_t cnt = 0;
   if (b->stuff) cnt++;
 
   if (b->left)
@@ -203,11 +194,11 @@ unsigned long bt_len(BTNode b)
 }
 
 /* Returns depth of a tree */
-unsigned long bt_depth(BTNode b)
+uint64_t bt_depth(BTNode b)
 {
   assert(b);
 
-  unsigned long cnt = b->depth;
+  uint64_t cnt = b->depth;
   if (!b->left && !b->right)
     return cnt;
   else if (b->left && !b->right)
@@ -215,8 +206,8 @@ unsigned long bt_depth(BTNode b)
   else if (!b->left && b->right)
     return bt_depth(b->right);
   else {
-    unsigned long left_depth = bt_depth(b->left);
-    unsigned long right_depth = bt_depth(b->right);
+    uint64_t left_depth = bt_depth(b->left);
+    uint64_t right_depth = bt_depth(b->right);
     return (left_depth > right_depth)?left_depth:right_depth;
   }
 }
@@ -227,10 +218,15 @@ int bt_insert(BTNode b, btree_data_t vpStuff, btree_key_t key)
 {
   assert(b);
 
+  /* If the node is locked, wait a bit */
+  while (b->locked) sleep(1);
+  bt_lock(b);
+
   /* If given key is same as root,
      just update root and be done with it. */
   if (key == b->key) {
     b->stuff = vpStuff;
+    bt_unlock(b);
     return 0;
   }
 
@@ -238,12 +234,19 @@ int bt_insert(BTNode b, btree_data_t vpStuff, btree_key_t key)
     /* key is smaller than current node:
        Put it into left */
     if (!b->left) b->left = MakeNode(vpStuff, b, key);
-    else bt_insert(b->left, vpStuff, key);
+    else {
+      bt_unlock(b);
+      bt_insert(b->left, vpStuff, key);
+    }
   }
   else {
     if (!b->right) b->right = MakeNode(vpStuff, b, key);
-    else bt_insert(b->right, vpStuff, key);
+    else {
+      bt_unlock(b);
+      bt_insert(b->right, vpStuff, key);
+    }
   }
+  bt_unlock(b);
 
   return 0;
 }
@@ -253,6 +256,10 @@ int bt_remove(BTNode b, btree_data_t vpStuff, btree_key_t key)
   assert(b);
 
   BTNode found_node = bt_search(b, key);
+
+  while (found_node->locked) sleep(1);
+  bt_lock(found_node);
+  if (found_node->parent) bt_lock(found_node->parent);
 
   if (!found_node->left && !found_node->right) {
     if (key < found_node->parent->key) found_node->parent->left = NULL;
@@ -274,9 +281,25 @@ int bt_remove(BTNode b, btree_data_t vpStuff, btree_key_t key)
   }
 
   free(found_node);
+  bt_unlock(found_node->parent);
   return 0;
 }
 
+int bt_lock(BTNode b)
+{
+  assert(b);
+  b->locked = true;
+  return 0;
+}
+
+int bt_unlock(BTNode b)
+{
+  assert(b);
+  b->locked = false;
+  return 0;
+}
+
+/* Get/set item from node */
 int bt_setitem(BTNode b, btree_data_t vpStuff, btree_key_t key)
 {
   assert(b);

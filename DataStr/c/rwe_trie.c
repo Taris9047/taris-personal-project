@@ -60,7 +60,7 @@ int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
   assert(value);
 
   int keylen = strlen(key);
-  unsigned long i;
+  uint64_t i;
   rTrieNode rtp;
   rTrieNode rtptmp;
   LNode cc;
@@ -227,7 +227,7 @@ static rTrieNode Traverse(rTrieRoot root, char* key)
   assert(root);
   assert(strlen(key)>0);
 
-  unsigned long i = 0;
+  uint64_t i = 0;
   int keylen = strlen(key);
   rTrieNode rtp;
   LNode lntmp;

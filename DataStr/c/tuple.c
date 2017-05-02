@@ -27,7 +27,7 @@
  Tuple - Constructors and Destructors
 ****************************************/
 /* Constructor with length */
-Tuple NewTuple(const unsigned int data_len)
+Tuple NewTuple(const uint16_t data_len)
 {
   Tuple tup = (Tuple)malloc(sizeof(tuple_struct));
   assert(tup);
@@ -43,7 +43,7 @@ Tuple NewTuple(const unsigned int data_len)
 }
 
 /* Constructor with array */
-Tuple NewTupleData(const unsigned int data_len, const void* data_set[])
+Tuple NewTupleData(const uint16_t data_len, const void* data_set[])
 {
   assert(data_set);
 
@@ -53,7 +53,7 @@ Tuple NewTupleData(const unsigned int data_len, const void* data_set[])
   if (data_len) {
     tup->data = (tuple_data_t*)malloc(sizeof(tuple_data_t)*data_len);
     assert(tup->data);
-    unsigned int i;
+    uint16_t i;
     for (i=0; i<data_len; ++i) tup->data[i] = (void*)data_set[i];
   }
   else tup->data = NULL;

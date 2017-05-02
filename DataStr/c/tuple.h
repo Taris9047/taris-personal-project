@@ -10,19 +10,21 @@
 #ifndef C_IMPLEMENTATION_TUPLE_H
 #define C_IMPLEMENTATION_TUPLE_H
 
+#include <stdint.h>
+
 /* datatype def */
 typedef void* tuple_data_t;
 
 /* Tuple struct */
 typedef struct _tuple_struct {
   tuple_data_t* data;
-  unsigned int len; /* typically 2, but who knows? */
+  uint16_t len; /* typically 2, but who knows? */
 } tuple_struct;
 typedef tuple_struct* Tuple;
 
 /* Constructors and Destructors */
-Tuple NewTuple(const unsigned int data_len);
-Tuple NewTupleData(const unsigned int data_len, const void* data_set[]);
+Tuple NewTuple(const uint16_t data_len);
+Tuple NewTupleData(const uint16_t data_len, const void* data_set[]);
 int DeleteTuple(Tuple t);
 
 /* Methods */

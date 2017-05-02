@@ -14,6 +14,8 @@
 #ifndef __RWE_TRIE_H__
 #define __RWE_TRIE_H__
 
+#include <stdint.h>
+
 #include "list.h"
 
 typedef void* rtrie_value_t;

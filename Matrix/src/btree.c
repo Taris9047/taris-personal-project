@@ -120,7 +120,7 @@ btree_data_t BTGetMin(BTree bt)
   return bt_tmp->stuff;
 }
 
-unsigned long long BTNodes(BTree bt)
+uint64_t BTNodes(BTree bt)
 {
   assert(bt);
   return bt->nodes;
@@ -146,7 +146,7 @@ BTNode bt_node_init_data(btree_data_t data)
 {
   BTNode b = bt_node_init();
   b->stuff = data;
-  b->key = (unsigned long)data;
+  b->key = (uint64_t)data;
   return b;
 }
 
@@ -178,11 +178,11 @@ void bt_node_destroy_hard(BTNode b, int (*destroyer)() )
 
 /* Getting some statics */
 /* Returns number of elements in the node */
-unsigned long bt_len(BTNode b)
+uint64_t bt_len(BTNode b)
 {
   assert(b);
 
-  unsigned long cnt = 0;
+  uint64_t cnt = 0;
   if (b->stuff) cnt++;
 
   if (b->left)
@@ -194,11 +194,11 @@ unsigned long bt_len(BTNode b)
 }
 
 /* Returns depth of a tree */
-unsigned long bt_depth(BTNode b)
+uint64_t bt_depth(BTNode b)
 {
   assert(b);
 
-  unsigned long cnt = b->depth;
+  uint64_t cnt = b->depth;
   if (!b->left && !b->right)
     return cnt;
   else if (b->left && !b->right)
@@ -206,8 +206,8 @@ unsigned long bt_depth(BTNode b)
   else if (!b->left && b->right)
     return bt_depth(b->right);
   else {
-    unsigned long left_depth = bt_depth(b->left);
-    unsigned long right_depth = bt_depth(b->right);
+    uint64_t left_depth = bt_depth(b->left);
+    uint64_t right_depth = bt_depth(b->right);
     return (left_depth > right_depth)?left_depth:right_depth;
   }
 }
