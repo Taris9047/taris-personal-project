@@ -6,7 +6,8 @@ SOURCES=$(wildcard *.c *.h)
 OBJECTS=
 TARGETS=hello_client hello_server weather_client weather_server \
 	tasksink taskvent taskwork mspoller msreader mt_hello_server \
-	interrupt mt_relay syncpub syncsub psenpub psensub rtdealer
+	interrupt mt_relay syncpub syncsub psenpub psensub rtdealer \
+	czmq_hello
 
 all: $(TARGETS)
 
@@ -60,6 +61,9 @@ psensub: psensub.c
 
 rtdealer: rtdealer.c
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -pthread
+
+czmq_hello: czmq_hello.c
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lczmq
 
 clean:
 	rm -rfv $(TARGETS)
