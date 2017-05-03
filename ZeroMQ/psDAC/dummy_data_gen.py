@@ -132,7 +132,7 @@ def rand_data_gen():
 				str_to_barray('\n')
 			data_bin_set.append(bytearray(packet))
 
-	return shuffle_data(data_bin_set)
+	return data_bin_set
 
 """@main
 
@@ -152,6 +152,7 @@ def main():
 		an_img_data_set = rand_data_gen()
 		data_set += an_img_data_set
 		print("Data set generated %d/%d" % (i+1, data_size))
+	print("Shuffling entire %d data..." % (data_size))
 	data_set = shuffle_data(data_set)
 
 	dataf_name = 'data.dat'
