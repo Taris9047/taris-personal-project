@@ -91,7 +91,7 @@ def shuffle_data(data, n_shfl=None):
 	if not n_shfl:
 		n_shfl = int(data_len/2)
 
-	for n in range(n_shfl):
+	for n in range(int(n_shfl/3)):
 		for i in range(data_len):
 			ti = get_unique_rand_num(data_len, i)
 
