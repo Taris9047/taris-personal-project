@@ -15,7 +15,7 @@ import string
 import random
 import datetime as dt
 
-rows = 32
+rows = 8
 img_res_x = rows*6
 img_res_y = rows*6
 gs_bits = 24
@@ -140,29 +140,30 @@ def rand_data_gen():
 
 """
 def main():
-	data_size = 10;
+	n_images = 10;
 	if len(sys.argv) == 2:
-		data_size = int(sys.argv[1])
+		n_images = int(sys.argv[1])
 
-	print("Setting up %d images ... " % data_size)
+	print("Setting up %d images ... " % n_images)
 
 	# Let's generate thousands of data stream...
 	data_set = []
-	for i in range(data_size):
+	for i in range(n_images):
 		an_img_data_set = rand_data_gen()
 		data_set += an_img_data_set
-		print("Data set generated %d/%d" % (i+1, data_size))
-	print("Shuffling entire %d data..." % (data_size))
+		print("Data set generated %d/%d" % (i+1, n_images))
+	print("Shuffling %d image(s)..." % (n_images))
 	data_set = shuffle_data(data_set)
 
 	dataf_name = 'data.dat'
 	with open(dataf_name, 'wb') as fp:
 		data_to_write = bytearray()
+		data_to_write += str_to_barray('psDAC_Input\n')
 		for i in range(len(data_set)):
 			data_to_write += (data_set[i])
 		fp.write(data_to_write)
 
-	print("Written", data_size, "random pseudo image data.")
+	print("Written", n_images, "random pseudo image data.")
 
 if __name__ == "__main__":
 	main();

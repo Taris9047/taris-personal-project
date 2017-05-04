@@ -20,10 +20,16 @@
 #include <zmq.h>
 #include <time.h>
 
+#define _PSEUDO_DAC_DEBUG
+
 #include "utils.h"
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+#define VERSION_PATCH 0
+
 #define DEFAULT_PORT 13377
-#define DEFAULT_DATAFILE ./data.dat
+#define DEFAULT_DATAFILE "./data.dat"
 
 int run_psDAC(int port_number, char* data_file);
 

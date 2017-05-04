@@ -64,7 +64,7 @@ endif
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(TESTF_NAME) $(LIBNAME)
+all: $(TARGET_NAME) $(LIBNAME)
 
 $(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(AR) rcs $(CURR_DIR)/$(LIBNAMEV) $(OBJS)
@@ -75,13 +75,13 @@ $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 
 $(TARGET_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/psDAC.c $(CURR_DIR)/psDAC.h
-	$(CC) $(CFLAGS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS) $(INCLUDES)
+	$(CC) $(CFLAGS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TARGET_NAME) $(LIBS) $(INCLUDES)
 
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o
 	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
 	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
-	rm -rfv ./$(TESTF_NAME)
+	rm -rfv ./$(TARGET_NAME)
 	rm -rfv ./__pycache__
 	rm -rfv *.img

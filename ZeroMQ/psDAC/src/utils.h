@@ -30,10 +30,26 @@ static inline void* safe_malloc(
   return memory;
 }
 
-#if defined(_TMATRIX_DEBUG)
-#   define tmalloc(sz) calloc(1, (sz))
-#else
+static inline void* safe_realloc(
+  void* ptr, size_t sz, const char *file, unsigned line)
+{
+  void *memory = realloc(ptr, sz);
+  if (!memory) {
+    fprintf(stderr, "Fatal error at %s, line: %u\n", file, line);
+    fprintf(stderr, "OUT OF MEMORY!!\n");
+    fflush(stderr);
+    exit(-1);
+  }
+  return memory;
+}
+
+#if defined(_PSEUDO_DAC_DEBUG)
 #   define tmalloc(sz) safe_malloc((sz), __FILE__, __LINE__)
-#endif
+#   define trealloc(ptr, sz) safe_realloc((ptr), (sz), __FILE__, __LINE__)
+#else
+#   define tmalloc(sz) calloc(1, (sz))
+#   define trealloc(ptr, sz) realloc((ptr), (sz))
+#endif /* #if defined(_PSEUDO_DAC_DEBUG) */
+
 
 #endif /* Include guard */
