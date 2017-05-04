@@ -15,9 +15,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <zmq.h>
 #include <time.h>
 
+#include "utils.h"
+
+#define DEFAULT_PORT 13377
+#define DEFAULT_DATAFILE ./data.dat
+
+int run_psDAC(int port_number, char* data_file);
 
 #endif /* Include guard */
