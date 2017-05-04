@@ -1,3 +1,10 @@
+# @Author: taris
+# @Date:   2017-05-03T18:22:10-05:00
+# @Last modified by:   taris
+# @Last modified time: 2017-05-04T08:09:49-05:00
+
+
+
 #!/usr/bin/env python
 
 """
@@ -15,7 +22,7 @@ import string
 import random
 import datetime as dt
 
-rows = 32
+rows = 6
 img_res_x = rows*6
 img_res_y = rows*6
 gs_bits = 24
@@ -91,7 +98,7 @@ def shuffle_data(data, n_shfl=None):
 	if not n_shfl:
 		n_shfl = int(data_len/2)
 
-	for n in range(n_shfl):
+	for n in range(int(n_shfl/3)):
 		for i in range(data_len):
 			ti = get_unique_rand_num(data_len, i)
 
