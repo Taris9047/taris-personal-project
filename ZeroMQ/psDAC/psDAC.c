@@ -1,3 +1,12 @@
+/**
+ * @Author: taris
+ * @Date:   2017-05-05T07:14:12-05:00
+ * @Last modified by:   taris
+ * @Last modified time: 2017-05-05T07:21:18-05:00
+ */
+
+
+
 /*************************************
 
   Pseudo DAC - main program
@@ -59,10 +68,10 @@ int run_psDAC(int port_number, char* data_file)
     segment = (unsigned char*)LAt(dtc->entries, i);
     seg_len = *(size_t*)LAt(dtc->entry_len, i);
     fprintf(stdout, "Sending... [%lu/%lu]", i+1, dtc->entries->len);
-    memset(zmq_msg_data(&msg), segment, seg_len);
+    memcpy(zmq_msg_data(&msg), segment, seg_len);
     rc = zmq_msg_init_size(&msg, seg_len);
     assert(rc==0);
-    rc = zmq_sendmsg(data_publisher, &msg, 0);
+    rc = zmq_send(data_publisher, &msg, seg_len, 0);
     assert(rc==seg_len);
     ++i;
     fflush(stdout);
