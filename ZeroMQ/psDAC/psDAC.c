@@ -58,7 +58,6 @@ int run_psDAC(int port_number, char* data_file)
   }
 
   /* Do run server here */
-  /* TODO: need segment length */
   unsigned char* volatile segment;
   volatile size_t seg_len;
   uint64_t i=0;
@@ -70,9 +69,15 @@ int run_psDAC(int port_number, char* data_file)
     fprintf(stdout, "Sending... [%lu/%lu]", i+1, dtc->entries->len);
     rc = zmq_msg_init_size(&msg, seg_len);
     memcpy(zmq_msg_data(&msg), segment, seg_len);
-    assert(rc==0);
+    if (rc) {
+      fprintf(stderr, "psDAC: zmq_msg_init_size failed!!\n");
+      return rc;
+    }
     rc = zmq_send(data_publisher, &msg, seg_len, 0);
-    assert(rc==seg_len);
+    if (rc!=seg_len) {
+      fprintf(stderr, "psDAC: zmq_send failed!!\n");
+      return -1;
+    }
     fprintf(stdout, "\r");
     fflush(stdout);
   }

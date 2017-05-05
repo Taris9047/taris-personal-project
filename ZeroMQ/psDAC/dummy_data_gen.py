@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -10,10 +10,12 @@ March 14th 2017
 
 """
 
+import os
 import sys
 import string
 import random
 import datetime as dt
+import tarfile
 
 rows = 8
 img_res_x = rows*6
@@ -21,6 +23,11 @@ img_res_y = rows*6
 gs_bits = 24
 grey_scale_max = 2**gs_bits
 
+"""@str_to_barray
+
+	string to binary array
+
+"""
 def str_to_barray(some_str):
 	return bytearray([ord(l) for l in some_str])
 
@@ -30,7 +37,6 @@ def str_to_barray(some_str):
 	Generates random characters
 
 """
-
 def rand_char_gen():
 	str_set = \
 		string.ascii_lowercase + \
@@ -41,8 +47,15 @@ def rand_char_gen():
 
 	return str_set[ind];
 
+
+"""@timestamp_gen
+
+	Generates random timestamp
+
+"""
 def timestamp_gen():
 	return dt.datetime.now().strftime("%f")
+
 
 """@img_gen
 
@@ -64,6 +77,7 @@ def img_gen():
 
 	return img_data
 
+
 """@get_unique_rand_num
 
 """
@@ -74,32 +88,18 @@ def get_unique_rand_num(max_rng, n_avoid):
 			break
 	return ret_num
 
+
 """@shuffle_data
 
 	Shuffle list of data stirngs
 
+	--> Ha, random.shuffle is WAAAAY faster than my crappy code!!
+
 """
-def shuffle_data(data, n_shfl=None):
-	if not isinstance(data, list):
-		data = [data]
-
-	data_len = len(data)
-
-	if data_len < 2:
-		return data
-
-	if not n_shfl:
-		n_shfl = int(data_len/2)
-
-	for n in range(int(n_shfl/3)):
-		for i in range(data_len):
-			ti = get_unique_rand_num(data_len, i)
-
-			tmp = data[i];
-			data[i] = data[ti]
-			data[ti] = tmp
-
+def shuffle_data(data):
+	random.shuffle(data)
 	return data
+
 
 """@rand_data_gen
 
@@ -141,8 +141,12 @@ def rand_data_gen():
 """
 def main():
 	n_images = 10;
-	if len(sys.argv) == 2:
+	dataf_name = './data.dat'
+	if len(sys.argv) >= 2:
 		n_images = int(sys.argv[1])
+	if len(sys.argv) >= 3:
+		n_images = int(sys.argv[1])
+		dataf_name = sys.argv[2]
 
 	print("Setting up %d images ... " % n_images)
 
@@ -151,19 +155,39 @@ def main():
 	for i in range(n_images):
 		an_img_data_set = rand_data_gen()
 		data_set += an_img_data_set
-		print("Data set generated %d/%d" % (i+1, n_images))
+		txt = "Data set generated %d/%d [%.2f %%]\r" % (i+1, n_images, 100*(i+1)/n_images)
+		sys.stdout.write(txt)
+		sys.stdout.flush()
+	print("")
 	print("Shuffling %d image(s)..." % (n_images))
 	data_set = shuffle_data(data_set)
 
-	dataf_name = 'data.dat'
+	data_set_len = len(data_set)
+
 	with open(dataf_name, 'wb') as fp:
+		print("Writing %d entries to... %s" % (data_set_len, dataf_name))
 		data_to_write = bytearray()
 		data_to_write += str_to_barray('psDAC_Input\n')
-		for i in range(len(data_set)):
+		for i in range(data_set_len):
 			data_to_write += (data_set[i])
+			fwrite_txt = "Entry written ... %d/%d [%.2f %%]\r" % \
+				(i+1, data_set_len, 100*(i+1)/data_set_len)
+			sys.stdout.write(fwrite_txt)
+			sys.stdout.flush()
 		fp.write(data_to_write)
 
+	print("")
 	print("Written", n_images, "random pseudo image data.")
+
+	tarf_name = ''.join(os.path.basename(dataf_name).split(".")[:-1])+'.tar.bz2'
+	print("Making a tarball: %s" % tarf_name)
+	with tarfile.open(tarf_name, "w:bz2") as tar:
+		tar.add(dataf_name)
+
+	print("Deleting %s" % dataf_name)
+	os.remove(dataf_name)
+	print("Datafile generation has been finished!!")
+
 
 if __name__ == "__main__":
 	main();
