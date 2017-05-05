@@ -29,8 +29,9 @@
 #define VERSION_PATCH 0
 
 #define DEFAULT_PORT 13377
-#define DEFAULT_DATAFILE "./data.dat"
+#define DEFAULT_DATAFILE "./data.tar.bz2"
 
+/* Main server runner */
 int run_psDAC(int port_number, char* data_file);
 
 #endif /* Include guard */

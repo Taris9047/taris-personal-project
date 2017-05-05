@@ -19,6 +19,9 @@
 #include <assert.h>
 #include <string.h>
 
+#include <archive.h>
+#include <archive_entry.h>
+
 #include "list.h"
 
 /**************************************
@@ -38,7 +41,7 @@
 
 #define MAX_BUFFER_SIZE 2048
 #define HEADER_TEXT "psDAC_Input"
-#define HEADER_LEN strlen(HEADER_TEXT)
+#define HEADER_LEN strlen(HEADER_TEXT)+1
 
 /* Data file container struct */
 typedef struct _dat_cont {
@@ -62,5 +65,11 @@ unsigned char* RawDataReader(
 
 /* Prints out some 1337 looking stats */
 void PrintDataContainer(DataContainer dcont);
+
+/* Check header */
+bool check_header(FILE *fp);
+
+/* Extract and find datafile */
+FILE *find_data(const char* fname);
 
 #endif /* Include guard */

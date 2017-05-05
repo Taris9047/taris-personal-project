@@ -11,6 +11,7 @@
 **************************************/
 
 #include <stdio.h>
+#include <archive.h>
 
 #include "utils.h"
 #include "dat_file_reader.h"
@@ -95,6 +96,7 @@ int SetEntries(DataContainer dcont)
 }
 
 /* Reads the data file into heap */
+/* TODO: Add archive extractor */
 unsigned char* RawDataReader(
   const char* input_fname,
   uint64_t* data_len)
@@ -102,7 +104,6 @@ unsigned char* RawDataReader(
   assert(input_fname);
   unsigned char *r_data, *cursor;
   unsigned char buffer[MAX_BUFFER_SIZE];
-  char header[HEADER_LEN];
   size_t bytesread;
   uint64_t i;
   (*data_len) = 0;
@@ -116,17 +117,14 @@ unsigned char* RawDataReader(
     exit(-1);
   }
 
-  /* Header Detection */
-  bytesread = fread(buffer, sizeof(unsigned char), HEADER_LEN, fp);
-  if (!bytesread) {
-    fprintf(stderr, "For some reason, we've got an empty file..\n");
-    exit(-1);
-  }
-  for (i=0; i<HEADER_LEN; ++i) header[i] = (char)buffer[i];
-  header[HEADER_LEN] = '\0';
-  if (strcmp(header, HEADER_TEXT)!=0) {
-    fprintf(stderr, "Urrrr, it seems you've supplied WRONG! file!\n");
-    exit(-1);
+  /* Assume the input is an archive file */
+  if (!check_header(fp)) {
+    fclose(fp);
+    fp = find_data(input_fname);
+    if (!fp) {
+      fprintf(stderr, "RawDataReader: Couldn't find correct data file...\n");
+      exit(-1);
+    }
   }
 
   /* Performing extraction */
@@ -166,4 +164,60 @@ void PrintDataContainer(DataContainer dcont)
   printf("Data Size: %lu Bytes\n", dcont->raw_data_len);
   printf("Data Entries: %lu Entries\n", dcont->entries->len);
   printf("\n");
+}
+
+/* Check header */
+bool check_header(FILE *fp)
+{
+  assert(fp);
+  size_t bytesread;
+  short i;
+  char header[HEADER_LEN];
+  unsigned char buffer[MAX_BUFFER_SIZE];
+
+  bytesread = fread(buffer, sizeof(unsigned char), HEADER_LEN, fp);
+  // if (!bytesread) {
+  //   fprintf(stderr, "For some reason, we've got an empty file..\n");
+  //   exit(-1);
+  // }
+
+  for (i=0; i<HEADER_LEN; ++i) header[i] = (char)buffer[i];
+  header[HEADER_LEN-1] = '\0';
+  if (strcmp(header, HEADER_TEXT)!=0) {
+    //fprintf(stderr, "Urrrr, it seems you've supplied WRONG! file!\n");
+    return false;
+  }
+
+  return true;
+}
+
+/* Extract and find datafile */
+FILE *find_data(const char* fname)
+{
+  assert(fname);
+
+  FILE *ret_fp;
+  char* d_fname;
+
+  struct archive *a;
+  struct archive_entry *entry;
+  int rc;
+
+  a = archive_read_new();
+  archive_read_support_filter_all(a);
+  archive_read_support_format_all(a);
+
+  rc = archive_read_open_filename(a, fname, 10240);
+  if (r != ARCHIVE_OK) {
+    fprintf(stdout, "Invalid archive format!!\n");
+    exit(-1);
+  }
+
+  while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+    d_fname = archive_entry_pathname(entry);
+    if (check_header(d_fname)) break;
+  }
+
+  ret_fp = fopen(d_fname, "rb");
+  return ret_fp;
 }

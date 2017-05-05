@@ -6,18 +6,28 @@ CFLAGS=-ggdb3 -std=gnu11 -pthreads $(WARNS)
 
 SRCDIR=src
 
-VERNUM=0.0.1
-VERNUM_SHORT=0.0
+# Extrace version number
+MAIN_HEADER=./psDAC.h
+MAJOR_VER_IDENTIFIER := VERSION_MAJOR
+MINOR_VER_IDENTIFIER := VERSION_MINOR
+PATCH_VER_IDENTIFIER := VERSION_PATCH
+
+MAJOR := $(shell cat ./psDAC.h | grep "\#define $(MAJOR_VER_IDENTIFIER)" | cut -d" " -f 3)
+MINOR := $(shell cat ./psDAC.h | grep "\#define $(MINOR_VER_IDENTIFIER)" | cut -d" " -f 3)
+PATCH := $(shell cat ./psDAC.h | grep "\#define $(PATCH_VER_IDENTIFIER)" | cut -d" " -f 3)
+
+VERNUM=$(MAJOR).$(MINOR).$(PATCH)
+VERNUM_SHORT=$(MAJOR).$(MINOR)
 
 CURR_DIR := $(shell pwd)
 
-# CC_DETECT := `command -v clang`
-# ifeq ($(CC_DETECT), "")
-# 	CC=gcc
-# else
-# 	CC=clang
-# endif
-CC=gcc
+# Prefer clang...
+CC_DETECT := `command -v clang`
+ifeq ($(CC_DETECT), "")
+	CC=gcc
+else
+	CC=clang
+endif
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
