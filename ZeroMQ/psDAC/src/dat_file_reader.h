@@ -66,7 +66,7 @@ unsigned char* RawDataReader(
 /* Prints out some 1337 looking stats */
 void PrintDataContainer(DataContainer dcont);
 
-/* Check header */
+/* Check header - returns true if the datafile is found */
 bool check_header(FILE *fp);
 
 /* Extract and find datafile */
