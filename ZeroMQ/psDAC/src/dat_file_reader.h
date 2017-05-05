@@ -36,7 +36,7 @@
 
 ***************************************/
 
-#define MAX_BUFFER_SIZE 255
+#define MAX_BUFFER_SIZE 2048
 #define HEADER_TEXT "psDAC_Input"
 #define HEADER_LEN strlen(HEADER_TEXT)
 

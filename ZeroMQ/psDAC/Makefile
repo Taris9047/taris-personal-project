@@ -30,7 +30,7 @@ ifeq ($(UNAME), linux)
 	CFLAGS=-ggdb3 -fPIC $(WARNS)
 endif
 
-LIBS=-lm -L. -lpthread -lzmq -lczmq
+LIBS=-lm -L. -lpthread -lzmq
 AR=ar
 
 LIB_PROJ_NAME := psDAClib

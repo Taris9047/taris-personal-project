@@ -64,19 +64,20 @@ int run_psDAC(int port_number, char* data_file)
   uint64_t i=0;
   zmq_msg_t msg;
 
-  while (true) {
+  for (i=0; i<dtc->entries->len; ++i) {
     segment = (unsigned char*)LAt(dtc->entries, i);
     seg_len = *(size_t*)LAt(dtc->entry_len, i);
     fprintf(stdout, "Sending... [%lu/%lu]", i+1, dtc->entries->len);
-    memcpy(zmq_msg_data(&msg), segment, seg_len);
     rc = zmq_msg_init_size(&msg, seg_len);
+    memcpy(zmq_msg_data(&msg), segment, seg_len);
     assert(rc==0);
     rc = zmq_send(data_publisher, &msg, seg_len, 0);
     assert(rc==seg_len);
-    ++i;
+    fprintf(stdout, "\r");
     fflush(stdout);
   }
   fprintf(stdout, "\n");
+  fprintf(stdout, "psDAC: Jobs finished!!\n");
 
   /* Cleaning up */
   fprintf(stdout, "Closing server...\n");
