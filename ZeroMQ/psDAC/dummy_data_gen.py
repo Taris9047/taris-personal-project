@@ -17,7 +17,9 @@ import random
 import datetime as dt
 import tarfile
 
-rows = 8
+# MiniVIPIC: 32 x 32 per chip, 6 x 6 chips
+# VIPIC-L: 192 x 192 per chip, 6 x 6 chips
+rows = 32
 img_res_x = rows*6
 img_res_y = rows*6
 gs_bits = 24

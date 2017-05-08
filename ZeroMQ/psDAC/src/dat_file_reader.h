@@ -25,6 +25,11 @@
 #include "list.h"
 
 /**************************************
+  Some crappy stuff for LibArchive
+***************************************/
+#define ARCHIVE_OPEN_FILE_SIZE 1024
+
+/**************************************
   Data file format:
 
   An entry:
@@ -39,15 +44,17 @@
 
 ***************************************/
 
-#define MAX_BUFFER_SIZE 2048
+#define MAX_BUFFER_SIZE 1024
 #define HEADER_TEXT "psDAC_Input"
-#define HEADER_LEN strlen(HEADER_TEXT)+1
+static int HEADER_LEN = strlen(HEADER_TEXT)+1;
 
 /* Data file container struct */
 typedef struct _dat_cont {
   char* data_fname;
-  unsigned char* raw_data;
-  uint64_t raw_data_len;
+  unsigned char** raw_data;
+  uint64_t* raw_data_len;
+  char** data_f_names;
+  int n_data_files;
   List entries; /* List<unsigned char*> */
   List entry_len; /* List<size_t*> */
 } data_container;
@@ -59,17 +66,26 @@ int DeleteDataContainer(DataContainer dcont);
 
 /* Sets up entries and entry_len */
 int SetEntries(DataContainer dcont);
-unsigned char* RawDataReader(
+unsigned char** RawDataReader(
   const char* input_fname,
-  uint64_t* data_len);
+  uint64_t** data_len,
+  char*** d_fnames,
+  int* n_data_files);
 
 /* Prints out some 1337 looking stats */
 void PrintDataContainer(DataContainer dcont);
 
 /* Check header - returns true if the datafile is found */
 bool check_header(FILE *fp);
+bool check_header_mem(const unsigned char* data);
+
+/* Check file type */
+bool archive_file_check(const char* fname);
 
 /* Extract and find datafile */
-FILE *find_data(const char* fname);
+unsigned char** find_data(
+  const char* fname, char*** d_fnames,
+  uint64_t** data_len,
+  int* n_files);
 
 #endif /* Include guard */

@@ -10,17 +10,15 @@
 #include <archive_entry.h>
 
 #define SAMPLE_ARCHIVE_FILE "../data.tar.bz2"
-
 #define BUFF_SIZE 100
+#define OPEN_F_SIZE 1024
 
 int main (int argc, char* argv[])
 {
   struct archive *a;
   struct archive_entry *entry;
   int r;
-  char* c_fname;
   FILE* fp;
-  //unsigned char buff[8196];
   unsigned char* buff;
   size_t sz;
   la_ssize_t len = 0;
@@ -32,7 +30,7 @@ int main (int argc, char* argv[])
   a = archive_read_new();
   archive_read_support_filter_all(a);
   archive_read_support_format_all(a);
-  r = archive_read_open_filename(a, fname, 3*1024*1024);
+  r = archive_read_open_filename(a, fname, OPEN_F_SIZE);
 
   if (r != ARCHIVE_OK) {
     fprintf(stdout, "Wrong archive!!\n");
@@ -53,7 +51,6 @@ int main (int argc, char* argv[])
     if (r == ARCHIVE_EOF) break;
     if (r<ARCHIVE_OK) fprintf(stderr, "oops: %d\n", r);
   }
-
 
   r = archive_read_free(a);
 

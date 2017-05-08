@@ -66,7 +66,8 @@ int run_psDAC(int port_number, char* data_file)
   for (i=0; i<dtc->entries->len; ++i) {
     segment = (unsigned char*)LAt(dtc->entries, i);
     seg_len = *(size_t*)LAt(dtc->entry_len, i);
-    fprintf(stdout, "Sending... [%lu/%lu]", i+1, dtc->entries->len);
+    fprintf(stdout, "Sending... [%lu/%lu] (%.2f %%)",
+      i+1, dtc->entries->len, (float)(i+1)*100/dtc->entries->len);
     rc = zmq_msg_init_size(&msg, seg_len);
     memcpy(zmq_msg_data(&msg), segment, seg_len);
     if (rc) {
