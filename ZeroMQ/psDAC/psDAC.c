@@ -60,7 +60,7 @@ int run_psDAC(int port_number, char* data_file)
   /* Do run server here */
   unsigned char* volatile segment;
   volatile size_t seg_len;
-  uint64_t i=0;
+  uint64_t i;
   zmq_msg_t msg;
 
   for (i=0; i<dtc->entries->len; ++i) {
