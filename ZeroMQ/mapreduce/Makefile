@@ -31,14 +31,17 @@ ifeq ($(UNAME), linux)
 endif
 
 LIBS=-lm -L. -lpthread -lzmq -lczmq
+INCLUDES=-I./$(SRCDIR)
 AR=ar
 
-LIB_PROJ_NAME := mapreduce
+LIB_PROJ_NAME := mapreduce0MQ
 
-TESTF_NAME=mapreduce_test
+TARGET_NAME := mapreduce_0MQ_test
+MAIN_SOURCE := mapreduce.c
+MAIN_HEADER := mapreduce.h
 
-SOURCES=$(filter-out test.c, $(wildcard $(CURR_DIR)/$(SRCDIR)/*.c $(CURR_DIR)/$(SRCDIR)/*.C $(CURR_DIR)/$(SRCDIR)/*.m))
-HEADERS=$(filter-out test.h, $(wildcard $(CURR_DIR)/$(SRCDIR)/*.h))
+SOURCES=$(filter-out $(MAIN_SOURCE), $(wildcard $(CURR_DIR)/$(SRCDIR)/*.c $(CURR_DIR)/$(SRCDIR)/*.C $(CURR_DIR)/$(SRCDIR)/*.m))
+HEADERS=$(filter-out $(MAIN_HEADER), $(wildcard $(CURR_DIR)/$(SRCDIR)/*.h))
 OBJS=$(SOURCES:.c=.o)
 
 SYS := $(shell gcc -dumpmachine)
@@ -62,24 +65,24 @@ endif
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(TESTF_NAME) $(LIBNAME)
+all: $(TARGET_NAME) $(DLIBNAME)
 
 $(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(AR) rcs $(CURR_DIR)/$(LIBNAMEV) $(OBJS)
 	ln -sfv $(CURR_DIR)/$(LIBNAMEV) $(CURR_DIR)/$(LIBNAME)
 
 $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
-	$(CC) $(CFLAGS) -fPIC $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
+	$(CC) $(CFLAGS) $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 
-$(TESTF_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/test.c $(CURR_DIR)/test.h
-	$(CC) $(CFLAGS) $(CURR_DIR)/test.c $(LIBNAME) -o $(CURR_DIR)/$(TESTF_NAME) $(LIBS)
+$(TARGET_NAME): $(LIBNAME) $(CURR_DIR)/$(MAIN_SOURCE) $(CURR_DIR)/$(MAIN_HEADER)
+	$(CC) $(CFLAGS) -o $(CURR_DIR)/$(TARGET_NAME) $(CURR_DIR)/$(MAIN_SOURCE) $(LIBNAME)  $(LIBS) $(INCLUDES)
 
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o
 	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
 	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
-	rm -rfv ./$(TESTF_NAME)
+	rm -rfv ./$(TARGET_NAME)
 	rm -rfv ./__pycache__
 	rm -rfv *.img

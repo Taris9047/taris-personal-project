@@ -122,7 +122,7 @@ int main (int argc, char* argv[])
     return rc;
   }
   else {
-    fprintf(stdout, "psDAC terminated.\n");
+    fprintf(stdout, "psDAC finished.\n");
   }
 
   return 0;
