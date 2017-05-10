@@ -25,25 +25,63 @@
 #include "dat_file_reader.h"
 
 /*************************************
+  Option list constructor/destructor
+**************************************/
+psDAC_Options NewpsDAC_Options(int argc, char* argv[])
+{
+  psDAC_Options pdo = (psDAC_Options)tmalloc(sizeof(psDAC_options));
+
+  pdo->port_number = DEFAULT_PORT;
+  pdo->data_file = strdup(DEFAULT_DATAFILE);
+  pdo->verbose = false;
+  if (argc>=2) pdo->port_number = atoi(argv[1]);
+  if (argc>=3) {
+    free(pdo->data_file);
+    pdo->data_file = strdup(argv[2]);
+  }
+  if (argc>=4) {
+    if (strcmp(argv[3], "-q")==0) pdo->verbose = false;
+    else if (strcmp(argv[3], "-v")==0) pdo->verbose = true;
+  }
+
+  return pdo;
+}
+
+int DeletepsDAC_Options(psDAC_Options pdo)
+{
+  assert(pdo);
+  free(pdo->data_file);
+  free(pdo);
+  return 0;
+}
+
+
+/*************************************
   The server routine
 **************************************/
-int run_psDAC(int port_number, char* data_file)
+int run_psDAC(psDAC_Options pdo)
 {
-  if (!(port_number >= 10000 && port_number <= 65535)) {
+  if (!pdo) {
+    fprintf(stderr, "Invalid options!!\n");
+    return -1;
+  }
+
+  if (!(pdo->port_number >= 10000 && pdo->port_number <= 65535)) {
     fprintf(stderr, "Port number must be within 10000 - 65535 range\n");
     return -1;
   }
 
   char* server_addr;
   int server_addr_str_len;
+  bool verbose = pdo->verbose;
 
-  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", port_number);
+  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", pdo->port_number);
   server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
-  sprintf(server_addr, "tcp://*:%d", port_number);
+  sprintf(server_addr, "tcp://*:%d", pdo->port_number);
 
   fprintf(stdout, "Running Pseudo DAC server on %s\n", server_addr);
-  fprintf(stdout, "Preparing data from %s\n", data_file);
-  DataContainer dtc = NewDataContainer(data_file);
+  fprintf(stdout, "Preparing data from %s\n", pdo->data_file);
+  DataContainer dtc = NewDataContainer(pdo->data_file);
   fprintf(stdout, "Data has been prepared!!\n");
   PrintDataContainer(dtc);
 
@@ -62,15 +100,20 @@ int run_psDAC(int port_number, char* data_file)
   uint64_t i;
   zmq_msg_t msg;
 
+  unsigned char** seg_ary = (unsigned char**)LtoA(dtc->entries);
+  uint64_t** seg_len_ary = (uint64_t**)LtoA(dtc->entry_len);
+
   struct timespec start, end;
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   for (i=0; i<dtc->entries->len; ++i) {
-    segment = (unsigned char*)LAt(dtc->entries, i);
-    seg_len = *(size_t*)LAt(dtc->entry_len, i);
-    fprintf(
-      stdout, "Sending... [%lu/%lu] (%.2f %%)",
-      i+1, dtc->entries->len,
-      (float)(i+1)*100/dtc->entries->len);
+    segment = seg_ary[i];
+    seg_len = *seg_len_ary[i];
+    if (verbose) {
+      fprintf(
+        stdout, "Sending... [%lu/%lu] (%.2f %%)",
+        i+1, dtc->entries->len,
+        (float)(i+1)*100/dtc->entries->len);
+    }
     rc = zmq_msg_init_size(&msg, seg_len);
     memcpy(zmq_msg_data(&msg), segment, seg_len);
     if (rc) {
@@ -82,9 +125,16 @@ int run_psDAC(int port_number, char* data_file)
       fprintf(stderr, "psDAC: zmq_send failed!!\n");
       return -1;
     }
-    fprintf(stdout, "\r");
-    fflush(stdout);
+
+    if (verbose) {
+      fprintf(stdout, "\r");
+      fflush(stdout);
+    }
   }
+
+  free(seg_ary);
+  free(seg_len_ary);
+
   fprintf(stdout, "\n");
   fprintf(stdout, "psDAC: Jobs finished!!\n");
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
@@ -93,7 +143,7 @@ int run_psDAC(int port_number, char* data_file)
   uint64_t delta_us = \
     (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
   fprintf(stdout, "Execution time: %lu us\n", delta_us);
-  uint64_t transfer_rate = dtc->entries->len*8/(delta_us/1000000);
+  uint64_t transfer_rate = (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
   fprintf(stdout, "Transfer Rate: %lu bps\n", transfer_rate);
   fprintf(stdout, "\n");
 
@@ -115,10 +165,8 @@ int run_psDAC(int port_number, char* data_file)
 int main (int argc, char* argv[])
 {
   int rc;
-  int default_port = DEFAULT_PORT;
-  char* data_file = DEFAULT_DATAFILE;
-  if (argc>=2) default_port = atoi(argv[1]);
-  if (argc>=3) data_file = argv[2];
+
+  psDAC_Options options = NewpsDAC_Options(argc, argv);
 
   fprintf(stdout, "*****************************************************\n");
   fprintf(stdout, "***** Pseudo DAC Emulator for VIPIC data server *****\n");
@@ -127,7 +175,9 @@ int main (int argc, char* argv[])
   fprintf(stdout, "*****************************************************\n");
   fprintf(stdout, "\n");
 
-  rc = run_psDAC(default_port, data_file);
+  rc = run_psDAC(options);
+
+  DeletepsDAC_Options(options);
 
   if (rc) {
     fprintf(stderr, "Something went wrong with server!!\n");

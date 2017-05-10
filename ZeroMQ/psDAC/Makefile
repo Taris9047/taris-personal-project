@@ -89,12 +89,13 @@ $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 $(TARGET_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/psDAC.c $(CURR_DIR)/psDAC.h
 	$(CC) $(CFLAGS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TARGET_NAME) $(LIBS) $(INCLUDES)
 
-dist: $(SOURCES) $(HEADERS) dummy_data_gen.py
+dist: $(SOURCES) $(HEADERS) dummy_data_gen.py inst_libs.sh
 	make clean
 	mkdir -p $(CURR_DIR)/$(DIST_DIR)
 	cp -vf $(CURR_DIR)/psDAC.* $(CURR_DIR)/$(DIST_DIR)/
 	cp -vf $(CURR_DIR)/Makefile $(CURR_DIR)/$(DIST_DIR)/
 	cp -vf $(CURR_DIR)/dummy_data_gen.py $(CURR_DIR)/$(DIST_DIR)/
+	cp -vf $(CURR_DIR)/inst_libs.sh $(CURR_DIR)/$(DIST_DIR)/
 	mkdir -p $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)
 	cp -vf $(CURR_DIR)/$(SRCDIR)/* $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)/
 	tar cjvf $(CURR_DIR)/$(DIST_DIR).tar.bz2 ./$(DIST_DIR)
