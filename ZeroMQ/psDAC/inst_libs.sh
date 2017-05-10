@@ -52,7 +52,7 @@ git clone $LIBZMQ_URL $BLD_DIR/libzmq
 cd $BLD_DIR/libzmq
 ./autogen.sh
 ./configure --prefix=$PREFIX
-make -j 8
+make -j 8 CFLAGS=-O3
 if [ $NEED_SUDO == "1" ]; then
 	sudo make install
 else
@@ -67,7 +67,7 @@ git clone $CZMQ_URL $BLD_DIR/czmq
 cd $BLD_DIR/czmq
 ./autogen.sh
 ./configure --prefix=$PREFIX
-make -j 8
+make -j 8 CFLAGS=-O3
 if [ $NEED_SUDO == "1" ]; then
 	sudo make install
 else
@@ -83,7 +83,7 @@ FILENAME=$(basename "$LIBARCHIVE_URL")
 tar xvf $BLD_DIR/$FILENAME
 cd $BLD_DIR/"${FILENAME%.*.*}"
 ./configure --prefix=$PREFIX
-make -j 8
+make -j 8 CFLAGS=-O3
 make check
 if [ $NEED_SUDO == "1" ]; then
 	sudo make install

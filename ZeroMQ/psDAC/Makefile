@@ -2,7 +2,8 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-CFLAGS=-ggdb3 -std=gnu11 -pthreads $(WARNS)
+OPT=-ggdb3
+CFLAGS=$(OPT) -std=gnu11 -pthreads $(WARNS)
 
 SRCDIR=src
 
@@ -37,7 +38,7 @@ ifeq ($(UNAME), darwin)
 endif
 
 ifeq ($(UNAME), linux)
-	CFLAGS=-ggdb3 -fPIC $(WARNS)
+	CFLAGS=$(OPT) -fPIC $(WARNS)
 endif
 
 LIBS=-lm -L. -lpthread -lzmq -larchive
@@ -111,3 +112,4 @@ clean:
 	rm -rfv *.img
 	rm -rf ./$(DIST_DIR)
 	rm -rf $(CURR_DIR)/$(DIST_DIR).tar.bz2
+	rm -rf ./result.txt

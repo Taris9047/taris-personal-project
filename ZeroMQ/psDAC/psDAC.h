@@ -27,7 +27,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
-#define VERSION_PATCH 2
+#define VERSION_PATCH 4
 
 #define DEFAULT_PORT 13377
 #define DEFAULT_DATAFILE "./data.tar.bz2"
@@ -37,6 +37,8 @@ typedef struct _psDAC_options {
   bool verbose;
   int port_number;
   char* data_file;
+  uint64_t iteration;
+  char* outf_name;
 } psDAC_options;
 typedef psDAC_options* psDAC_Options;
 /* Option list constructor/destructor */
