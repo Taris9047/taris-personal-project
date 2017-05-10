@@ -47,6 +47,8 @@ LIB_PROJ_NAME := psDAClib
 
 TARGET_NAME=psDAC
 
+DIST_DIR := $(TARGET_NAME)-$(VERNUM)
+
 SOURCES=$(filter-out test.c, $(wildcard $(CURR_DIR)/$(SRCDIR)/*.c $(CURR_DIR)/$(SRCDIR)/*.C $(CURR_DIR)/$(SRCDIR)/*.m))
 HEADERS=$(filter-out test.h, $(wildcard $(CURR_DIR)/$(SRCDIR)/*.h))
 OBJS=$(SOURCES:.c=.o)
@@ -87,6 +89,17 @@ $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 $(TARGET_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/psDAC.c $(CURR_DIR)/psDAC.h
 	$(CC) $(CFLAGS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TARGET_NAME) $(LIBS) $(INCLUDES)
 
+dist: $(SOURCES) $(HEADERS) dummy_data_gen.py
+	make clean
+	mkdir -p $(CURR_DIR)/$(DIST_DIR)
+	cp -vf $(CURR_DIR)/psDAC.* $(CURR_DIR)/$(DIST_DIR)/
+	cp -vf $(CURR_DIR)/Makefile $(CURR_DIR)/$(DIST_DIR)/
+	cp -vf $(CURR_DIR)/dummy_data_gen.py $(CURR_DIR)/$(DIST_DIR)/
+	mkdir -p $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)
+	cp -vf $(CURR_DIR)/$(SRCDIR)/* $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)/
+	tar cjvf $(CURR_DIR)/$(DIST_DIR).tar.bz2 ./$(DIST_DIR)
+	rm -rf $(CURR_DIR)/$(DIST_DIR)
+
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o
 	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
@@ -95,3 +108,5 @@ clean:
 	rm -rfv ./$(TARGET_NAME)
 	rm -rfv ./__pycache__
 	rm -rfv *.img
+	rm -rf ./$(DIST_DIR)
+	rm -rf $(CURR_DIR)/$(DIST_DIR).tar.bz2
