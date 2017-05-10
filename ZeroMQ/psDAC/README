@@ -1,4 +1,23 @@
-psDAC: A pseudo DAC emulator for mapreduction algorithm..
+1. dummy_data_gen.py: Generates some dummy data of 32x32 pixel of 6x6 tiled detector.
 
-What does this thing do? Spits tons of image data, binary format, very fast!
+Usage:
+python3 ./dummy_data_gen.py (optional: #of images to generate, default: 10 images)
 
+Output:
+tar.bz2 compressed file of dummy image data: data.tar.bz2.
+
+2. psDAC: Pseudo DAC... Image data spitter with 0MQ interface. Uses 13377 as default.
+
+Usage:
+psDAC (port number, 10000 - 65535, default is 13377) (data file name: default is ./data.tar.bz2)
+
+3. Data file format
+  An entry:
+    1. Length of timestamp (1 byte)
+    2. timestamp string (N bytes ^)
+    3. Length of label (1 byte)
+    4. label string (N bytes ^) -> not null terminated
+    5. row (1 byte)
+    6. col (1 byte)
+    7. Greyscale (3 bytes)
+    8. Separator \n (1 byte)

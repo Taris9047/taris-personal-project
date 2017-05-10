@@ -6,7 +6,7 @@
 
   Written by:
   Taylor Shin
-  May. 4th 2017
+  May. 4th 2017 (STAR WARS DAY!!!)
 
 **************************************/
 #ifndef PSDAC_DATA_FILE_READER_H
@@ -36,7 +36,7 @@
     1. Length of timestamp (1 byte)
     2. timestamp string (N bytes ^)
     3. Length of label (1 byte)
-    4. label string (N bytes ^) -> may not null terminated
+    4. label string (N bytes ^) -> not null terminated
     5. row (1 byte)
     6. col (1 byte)
     7. Greyscale (3 bytes)

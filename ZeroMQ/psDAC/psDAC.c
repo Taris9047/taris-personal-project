@@ -37,8 +37,7 @@ int run_psDAC(int port_number, char* data_file)
   char* server_addr;
   int server_addr_str_len;
 
-  server_addr_str_len = \
-    snprintf(NULL, 0, "tcp://*:%d", port_number);
+  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", port_number);
   server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
   sprintf(server_addr, "tcp://*:%d", port_number);
 
@@ -63,11 +62,15 @@ int run_psDAC(int port_number, char* data_file)
   uint64_t i;
   zmq_msg_t msg;
 
+  struct timespec start, end;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   for (i=0; i<dtc->entries->len; ++i) {
     segment = (unsigned char*)LAt(dtc->entries, i);
     seg_len = *(size_t*)LAt(dtc->entry_len, i);
-    fprintf(stdout, "Sending... [%lu/%lu] (%.2f %%)",
-      i+1, dtc->entries->len, (float)(i+1)*100/dtc->entries->len);
+    fprintf(
+      stdout, "Sending... [%lu/%lu] (%.2f %%)",
+      i+1, dtc->entries->len,
+      (float)(i+1)*100/dtc->entries->len);
     rc = zmq_msg_init_size(&msg, seg_len);
     memcpy(zmq_msg_data(&msg), segment, seg_len);
     if (rc) {
@@ -84,6 +87,15 @@ int run_psDAC(int port_number, char* data_file)
   }
   fprintf(stdout, "\n");
   fprintf(stdout, "psDAC: Jobs finished!!\n");
+  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+
+  fprintf(stdout, "\n");
+  uint64_t delta_us = \
+    (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
+  fprintf(stdout, "Execution time: %lu us\n", delta_us);
+  uint64_t transfer_rate = dtc->entries->len*8/(delta_us/1000000);
+  fprintf(stdout, "Transfer Rate: %lu bps\n", transfer_rate);
+  fprintf(stdout, "\n");
 
   /* Cleaning up */
   fprintf(stdout, "Closing server...\n");
@@ -121,9 +133,7 @@ int main (int argc, char* argv[])
     fprintf(stderr, "Something went wrong with server!!\n");
     return rc;
   }
-  else {
-    fprintf(stdout, "psDAC finished.\n");
-  }
+  else fprintf(stdout, "psDAC finished.\n");
 
   return 0;
 }
