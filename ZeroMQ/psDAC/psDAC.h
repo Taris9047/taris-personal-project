@@ -27,7 +27,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
-#define VERSION_PATCH 4
+#define VERSION_PATCH 5
 
 #define DEFAULT_PORT 13377
 #define DEFAULT_DATAFILE "./data.tar.bz2"

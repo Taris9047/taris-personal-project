@@ -44,7 +44,7 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
     else if (strcmp(argv[3], "-v")==0) pdo->verbose = true;
   }
 
-  pdo->iteration = 50000;
+  pdo->iteration = 1000;
   pdo->outf_name = strdup("result.txt");
 
   return pdo;
@@ -132,9 +132,15 @@ int run_psDAC(psDAC_Options pdo)
         fprintf(stderr, "psDAC: zmq_msg_init_size failed!!\n");
         return rc;
       }
-      rc = zmq_send(data_publisher, &msg, seg_len, 0);
+      rc = zmq_send(data_publisher, &msg, seg_len, ZMQ_NOBLOCK);
       if (rc!=seg_len) {
         fprintf(stderr, "psDAC: zmq_send failed!!\n");
+        return -1;
+      }
+
+      rc = zmq_msg_close(&msg);
+      if (rc==-1) {
+        fprintf(stderr, "psDAC: msg release failed!!\n");
         return -1;
       }
 
@@ -149,9 +155,11 @@ int run_psDAC(psDAC_Options pdo)
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
     fprintf(stdout, "\n");
-    uint64_t delta_us = (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
+    uint64_t delta_us = \
+      (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
     fprintf(stdout, "Execution time: %lu us\n", delta_us);
-    uint64_t transfer_rate = (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
+    uint64_t transfer_rate = \
+      (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %lu bps\n", transfer_rate);
     fprintf(stdout, "\n");
 
