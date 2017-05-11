@@ -19,8 +19,10 @@
 
 **************************************/
 
+#define _GNU_SOURCE
 #include <assert.h>
 #include <getopt.h>
+#include <stdio.h>
 
 #include "psDAC.h"
 #include "dat_file_reader.h"
@@ -39,6 +41,27 @@ int print_help()
   printf("-h\tPrints this message.\n");
   printf("\n");
   return 0;
+}
+
+char* status_report(psDAC_Options pdo)
+{
+  assert(pdo);
+  char* str;
+  asprintf(&str,
+    "===================================\n"
+    "psDAC Info.\n"
+    "Port #:\t\t%d\n"
+    "Data File:\t%s\n"
+    "Iteration:\t%lu\n"
+    "Outfile Name:\t%s\n"
+    "====================================\n",
+    pdo->port_number,
+    pdo->data_file,
+    pdo->iteration,
+    pdo->outf_name
+  );
+
+  return str;
 }
 
 /*************************************
@@ -114,6 +137,9 @@ int run_psDAC(psDAC_Options pdo)
   char* server_addr;
   int server_addr_str_len;
   bool verbose = pdo->verbose;
+  char* status_str = status_report(pdo);
+
+  fprintf(stdout, "%s\n", status_str);
 
   server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", pdo->port_number);
   server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
@@ -146,6 +172,7 @@ int run_psDAC(psDAC_Options pdo)
   FILE *outf_fp;
   /* prepare output file header */
   outf_fp = fopen(pdo->outf_name, "w");
+  fprintf(outf_fp, "%s\n", status_str);
   fprintf(outf_fp, "Iteration,DataLength(bytes),Exec.Time(us),TransferRate(bps)\n");
   fclose(outf_fp);
 
@@ -202,7 +229,6 @@ int run_psDAC(psDAC_Options pdo)
     outf_fp = fopen(pdo->outf_name, "a");
     fprintf(outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
     fclose(outf_fp);
-
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
 
   tfree(seg_ary);
@@ -212,7 +238,8 @@ int run_psDAC(psDAC_Options pdo)
   fprintf(stdout, "Closing server...\n");
   zmq_close(data_publisher);
   zmq_ctx_destroy(context);
-  free(server_addr);
+  tfree(server_addr);
+  tfree(status_str);
 
   fprintf(stdout, "Cleaning up data...\n");
   DeleteDataContainer(dtc);

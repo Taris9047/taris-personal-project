@@ -27,7 +27,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 2
-#define VERSION_PATCH 0
+#define VERSION_PATCH 1
 
 #define DEFAULT_PORT 13377
 #define DEFAULT_ITERATION 100
@@ -52,5 +52,8 @@ int run_psDAC(psDAC_Options pdo);
 
 /* Prints out help message */
 int print_help();
+
+/* sprint status */
+char* status_report(psDAC_Options pdo);
 
 #endif /* Include guard */
