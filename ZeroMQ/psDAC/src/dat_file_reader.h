@@ -46,7 +46,7 @@
 
 #define MAX_BUFFER_SIZE 1024
 #define HEADER_TEXT "psDAC_Input"
-static int HEADER_LEN = strlen(HEADER_TEXT)+1;
+#define HEADER_LEN strlen(HEADER_TEXT)+1
 
 /* Data file container struct */
 typedef struct _dat_cont {

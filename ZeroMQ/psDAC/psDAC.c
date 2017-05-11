@@ -53,11 +53,13 @@ char* status_report(psDAC_Options pdo)
     "Port #:\t\t%d\n"
     "Data File:\t%s\n"
     "Iteration:\t%lu\n"
+    "Threads:\t%lu\n"
     "Outfile Name:\t%s\n"
-    "====================================\n",
+    "===================================\n",
     pdo->port_number,
     pdo->data_file,
     pdo->iteration,
+    pdo->n_threads,
     pdo->outf_name
   );
 
@@ -76,19 +78,20 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
   pdo->verbose = false;
   pdo->iteration = DEFAULT_ITERATION;
   pdo->outf_name = strdup(DEFAULT_OUTPUT_FILE);
+  pdo->n_threads = DEFAULT_THREADS;
 
   int opt;
-  while ( (opt = getopt(argc, argv, "p:f:i:o:vh")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "p:f:i:o:t:vh")) != -1 ) {
     switch (opt) {
     case 'p':
-      pdo->port_number = atoi(optarg);
+      pdo->port_number = (int)atoi(optarg);
       break;
     case 'f':
       tfree(pdo->data_file);
       pdo->data_file = strdup(optarg);
       break;
     case 'i':
-      pdo->iteration = atoi(optarg);
+      pdo->iteration = (uint64_t)atoi(optarg);
       break;
     case 'o':
       tfree(pdo->outf_name);
@@ -96,6 +99,9 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
       break;
     case 'v':
       pdo->verbose = true;
+      break;
+    case 't':
+      pdo->n_threads = (uint64_t)atoi(optarg);
       break;
     case 'h':
       print_help();
@@ -211,28 +217,92 @@ int run_psDAC(psDAC_Options pdo)
         fprintf(stdout, "\r");
         fflush(stdout);
       }
-    } /* for (i=0; i<dtc->entries->len; ++i) */
+      clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
-    fprintf(stdout, "\n");
-    fprintf(stdout, "psDAC: Jobs finished!!\n");
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+      fprintf(stdout, "[%lu/%lu] Iteration finished!!\n", iter+1, pdo->iteration);
+      fprintf(stdout, "\n");
 
-    fprintf(stdout, "\n");
-    uint64_t delta_us = \
-      (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
-    fprintf(stdout, "Execution time: %lu us\n", delta_us);
-    uint64_t transfer_rate = \
-      (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
-    fprintf(stdout, "Transfer Rate: %lu bps\n", transfer_rate);
-    fprintf(stdout, "\n");
+      uint64_t delta_us = \
+        (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
+      fprintf(stdout, "Execution time: %lu us\n", delta_us);
+      uint64_t transfer_rate = \
+        (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
+      fprintf(stdout, "Transfer Rate: %lu bps\n", transfer_rate);
 
-    outf_fp = fopen(pdo->outf_name, "a");
-    fprintf(outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
-    fclose(outf_fp);
+      outf_fp = fopen(pdo->outf_name, "a");
+      fprintf(outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
+      fclose(outf_fp);
+    } /* if (pdo->n_threads <= 1) */
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
 
   tfree(seg_ary);
   tfree(seg_len_ary);
+
+  /* Cleaning up */
+  fprintf(stdout, "Closing server...\n");
+  zmq_close(data_publisher);
+  zmq_ctx_destroy(context);
+  tfree(server_addr);
+  tfree(status_str);
+
+  fprintf(stdout, "Cleaning up data...\n");
+  DeleteDataContainer(dtc);
+
+  return 0;
+}
+
+
+/*************************************
+  The server routine - multithreaded
+**************************************/
+/* Worker argument */
+
+/* Worker argument methods */
+
+/* The Worker */
+
+/* Server caller */
+int run_psDAC_mt(psDAC_Options pdo)
+{
+  assert(pdo);
+
+  if (!pdo) {
+    fprintf(stderr, "Invalid options!!\n");
+    return -1;
+  }
+
+  if (!(pdo->port_number >= 10000 && pdo->port_number <= 65535)) {
+    fprintf(stderr, "Port number must be within 10000 - 65535 range\n");
+    return -1;
+  }
+
+  char* server_addr;
+  int server_addr_str_len;
+  bool verbose = pdo->verbose;
+  char* status_str = status_report(pdo);
+
+  fprintf(stdout, "%s\n", status_str);
+
+  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", pdo->port_number);
+  server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
+  sprintf(server_addr, "tcp://*:%d", pdo->port_number);
+
+  fprintf(stdout, "Running Pseudo DAC server on %s\n", server_addr);
+  fprintf(stdout, "Preparing data from %s\n", pdo->data_file);
+  DataContainer dtc = NewDataContainer(pdo->data_file);
+  fprintf(stdout, "Data has been prepared!!\n");
+  PrintDataContainer(dtc);
+
+  /* Now the server stuff */
+  void *context = zmq_ctx_new();
+  void *data_publisher = zmq_socket(context, ZMQ_PUB);
+  int rc = zmq_bind(data_publisher, server_addr);
+  if (rc!=0) {
+    fprintf(stderr, "zmq_bind failed with code [%d]...\n", rc);
+    return rc;
+  }
+
+  /* TODO: Implement multithreaded server */
 
   /* Cleaning up */
   fprintf(stdout, "Closing server...\n");
@@ -263,15 +333,16 @@ int main (int argc, char* argv[])
   fprintf(stdout, "*****************************************************\n");
   fprintf(stdout, "\n");
 
-  rc = run_psDAC(options);
-
-  DeletepsDAC_Options(options);
+  if (options->n_threads <= 1) rc = run_psDAC(options);
+  else rc = run_psDAC_mt(options);
 
   if (rc) {
-    fprintf(stderr, "Something went wrong with server!!\n");
+    fprintf(stderr, "Something went wrong with the server operation!!\n");
     return rc;
   }
   else fprintf(stdout, "psDAC finished.\n");
+
+  DeletepsDAC_Options(options);
 
   return 0;
 }

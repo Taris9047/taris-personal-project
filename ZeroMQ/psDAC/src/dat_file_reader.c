@@ -270,7 +270,7 @@ unsigned char** find_data(
   unsigned char* tmp_file_contents;
   char* tmp_d_fname = NULL;
   *n_files = 0;
-  size_t tmp_d_fsz, data_read;
+  size_t tmp_d_fsz;
 
   struct archive* a;
   struct archive_entry* entry;
@@ -281,11 +281,10 @@ unsigned char** find_data(
   archive_read_support_format_all(a);
 
   rc = archive_read_open_filename(a, fname, ARCHIVE_OPEN_FILE_SIZE);
-  // Commented this part out since we've dont that in archive_file_check() already
-  // if (r != ARCHIVE_OK) {
-  //   fprintf(stdout, "Invalid archive format!!\n");
-  //   exit(-1);
-  // }
+  if (rc != ARCHIVE_OK) {
+    fprintf(stdout, "Invalid archive format!!\n");
+    exit(-1);
+  }
 
   while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
     tmp_d_fname = (char*)archive_entry_pathname(entry);
@@ -295,7 +294,7 @@ unsigned char** find_data(
     tmp_d_fsz = (size_t)archive_entry_size(entry);
     tmp_file_contents = \
       (unsigned char*)tmalloc(sizeof(unsigned char)*tmp_d_fsz);
-    data_read = archive_read_data(a, tmp_file_contents, tmp_d_fsz);
+    archive_read_data(a, tmp_file_contents, tmp_d_fsz);
 
     if (!check_header_mem(tmp_file_contents)) continue;
 

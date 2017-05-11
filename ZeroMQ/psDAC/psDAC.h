@@ -18,21 +18,22 @@
 #include <stdio.h>
 
 #include <zmq.h>
-#include <time.h>
 #include <sys/time.h>
 
 //#define _DEBUG
 
 #include "utils.h"
+#include "pth_handle.h"
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 2
-#define VERSION_PATCH 1
+#define VERSION_MINOR 3
+#define VERSION_PATCH 0
 
 #define DEFAULT_PORT 13377
 #define DEFAULT_ITERATION 100
 #define DEFAULT_DATAFILE "./data.tar.bz2"
 #define DEFAULT_OUTPUT_FILE "./result.txt"
+#define DEFAULT_THREADS 1
 
 /* Option list */
 typedef struct _psDAC_options {
@@ -41,6 +42,7 @@ typedef struct _psDAC_options {
   char* data_file;
   uint64_t iteration;
   char* outf_name;
+  uint64_t n_threads;
 } psDAC_options;
 typedef psDAC_options* psDAC_Options;
 /* Option list constructor/destructor */
@@ -49,6 +51,7 @@ int DeletepsDAC_Options(psDAC_Options pdo);
 
 /* Main server runner */
 int run_psDAC(psDAC_Options pdo);
+int run_psDAC_mt(psDAC_Options pdo);
 
 /* Prints out help message */
 int print_help();

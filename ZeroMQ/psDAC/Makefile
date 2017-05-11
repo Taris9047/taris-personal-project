@@ -2,8 +2,8 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-OPT=-ggdb3
-CFLAGS=$(OPT) -std=gnu11 -pthreads $(WARNS)
+CFLAGS=-ggdb3
+OPTS=$(CFLAGS) -std=gnu11 -pthread $(WARNS)
 
 SRCDIR=src
 
@@ -23,22 +23,24 @@ VERNUM_SHORT=$(MAJOR).$(MINOR)
 CURR_DIR := $(shell pwd)
 
 # Prefer clang...
-CC_DETECT := `command -v clang`
-ifeq ($(CC_DETECT), "")
-	CC=gcc
-else
-	CC=clang
-endif
+# CC_DETECT := `command -v clang`
+# ifeq ($(CC_DETECT), "")
+# 	CC=gcc
+# else
+# 	CC=clang
+# endif
+# not anymore
+CC=gcc
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
 ifeq ($(UNAME), darwin)
 	CC=gcc
-	CFLAGS=-ggdb3 $(WARNS)
+	COPTS=$(CFLAGS) -pthread $(WARNS)
 endif
 
 ifeq ($(UNAME), linux)
-	CFLAGS=$(OPT) -fPIC $(WARNS)
+	COPTS=-fPIC $(OPTS)
 endif
 
 LIBS=-lm -L. -lpthread -lzmq -larchive
@@ -75,7 +77,7 @@ else ifneq (, $(findstring darwin, $(SYS)))
 endif
 
 .c.o: $(SOURCES) $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(COPTS) -c $< -o $@
 
 all: $(TARGET_NAME) $(LIBNAME)
 
@@ -84,11 +86,11 @@ $(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	ln -sfv $(CURR_DIR)/$(LIBNAMEV) $(CURR_DIR)/$(LIBNAME)
 
 $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
-	$(CC) $(CFLAGS) -fPIC $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
+	$(CC) $(COPTS) -fPIC $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 
 $(TARGET_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/psDAC.c $(CURR_DIR)/psDAC.h
-	$(CC) $(CFLAGS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TARGET_NAME) $(LIBS) $(INCLUDES)
+	$(CC) $(COPTS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TARGET_NAME) $(LIBS) $(INCLUDES)
 
 dist: $(SOURCES) $(HEADERS) dummy_data_gen.py inst_libs.sh
 	make clean

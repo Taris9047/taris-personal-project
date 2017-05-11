@@ -58,7 +58,7 @@ int list_node_copy(LNode* l, const LNode o);
 typedef struct _list_root {
   LNode root_node; /* The first list node */
 	LNode cursor; /* Some pointer for faster access */
-	uint64_t cursor_loc; /* Cursor location */
+	uint64_t cursor_loc; /* Cursor, points the last node */
   uint64_t len; /* length of list */
 } list_root;
 typedef list_root* List;
@@ -70,6 +70,7 @@ int DeleteListHard(List l, int (*destroyer)() );
 
 /* Push, Pop, Search with root node */
 int LPush(List l, list_data_t value);
+int LPushBack(List l, list_data_t value);
 list_data_t LPop(List l);
 LNode LSearch(List l, list_data_t value);
 list_data_t LAt(const List l, uint64_t ind);

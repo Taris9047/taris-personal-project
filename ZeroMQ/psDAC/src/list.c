@@ -310,8 +310,27 @@ int LPush(List l, list_data_t value)
 {
   assert(l);
   (l->len)++;
-  if (!l->root_node) l->root_node = list_node_init();
+  if (!l->root_node) {
+    l->root_node = list_node_init();
+    l->cursor = l->root_node;
+  }
   return list_node_push(&l->root_node, value);
+}
+
+/* push back */
+int LPushBack(List l, list_data_t value)
+{
+  assert(l);
+  (l->len)++;
+  if (!l->root_node) return LPush(l, value);
+
+  LNode new_node = list_node_init();
+  new_node->value = value;
+  l->cursor->next = new_node;
+  new_node->prev = l->cursor;
+  l->cursor = new_node;
+
+  return 0;
 }
 
 /* pop */
@@ -323,6 +342,7 @@ list_data_t LPop(List l)
   else {
     ret_val = list_node_pop(&l->root_node);
     l->len--;
+    if (l->len == 0) l->cursor = NULL;
     return ret_val;
   }
 }
@@ -342,13 +362,20 @@ list_data_t LAt(const List l, uint64_t ind)
   assert(l->root_node);
   assert(ind < l->len);
 
-  LNode tmp = l->root_node;
-
-  if (ind == 0) return tmp->value;
-
+  LNode tmp;
   uint64_t i;
-  for (i=0; i<ind; ++i) tmp = tmp->next;
-  return tmp->value;
+
+  if (ind <= l->len) {
+    tmp = l->root_node;
+    if (ind == 0) return tmp->value;
+    for (i=0; i<ind; ++i) tmp = tmp->next;
+    return tmp->value;
+  }
+  else {
+    tmp = l->cursor;
+    for (i=l->len-1; i!=ind; --i) tmp = tmp->prev;
+    return tmp->value;
+  }
 }
 
 /* Get index */
@@ -377,12 +404,14 @@ int LAttach(List l, const List o)
   if (!l_end) {
     l->root_node = o_start;
     l->len = o->len;
+    l->cursor = o->cursor;
     return 0;
   }
   if (list_node_isempty(l_end)) {
     list_node_destroy(l->root_node);
     l->root_node = o_start;
     l->len = o->len;
+    l->cursor = o->cursor;
     return 0;
   }
   else if (list_node_isempty(o_start)) {
@@ -394,6 +423,7 @@ int LAttach(List l, const List o)
     l_end->next = o_start;
     o_start->prev = l_end;
     l->len += o->len;
+    l->cursor = o->cursor;
     return 0;
   }
   /* Shall not reach here */
@@ -413,6 +443,8 @@ int LRemove(List l, uint64_t ind)
 
   prev_tmp = tmp->prev;
   next_tmp = tmp->next;
+
+  if (!next_tmp) l->cursor = prev_tmp;
 
   prev_tmp->next = next_tmp;
   next_tmp->prev = prev_tmp;
@@ -440,6 +472,8 @@ int LRemoveHard(List l, uint64_t ind, int (*destroyer) () )
   prev_tmp = tmp->prev;
   next_tmp = tmp->next;
 
+  if (!next_tmp) l->cursor = prev_tmp;
+
   prev_tmp->next = next_tmp;
   next_tmp->prev = prev_tmp;
 
@@ -462,6 +496,7 @@ int LReverse(List l)
   LNode tmp_r;
   LNode t;
 
+  l->cursor = l->root_node;
   while (tmp->next) {
     tmp_r = tmp->next;
     t = tmp->next;
@@ -506,6 +541,9 @@ int LCpy(List l, const List o)
   list_node_copy(&l->root_node, o->root_node);
   l->len = o->len;
 
+  l->cursor = l->root_node;
+  while(l->cursor->next) l->cursor = l->cursor->next;
+
   return 0;
 }
 
@@ -518,8 +556,10 @@ List AtoL(list_data_t some_array[], const uint64_t arr_len)
   assert(some_array);
   List al = NewList();
   uint64_t i;
-  for (i=arr_len; i!=0; --i)
+  for (i=arr_len; i!=0; --i) {
     LPush(al, some_array[i-1]);
+    if (i==arr_len) al->cursor = al->root_node;
+  }
   return al;
 }
 
