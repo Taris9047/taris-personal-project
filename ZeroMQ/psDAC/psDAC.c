@@ -20,9 +20,26 @@
 **************************************/
 
 #include <assert.h>
+#include <getopt.h>
 
 #include "psDAC.h"
 #include "dat_file_reader.h"
+
+/*************************************
+  Help info...
+**************************************/
+int print_help()
+{
+  printf("psDAC [options]\n");
+  printf("-p\tDefines port number. Default is %d. Accepts 10000 to 65535\n", DEFAULT_PORT);
+  printf("-f\tInput Datafile. Default is %s. Accepts almost any archive format thanks to libarchive.\n", DEFAULT_DATAFILE);
+  printf("-i\tNumber of iterations. Default is %d.\n", DEFAULT_ITERATION);
+  printf("-o\tOutput file. Default is %s.\n", DEFAULT_OUTPUT_FILE);
+  printf("-v\tVerbose the work. Slows down the job a lot. No verbose in default operation.\n");
+  printf("-h\tPrints this message.\n");
+  printf("\n");
+  return 0;
+}
 
 /*************************************
   Option list constructor/destructor
@@ -34,18 +51,37 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
   pdo->port_number = DEFAULT_PORT;
   pdo->data_file = strdup(DEFAULT_DATAFILE);
   pdo->verbose = false;
-  if (argc>=2) pdo->port_number = atoi(argv[1]);
-  if (argc>=3) {
-    free(pdo->data_file);
-    pdo->data_file = strdup(argv[2]);
-  }
-  if (argc>=4) {
-    if (strcmp(argv[3], "-q")==0) pdo->verbose = false;
-    else if (strcmp(argv[3], "-v")==0) pdo->verbose = true;
-  }
+  pdo->iteration = DEFAULT_ITERATION;
+  pdo->outf_name = strdup(DEFAULT_OUTPUT_FILE);
 
-  pdo->iteration = 1000;
-  pdo->outf_name = strdup("result.txt");
+  int opt;
+  while ( (opt = getopt(argc, argv, "p:f:i:o:vh")) != -1 ) {
+    switch (opt) {
+    case 'p':
+      pdo->port_number = atoi(optarg);
+      break;
+    case 'f':
+      tfree(pdo->data_file);
+      pdo->data_file = strdup(optarg);
+      break;
+    case 'i':
+      pdo->iteration = atoi(optarg);
+      break;
+    case 'o':
+      tfree(pdo->outf_name);
+      pdo->outf_name = strdup(optarg);
+      break;
+    case 'v':
+      pdo->verbose = true;
+      break;
+    case 'h':
+      print_help();
+      exit(EXIT_FAILURE);
+    default:
+      print_help();
+      exit(EXIT_FAILURE);
+    }
+  }
 
   return pdo;
 }
@@ -53,9 +89,9 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
 int DeletepsDAC_Options(psDAC_Options pdo)
 {
   assert(pdo);
-  free(pdo->data_file);
-  free(pdo->outf_name);
-  free(pdo);
+  tfree(pdo->data_file);
+  tfree(pdo->outf_name);
+  tfree(pdo);
   return 0;
 }
 
@@ -169,8 +205,8 @@ int run_psDAC(psDAC_Options pdo)
 
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
 
-  free(seg_ary);
-  free(seg_len_ary);
+  tfree(seg_ary);
+  tfree(seg_len_ary);
 
   /* Cleaning up */
   fprintf(stdout, "Closing server...\n");

@@ -111,5 +111,6 @@ clean:
 	rm -rfv ./__pycache__
 	rm -rfv *.img
 	rm -rf ./$(DIST_DIR)
-	rm -rf $(CURR_DIR)/$(DIST_DIR).tar.bz2
+	rm -rf ./$(DIST_DIR).tar.bz2
 	rm -rf ./result.txt
+	rm -rf ./*.jpg
