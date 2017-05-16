@@ -29,7 +29,11 @@
 #define VERSION_MINOR 3
 #define VERSION_PATCH 0
 
+#define FILE_HEADER "Iteration,DataLength(bytes),Exec.Time(us),TransferRate(bps)\n"
+#define INPROC_ADDRESS "N/A"
 #define DEFAULT_PORT 13377
+#define MIN_PORT 10000
+#define MAX_PORT 65535
 #define DEFAULT_ITERATION 100
 #define DEFAULT_DATAFILE "./data.tar.bz2"
 #define DEFAULT_OUTPUT_FILE "./result.txt"

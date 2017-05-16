@@ -13,9 +13,16 @@
 #ifndef PSEUDO_DAC_LIB_UTILS_H
 #define PSEUDO_DAC_LIB_UTILS_H
 
+#include <assert.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
+#include <time.h>
+#if (!defined (WIN32))
+#   include <sys/time.h>
+#endif
 
 static inline void* safe_malloc(
   size_t sz, const char *file, unsigned line)
@@ -73,6 +80,28 @@ static inline void t_free(void** ptr)
 #   define trealloc(ptr, sz) realloc((ptr), (sz))
 #   define tfree(ptr) t_free((void**)(&ptr))
 #endif /* #if defined(_PSEUDO_DAC_DEBUG) */
+
+/* Clock */
+// static uint64_t t_clock()
+// {
+// #if (defined (WIN32))
+//   SYSTEMTIME st;
+//   GetSystemTime(&st);
+//   return (uint64_t)(st.wSecond*1000+st.wMilliseconds);
+// #else
+//   struct timeval tv;
+//   gettimeofday(&tv, NULL);
+//   return (uint64_t)(tv.tv_sec*1000+tv.tv_usec/1000);
+// #endif
+// }
+
+/* RNG */
+#if (defined (WIN32))
+# define srandom srand
+# define random rand
+#endif
+
+#define randof(num) (int)((float)(num)*random()/(RAND_MAX+1.0))
 
 
 #endif /* Include guard */

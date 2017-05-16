@@ -17,9 +17,9 @@ fi
 
 # Check prefix directory permission
 if [ -w $PREFIX ]; then
-	NEED_SUDO=0
+	NEED_SUDO="0"
 else
-	NEED_SUDO=1
+	NEED_SUDO="1"
 fi
 
 # URLs

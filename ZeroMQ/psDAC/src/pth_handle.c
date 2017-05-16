@@ -110,16 +110,18 @@ Threads NewThreads(
   assert(thr->threads);
 
   /* Thread attributes */
-  thr->thread_attrs = \
-    (pthread_attr_t*)tmalloc(sizeof(pthread_attr_t)*thr->n_threads);
-  assert(thr->thread_attrs);
-  thr->joinable = b_joinable;
-  for (i=0; i<thr->n_threads; ++i) {
-    pthread_attr_init(&thr->thread_attrs[i]);
-    if (thr->joinable)
+  if (thr->joinable) {
+    thr->thread_attrs = \
+      (pthread_attr_t*)tmalloc(sizeof(pthread_attr_t)*thr->n_threads);
+    assert(thr->thread_attrs);
+    thr->joinable = b_joinable;
+    for (i=0; i<thr->n_threads; ++i) {
+      pthread_attr_init(&thr->thread_attrs[i]);
       pthread_attr_setdetachstate(
         &thr->thread_attrs[i], PTHREAD_CREATE_JOINABLE);
+    }
   }
+  else thr->thread_attrs = NULL;
 
   /* Mutex */
   thr->mutex = n_mutex;
@@ -147,8 +149,10 @@ int DeleteThreads(Threads thr)
   tfree(thr->threads);
 
   if (thr->thread_attrs) {
-    for (i=0; i<thr->n_threads; ++i)
-      pthread_attr_destroy(&thr->thread_attrs[i]);
+    if (thr->joinable) {
+      for (i=0; i<thr->n_threads; ++i)
+        pthread_attr_destroy(&thr->thread_attrs[i]);
+    }
     tfree(thr->thread_attrs);
   }
 
@@ -212,23 +216,44 @@ int RunThreads(Threads thr, worker_ret_data_t (*worker)(), void* worker_args[])
     pth_handle_current_max_pid++;
   }
 
-  for (i=0; i<thr->n_threads; ++i) {
-    if (worker_args) {
-      rc = pthread_create(
-        &thr->threads[i], &thr->thread_attrs[i],
-        worker, (void*)pth_args_ary[i]);
-    }
-    else {
-      rc = pthread_create(
-        &thr->threads[i], &thr->thread_attrs[i],
-        worker, NULL);
-    }
+  if (thr->joinable) {
+    for (i=0; i<thr->n_threads; ++i) {
+      if (worker_args) {
+        rc = pthread_create(
+          &thr->threads[i], &thr->thread_attrs[i],
+          worker, (void*)pth_args_ary[i]);
+      }
+      else {
+        rc = pthread_create(
+          &thr->threads[i], &thr->thread_attrs[i],
+          worker, NULL);
+      }
 
-    if (rc) {
-      fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
-      exit(-1);
-    }
-  } /* for (i=0; i<thr->n_threads; ++i) */
+      if (rc) {
+        fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
+        exit(-1);
+      }
+    } /* for (i=0; i<thr->n_threads; ++i) */
+  }
+  else {
+    for (i=0; i<thr->n_threads; ++i) {
+      if (worker_args) {
+        rc = pthread_create(
+          &thr->threads[i], NULL,
+          worker, (void*)pth_args_ary[i]);
+      }
+      else {
+        rc = pthread_create(
+          &thr->threads[i], NULL,
+          worker, NULL);
+      }
+
+      if (rc) {
+        fprintf(stderr, "RunThreads Thread creation Error!! return code: %d\n", rc);
+        exit(-1);
+      }
+    } /* for (i=0; i<thr->n_threads; ++i) */
+  }
 
   /* Join threads if thr->joinable is true */
   if (thr->joinable) {
