@@ -30,7 +30,7 @@
 #define VERSION_PATCH 0
 
 #define FILE_HEADER "Iteration,DataLength(bytes),Exec.Time(us),TransferRate(bps)\n"
-#define INPROC_ADDRESS "N/A"
+#define INPROC_ADDRESS "inproc://workers"
 #define DEFAULT_PORT 13377
 #define MIN_PORT 10000
 #define MAX_PORT 65535

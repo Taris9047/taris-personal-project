@@ -177,6 +177,7 @@ int run_psDAC(psDAC_Options pdo)
   size_t** seg_len_ary = (size_t**)LtoA(dtc->entry_len);
 
   FILE *outf_fp;
+
   /* prepare output file header */
   outf_fp = fopen(pdo->outf_name, "w");
   fprintf(outf_fp, "%s\n", status_str);
@@ -221,7 +222,8 @@ int run_psDAC(psDAC_Options pdo)
     } /* for (i=0; i<dtc->entries->len; ++i) */
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
-    fprintf(stdout, "[%lu/%lu] Iteration finished!!\n", iter+1, pdo->iteration);
+    fprintf(
+      stdout, "[%lu/%lu] Iteration finished!!\n", iter+1, pdo->iteration);
     fprintf(stdout, "\n");
 
     uint64_t delta_us = \
@@ -232,7 +234,8 @@ int run_psDAC(psDAC_Options pdo)
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
 
     outf_fp = fopen(pdo->outf_name, "a");
-    fprintf(outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
+    fprintf(
+      outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
     fclose(outf_fp);
 
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
@@ -322,7 +325,7 @@ static void* psDAC_worker(void* args)
 
   // void* context = mwa->context;
   void* context = zmq_ctx_new();
-  void* socket = zmq_socket(context, ZMQ_PUB);
+  void* socket = zmq_socket(context, ZMQ_PAIR);
   if (!socket) {
     mtwError("zmq_socket assignment", mwa, pid, -1);
     exit(-1);
@@ -332,7 +335,7 @@ static void* psDAC_worker(void* args)
   //   mtwError("zmq_bind", mwa, pid, mwa->rc);
   //   exit(-1);
   // }
-  mwa->rc = zmq_connect(socket, mwa->address);
+  mwa->rc = zmq_connect(socket, mwa->inproc_address);
   if (mwa->rc!=0) {
     mtwError("zmq_connect", mwa, pid, mwa->rc);
     exit(-1);
@@ -393,50 +396,52 @@ static unsigned char*** DataAssign(
 
 /* free thrd_data */
 static void free_thread_data(
-  unsigned char*** d, uint64_t d_len, uint64_t** d_each_len)
+  unsigned char*** d, uint64_t d_len)
 {
   assert(d);
-  uint64_t i, j;
+  uint64_t i;
   for (i=0; i<d_len; ++i) {
-    for (j=0; j<*d_each_len[i]; ++j) tfree(d[i][j]);
     tfree(d[i]);
   }
   tfree(d);
 }
 
 /* Assign data length */
-static uint64_t** DataLenAssign(
+static uint64_t*** DataLenAssign(
   List data_len_list, uint64_t n_threads, uint64_t* n_iter)
 {
-  uint64_t** segmented_arrays;
+  uint64_t*** segmented_arrays;
   uint64_t total_data_elements = LLen(data_len_list);
   uint64_t n_data_segments = total_data_elements/n_threads;
   uint64_t n_data_per_thread_rem = total_data_elements%n_threads;
   uint64_t curr_iter = n_threads;
-  uint64_t i;
+  uint64_t i, j;
 
   if (n_data_per_thread_rem) n_data_segments++;
 
   segmented_arrays = \
-    (uint64_t**)tmalloc(sizeof(uint64_t*)*n_data_segments);
+    (uint64_t***)tmalloc(sizeof(uint64_t**)*n_data_segments);
   for (i=0; i<n_data_segments; ++i) {
     if (n_data_per_thread_rem && i==n_data_segments-1)
       curr_iter = n_data_per_thread_rem;
     segmented_arrays[i] = \
-      (uint64_t*)tmalloc(sizeof(uint64_t)*curr_iter);
-    segmented_arrays[i] = \
-      (uint64_t*)LAtSeq(data_len_list, i);
-  }
+      (uint64_t**)tmalloc(sizeof(uint64_t*)*curr_iter);
+    for (j=0; j<curr_iter; ++j) {
+      segmented_arrays[i][j] = \
+        (uint64_t*)LAtSeq(data_len_list, j+i*n_threads);
+    }
+  } /* for (i=0; i<n_data_segments; ++i) */
   LResetCursor(data_len_list);
   (*n_iter) = n_data_segments;
   return segmented_arrays;
 }
 
-static void free_thread_data_len(uint64_t** dl, uint64_t dl_len)
+static void free_thread_data_len(uint64_t*** dl, uint64_t dl_len)
 {
   assert(dl);
   uint64_t i;
-  for (i=0; i<dl_len; ++i) tfree(dl[i]);
+  for (i=0; i<dl_len; ++i)
+    tfree(dl[i]);
   tfree(dl);
 }
 
@@ -482,7 +487,7 @@ int run_psDAC_mt(psDAC_Options pdo)
   fprintf(stdout, "Preparing data for multithreaded operation\n");
   unsigned char*** splitted_data = \
     DataAssign(dtc->entries, pdo->n_threads, &n_thread_iter);
-  uint64_t** splitted_data_len = \
+  uint64_t*** splitted_data_len = \
     DataLenAssign(dtc->entry_len, pdo->n_threads, &n_data_len_iter);
 
   fprintf(stdout, "Running the multithreaded operation.\n");
@@ -496,7 +501,7 @@ int run_psDAC_mt(psDAC_Options pdo)
 
   /* Preparing zmq stuff */
   void* context = zmq_ctx_new();
-  void* workers = zmq_socket(context, ZMQ_SUB);
+  void* workers = zmq_socket(context, ZMQ_PAIR);
   zmq_bind(workers, INPROC_ADDRESS);
   void* publish = zmq_socket(context, ZMQ_PUB);
   zmq_bind(publish, server_addr);
@@ -506,22 +511,31 @@ int run_psDAC_mt(psDAC_Options pdo)
   mtWorkerArgs* w_args;
   uint64_t rem = LLen(dtc->entries)%pdo->n_threads;
   uint64_t seg_len;
+  unsigned char* data_str_from_workers;
 
   for (iter=0; iter<pdo->iteration; ++iter) {
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     for (thrd_iter=0; thrd_iter<n_thread_iter; ++thrd_iter) {
       if (rem!=0 && thrd_iter==n_thread_iter-1) curr_threads = rem;
+
       w_args = (mtWorkerArgs*)tmalloc(sizeof(mtWorkerArgs)*curr_threads);
       for (i=0; i<curr_threads; ++i) {
         w_args[i] = NewmtWorkerArgs(
           splitted_data[thrd_iter][i],
-          *splitted_data_len[thrd_iter],
+          *splitted_data_len[thrd_iter][i],
           server_addr, INPROC_ADDRESS,
           pdo->verbose);
+        seg_len += *splitted_data_len[thrd_iter][i];
       } /* for (i=0; i<curr_threads; ++i) */
+
       psDAC_thrds = NewThreads(curr_threads, true, NULL);
       RunThreads(psDAC_thrds, &psDAC_worker, (void**)w_args);
+      data_str_from_workers = \
+        (unsigned char*)tmalloc(sizeof(unsigned char)*seg_len);
+      zmq_recv(workers, data_str_from_workers, seg_len, 0);
+      zmq_send(publish, data_str_from_workers, seg_len, 0);
+      tfree(data_str_from_workers);
 
       DeleteThreads(psDAC_thrds);
       for (i=0; i<curr_threads; ++i) DeleteNewmtWorkerArgs(w_args[i]);
@@ -532,16 +546,10 @@ int run_psDAC_mt(psDAC_Options pdo)
     fprintf(stdout, "[%lu/%lu] Iteration finished!!\n", iter+1, pdo->iteration);
     fprintf(stdout, "\n");
 
-    delta_us = \
-      (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
+    delta_us = (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
     fprintf(stdout, "Execution time: %'lu us\n", delta_us);
-    transfer_rate = \
-      (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
+    transfer_rate = (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
-
-    seg_len = 0;
-    for (thrd_iter=0; thrd_iter<n_thread_iter; ++thrd_iter)
-      seg_len += *splitted_data_len[thrd_iter];
 
     outf_fp = fopen(pdo->outf_name, "a");
     fprintf(outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
@@ -550,8 +558,8 @@ int run_psDAC_mt(psDAC_Options pdo)
   } /* for (iter=0; iter<pdo->iteration; ++iter) */
 
   /* Cleaning up */
-  free_thread_data(splitted_data, n_thread_iter, splitted_data_len);
-  free_thread_data_len(splitted_data_len, n_data_len_iter);
+  free_thread_data(splitted_data, n_thread_iter);
+  free_thread_data_len(splitted_data_len, n_thread_iter);
 
   zmq_close(publish);
   zmq_close(workers);
