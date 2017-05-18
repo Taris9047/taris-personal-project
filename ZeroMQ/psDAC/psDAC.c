@@ -186,6 +186,7 @@ int run_psDAC(psDAC_Options pdo)
   volatile size_t seg_len;
   uint64_t i, iter;
   zmq_msg_t msg;
+  uint64_t delta_us, transfer_rate, delta_us_seg;
 
   // unsigned char** seg_ary = (unsigned char**)LtoA(dtc->entries);
   // size_t** seg_len_ary = (size_t**)LtoA(dtc->entry_len);
@@ -200,8 +201,7 @@ int run_psDAC(psDAC_Options pdo)
 
   struct timespec start, end;
   for (iter=0; iter<pdo->iteration; ++iter) {
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-
+    delta_us = 0;
     for (i=0; i<dtc->entries->len; ++i) {
       // segment = seg_ary[i];
       // seg_len = *seg_len_ary[i];
@@ -218,17 +218,24 @@ int run_psDAC(psDAC_Options pdo)
         fprintf(stderr, "psDAC: zmq_msg_init_data failed!!\n");
         return rc;
       }
-      rc = zmq_send(data_publisher, &msg, seg_len, 0);
-      if (rc!=seg_len) {
-        fprintf(stderr, "psDAC: zmq_send failed!!\n");
+
+      clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+      //rc = zmq_send(data_publisher, &msg, seg_len, 0);
+      rc = zmq_msg_send(&msg, data_publisher, ZMQ_DONTWAIT);
+      clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+      // if (rc!=seg_len) {
+      //   fprintf(stderr, "psDAC: zmq_send failed!!\n");
+      //   return -1;
+      // }
+      if (rc==-1) {
+        fprintf(stderr, "psDAC: zmq_msg_send failed!!\n");
         return -1;
       }
 
-      // rc = zmq_msg_close(&msg);
-      // if (rc==-1) {
-      //   fprintf(stderr, "psDAC: msg release failed!!\n");
-      //   return -1;
-      // }
+      delta_us_seg = \
+        (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
+
+      delta_us += delta_us_seg;
 
       if (verbose) {
         fprintf(stdout, "\r");
@@ -236,7 +243,7 @@ int run_psDAC(psDAC_Options pdo)
       }
 
     } /* for (i=0; i<dtc->entries->len; ++i) */
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+
     LResetCursor(dtc->entries);
     LResetCursor(dtc->entry_len);
 
@@ -246,10 +253,8 @@ int run_psDAC(psDAC_Options pdo)
       iter+1, pdo->iteration);
     fprintf(stdout, "\n");
 
-    uint64_t delta_us = \
-      (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
     fprintf(stdout, "Execution time: %'lu us\n", delta_us);
-    uint64_t transfer_rate = \
+    transfer_rate = \
       (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
 
@@ -324,11 +329,13 @@ int run_psDAC_chunk(psDAC_Options pdo)
   unsigned char* data_chunk;
   uint64_t data_chunk_len, iter;
   zmq_msg_t msg;
+  uint64_t delta_us, transfer_rate;
 
+  fprintf(stdout, "Making a singzmq_msg_sendle chunk of data!\n");
   RawDataChunk(dtc, &data_chunk, &data_chunk_len);
+  fprintf(stdout, "Data size: %lu bytes...\n\n", data_chunk_len);
 
   FILE *outf_fp;
-
   /* prepare output file header */
   outf_fp = fopen(pdo->outf_name, "w");
   fprintf(outf_fp, "%s\n", status_str);
@@ -337,25 +344,29 @@ int run_psDAC_chunk(psDAC_Options pdo)
 
   struct timespec start, end;
   for (iter=0; iter<pdo->iteration; ++iter) {
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
-    // zmq_msg_init_size(&msg, data_chunk_len);
-    // memcpy(zmq_msg_data(&msg), data_chunk, data_chunk_len);
     if (verbose) {
       fprintf(
         stdout, "Sending... a chunk of %lu Bytes\n", data_chunk_len);
     }
 
     rc = \
-      zmq_msg_init_data(&msg, data_chunk, data_chunk_len, t_msg_free, NULL);
+      zmq_msg_init_data(&msg, data_chunk, data_chunk_len, NULL, NULL);
     if (rc) {
       fprintf(stderr, "psDAC: zmq_msg_init_data failed!!\n");
       return rc;
     }
 
-    rc = zmq_send(data_publisher, &msg, data_chunk_len, 0);
-    if (rc!=data_chunk_len) {
-      fprintf(stderr, "psDAC: zmq_send failed!!\n");
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    //rc = zmq_send(data_publisher, &msg, data_chunk_len, 0);
+    rc = zmq_msg_send(&msg, data_publisher, ZMQ_DONTWAIT);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    // if (rc!=data_chunk_len) {
+    //   fprintf(stderr, "psDAC: zmq_send failed!!\n");
+    //   return -1;
+    // }
+    if (rc==-1) {
+      fprintf(stderr, "psDAC: zmq_msg_send failed!!\n");
       return -1;
     }
 
@@ -364,7 +375,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
     //   fprintf(stderr, "psDAC: msg release failed!!\n");
     //   return -1;
     // }
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+
 
     fprintf(
       stdout,
@@ -372,10 +383,10 @@ int run_psDAC_chunk(psDAC_Options pdo)
       iter+1, pdo->iteration);
     fprintf(stdout, "\n");
 
-    uint64_t delta_us = \
+    delta_us = \
       (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
     fprintf(stdout, "Execution time: %'lu us\n", delta_us);
-    uint64_t transfer_rate = \
+    transfer_rate = \
       (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
 
