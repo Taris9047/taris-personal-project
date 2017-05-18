@@ -88,4 +88,7 @@ unsigned char** find_data(
   uint64_t** data_len,
   int* n_files);
 
+/* Return the raw data as chunk */
+int RawDataChunk(DataContainer dcont, unsigned char** chunk, uint64_t* chunk_len);
+
 #endif /* Include guard */

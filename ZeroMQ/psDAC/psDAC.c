@@ -56,12 +56,14 @@ char* status_report(psDAC_Options pdo)
     "Iteration:\t%lu\n"
     "Threads:\t%lu\n"
     "Outfile Name:\t%s\n"
+    "Chunk Mode: \t%s\n"
     "===================================\n",
     pdo->port_number,
     pdo->data_file,
     pdo->iteration,
     pdo->n_threads,
-    pdo->outf_name
+    pdo->outf_name,
+    pdo->chunk_mode?"true":"false"
   );
 
   return str;
@@ -82,7 +84,7 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
   pdo->n_threads = DEFAULT_THREADS;
 
   int opt;
-  while ( (opt = getopt(argc, argv, "p:f:i:o:t:vh")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "p:f:i:o:t:cvh")) != -1 ) {
     switch (opt) {
     case 'p':
       pdo->port_number = (int)atoi(optarg);
@@ -101,8 +103,12 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
     case 'v':
       pdo->verbose = true;
       break;
-    case 't':
-      pdo->n_threads = (uint64_t)atoi(optarg);
+    case 't': /* Dropped multithrading attempt */
+      //pdo->n_threads = (uint64_t)atoi(optarg);
+      pdo->n_threads = 1;
+      break;
+    case 'c':
+      pdo->chunk_mode = true;
       break;
     case 'h':
       print_help();
@@ -110,8 +116,8 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
     default:
       print_help();
       exit(EXIT_FAILURE);
-    }
-  }
+    } /* switch (opt) */
+  } /* while ( (opt = getopt(argc, argv, "p:f:i:o:t:cvh")) != -1 ) */
 
   return pdo;
 }
@@ -125,6 +131,13 @@ int DeletepsDAC_Options(psDAC_Options pdo)
   return 0;
 }
 
+/*************************************
+  The server routine - Static stuff
+**************************************/
+static void t_msg_free(void* data, void* hint)
+{
+  if (data) tfree(data);
+}
 
 /*************************************
   The server routine
@@ -162,6 +175,7 @@ int run_psDAC(psDAC_Options pdo)
   void *context = zmq_ctx_new();
   void *data_publisher = zmq_socket(context, ZMQ_PUB);
   int rc = zmq_bind(data_publisher, server_addr);
+  zmq_setsockopt(data_publisher, ZMQ_SNDHWM, "", 0);
   if (rc!=0) {
     fprintf(stderr, "zmq_bind failed with code [%d]...\n", rc);
     return rc;
@@ -173,8 +187,8 @@ int run_psDAC(psDAC_Options pdo)
   uint64_t i, iter;
   zmq_msg_t msg;
 
-  unsigned char** seg_ary = (unsigned char**)LtoA(dtc->entries);
-  size_t** seg_len_ary = (size_t**)LtoA(dtc->entry_len);
+  // unsigned char** seg_ary = (unsigned char**)LtoA(dtc->entries);
+  // size_t** seg_len_ary = (size_t**)LtoA(dtc->entry_len);
 
   FILE *outf_fp;
 
@@ -189,41 +203,47 @@ int run_psDAC(psDAC_Options pdo)
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
 
     for (i=0; i<dtc->entries->len; ++i) {
-      segment = seg_ary[i];
-      seg_len = *seg_len_ary[i];
+      // segment = seg_ary[i];
+      // seg_len = *seg_len_ary[i];
+      segment = (unsigned char*)LAtSeq(dtc->entries, i);
+      seg_len = *(uint64_t*)LAtSeq(dtc->entry_len, i);
       if (verbose) {
         fprintf(
           stdout, "Sending... [%lu/%lu] (%.2f %%)",
           i+1, dtc->entries->len,
           (float)(i+1)*100/dtc->entries->len);
       }
-      rc = zmq_msg_init_size(&msg, seg_len);
-      memcpy(zmq_msg_data(&msg), segment, seg_len);
+      rc = zmq_msg_init_data(&msg, segment, seg_len, NULL, NULL);
       if (rc) {
-        fprintf(stderr, "psDAC: zmq_msg_init_size failed!!\n");
+        fprintf(stderr, "psDAC: zmq_msg_init_data failed!!\n");
         return rc;
       }
-      rc = zmq_send(data_publisher, &msg, seg_len, ZMQ_NOBLOCK);
+      rc = zmq_send(data_publisher, &msg, seg_len, 0);
       if (rc!=seg_len) {
         fprintf(stderr, "psDAC: zmq_send failed!!\n");
         return -1;
       }
 
-      rc = zmq_msg_close(&msg);
-      if (rc==-1) {
-        fprintf(stderr, "psDAC: msg release failed!!\n");
-        return -1;
-      }
+      // rc = zmq_msg_close(&msg);
+      // if (rc==-1) {
+      //   fprintf(stderr, "psDAC: msg release failed!!\n");
+      //   return -1;
+      // }
 
       if (verbose) {
         fprintf(stdout, "\r");
         fflush(stdout);
       }
+
     } /* for (i=0; i<dtc->entries->len; ++i) */
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    LResetCursor(dtc->entries);
+    LResetCursor(dtc->entry_len);
 
     fprintf(
-      stdout, "[%lu/%lu] Iteration finished!!\n", iter+1, pdo->iteration);
+      stdout,
+      "[%lu/%lu] Iteration finished!!\n",
+      iter+1, pdo->iteration);
     fprintf(stdout, "\n");
 
     uint64_t delta_us = \
@@ -240,8 +260,8 @@ int run_psDAC(psDAC_Options pdo)
 
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
 
-  tfree(seg_ary);
-  tfree(seg_len_ary);
+  // tfree(seg_ary);
+  // tfree(seg_len_ary);
 
   /* Cleaning up */
   fprintf(stdout, "Closing server...\n");
@@ -256,6 +276,130 @@ int run_psDAC(psDAC_Options pdo)
   return 0;
 }
 
+/*************************************
+  The server routine - Sending chunk
+**************************************/
+int run_psDAC_chunk(psDAC_Options pdo)
+{
+  if (!pdo) {
+    fprintf(stderr, "Invalid options!!\n");
+    return -1;
+  }
+
+  if (!(pdo->port_number >= 10000 && pdo->port_number <= 65535)) {
+    fprintf(stderr, "Port number must be within 10000 - 65535 range\n");
+    return -1;
+  }
+
+  char* server_addr;
+  int server_addr_str_len;
+  bool verbose = pdo->verbose;
+  char* status_str = status_report(pdo);
+
+  fprintf(stdout, "%s\n", status_str);
+
+  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", pdo->port_number);
+  server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
+  sprintf(server_addr, "tcp://*:%d", pdo->port_number);
+
+  fprintf(stdout, "Running Pseudo DAC server on %s\n", server_addr);
+  fprintf(stdout, "Preparing data from %s\n", pdo->data_file);
+  DataContainer dtc = NewDataContainer(pdo->data_file);
+  fprintf(stdout, "Data has been prepared!!\n");
+  PrintDataContainer(dtc);
+
+  /* Now the server stuff */
+  void *context = zmq_ctx_new();
+  void *data_publisher = zmq_socket(context, ZMQ_PUB);
+  int rc = zmq_bind(data_publisher, server_addr);
+  zmq_setsockopt(data_publisher, ZMQ_SNDHWM, "", 0);
+  if (rc!=0) {
+    fprintf(stderr, "zmq_bind failed with code [%d]...\n", rc);
+    return rc;
+  }
+
+  /* Do run server here */
+  // unsigned char* volatile segment;
+  // volatile size_t seg_len;
+  unsigned char* data_chunk;
+  uint64_t data_chunk_len, iter;
+  zmq_msg_t msg;
+
+  RawDataChunk(dtc, &data_chunk, &data_chunk_len);
+
+  FILE *outf_fp;
+
+  /* prepare output file header */
+  outf_fp = fopen(pdo->outf_name, "w");
+  fprintf(outf_fp, "%s\n", status_str);
+  fprintf(outf_fp, FILE_HEADER);
+  fclose(outf_fp);
+
+  struct timespec start, end;
+  for (iter=0; iter<pdo->iteration; ++iter) {
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+
+    // zmq_msg_init_size(&msg, data_chunk_len);
+    // memcpy(zmq_msg_data(&msg), data_chunk, data_chunk_len);
+    if (verbose) {
+      fprintf(
+        stdout, "Sending... a chunk of %lu Bytes\n", data_chunk_len);
+    }
+
+    rc = \
+      zmq_msg_init_data(&msg, data_chunk, data_chunk_len, t_msg_free, NULL);
+    if (rc) {
+      fprintf(stderr, "psDAC: zmq_msg_init_data failed!!\n");
+      return rc;
+    }
+
+    rc = zmq_send(data_publisher, &msg, data_chunk_len, 0);
+    if (rc!=data_chunk_len) {
+      fprintf(stderr, "psDAC: zmq_send failed!!\n");
+      return -1;
+    }
+
+    // rc = zmq_msg_close(&msg);
+    // if (rc==-1) {
+    //   fprintf(stderr, "psDAC: msg release failed!!\n");
+    //   return -1;
+    // }
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+
+    fprintf(
+      stdout,
+      "[%lu/%lu] Iteration finished!!\n",
+      iter+1, pdo->iteration);
+    fprintf(stdout, "\n");
+
+    uint64_t delta_us = \
+      (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
+    fprintf(stdout, "Execution time: %'lu us\n", delta_us);
+    uint64_t transfer_rate = \
+      (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
+    fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
+
+    outf_fp = fopen(pdo->outf_name, "a");
+    fprintf(
+      outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, data_chunk_len, delta_us, transfer_rate);
+    fclose(outf_fp);
+
+  } /* for (iter=0; iter<dtc->entries->len; ++iter) */
+
+  tfree(data_chunk);
+
+  /* Cleaning up */
+  fprintf(stdout, "Closing server...\n");
+  zmq_close(data_publisher);
+  zmq_ctx_destroy(context);
+  tfree(server_addr);
+  tfree(status_str);
+
+  fprintf(stdout, "Cleaning up data...\n");
+  DeleteDataContainer(dtc);
+
+  return 0;
+}
 
 /*************************************
   The server routine - multithreaded
@@ -268,6 +412,7 @@ typedef struct _psDAC_mt_worker {
   char* inproc_address;
   bool verbose;
   int rc;
+  //void* context;
 } psDAC_mt_worker;
 typedef psDAC_mt_worker* mtWorkerArgs;
 
@@ -278,6 +423,7 @@ static mtWorkerArgs NewmtWorkerArgs(
   const char* address,
   const char* inproc_address,
   bool verbose)
+  //void* context)
 {
   mtWorkerArgs wa = (mtWorkerArgs)tmalloc(sizeof(psDAC_mt_worker));
   wa->seg_data_array = seg_data_array;
@@ -285,6 +431,7 @@ static mtWorkerArgs NewmtWorkerArgs(
   wa->address = strdup(address);
   wa->inproc_address = strdup(inproc_address);
   wa->verbose = verbose;
+  //wa->context = context;
   wa->rc = 0;
   return wa;
 }
@@ -325,7 +472,7 @@ static void* psDAC_worker(void* args)
 
   // void* context = mwa->context;
   void* context = zmq_ctx_new();
-  void* socket = zmq_socket(context, ZMQ_PAIR);
+  void* socket = zmq_socket(context, ZMQ_PUSH);
   if (!socket) {
     mtwError("zmq_socket assignment", mwa, pid, -1);
     exit(-1);
@@ -501,7 +648,7 @@ int run_psDAC_mt(psDAC_Options pdo)
 
   /* Preparing zmq stuff */
   void* context = zmq_ctx_new();
-  void* workers = zmq_socket(context, ZMQ_PAIR);
+  void* workers = zmq_socket(context, ZMQ_PULL);
   zmq_bind(workers, INPROC_ADDRESS);
   void* publish = zmq_socket(context, ZMQ_PUB);
   zmq_bind(publish, server_addr);
@@ -584,15 +731,19 @@ int main (int argc, char* argv[])
 
   fprintf(stdout, "*****************************************************\n");
   fprintf(stdout, "***** Pseudo DAC Emulator for VIPIC data server *****\n");
-  fprintf(stdout, "***** >>> Version %d.%d.%d                         *****\n",
+  fprintf(stdout, "***** >>> Version %d.%d.%d                     <<< *****\n",
     VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   fprintf(stdout, "*****************************************************\n");
   fprintf(stdout, "\n");
 
-  if (options->n_threads <= 1)
-    rc = run_psDAC(options);
-  else
-    rc = run_psDAC_mt(options);
+  if (!options->chunk_mode) rc = run_psDAC(options);
+  else rc = run_psDAC_chunk(options);
+
+  // if (options->n_threads <= 1) {
+  //   rc = run_psDAC(options);
+  // }
+  // else
+  //   rc = run_psDAC_mt(options);
 
   if (rc) {
     fprintf(stderr, "Something went wrong with the server operation!!\n");

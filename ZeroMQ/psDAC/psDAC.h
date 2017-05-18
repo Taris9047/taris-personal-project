@@ -39,6 +39,7 @@
 #define DEFAULT_OUTPUT_FILE "./result.txt"
 #define DEFAULT_THREADS 1
 
+
 /* Option list */
 typedef struct _psDAC_options {
   bool verbose;
@@ -47,6 +48,7 @@ typedef struct _psDAC_options {
   uint64_t iteration;
   char* outf_name;
   uint64_t n_threads;
+  bool chunk_mode;
 } psDAC_options;
 typedef psDAC_options* psDAC_Options;
 /* Option list constructor/destructor */

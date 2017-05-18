@@ -328,3 +328,32 @@ unsigned char** find_data(
 
   return ret_file_contents;
 }
+
+/* Return the raw data as chunk */
+int RawDataChunk(DataContainer dcont, unsigned char** chunk, uint64_t* chunk_len)
+{
+  assert(dcont);
+
+  if (LLen(dcont->entries)==0) return 1;
+
+  (*chunk_len) = 0;
+  uint64_t i, j, tmp_len, n_sections = LLen(dcont->entries);
+  for (i=0; i<n_sections; ++i)
+    (*chunk_len) += *(uint64_t*)LAtSeq(dcont->entry_len, i);
+  LResetCursor(dcont->entry_len);
+
+  unsigned char* chunk_ptr;
+  unsigned char* segment;
+  (*chunk) = (unsigned char*)tmalloc(sizeof(unsigned char)*(*chunk_len));
+  chunk_ptr = (*chunk);
+  for (i=0; i<n_sections; ++i) {
+    tmp_len = *(uint64_t*)LAtSeq(dcont->entry_len, i);
+    segment = (unsigned char*)LAtSeq(dcont->entries, i);
+    for (j=0; j<tmp_len; ++j) (*chunk_ptr++) = segment[j];
+  }
+
+  LResetCursor(dcont->entry_len);
+  LResetCursor(dcont->entries);
+
+  return 0;
+}
