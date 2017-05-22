@@ -25,43 +25,18 @@
 
 /* List node */
 typedef void* list_data_t;
-typedef struct _list_node {
-  struct _list_node* next;
-  struct _list_node* prev;
-  list_data_t value;
-} list_node;
+typedef struct _list_node list_node;
 typedef list_node* LNode;
 
-/* for individual Nodes */
-LNode list_node_init();
-int list_node_destroy(LNode l);
-int list_node_destroy_hard(LNode l, int (*destroyer) () );
-
-/* Push, Pop, Search */
-int list_node_push(LNode* l, list_data_t value);
-list_data_t list_node_pop(LNode* l);
-LNode list_node_search(LNode l, list_data_t value);
-int list_node_assign(LNode l, list_data_t* values, const uint64_t values_len);
-
-/* Methods with list nodes */
-uint64_t list_node_len(LNode l);
-int list_node_find(LNode l, list_data_t value);
-int list_node_find_root(LNode* l);
-int list_node_delete_node(LNode l, list_data_t value);
-int list_node_isempty(LNode l);
-int list_node_copy(LNode* l, const LNode o);
-
-
-
-
 /* List control node */
-typedef struct _list_root {
+typedef struct _list {
   LNode root_node; /* The first list node */
-	LNode cursor; /* Some pointer for faster access */
-	uint64_t cursor_loc; /* Cursor location */
+  LNode last_node; /* Last node */
+	LNode cursor; /* Helper for some fast access */
+	uint64_t cursor_loc; /* Cursor, points the last node */
   uint64_t len; /* length of list */
-} list_root;
-typedef list_root* List;
+} list;
+typedef list* List;
 
 /* Constructors and destructors */
 List NewList();
@@ -70,9 +45,11 @@ int DeleteListHard(List l, int (*destroyer)() );
 
 /* Push, Pop, Search with root node */
 int LPush(List l, list_data_t value);
+int LPushBack(List l, list_data_t value);
 list_data_t LPop(List l);
 LNode LSearch(List l, list_data_t value);
 list_data_t LAt(const List l, uint64_t ind);
+list_data_t LAtSeq(List l, uint64_t ind); /* Sequencial access with cursor */
 uint64_t LIndex(List l, list_data_t value);
 int LAttach(List l, const List o);
 
@@ -86,11 +63,16 @@ int LReverse(List l);
 
 /* Some more utils */
 uint64_t LLen(const List l);
-uint64_t LCursor(const List l);
+list_data_t LCursor(const List l);
+uint64_t LCursorIndex(const List l);
+int LCursorAdv(List l);
+int LCursorRet(List l);
+void LResetCursor(List l);
 int LCpy(List l, const List o);
-/* converts some array to List
-   Warning!! the source array will be destroyed
-   if this list is freed by DeleteListHard!!
+/*
+  converts some array to List
+  Warning!! the source array will be destroyed
+  if this list is freed by DeleteListHard!!
 */
 List AtoL(list_data_t some_array[], const uint64_t arr_len);
 /* Vice versa, list to array */

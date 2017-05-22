@@ -10,9 +10,9 @@ fi
 
 # Check prefix directory permission
 if [ -w $PREFIX ]; then
-	NEED_SUDO=0
+	NEED_SUDO="0"
 else
-	NEED_SUDO=1
+	NEED_SUDO="1"
 fi
 
 # URLs
@@ -45,12 +45,10 @@ cd $BLD_DIR/libzmq
 ./autogen.sh
 ./configure --prefix=$PREFIX --without-docs
 make -j 8
-if [ $NEED_SUDO ]; then
+if [ $NEED_SUDO == "1" ]; then
 	sudo make install
-	sudo ldconfig
 else
 	make install
-	ldconfig
 fi
 
 # Return to build dir
@@ -62,12 +60,10 @@ cd $BLD_DIR/czmq
 ./autogen.sh
 ./configure --prefix=$PREFIX
 make -j 8
-if [ $NEED_SUDO ]; then
+if [ $NEED_SUDO == "1" ]; then
 	sudo make install
-	sudo ldconfig
 else
 	make install
-	ldconfig
 fi
 
 # cleanup

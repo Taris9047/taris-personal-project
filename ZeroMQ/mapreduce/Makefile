@@ -30,18 +30,18 @@ ifeq ($(UNAME), linux)
 	CFLAGS=-ggdb3 -fPIC $(WARNS)
 endif
 
-LIBS=-lm -L. -lpthread -lzmq -lczmq
+LIBS=-lm -L. -lpthread -lzmq
 INCLUDES=-I./$(SRCDIR)
 AR=ar
 
 LIB_PROJ_NAME := mapreduce0MQ
 
-TARGET_NAME := mapreduce_0MQ_test
-MAIN_SOURCE := mapreduce.c
-MAIN_HEADER := mapreduce.h
+TARGET_NAMES := mapreduce_0MQ mapper_0MQ reducer_0MQ shuffler_0MQ
+MAIN_SOURCES := mapreduce.c mapper.c reducer.c shuffler.c
+MAIN_HEADERS := mapreduce.h mapper.h reducer.h shuffler.h
 
-SOURCES=$(filter-out $(MAIN_SOURCE), $(wildcard $(CURR_DIR)/$(SRCDIR)/*.c $(CURR_DIR)/$(SRCDIR)/*.C $(CURR_DIR)/$(SRCDIR)/*.m))
-HEADERS=$(filter-out $(MAIN_HEADER), $(wildcard $(CURR_DIR)/$(SRCDIR)/*.h))
+SOURCES=$(filter-out $(MAIN_SOURCES), $(wildcard $(CURR_DIR)/$(SRCDIR)/*.c $(CURR_DIR)/$(SRCDIR)/*.C $(CURR_DIR)/$(SRCDIR)/*.m))
+HEADERS=$(filter-out $(MAIN_HEADERS), $(wildcard $(CURR_DIR)/$(SRCDIR)/*.h))
 OBJS=$(SOURCES:.c=.o)
 
 SYS := $(shell gcc -dumpmachine)
@@ -65,24 +65,37 @@ endif
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-all: $(TARGET_NAME) $(DLIBNAME)
+all: $(TARGET_NAMES)
 
 $(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(AR) rcs $(CURR_DIR)/$(LIBNAMEV) $(OBJS)
 	ln -sfv $(CURR_DIR)/$(LIBNAMEV) $(CURR_DIR)/$(LIBNAME)
 
-$(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
-	$(CC) $(CFLAGS) $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
-	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
+# $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
+# 	$(CC) $(CFLAGS) $(OBJS) -shared -o $(CURR_DIR)/$(DLIBNAMEV)
+# 	ln -sfv $(CURR_DIR)/$(DLIBNAMEV) $(CURR_DIR)/$(DLIBNAME)
 
-$(TARGET_NAME): $(LIBNAME) $(CURR_DIR)/$(MAIN_SOURCE) $(CURR_DIR)/$(MAIN_HEADER)
-	$(CC) $(CFLAGS) -o $(CURR_DIR)/$(TARGET_NAME) $(CURR_DIR)/$(MAIN_SOURCE) $(LIBNAME)  $(LIBS) $(INCLUDES)
+# Executables
+mapreduce_0MQ: $(LIBNAME) $(CURR_DIR)/mapreduce.c $(CURR_DIR)/mapreduce.h
+	$(CC) $(CFLAGS) -o $(CURR_DIR)/$@ $(OBJS) $(CURR_DIR)/mapreduce.c $(LIBNAME)  $(LIBS) $(INCLUDES)
+
+mapper_0MQ: $(LIBNAME) $(CURR_DIR)/mapper.c $(CURR_DIR)/mapper.h
+	$(CC) $(CFLAGS) -o $(CURR_DIR)/$@ $(OBJS) $(CURR_DIR)/mapper.c $(LIBNAME)  $(LIBS) $(INCLUDES)
+
+reducer_0MQ: $(LIBNAME) $(CURR_DIR)/reducer.c $(CURR_DIR)/reducer.h
+	$(CC) $(CFLAGS) -o $(CURR_DIR)/$@ $(OBJS) $(CURR_DIR)/reducer.c $(LIBNAME)  $(LIBS) $(INCLUDES)
+
+shuffler_0MQ: $(LIBNAME) $(CURR_DIR)/shuffler.c $(CURR_DIR)/shuffler.h
+	$(CC) $(CFLAGS) -o $(CURR_DIR)/$@ $(OBJS) $(CURR_DIR)/shuffler.c $(LIBNAME)  $(LIBS) $(INCLUDES)
+
+# $(TARGET_NAME): $(LIBNAME) $(CURR_DIR)/$(MAIN_SOURCE) $(CURR_DIR)/$(MAIN_HEADER)
+# 	$(CC) $(CFLAGS) -o $(CURR_DIR)/$(TARGET_NAME) $(CURR_DIR)/$(MAIN_SOURCE) $(LIBNAME)  $(LIBS) $(INCLUDES)
 
 clean:
 	rm -rfv *.o $(SRCDIR)/*.o
 	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
 	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
-	rm -rfv ./$(TARGET_NAME)
+	rm -rfv ./$(TARGET_NAMES)
 	rm -rfv ./__pycache__
 	rm -rfv *.img

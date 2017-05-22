@@ -34,6 +34,7 @@
 int print_help()
 {
   printf("psDAC [options]\n");
+  printf("-a\tHost address. Default: %s\n", DEFAULT_HOST);
   printf("-p\tDefines port number. Default is %d. Accepts 10000 to 65535\n", DEFAULT_PORT);
   printf("-f\tInput Datafile. Default is %s. Accepts almost any archive format thanks to libarchive.\n", DEFAULT_DATAFILE);
   printf("-i\tNumber of iterations. Default is %d.\n", DEFAULT_ITERATION);
@@ -52,6 +53,7 @@ char* status_report(psDAC_Options pdo)
   asprintf(&str,
     "===================================\n"
     "psDAC Info.\n"
+    "Host addr.:\t%s\n"
     "Port #:\t\t%d\n"
     "Data File:\t%s\n"
     "Iteration:\t%lu\n"
@@ -60,6 +62,7 @@ char* status_report(psDAC_Options pdo)
     "Chunk Mode:\t%s\n"
     "Demon Mode:\t%s\n"
     "===================================\n",
+    pdo->host_addr,
     pdo->port_number,
     pdo->data_file,
     pdo->iteration,
@@ -82,6 +85,7 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
   pdo->port_number = DEFAULT_PORT;
   pdo->data_file = strdup(DEFAULT_DATAFILE);
   pdo->verbose = false;
+  pdo->host_addr = strdup(DEFAULT_HOST);
   pdo->iteration = DEFAULT_ITERATION;
   pdo->outf_name = strdup(DEFAULT_OUTPUT_FILE);
   pdo->n_threads = DEFAULT_THREADS;
@@ -89,7 +93,7 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
   pdo->demon_mode = false;
 
   int opt;
-  while ( (opt = getopt(argc, argv, "p:f:i:o:t:dcvh")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "p:f:a:i:o:t:dcvh")) != -1 ) {
     switch (opt) {
     case 'p':
       pdo->port_number = (int)atoi(optarg);
@@ -97,6 +101,10 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
     case 'f':
       tfree(pdo->data_file);
       pdo->data_file = strdup(optarg);
+      break;
+    case 'a':
+      tfree(pdo->host_addr);
+      pdo->host_addr = strdup(optarg);
       break;
     case 'i':
       pdo->iteration = (uint64_t)atoi(optarg);
@@ -169,9 +177,9 @@ int run_psDAC(psDAC_Options pdo)
 
   fprintf(stdout, "%s\n", status_str);
 
-  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", pdo->port_number);
+  server_addr_str_len = snprintf(NULL, 0, "tcp://%s:%d", pdo->host_addr, pdo->port_number);
   server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
-  sprintf(server_addr, "tcp://*:%d", pdo->port_number);
+  sprintf(server_addr, "tcp://%s:%d", pdo->host_addr, pdo->port_number);
 
   fprintf(stdout, "Running Pseudo DAC server on %s\n", server_addr);
   fprintf(stdout, "Preparing data from %s\n", pdo->data_file);

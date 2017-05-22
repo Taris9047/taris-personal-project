@@ -27,7 +27,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 3
-#define VERSION_PATCH 2
+#define VERSION_PATCH 3
 
 #define FILE_HEADER "Iteration,DataLength(bytes),Exec.Time(us),TransferRate(bps)\n"
 #define INPROC_ADDRESS "inproc://workers"
@@ -38,12 +38,14 @@
 #define DEFAULT_DATAFILE "./data.tar.bz2"
 #define DEFAULT_OUTPUT_FILE "./result.txt"
 #define DEFAULT_THREADS 1
+#define DEFAULT_HOST "127.0.0.1"
 
 
 /* Option list */
 typedef struct _psDAC_options {
   bool verbose;
   int port_number;
+  char* host_addr;
   char* data_file;
   uint64_t iteration;
   char* outf_name;

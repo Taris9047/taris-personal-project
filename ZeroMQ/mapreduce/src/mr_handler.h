@@ -17,9 +17,6 @@
 #include <zmq.h>
 
 #include "utils.h"
-#include "mapper.h"
-#include "reducer.h"
-#include "shuffler.h"
 
 /* Main mapreduce handler */
 typedef struct _mapreduce_handler {
