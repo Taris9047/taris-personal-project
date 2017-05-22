@@ -38,6 +38,7 @@ int print_help()
   printf("-f\tInput Datafile. Default is %s. Accepts almost any archive format thanks to libarchive.\n", DEFAULT_DATAFILE);
   printf("-i\tNumber of iterations. Default is %d.\n", DEFAULT_ITERATION);
   printf("-o\tOutput file. Default is %s.\n", DEFAULT_OUTPUT_FILE);
+  printf("-d\tDemon mode. Runs the server indefinitely.\n");
   printf("-v\tVerbose the work. Slows down the job a lot. No verbose in default operation.\n");
   printf("-h\tPrints this message.\n");
   printf("\n");
@@ -56,14 +57,16 @@ char* status_report(psDAC_Options pdo)
     "Iteration:\t%lu\n"
     "Threads:\t%lu\n"
     "Outfile Name:\t%s\n"
-    "Chunk Mode: \t%s\n"
+    "Chunk Mode:\t%s\n"
+    "Demon Mode:\t%s\n"
     "===================================\n",
     pdo->port_number,
     pdo->data_file,
     pdo->iteration,
     pdo->n_threads,
     pdo->outf_name,
-    pdo->chunk_mode?"true":"false"
+    pdo->chunk_mode?"true":"false",
+    pdo->demon_mode?"true":"false"
   );
 
   return str;
@@ -82,9 +85,11 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
   pdo->iteration = DEFAULT_ITERATION;
   pdo->outf_name = strdup(DEFAULT_OUTPUT_FILE);
   pdo->n_threads = DEFAULT_THREADS;
+  pdo->chunk_mode = false;
+  pdo->demon_mode = false;
 
   int opt;
-  while ( (opt = getopt(argc, argv, "p:f:i:o:t:cvh")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "p:f:i:o:t:dcvh")) != -1 ) {
     switch (opt) {
     case 'p':
       pdo->port_number = (int)atoi(optarg);
@@ -106,6 +111,9 @@ psDAC_Options NewpsDAC_Options(int argc, char* argv[])
     case 't': /* Dropped multithrading attempt */
       //pdo->n_threads = (uint64_t)atoi(optarg);
       pdo->n_threads = 1;
+      break;
+    case 'd':
+      pdo->demon_mode = true;
       break;
     case 'c':
       pdo->chunk_mode = true;
@@ -222,15 +230,16 @@ int run_psDAC(psDAC_Options pdo)
       clock_gettime(CLOCK_MONOTONIC_RAW, &start);
       //rc = zmq_send(data_publisher, &msg, seg_len, 0);
       rc = zmq_msg_send(&msg, data_publisher, ZMQ_DONTWAIT);
+      if (rc==-1) {
+        fprintf(stderr, "psDAC: zmq_msg_send failed!!\n");
+        return -1;
+      }
       clock_gettime(CLOCK_MONOTONIC_RAW, &end);
       // if (rc!=seg_len) {
       //   fprintf(stderr, "psDAC: zmq_send failed!!\n");
       //   return -1;
       // }
-      if (rc==-1) {
-        fprintf(stderr, "psDAC: zmq_msg_send failed!!\n");
-        return -1;
-      }
+
 
       delta_us_seg = \
         (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
@@ -242,6 +251,7 @@ int run_psDAC(psDAC_Options pdo)
         fflush(stdout);
       }
 
+      if (pdo->demon_mode) iter = 0;
     } /* for (i=0; i<dtc->entries->len; ++i) */
 
     LResetCursor(dtc->entries);
@@ -359,16 +369,17 @@ int run_psDAC_chunk(psDAC_Options pdo)
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
     //rc = zmq_send(data_publisher, &msg, data_chunk_len, 0);
-    rc = zmq_msg_send(&msg, data_publisher, ZMQ_DONTWAIT);
+    rc = zmq_msg_send(&msg, data_publisher, 0);
+    if (rc==-1) {
+      fprintf(stderr, "psDAC: zmq_msg_send failed!!\n");
+      return -1;
+    }
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     // if (rc!=data_chunk_len) {
     //   fprintf(stderr, "psDAC: zmq_send failed!!\n");
     //   return -1;
     // }
-    if (rc==-1) {
-      fprintf(stderr, "psDAC: zmq_msg_send failed!!\n");
-      return -1;
-    }
+
 
     // rc = zmq_msg_close(&msg);
     // if (rc==-1) {
@@ -395,6 +406,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
       outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, data_chunk_len, delta_us, transfer_rate);
     fclose(outf_fp);
 
+    if (pdo->demon_mode) iter = 0;
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
 
   tfree(data_chunk);

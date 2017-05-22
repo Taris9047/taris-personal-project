@@ -27,7 +27,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 3
-#define VERSION_PATCH 1
+#define VERSION_PATCH 2
 
 #define FILE_HEADER "Iteration,DataLength(bytes),Exec.Time(us),TransferRate(bps)\n"
 #define INPROC_ADDRESS "inproc://workers"
@@ -49,6 +49,7 @@ typedef struct _psDAC_options {
   char* outf_name;
   uint64_t n_threads;
   bool chunk_mode;
+  bool demon_mode;
 } psDAC_options;
 typedef psDAC_options* psDAC_Options;
 /* Option list constructor/destructor */
