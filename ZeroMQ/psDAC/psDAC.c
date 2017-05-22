@@ -265,7 +265,7 @@ int run_psDAC(psDAC_Options pdo)
 
     fprintf(stdout, "Execution time: %'lu us\n", delta_us);
     transfer_rate = \
-      (uint64_t)dtc->entries->len*8/((double)delta_us/1000000);
+      (uint64_t)LLen(dtc->entries)*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
 
     outf_fp = fopen(pdo->outf_name, "a");
