@@ -122,7 +122,6 @@ def rand_data_gen():
 	for i in range(x_len):
 		for j in range(y_len):
 			gs = img["image"][i][j]
-			# packet = '%s %s %d %d %d' % (ts, label, i, j, gs)
 			packet = \
 				len(ts).to_bytes(1, sys.byteorder) + \
 				str_to_barray(ts) + \

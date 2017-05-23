@@ -11,6 +11,21 @@
   May 9th 2017
 
 ****************************************/
+
+/****************************************
+
+  Data file format
+    1. Length of timestamp (1 byte)
+    2. timestamp string (N bytes ^) -> not null terminated
+    3. Length of label (1 byte)
+    4. label string (N bytes ^) -> not null terminated
+    5. row (1 byte)
+    6. col (1 byte)
+    7. Greyscale (3 bytes)
+    8. Separator \n (1 byte) (Does not read in!, so ignore this!)
+
+****************************************/
+
 #ifndef MAPREDUCE_ZEROMQ_MAPPER_HEADER_H
 #define MAPREDUCE_ZEROMQ_MAPPER_HEADER_H
 
@@ -24,11 +39,15 @@
 #include "utils.h"
 
 /* Some defines */
-#define DEFAULT_ADDR "localhost"
+#define DEFAULT_ADDR "127.0.0.1"
 #define DEFAULT_PORT 13377
 #define DEFAULT_PROTOCOL "tcp"
-#define DEFUALT_SHUFFLER_ADDRESS "tcp://localhost:13378"
-#define DEFAULT_ENTRIES 10
+#define DEFUALT_SHUFFLER_ADDRESS "tcp://127.0.0.1:13378"
+#define DEFAULT_ENTRIES 25
+
+/* Don't change this */
+#define HEADER_TEXT "psDAC_Input"
+#define TIMESTAMP_BUFFER_LEN 50
 
 /* Mapper struct definitions */
 typedef struct _mapper mapper;

@@ -82,7 +82,7 @@ static inline void t_free(void** ptr)
 #endif /* #if defined(_PSEUDO_DAC_DEBUG) */
 
 /* Some array manipulation method */
-static void* resize_array(
+static inline void* resize_array(
   void* array, size_t array_len,
   size_t new_array_len, size_t array_element_size)
 {

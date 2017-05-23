@@ -43,7 +43,7 @@ cd $BLD_DIR
 git clone $LIBZMQ_URL $BLD_DIR/libzmq
 cd $BLD_DIR/libzmq
 ./autogen.sh
-./configure --prefix=$PREFIX --without-docs
+CPPFLAGS=-DZMQ_MAKE_VALGRIND_HAPPY ./configure --prefix=$PREFIX --without-docs
 make -j 8
 if [ $NEED_SUDO == "1" ]; then
 	sudo make install
