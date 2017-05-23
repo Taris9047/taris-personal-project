@@ -81,12 +81,12 @@ static char* datadup(const unsigned char* data_str)
 
   char* ret_data;
   unsigned char* pt = (unsigned char*)data_str;
-  int ts_len, label_len, data_len;
+  size_t ts_len, label_len, data_len;
 
   while (true) {
-    if (pt==(unsigned char*)data_str) ts_len = (int)(*pt);
+    if (pt==(unsigned char*)data_str) ts_len = (size_t)(*pt);
     if (pt==(unsigned char*)&data_str[ts_len+1]) {
-      label_len = (int)(*pt);
+      label_len = (size_t)(*pt);
       break;
     }
     pt++;
@@ -110,7 +110,7 @@ static int do_mapping(Mapper m)
   unsigned char *tmp_data, *tmp_data_backup;
   unsigned char t;
   char ts_buf[TIMESTAMP_BUFFER_LEN];
-  int len_ts, j;
+  size_t len_ts, j;
   uint64_t i;
 
   for (i=0; i<LLen(m->received_data); ++i) {
@@ -119,7 +119,7 @@ static int do_mapping(Mapper m)
 
     t = *tmp_data;
     tmp_data_backup = tmp_data;
-    len_ts = (int)t;
+    len_ts = (size_t)t;
     tmp_data++; /* Advance one byte */
     for (j=0; j<len_ts; ++j) {
       ts_buf[j] = (char)(*tmp_data);
@@ -151,11 +151,8 @@ static void serialize(Mapper m)
     tmp_data_ts_str = (char*)LAtSeq(m->keys, i);
     m->mapped_data_len += (strlen(tmp_data_str));
     m->mapped_data_len += (strlen(tmp_data_ts_str));
-    // strcat(m->mapped_data, tmp_data_ts_str);
-    // strcat(m->mapped_data, "|");
-    // strcat(m->mapped_data, tmp_data_str);
-    // strcat(m->mapped_data, "\n");
   } /* for (i=0; i<LLen(m->parsed_data); ++i) */
+
   m->mapped_data_len += 3+sizeof(size_t); /* | (Key|data), \0 (EOD), and the total length */
   m->mapped_data_len += 2*(LLen(m->parsed_data)-1); /* for ; s (delimitors) */
   m->mapped_data = (char*)tmalloc(m->mapped_data_len);
@@ -194,8 +191,8 @@ static int RunMapper(Mapper m)
   }
 
   int rc;
-  unsigned char* volatile tmp_data;
-  volatile size_t tmp_data_size;
+  unsigned char* tmp_data;
+  size_t tmp_data_size;
 
   /* Opening 0MQ socket to listen data */
   void* cxt = zmq_ctx_new();
@@ -214,12 +211,10 @@ static int RunMapper(Mapper m)
     if (rc<0) ERROR("zmq_msg_recv", rc);
     tmp_data_size = zmq_msg_size(&recv_msg);
     tmp_data = (unsigned char*)tmalloc(tmp_data_size);
-    memcpy(tmp_data, zmq_msg_data(&recv_msg), tmp_data_size);
+    memcpy(tmp_data, (unsigned char*)zmq_msg_data(&recv_msg), tmp_data_size);
     zmq_msg_close(&recv_msg);
     LPush(m->received_data, tmp_data);
-// #ifdef _DEBUG
-//     fprintf(stdout, "Received: %s\n", tmp_data);
-// #endif
+
     if (LLen(m->received_data)==m->requested_segments) break;
   }
 
@@ -242,7 +237,7 @@ static int RunMapper(Mapper m)
 
 #ifdef _DEBUG
   fprintf(stdout, "Sending out serialized mapped data... to %s\n", m->shuffler_address);
-  fprintf(stdout, "Mapped data length: %zu\n", m->mapped_data_len);
+  fprintf(stdout, "Mapped data length: %zu Bytes.\n", m->mapped_data_len);
   //fprintf(stdout, "The mapped data: %s\n", m->mapped_data);
 #endif
 
