@@ -11,11 +11,6 @@
   May 9th 2017
 
 ****************************************/
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <getopt.h>
-
 #include "list.h"
 #include "mapper.h"
 
@@ -243,8 +238,8 @@ static int RunMapper(Mapper m)
 
   void* socket_reporter = zmq_socket(cxt, ZMQ_PUSH);
   if (rc) ERROR("zmq_socket", rc);
-  rc = zmq_bind(socket_reporter, m->shuffler_address);
-  if (rc) ERROR("zmq_bind", rc);
+  rc = zmq_connect(socket_reporter, m->shuffler_address);
+  if (rc) ERROR("zmq_connect", rc);
 
   rc = zmq_msg_init_data(&key_msg, m->mapped_data, m->mapped_data_len, NULL, NULL);
   if (rc) ERROR("zmq_msg_init_data", rc);
@@ -273,12 +268,16 @@ static int RunMapper(Mapper m)
 static void PrintUsage()
 {
   fprintf(stdout,
+    "\n>>> Mapper for ZeroMQ Mapreduce ver. %d.%d.%d <<<\n"
+    "\nUsage: mapper_0MQ <options> <parameter>\n"
+    "Options description:\n"
     "-a:\tPublisher Address (IP or DNS name), Default: %s\n"
     "-p:\tPublisher Port, Default: %d\n"
     "-r:\tPublisher Protocol, Default: %s\n"
     "-s:\tShuffler (master) full address. Default: %s\n"
     "-n:\t# of entries, Default: %d\n"
     "-h:\tPrints out this message\n",
+    VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
     DEFAULT_ADDR, DEFAULT_PORT, DEFAULT_PROTOCOL,
     DEFUALT_SHUFFLER_ADDRESS, DEFAULT_ENTRIES
   );

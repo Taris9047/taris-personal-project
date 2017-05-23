@@ -6,8 +6,18 @@ CFLAGS=-ggdb3 -std=gnu11 -pthreads $(WARNS)
 
 SRCDIR=src
 
-VERNUM=0.0.1
-VERNUM_SHORT=0.0
+# Extrace version number
+MAIN_HEADER=./mapreduce.h
+MAJOR_VER_IDENTIFIER := VERSION_MAJOR
+MINOR_VER_IDENTIFIER := VERSION_MINOR
+PATCH_VER_IDENTIFIER := VERSION_PATCH
+
+MAJOR := $(shell cat $(MAIN_HEADER) | grep "\#define $(MAJOR_VER_IDENTIFIER)" | cut -d" " -f 3)
+MINOR := $(shell cat $(MAIN_HEADER) | grep "\#define $(MINOR_VER_IDENTIFIER)" | cut -d" " -f 3)
+PATCH := $(shell cat $(MAIN_HEADER) | grep "\#define $(PATCH_VER_IDENTIFIER)" | cut -d" " -f 3)
+
+VERNUM=$(MAJOR).$(MINOR).$(PATCH)
+VERNUM_SHORT=$(MAJOR).$(MINOR)
 
 CURR_DIR := $(shell pwd)
 

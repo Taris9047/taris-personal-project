@@ -30,12 +30,16 @@
 #define MAPREDUCE_ZEROMQ_MAPPER_HEADER_H
 
 #include <assert.h>
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <zmq.h>
 
 #define _DEBUG
 
+#include "mapreduce.h"
 #include "utils.h"
 
 /* Some defines */
