@@ -190,10 +190,7 @@ int run_psDAC(psDAC_Options pdo)
   void *data_publisher = zmq_socket(context, ZMQ_PUSH);
   int rc = zmq_bind(data_publisher, server_addr);
   // zmq_setsockopt(data_publisher, ZMQ_SNDHWM, "", 0);
-  if (rc!=0) {
-    fprintf(stderr, "zmq_bind failed with code [%d]...\n", rc);
-    return rc;
-  }
+  if (rc) ERROR("zmq_bind", rc);
 
   /* Do run server here */
   unsigned char* volatile segment;
@@ -335,7 +332,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
 
   fprintf(stdout, "Making a singzmq_msg_sendle chunk of data!\n");
   RawDataChunk(dtc, &data_chunk, &data_chunk_len);
-  fprintf(stdout, "Data size: %lu bytes...\n\n", data_chunk_len);
+  fprintf(stdout, "Data size: %'lu bytes...\n\n", data_chunk_len);
 
   FILE *outf_fp;
   /* prepare output file header */

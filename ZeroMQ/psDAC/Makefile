@@ -103,7 +103,7 @@ dist: $(SOURCES) $(HEADERS) dummy_data_gen.py inst_libs.sh
 	cp -vf $(CURR_DIR)/Makefile $(CURR_DIR)/$(DIST_DIR)/
 	cp -vf $(CURR_DIR)/dummy_data_gen.py $(CURR_DIR)/$(DIST_DIR)/
 	cp -vf $(CURR_DIR)/inst_libs.sh $(CURR_DIR)/$(DIST_DIR)/
-	cp -vf $(CURR_DIR)psDAC_sink.c $(CURR_DIR)/$(DIST_DIR)/
+	cp -vf $(CURR_DIR)/psDAC_sink.c $(CURR_DIR)/$(DIST_DIR)/
 	mkdir -p $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)
 	cp -vf $(CURR_DIR)/$(SRCDIR)/* $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)/
 	tar cjvf $(CURR_DIR)/$(DIST_DIR).tar.bz2 ./$(DIST_DIR)
@@ -114,7 +114,7 @@ clean:
 	rm -rfv *.so $(SRCDIR)/*.so *.dll $(SRCDIR)/*.dll *.pyc $(SRCDIR)/*.pyc *.dSYM $(SRCDIR)/*.dSYM
 	rm -rfv *.a $(SRCDIR)/*.a
 	rm -rfv *.stackdump
-	rm -rfv ./$(TARGET_NAME)
+	rm -rfv ./$(TARGET_NAME) ./$(SINK_NAME)
 	rm -rfv ./__pycache__
 	rm -rfv *.img
 	rm -rf ./$(DIST_DIR)
