@@ -49,6 +49,7 @@ AR=ar
 LIB_PROJ_NAME := psDAClib
 
 TARGET_NAME=psDAC
+SINK_NAME=psDAC_sink
 
 DIST_DIR := $(TARGET_NAME)-$(VERNUM)
 
@@ -79,7 +80,7 @@ endif
 .c.o: $(SOURCES) $(HEADERS)
 	$(CC) $(COPTS) -c $< -o $@
 
-all: $(TARGET_NAME) $(LIBNAME)
+all: $(TARGET_NAME) $(SINK_NAME) $(LIBNAME)
 
 $(LIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 	$(AR) rcs $(CURR_DIR)/$(LIBNAMEV) $(OBJS)
@@ -92,6 +93,9 @@ $(DLIBNAME): $(OBJS) $(SOURCES) $(HEADERS)
 $(TARGET_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/psDAC.c $(CURR_DIR)/psDAC.h
 	$(CC) $(COPTS) $(CURR_DIR)/psDAC.c $(LIBNAME) -o $(CURR_DIR)/$(TARGET_NAME) $(LIBS) $(INCLUDES)
 
+$(SINK_NAME): $(LIBNAME) $(DLIBNAME) $(CURR_DIR)/psDAC_sink.c
+	$(CC) $(COPTS) $(CURR_DIR)/psDAC_sink.c $(LIBNAME) -o $(CURR_DIR)/$(SINK_NAME) $(LIBS) $(INCLUDES)
+
 dist: $(SOURCES) $(HEADERS) dummy_data_gen.py inst_libs.sh
 	make clean
 	mkdir -p $(CURR_DIR)/$(DIST_DIR)
@@ -99,6 +103,7 @@ dist: $(SOURCES) $(HEADERS) dummy_data_gen.py inst_libs.sh
 	cp -vf $(CURR_DIR)/Makefile $(CURR_DIR)/$(DIST_DIR)/
 	cp -vf $(CURR_DIR)/dummy_data_gen.py $(CURR_DIR)/$(DIST_DIR)/
 	cp -vf $(CURR_DIR)/inst_libs.sh $(CURR_DIR)/$(DIST_DIR)/
+	cp -vf $(CURR_DIR)psDAC_sink.c $(CURR_DIR)/$(DIST_DIR)/
 	mkdir -p $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)
 	cp -vf $(CURR_DIR)/$(SRCDIR)/* $(CURR_DIR)/$(DIST_DIR)/$(SRCDIR)/
 	tar cjvf $(CURR_DIR)/$(DIST_DIR).tar.bz2 ./$(DIST_DIR)

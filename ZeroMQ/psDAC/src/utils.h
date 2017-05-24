@@ -14,6 +14,7 @@
 #define PSEUDO_DAC_LIB_UTILS_H
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -103,5 +104,18 @@ static inline void t_free(void** ptr)
 
 #define randof(num) (int)((float)(num)*random()/(RAND_MAX+1.0))
 
+/* Some quick error message printing */
+static inline void error_msg(
+  const char* func, int error_code, const char* file, unsigned line)
+{
+  fprintf(stdout, "%s resulted error code [%d] at %s:%d\n",
+    func, error_code, file, line);
+  exit(-1);
+}
+#if defined (_DEBUG)
+#   define ERROR(FUNC, CODE) error_msg(FUNC, CODE, __FILE__, __LINE__)
+#else
+#   define ERROR(FUNC, CODE) exit(CODE)
+#endif
 
 #endif /* Include guard */
