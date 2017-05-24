@@ -27,7 +27,7 @@
 
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 3
-#define VERSION_PATCH 3
+#define VERSION_PATCH 4
 
 #define FILE_HEADER "Iteration,DataLength(bytes),Exec.Time(us),TransferRate(bps)\n"
 #define INPROC_ADDRESS "inproc://workers"

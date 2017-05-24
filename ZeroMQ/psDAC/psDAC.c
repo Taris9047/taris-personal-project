@@ -150,10 +150,10 @@ int DeletepsDAC_Options(psDAC_Options pdo)
 /*************************************
   The server routine - Static stuff
 **************************************/
-static void t_msg_free(void* data, void* hint)
-{
-  if (data) tfree(data);
-}
+// static void t_msg_free(void* data, void* hint)
+// {
+//   if (data) tfree(data);
+// }
 
 /*************************************
   The server routine
@@ -210,10 +210,12 @@ int run_psDAC(psDAC_Options pdo)
   FILE *outf_fp;
 
   /* prepare output file header */
-  outf_fp = fopen(pdo->outf_name, "w");
-  fprintf(outf_fp, "%s\n", status_str);
-  fprintf(outf_fp, FILE_HEADER);
-  fclose(outf_fp);
+  if (!pdo->demon_mode) {
+    outf_fp = fopen(pdo->outf_name, "w");
+    fprintf(outf_fp, "%s\n", status_str);
+    fprintf(outf_fp, FILE_HEADER);
+    fclose(outf_fp);
+  }
 
   struct timespec start, end;
   for (iter=0; iter<pdo->iteration; ++iter) {
@@ -276,10 +278,12 @@ int run_psDAC(psDAC_Options pdo)
       (uint64_t)LLen(dtc->entries)*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
 
-    outf_fp = fopen(pdo->outf_name, "a");
-    fprintf(
-      outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
-    fclose(outf_fp);
+    if (!pdo->demon_mode) {
+      outf_fp = fopen(pdo->outf_name, "a");
+      fprintf(
+        outf_fp, "%lu,%zu,%lu,%lu\n", iter+1, seg_len, delta_us, transfer_rate);
+      fclose(outf_fp);
+    }
 
   } /* for (iter=0; iter<dtc->entries->len; ++iter) */
 
