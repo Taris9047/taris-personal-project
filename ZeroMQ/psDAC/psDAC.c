@@ -346,7 +346,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
 
     if (verbose) {
       fprintf(
-        stdout, "Sending... a chunk of %lu Bytes\n", data_chunk_len);
+        stdout, "Sending... a chunk of %'lu Bytes\n", data_chunk_len);
     }
 
     rc = \
@@ -368,8 +368,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
     delta_us = \
       (end.tv_sec-start.tv_sec)*1000000+(end.tv_nsec-start.tv_nsec)/1000;
     fprintf(stdout, "Execution time: %'lu us\n", delta_us);
-    transfer_rate = \
-      (uint64_t)data_chunk_len*8/((double)delta_us/1000000);
+    transfer_rate = (uint64_t)data_chunk_len*8/((double)delta_us/1000000);
     fprintf(stdout, "Transfer Rate: %'lu bps\n", transfer_rate);
 
     outf_fp = fopen(pdo->outf_name, "a");

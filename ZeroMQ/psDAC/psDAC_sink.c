@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 
   fprintf(stdout, "Total received data %'lu Bytes\n", tot_recv_data_len);
   fprintf(stdout, "Avearge data rate: %'lu bps\n\n",
-    tot_recv_data_len*8/(tot_time/1000000));
+    (uint64_t)(tot_recv_data_len*8/((double)tot_time/1000000)));
 
   rc = zmq_close(sock);
   if (rc) ERROR("zmq_close", rc);
