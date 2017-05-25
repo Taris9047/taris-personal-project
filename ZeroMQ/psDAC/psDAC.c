@@ -308,9 +308,9 @@ int run_psDAC_chunk(psDAC_Options pdo)
 
   fprintf(stdout, "%s\n", status_str);
 
-  server_addr_str_len = snprintf(NULL, 0, "tcp://*:%d", pdo->port_number);
+  server_addr_str_len = snprintf(NULL, 0, "tcp://%s:%d", pdo->host_addr, pdo->port_number);
   server_addr = (char*)tmalloc(sizeof(char)*(server_addr_str_len+1));
-  sprintf(server_addr, "tcp://*:%d", pdo->port_number);
+  sprintf(server_addr, "tcp://%s:%d", pdo->host_addr, pdo->port_number);
 
   fprintf(stdout, "Running Pseudo DAC server on %s\n", server_addr);
   fprintf(stdout, "Preparing data from %s\n", pdo->data_file);
@@ -324,10 +324,6 @@ int run_psDAC_chunk(psDAC_Options pdo)
   rc = zmq_bind(data_publisher, server_addr);
   if (rc) ERROR("zmq_bind", rc);
 
-  uint64_t buf_size = 65535;
-  rc = zmq_setsockopt(context, ZMQ_SNDBUF, &buf_size, sizeof(uint64_t));
-  if (rc) ERROR("zmq_setsockopt", rc);
-
   /* Do run server here */
   unsigned char* data_chunk;
   uint64_t data_chunk_len, iter;
@@ -337,6 +333,10 @@ int run_psDAC_chunk(psDAC_Options pdo)
   fprintf(stdout, "Making a single chunk of data!\n");
   RawDataChunk(dtc, &data_chunk, &data_chunk_len);
   fprintf(stdout, "Data size: %'lu bytes...\n\n", data_chunk_len);
+
+  uint64_t buf_size = data_chunk_len;
+  rc = zmq_setsockopt(context, ZMQ_SNDBUF, &buf_size, sizeof(uint64_t));
+  if (rc) ERROR("zmq_setsockopt", rc);
 
   FILE *outf_fp;
   /* prepare output file header */
