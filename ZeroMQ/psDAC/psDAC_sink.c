@@ -132,6 +132,11 @@ int main(int argc, char* argv[])
   int rc;
   void* ctx = zmq_ctx_new();
   void* sock = zmq_socket(ctx, ZMQ_PULL);
+
+  // uint64_t buf_size = 65535;
+  // rc = zmq_setsockopt(ctx, ZMQ_SNDBUF, &buf_size, sizeof(uint64_t));
+  //if (rc) ERROR("zmq_setsockopt", rc);
+
   rc = zmq_connect(sock, pdso->server_addr);
   if (rc) ERROR("zmq_connect", rc);
 

@@ -304,6 +304,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
   int server_addr_str_len;
   bool verbose = pdo->verbose;
   char* status_str = status_report(pdo);
+  int rc;
 
   fprintf(stdout, "%s\n", status_str);
 
@@ -320,9 +321,12 @@ int run_psDAC_chunk(psDAC_Options pdo)
   /* Now the server stuff */
   void *context = zmq_ctx_new();
   void *data_publisher = zmq_socket(context, ZMQ_PUSH);
-  int rc = zmq_bind(data_publisher, server_addr);
-  // zmq_setsockopt(data_publisher, ZMQ_SNDHWM, "", 0);
+  rc = zmq_bind(data_publisher, server_addr);
   if (rc) ERROR("zmq_bind", rc);
+
+  uint64_t buf_size = 65535;
+  rc = zmq_setsockopt(context, ZMQ_SNDBUF, &buf_size, sizeof(uint64_t));
+  if (rc) ERROR("zmq_setsockopt", rc);
 
   /* Do run server here */
   unsigned char* data_chunk;
@@ -330,7 +334,7 @@ int run_psDAC_chunk(psDAC_Options pdo)
   zmq_msg_t msg;
   uint64_t delta_us, transfer_rate;
 
-  fprintf(stdout, "Making a singzmq_msg_sendle chunk of data!\n");
+  fprintf(stdout, "Making a single chunk of data!\n");
   RawDataChunk(dtc, &data_chunk, &data_chunk_len);
   fprintf(stdout, "Data size: %'lu bytes...\n\n", data_chunk_len);
 
@@ -470,11 +474,7 @@ static void* psDAC_worker(void* args)
     mtwError("zmq_socket assignment", mwa, pid, -1);
     exit(-1);
   }
-  // mwa->rc = zmq_bind(socket, mwa->address);
-  // if (mwa->rc!=0) {
-  //   mtwError("zmq_bind", mwa, pid, mwa->rc);
-  //   exit(-1);
-  // }
+
   mwa->rc = zmq_connect(socket, mwa->inproc_address);
   if (mwa->rc!=0) {
     mtwError("zmq_connect", mwa, pid, mwa->rc);
