@@ -5,11 +5,11 @@ context = zmq.Context()
 pusher = context.socket(zmq.PUSH)
 pusher.connect('tcp://localhost:13377')
 
-message_size = 20*(1024**2)
+message_size = 2*1024*(1024**2)
 message = 'x' * message_size
 
 bit_rate_list = []
-for i in range(10000):
+for i in range(100):
 	st_time = time.time()
 	pusher.send(message.encode('utf-8'))
 	end_time = time.time()

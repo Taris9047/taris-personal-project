@@ -326,17 +326,17 @@ int run_psDAC_chunk(psDAC_Options pdo)
 
   /* Do run server here */
   unsigned char* data_chunk;
-  uint64_t data_chunk_len, iter;
-  zmq_msg_t msg;
+  uint64_t data_chunk_len, iter, sent_chunk_len;
+  //zmq_msg_t msg;
   uint64_t delta_us, transfer_rate;
 
   fprintf(stdout, "Making a single chunk of data!\n");
   RawDataChunk(dtc, &data_chunk, &data_chunk_len);
   fprintf(stdout, "Data size: %'lu bytes...\n\n", data_chunk_len);
 
-  uint64_t buf_size = data_chunk_len;
-  rc = zmq_setsockopt(context, ZMQ_SNDBUF, &buf_size, sizeof(uint64_t));
-  if (rc) ERROR("zmq_setsockopt", rc);
+  // uint64_t buf_size = data_chunk_len;
+  // rc = zmq_setsockopt(context, ZMQ_SNDBUF, &buf_size, sizeof(uint64_t));
+  // if (rc) ERROR("zmq_setsockopt", rc);
 
   FILE *outf_fp;
   /* prepare output file header */
@@ -353,15 +353,20 @@ int run_psDAC_chunk(psDAC_Options pdo)
         stdout, "Sending... a chunk of %'lu Bytes\n", data_chunk_len);
     }
 
-    rc = \
-      zmq_msg_init_data(&msg, data_chunk, data_chunk_len, NULL, NULL);
-    if (rc) ERROR("psDAC: zmq_msg_init_data failed!!\n", rc);
+    // rc = zmq_msg_init_data(&msg, data_chunk, data_chunk_len, NULL, NULL);
+    //if (rc) ERROR("psDAC: zmq_msg_init_data failed!!\n", rc);
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-    //rc = zmq_send(data_publisher, &msg, data_chunk_len, 0);
-    rc = zmq_msg_send(&msg, data_publisher, 0);
+    rc = zmq_send(data_publisher, data_chunk, data_chunk_len, 0);
+    //rc = zmq_msg_send(&msg, data_publisher, 0);
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    if (rc!=data_chunk_len) ERROR("psDAC: zmq_msg_send failed!!", rc);
+    if (data_chunk_len <= 2147483647) {
+      if ( rc!=data_chunk_len)
+        ERROR("psDAC: zmq_msg_send failed!!", rc);
+    }
+    else {
+      fprintf(stdout, "Sending Tons of data...\n");
+    }
 
     fprintf(
       stdout,
