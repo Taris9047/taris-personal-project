@@ -119,6 +119,23 @@ static inline void* resize_array(
   return new_array;
 } /* static void* resize_array(void* array, size_t array_len, size_t new_array_len, size_t array_element_size) */
 
+/* Append string */
+static inline char* append_str(char* str, const char* add_str)
+{
+  if (!add_str && !str) return NULL;
+  if (!add_str && str) return str;
+  if (add_str && !str) return strdup(add_str);
+
+  int i, str_len = strlen(str);
+  int add_str_len = strlen(add_str);
+
+  str = (char*)trealloc(str, add_str_len+1);
+  for (i=0; i<add_str_len; ++i)
+    str[str_len+i] = add_str[i];
+
+  return str;
+} /* static char* append_str(char* str, const char* add_str) */
+
 /* Clock */
 // static uint64_t t_clock()
 // {
