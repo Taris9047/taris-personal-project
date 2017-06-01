@@ -178,8 +178,8 @@ List ShflParser(const char* addresses)
   /* Let's parse */
   char *token;
   char delim[1] = ";";
-  for (token = strtok(tmp_txt, delim); token; token = strtok(NULL, delim))
-    LPush(parsed_list, token);
+  while ( ( token = strtok(tmp_txt, delim) ) != NULL )
+    LPush(parsed_list, strdup(token));
 
   tfree(tmp_txt);
   return parsed_list;
