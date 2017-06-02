@@ -14,6 +14,7 @@
 #define MAPREDUCE_ZEROMQ_LIB_UTILS_H
 
 #include <assert.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -24,6 +25,7 @@
 #   include <sys/time.h>
 #endif
 
+/* Malloc stuff */
 static inline void* safe_malloc(
   size_t sz, const char *file, unsigned line)
 {
@@ -65,6 +67,7 @@ static inline void* safe_realloc(
 
 static inline void t_free(void** ptr)
 {
+  if (!*ptr) return;
   free(*ptr);
   *ptr = NULL;
 }
@@ -82,73 +85,128 @@ static inline void t_free(void** ptr)
 #endif /* #if defined(_PSEUDO_DAC_DEBUG) */
 
 /* Some array manipulation method */
-static inline void* resize_array(
-  void* array, size_t array_len,
-  size_t new_array_len, size_t array_element_size)
-{
-  if (!array) {
-    fprintf(stderr, "resize_array: WARNING: We don't work with NULL pointers!!\n");
-    return NULL;
-  }
-  /* Same length give, no need to waste cpu time */
-  if (array_len == new_array_len) {
-    fprintf(stderr, "resize_array: WARNING: Same size given!! Nothing to do!\n");
-    return array;
-  }
+// static inline void* resize_array(
+//   void* array, size_t array_len,
+//   size_t new_array_len, size_t array_element_size)
+// {
+//   if (!array) {
+//     fprintf(stderr, "resize_array: WARNING: We don't work with NULL pointers!!\n");
+//     return NULL;
+//   }
+//   /* Same length give, no need to waste cpu time */
+//   if (array_len == new_array_len) {
+//     fprintf(stderr, "resize_array: WARNING: Same size given!! Nothing to do!\n");
+//     return array;
+//   }
+//
+//   void* new_array = NULL;
+//   size_t new_array_size = new_array_len*array_element_size;
+//   if (new_array_size < new_array_len) {
+//     fprintf(stderr, "resize_array: Ooops!! Overflow detected!!!\n");
+//     fprintf(stderr, "reduce new array length or something!!\n");
+//     exit(-1);
+//   }
+//
+//   /* Extending case */
+//   if (array_len < new_array_len) {
+//     array = trealloc(array, new_array_size);
+//     new_array = array;
+//   }
+//   /* Shortening case */
+//   else {
+//     new_array = tmalloc(new_array_size);
+//     memcpy(new_array, array, new_array_size);
+//     tfree(array);
+//   }
+//
+//   return new_array;
+// } /* static void* resize_array(void* array, size_t array_len, size_t new_array_len, size_t array_element_size) */
 
-  void* new_array = NULL;
-  size_t new_array_size = new_array_len*array_element_size;
-  if (new_array_size < new_array_len) {
-    fprintf(stderr, "resize_array: Ooops!! Overflow detected!!!\n");
-    fprintf(stderr, "reduce new array length or something!!\n");
-    exit(-1);
-  }
+/* Some conversion macros */
+/* int to string */
+#define int_to_str(i) \
+  ( { \
+      int i_str_len = snprintf(NULL, 0, "%d", i); \
+      char new[i_str_len+1]; \
+      sprintf(new, "%d", i); \
+      new; \
+  } )
+/* #define int_to_str(i) */
 
-  /* Extending case */
-  if (array_len < new_array_len) {
-    array = trealloc(array, new_array_size);
-    new_array = array;
-  }
-  /* Shortening case */
-  else {
-    new_array = tmalloc(new_array_size);
-    memcpy(new_array, array, new_array_size);
-    tfree(array);
-  }
+/* unsigned int to string */
+#define uint_to_str(i) \
+  ( { \
+      int i_str_len = snprintf(NULL, 0, "%u", i); \
+      char new[i_str_len+1]; \
+      sprintf(new, "%u", i); \
+      new; \
+  } )
+/* #define uint_to_str(i) */
 
-  return new_array;
-} /* static void* resize_array(void* array, size_t array_len, size_t new_array_len, size_t array_element_size) */
+/* int64_t to string */
+#define int64_t_to_str(i) \
+  ( { \
+      int i_str_len = snprintf(NULL, 0, "%ld", i); \
+      char new[i_str_len+1]; \
+      sprintf(new, "%ld", i); \
+      new; \
+  } )
+/* #define int64_t_to_str(i) */
+
+/* uint64_t to string */
+#define uint64_t_to_str(i) \
+  ( { \
+      int i_str_len = snprintf(NULL, 0, "%lu", i); \
+      char new[i_str_len+1]; \
+      sprintf(new, "%lu", i); \
+      new; \
+  } )
+/* #define uint64_t_to_str(i) */
+
+/* size_t to string */
+#define size_t_to_str(i) \
+  ( { \
+      int i_str_len = snprintf(NULL, 0, "%zu", i); \
+      char new[i_str_len+1]; \
+      sprintf(new, "%zu", i); \
+      new; \
+  } )
+/* #define size_t_to_str(i) */
+
 
 /* Append string */
-static inline char* append_str(char* str, const char* add_str)
+static inline char* append_str(char* str, const char* add_str, ...)
 {
-  if (!add_str && !str) return NULL;
-  if (!add_str && str) return str;
-  if (add_str && !str) return strdup(add_str);
+  if (!str) str = strdup(add_str);
 
-  int i, str_len = strlen(str);
-  int add_str_len = strlen(add_str);
-
-  str = (char*)trealloc(str, add_str_len+1);
-  for (i=0; i<add_str_len; ++i)
-    str[str_len+i] = add_str[i];
+  char* tmp_var_str;
+  va_list a_str_lst;
+  int arg_str_len, str_len;
+  va_start(a_str_lst, add_str);
+  while ( (tmp_var_str = va_arg(a_str_lst, char*)) ) {
+    arg_str_len = strlen(tmp_var_str);
+    str_len = strlen(str);
+    str = (char*)realloc(str, str_len+arg_str_len+1);
+    strcat(str, tmp_var_str);
+  }
+  va_end(a_str_lst);
 
   return str;
 } /* static char* append_str(char* str, const char* add_str) */
 
 /* Clock */
-// static uint64_t t_clock()
-// {
-// #if (defined (WIN32))
-//   SYSTEMTIME st;
-//   GetSystemTime(&st);
-//   return (uint64_t)(st.wSecond*1000+st.wMilliseconds);
-// #else
-//   struct timeval tv;
-//   gettimeofday(&tv, NULL);
-//   return (uint64_t)(tv.tv_sec*1000+tv.tv_usec/1000);
-// #endif
-// }
+static inline uint64_t t_clock()
+{
+#if (defined (WIN32))
+  SYSTEMTIME st;
+  GetSystemTime(&st);
+  return (uint64_t)(st.wSecond*1000+st.wMilliseconds);
+#else
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (uint64_t)(tv.tv_sec*1000+tv.tv_usec/1000);
+#endif
+}
 
 /* Some quick error message printing */
 static inline void error_msg(
@@ -158,10 +216,19 @@ static inline void error_msg(
     func, error_code, file, line);
   exit(-1);
 }
+static inline int warn_msg(
+  const char* func, int error_code, const char* file, unsigned line)
+{
+  fprintf(stdout, "%s resulted error code [%d] at %s:%d\n",
+    func, error_code, file, line);
+  return error_code;
+}
 #if defined (_DEBUG)
 #   define ERROR(FUNC, CODE) error_msg(FUNC, CODE, __FILE__, __LINE__)
+#   define WARNING(FUNC, CODE) warn_msg(FUNC, CODE, __FILE__, __LINE__)
 #else
 #   define ERROR(FUNC, CODE) exit(CODE)
+#   define WARNING(FUNC, CODE) fprintf(stdout, "%s resulted error code [%d]\n", FUNC, CODE);
 #endif
 
 /* RNG */

@@ -528,14 +528,14 @@ int LReverse(List l)
 /* Get length of list from control node */
 uint64_t LLen(const List l)
 {
-  assert(l);
+  if (!l) return 0;
   return l->len;
 }
 
 /* Get node content at the cursor */
 list_data_t LCursor(const List l)
 {
-  assert(l);
+  if (!l) return NULL;
   return l->cursor->value;
 }
 
