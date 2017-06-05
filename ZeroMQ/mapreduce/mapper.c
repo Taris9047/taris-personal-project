@@ -130,6 +130,9 @@ static int do_mapping(Mapper m)
 }
 
 /* Serialize the mapped data to send them to shuffler */
+/* Serialied format:
+    |key1;key2;...keyN|Data1;Data2;...DataN\0
+*/
 static void serialize(Mapper m)
 {
   assert(m);

@@ -26,8 +26,9 @@
 
 #include "utils.h"
 
+#define DEFAULT_ADDRESS "tcp://127.0.0.1:13378"
 #define DEFAULT_OUTF_NAME "./data.txt"
-#define DEFAULT_SHUFFLER_ADDRESS "tcp://127.0.0.1:13378"
+#define DEFAULT_SHUFFLER_ADDRESS "tcp://127.0.0.1:13380"
 #define DEFAULT_DATAF_DELIMITOR ","
 
 /* Data for Reducer */
@@ -37,6 +38,7 @@ typedef reducer* Reducer;
 /* Options for Reducer */
 typedef struct _reducer_options {
   char* outf_name; /* output filename */
+  char* address; /* My address */
   char* shuffler_address; /* Address of shuffler */
   char* outf_delim; /* delimitor for output file */
 } reducer_options;

@@ -16,6 +16,7 @@
 /****************************************
   Shuffler - Some static stuffs
 ****************************************/
+/* Show help message */
 static void PrintHelp()
 {
   printf(
@@ -38,6 +39,7 @@ static void PrintHelp()
   printf("\n");
 }
 
+/* Concatate List<char*> to a single string */
 static char* char_list_to_str(List lc, const char* delim)
 {
   if (!lc) return NULL;
@@ -60,6 +62,7 @@ static char* char_list_to_str(List lc, const char* delim)
   return ret_str;
 }
 
+/* Prints out (stdout) summary message before running the stuff. */
 static void PrintStatus(Shuffler shfl)
 {
   if (!shfl) return;
@@ -90,6 +93,40 @@ static void remove_all_chars(char* str, char c)
     pw += (*pw!=c);
   }
   *pw = '\0';
+}
+
+/* Mapped data parser */
+/* Serialied format:
+  |key1;key2;...keyN|Data1;Data2;...DataN\0
+  --> Assuming a single entry process.
+*/
+static int parse_mapper_data(List keys, List data, const char* data_str)
+{
+  if (!keys) return -1;
+  if (!keys) return -2;
+  if (!data_str) return -3;
+
+  char* p_tmp = (char*)data_str;
+  char buffer[BUFFER_SIZE];
+  bool key_mode = true;
+  uint64_t i = 0;
+
+  p_tmp++;
+  while (*p_tmp != '\0') {
+    /* detected |! we're reading data now! */
+    if (*p_tmp == '|') key_mode = false;
+    /* detected separators! put data into list */
+    if (*p_tmp == ';' || *p_tmp == '|') {
+      buffer[i] = '\0';
+      if (key_mode) LPush(keys, strdup(buffer));
+      else LPush(data, strdup(buffer));
+      p_tmp++; i=0; continue;
+    }
+    buffer[i] = *p_tmp;
+    p_tmp++; i++;
+  } /* while (p_tmp != '\0') */
+
+  return 0;
 }
 
 /****************************************
@@ -269,23 +306,25 @@ int RunShuffler(Shuffler shfl)
   /* Spawn mappers */
   FILE* *mapper_fp_ary = (FILE**)tmalloc(sizeof(int)*shfl->n_mappers);
   char *tmp_cmd = NULL;
+  char *tmp_port_str = int_to_str(shfl->publisher_port);
   for (i=0; i<shfl->n_mappers; ++i) {
     if (tmp_cmd) tfree(tmp_cmd);
     tmp_cmd = append_str(
       tmp_cmd, shfl->mapper_cmd,
-      " -p ", int_to_str(shfl->publisher_port),
+      " -p ", tmp_port_str,
       " -a ", shfl->publisher_host,
-      " -r ", shfl->publisher_protocol
+      " -r ", shfl->publisher_protocol, APPEND_STR_EOI
     );
     mapper_fp_ary[i] = popen(shfl->mapper_cmd, "r");
   }
+  tfree(tmp_port_str);
 
   /* Spawn reducer */
   FILE *reducer_fp;
   if (tmp_cmd) tfree(tmp_cmd);
   tmp_cmd = append_str(
     tmp_cmd, shfl->reducer_cmd,
-    " -a ", shfl->address
+    " -a ", shfl->address, APPEND_STR_EOI
   );
   reducer_fp = popen(tmp_cmd, "r");
 
@@ -303,8 +342,12 @@ int RunShuffler(Shuffler shfl)
     mapped_data_string = (unsigned char*)zmq_msg_data(&msg);
 
     /* TODO: Now we have to parse the massive string */
+    rc = parse_mapper_data(
+      shfl->Keys, shfl->Data,
+      (char*)mapped_data_string);
+    if (rc) ERROR("RunShuffler: parse_mapper_data", rc);
 
-    /* Exchange key-data pairs with other shufflers */
+    /* TODO: Exchange key-data pairs with other shufflers */
     if (!single_mode) {
 
     }

@@ -23,10 +23,12 @@ static int PrintHelp()
   printf("Options:\n");
   printf(
     "-f\tOutput textfile name. Default: %s\n"
-    "-a\tShuffler address. Default: %s\n"
+    "-a\tReducer (myself) address. Default: %s\n"
+    "-s\tShuffler address. Default: %s\n"
     "-d\tAssigns delimitor, Default: \"%s\"\n"
     "-h\tPrints this message.\n",
-    DEFAULT_OUTF_NAME, DEFAULT_SHUFFLER_ADDRESS, DEFAULT_DATAF_DELIMITOR
+    DEFAULT_OUTF_NAME, DEFAULT_ADDRESS,
+    DEFAULT_SHUFFLER_ADDRESS, DEFAULT_DATAF_DELIMITOR
   );
   printf("\n");
 
@@ -78,7 +80,22 @@ static int DeleteReducer(Reducer rd)
 int Reduce(Reducer rd)
 {
   assert(rd);
-  /* TODO: Implement this part */
+
+  int rc;
+  void* ctx = zmq_ctx_new();
+  void* data_socket = zmq_socket(ctx, ZMQ_PULL);
+
+  /* Bind my address */
+  rc = zmq_bind(data_socket, rd->address);
+
+  /* TODO: Implement actual reducing part */
+
+
+  rc = zmq_close(data_socket);
+  if (rc) ERROR("Reducer: zmq_close", rc);
+  rc = zmq_ctx_destroy(ctx);
+  if (rc) ERROR("Reducer: zmq_ctx_destroy", rc);
+
   return 0;
 }
 
@@ -91,17 +108,22 @@ ReducerOptions NewReducerOptions(int argc, char* argv[])
   ReducerOptions rdo = (ReducerOptions)tmalloc(sizeof(reducer_options));
 
   rdo->outf_name = strdup(DEFAULT_OUTF_NAME);
+  rdo->address = strdup(DEFAULT_ADDRESS);
   rdo->shuffler_address = strdup(DEFAULT_SHUFFLER_ADDRESS);
   rdo->outf_delim = strdup(DEFAULT_DATAF_DELIMITOR);
 
   int opt;
-  while ( (opt = getopt(argc, argv, "f:a:d:h")) != -1 ) {
+  while ( (opt = getopt(argc, argv, "f:a:s:d:h")) != -1 ) {
   switch (opt) {
     case 'f':
       tfree(rdo->outf_name);
       rdo->outf_name = strdup(optarg);
       break;
     case 'a':
+      tfree(rdo->address);
+      rdo->address = strdup(optarg);
+      break;
+    case 's':
       tfree(rdo->shuffler_address);
       rdo->shuffler_address = strdup(optarg);
       break;
@@ -125,6 +147,7 @@ int DeleteReducerOptions(ReducerOptions rdo)
 {
   assert(rdo);
   tfree(rdo->outf_name);
+  tfree(rdo->address);
   tfree(rdo->shuffler_address);
   tfree(rdo->outf_delim);
   tfree(rdo);

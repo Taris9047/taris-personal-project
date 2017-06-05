@@ -46,6 +46,9 @@
 #define SHFL_WAIT_FOR_SETTING 102
 #define SHFL_RUNNING 0
 
+/* some other stuff */
+#define BUFFER_SIZE 2048
+
 /* Struct defines a single shuffler */
 typedef struct _shuffler {
   char* address; /* Address of current shuffler */

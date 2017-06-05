@@ -14,6 +14,7 @@
 #define MAPREDUCE_ZEROMQ_LIB_UTILS_H
 
 #include <assert.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -122,59 +123,83 @@ static inline void t_free(void** ptr)
 //   return new_array;
 // } /* static void* resize_array(void* array, size_t array_len, size_t new_array_len, size_t array_element_size) */
 
-/* Some conversion macros */
-/* int to string */
-#define int_to_str(i) \
-  ( { \
-      int i_str_len = snprintf(NULL, 0, "%d", i); \
-      char new[i_str_len+1]; \
-      sprintf(new, "%d", i); \
-      new; \
-  } )
-/* #define int_to_str(i) */
+/* itoa impelementation */
+/* Source: https://en.wikibooks.org/wiki/C_Programming/stdlib.h/itoa */
+static inline void _t_utils_reverse_(char s[])
+{
+  int i, j;
+  char c;
+  for (i=0, j=strlen(s)-1; i<j; i++, j--) {
+    c = s[i];
+    s[i] = s[j];
+    s[j] = c;
+  }
+}
 
-/* unsigned int to string */
-#define uint_to_str(i) \
-  ( { \
-      int i_str_len = snprintf(NULL, 0, "%u", i); \
-      char new[i_str_len+1]; \
-      sprintf(new, "%u", i); \
-      new; \
-  } )
-/* #define uint_to_str(i) */
+/* Integer */
+static inline void _t_utils_itoa_(int n, char s[])
+{
+  int i=0, sign;
 
-/* int64_t to string */
-#define int64_t_to_str(i) \
-  ( { \
-      int i_str_len = snprintf(NULL, 0, "%ld", i); \
-      char new[i_str_len+1]; \
-      sprintf(new, "%ld", i); \
-      new; \
-  } )
-/* #define int64_t_to_str(i) */
+  if ((sign = n) < 0) n = 0-n;
 
-/* uint64_t to string */
-#define uint64_t_to_str(i) \
-  ( { \
-      int i_str_len = snprintf(NULL, 0, "%lu", i); \
-      char new[i_str_len+1]; \
-      sprintf(new, "%lu", i); \
-      new; \
-  } )
-/* #define uint64_t_to_str(i) */
+  do {
+    s[i++] = n%10+'0';
+  } while ((n/=10)>0);
+  if (sign<0)
+    s[i++] = '-';
 
-/* size_t to string */
-#define size_t_to_str(i) \
-  ( { \
-      int i_str_len = snprintf(NULL, 0, "%zu", i); \
-      char new[i_str_len+1]; \
-      sprintf(new, "%zu", i); \
-      new; \
-  } )
-/* #define size_t_to_str(i) */
+  _t_utils_reverse_(s);
+}
+
+/* Unsigned integer */
+static inline void _t_utils_uitoa_(unsigned int n, char s[])
+{
+  int i=0;
+
+  do {
+    s[i++] = n%10+'0';
+  } while ((n/10)>0);
+
+  _t_utils_reverse_(s);
+}
+
+/* Some shortcut functions and macros for above */
+/* Get string length for given integer */
+static inline int _t_utils_get_i_str_len(int i)
+{
+  int n = i;
+  if (!i) return 1;
+  if (i<0) n = 0-i;
+  int str_len = (int)log10(n)+1;
+  if (i<0) str_len++;
+  return str_len;
+}
+
+/* get string length, unsigned version */
+static inline int _t_utils_get_ui_str_len(unsigned int u)
+{
+  if (!u) return 1;
+  return (int)log10(u)+1;
+}
+
+/* integer to string wapper */
+static inline char* int_to_str(int i)
+{
+  char* str = (char*)tmalloc(_t_utils_get_i_str_len(i));
+  _t_utils_itoa_(i, str); return str;
+}
+
+/* unsigned integer to string wrapper */
+static inline char* uint_to_str(unsigned int i)
+{
+  char* str = (char*)tmalloc(_t_utils_get_i_str_len(i));
+  _t_utils_uitoa_(i, str); return str;
+}
 
 
 /* Append string */
+#define APPEND_STR_EOI "APPEND_STR_EOI"
 static inline char* append_str(char* str, const char* add_str, ...)
 {
   if (!str) str = strdup(add_str);
@@ -184,6 +209,7 @@ static inline char* append_str(char* str, const char* add_str, ...)
   int arg_str_len, str_len;
   va_start(a_str_lst, add_str);
   while ( (tmp_var_str = va_arg(a_str_lst, char*)) ) {
+    if (strcmp(tmp_var_str, APPEND_STR_EOI)==0) break;
     arg_str_len = strlen(tmp_var_str);
     str_len = strlen(str);
     str = (char*)realloc(str, str_len+arg_str_len+1);
