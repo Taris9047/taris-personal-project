@@ -33,7 +33,7 @@ typedef struct _list_node {
 } list_node;
 typedef list_node* LNode;
 
-// /* for individual Nodes */
+/* for individual Nodes */
 static LNode list_node_init();
 static int list_node_destroy(LNode l);
 static int list_node_destroy_hard(LNode l, int (*destroyer) () );
@@ -48,6 +48,22 @@ static int list_node_find_root(LNode* l);
 static int list_node_isempty(LNode l);
 static int list_node_copy(LNode* l, const LNode o);
 
+/* Some access methods */
+LNode LNGetValue(LNode ln)
+{
+  if (!ln) return NULL;
+  else return ln->value;
+}
+LNode LNGetNext(LNode ln)
+{
+  assert(ln);
+  return ln->next;
+}
+LNode LNGetPrev(LNode ln)
+{
+  assert(ln);
+  return ln->prev;
+}
 
 
 /***************************************
@@ -114,7 +130,7 @@ static int list_node_push(LNode* l, list_data_t value)
   assert(*l);
 
   /* Make sure l is the first node */
-  if ((*l)->prev) list_node_find_root(&(*l));
+  if ((*l)->prev) list_node_find_root(l);
 
   /* If the first node is empty, no need to make another node */
   if (list_node_isempty(*l)) {
@@ -141,7 +157,7 @@ static list_data_t list_node_pop(LNode* l)
   LNode tmp = (*l);
 
   /* Make sure l is the first node */
-  if (tmp->prev) list_node_find_root(&(*l));
+  if (tmp->prev) list_node_find_root(l);
 
   /* If the list is empty just return NULL */
   if (list_node_isempty(tmp)) return NULL;

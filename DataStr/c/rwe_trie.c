@@ -75,7 +75,7 @@ int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
   /* if we already have first node, initialize rtp and cc */
   else {
     cc = ChildSearch(root->head, key[0]);
-    if (cc) rtp = cc->value;
+    if (cc) rtp = (rTrieNode)LNGetValue(cc);
     else {
       rtp = New((rTrieNode)root, key[0], NULL);
       assert(rtp);
@@ -88,7 +88,7 @@ int rTrieInsert(rTrieRoot root, char* key, rtrie_value_t value)
   /* Ok, running the insertion from the 1st node */
   while (i < keylen-1) {
     cc = ChildSearch(rtp->children, key[i+1]);
-    if (cc) rtp = (rTrieNode)cc->value;
+    if (cc) rtp = (rTrieNode)LNGetValue(cc);
     else {
       rtptmp = New(rtp, key[i+1], NULL);
       assert(rtptmp);
@@ -203,9 +203,9 @@ static LNode ChildSearch(List children, const char key)
   assert(children);
 
   LNode tmp = children->root_node;
-  while (tmp->next) {
-    if ( ((rTrieNode)(tmp->value))->key == key ) return tmp;
-    tmp = tmp->next;
+  while ( LNGetNext(tmp) ) {
+    if ( ((rTrieNode)LNGetValue(tmp))->key == key ) return tmp;
+    tmp = LNGetNext(tmp);
   }
 
   return NULL;
@@ -238,20 +238,20 @@ static rTrieNode Traverse(rTrieRoot root, char* key)
   /* Assign initial point to rtp */
   lntmp = ChildSearch(root->head, key[0]);
   if (!lntmp) return NULL;
-  else rtp = (rTrieNode)lntmp->value;
+  else rtp = (rTrieNode)LNGetValue(lntmp);
 
   i = 0;
   while (1) {
     if (i < keylen-1) {
       lntmp = ChildSearch(rtp->children, key[i+1]);
       if (!lntmp) return NULL;
-      else rtp = (rTrieNode)lntmp->value;
+      else rtp = (rTrieNode)LNGetValue(lntmp);
     }
     else {
       /* Get Last Node.. must be same('\0') for all keys */
       lntmp = ChildSearch(rtp->children, key[i+1]);
       if (!lntmp) return NULL;
-      else return (rTrieNode)lntmp->value;
+      else return (rTrieNode)LNGetValue(lntmp);
     }
     ++i;
   }
