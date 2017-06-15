@@ -24,7 +24,11 @@
 
 #define _DEBUG
 
+#include "list.h"
 #include "utils.h"
+
+#define BUFFER_SIZE 256
+#define NULL_CHAR '\0'
 
 #define DEFAULT_ADDRESS "tcp://127.0.0.1:13378"
 #define DEFAULT_OUTF_NAME "./data.txt"
@@ -38,7 +42,7 @@ typedef reducer* Reducer;
 /* Options for Reducer */
 typedef struct _reducer_options {
   char* outf_name; /* output filename */
-  char* address; /* My address */
+  //char* address; /* My address */
   char* shuffler_address; /* Address of shuffler */
   char* outf_delim; /* delimitor for output file */
 } reducer_options;
@@ -46,6 +50,12 @@ typedef reducer_options* ReducerOptions;
 /* Methods for reducer options */
 ReducerOptions NewReducerOptions(int argc, char* argv[]);
 int DeleteReducerOptions(ReducerOptions rdo);
+
+/* Input data (data coming from shuffler) format
+
+  <Key String(char*)>|<Data0(unsigned char*)>;<Data1>;...<DataN>\0
+
+*/
 
 
 #endif /* Include guard */
