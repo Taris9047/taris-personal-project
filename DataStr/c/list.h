@@ -28,12 +28,17 @@ typedef void* list_data_t;
 typedef struct _list_node list_node;
 typedef list_node* LNode;
 
+/* Some basic methods */
+LNode LNGetValue(LNode ln);
+LNode LNGetNext(LNode ln);
+LNode LNGetPrev(LNode ln);
+
 /* List control node */
 typedef struct _list {
   LNode root_node; /* The first list node */
   LNode last_node; /* Last node */
-	LNode cursor; /* Helper for some fast access */
-	uint64_t cursor_loc; /* Cursor, points the last node */
+  LNode cursor; /* Helper for some fast access */
+  uint64_t cursor_loc; /* Cursor, points the last node */
   uint64_t len; /* length of list */
 } list;
 typedef list* List;
