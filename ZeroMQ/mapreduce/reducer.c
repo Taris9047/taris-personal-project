@@ -145,8 +145,17 @@ static int WriteToFile(ParsedData pd, char* outf_name, char* delim)
   else f_delim = strdup(delim);
 
   /* TODO: Write file routine goes here */
+  FILE *fp = fopen(outf_name, "a");
 
+  uint64_t i;
+  char* tmp_str;
+  for (i=0; i<LLen(pd->data); ++i) {
+    tmp_str = (char*)LAtSeq(pd->data, i);
+    fprintf(fp, "%s", tmp_str);
+    if (i<LLen(pd->data)-1) fprintf(fp, "%s", delim);
+  }
 
+  fclose(fp);
   tfree(f_delim);
 
   return 0;

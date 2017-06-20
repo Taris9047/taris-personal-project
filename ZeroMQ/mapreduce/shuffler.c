@@ -31,10 +31,10 @@ static void PrintHelp()
     "-r\tPublisher protocol, Default: %s\n"
     "-p\tPublisher port, Default: %d\n"
     "-u\tReducer address, Default: %s\n"
-    "-h\tPrints this message.\n"
-    , DEFAULT_ADDRESS, DEFAULT_N_MAPPERS
-    , DEFAULT_PUBLISHER_HOST, DEFAULT_PUBLISHER_PROTOCOL
-    , DEFAULT_PUBLISHER_PORT, DEFAULT_REDUCER_EXECUTABLE
+    "-h\tPrints this message.\n",
+    DEFAULT_ADDRESS, DEFAULT_N_MAPPERS,
+    DEFAULT_PUBLISHER_HOST, DEFAULT_PUBLISHER_PROTOCOL,
+    DEFAULT_PUBLISHER_PORT, DEFAULT_REDUCER_EXECUTABLE
   );
   printf("\n");
 }
@@ -129,6 +129,23 @@ static int parse_mapper_data(List keys, List data, const char* data_str)
   return 0;
 }
 
+/* Select proper data to send by neighboring shuffler address */
+/* TODO: Implement a way to populate the NeighborToKey dict */
+static unsigned char* select_data(Shuffler shfl, const char* shfl_neighbor)
+{
+  if (!shfl) ERROR("select_data", -1);
+  if (!shfl_neighbor) ERROR("select_data", -2);
+
+  unsigned char* sel_data;
+
+  if (!LLen(shfl->Data)) return NULL;
+
+  sel_data = (unsigned char*)DGet(shfl->NeighborToKey, shfl_neighbor);
+
+  if (sel_data) return (unsigned char*)strdup((char*)sel_data);
+  else return NULL;
+}
+
 /****************************************
   Shuffler - Constructor and Destructor
 ****************************************/
@@ -221,6 +238,7 @@ int DeleteShuffler(Shuffler shfl)
   if (shfl->mapper_cmd) tfree(shfl->mapper_cmd);
   DeleteListHard(shfl->Keys, NULL);
   DeleteListHard(shfl->Data, NULL);
+  DeleteDictHard(shfl->NeighborToKey, NULL);
   if (shfl->publisher_protocol) tfree(shfl->publisher_protocol);
   if (shfl->publisher_host) tfree(shfl->publisher_host);
   if (shfl->reducer_addr) tfree(shfl->reducer_addr);
@@ -263,6 +281,9 @@ int RunShuffler(Shuffler shfl)
   uint64_t i; /* Indexing stuff */
   int rc; /* error code stuff */
 
+  /* multi-purpose buffer */
+  char buffer[BUFFER_SIZE];
+
   /* The context */
   void* ctx = zmq_ctx_new();
 
@@ -270,11 +291,9 @@ int RunShuffler(Shuffler shfl)
   void* data_recv_socket = zmq_socket(ctx, ZMQ_PULL);
   /* Data share socket */
   void** data_share_sockets;
+  void** data_share_recv_sockets;
   /* Data report socket -> report the data to reducer or main thread */
   void* data_report_socket = zmq_socket(ctx, ZMQ_PUSH);
-
-  /* single shuffler mode? */
-  bool single_mode = false;
 
   /* if no mappers given... we can't even try... */
   if ( shfl->status==SHFL_WAIT_FOR_MAPPERS ||
@@ -282,22 +301,19 @@ int RunShuffler(Shuffler shfl)
   {
     fprintf(
       stderr,
-      "Check your settings... without mappers, it's pointless to even try!!\n");
+      "Check your settings... without mappers,"
+      " it's pointless to even try!!\n");
     exit(-1);
-  }
-
-  if (shfl->status==SHFL_WAIT_FOR_SHUFFLERS) {
-    fprintf(
-      stdout,
-      "No other shufflers given!!\n"
-      "Running as a single mode.\n");
-    single_mode = true;
   }
 
   /* Assign sockets for mappers and neighboring shufflers */
   data_share_sockets = (void**)tmalloc(sizeof(void*)*LLen(shfl->Neighbors));
   for (i=0; i<LLen(shfl->Neighbors); ++i)
     data_share_sockets[i] = zmq_socket(ctx, ZMQ_PUSH);
+  data_share_recv_sockets = \
+    (void**)tmalloc(sizeof(void*)*LLen(shfl->Neighbors));
+  for (i=0; i<LLen(shfl->Neighbors); ++i)
+    data_share_recv_sockets[i] = zmq_socket(ctx, ZMQ_PULL);
 
   /* Bind shuffler's address */
   rc = zmq_bind(data_recv_socket, shfl->address);
@@ -332,7 +348,8 @@ int RunShuffler(Shuffler shfl)
   rc = zmq_connect(data_report_socket, shfl->reducer_addr);
   if (rc) ERROR("RunShuffler: zmq_connect", rc);
 
-  unsigned char* mapped_data_string;
+  unsigned char *mapped_data_string, *data_to_send;
+  char* tmp_neighbor;
   zmq_msg_t msg, msg_send;
   while (true) {
     zmq_msg_init(&msg);
@@ -341,31 +358,72 @@ int RunShuffler(Shuffler shfl)
     if (rc==-1) ERROR("RunShuffler: zmq_msg_recv", rc);
     mapped_data_string = (unsigned char*)zmq_msg_data(&msg);
 
-    /* TODO: Now we have to parse the massive string */
+    /* Now we have to parse the massive string */
     rc = parse_mapper_data(
       shfl->Keys, shfl->Data,
       (char*)mapped_data_string);
     if (rc) ERROR("RunShuffler: parse_mapper_data", rc);
 
     /* TODO: Exchange key-data pairs with other shufflers */
-    if (!single_mode) {
+    for (i=0; i<LLen(shfl->Neighbors); ++i) {
 
-    }
+      tmp_neighbor = (char*)LAtSeq(shfl->Neighbors, i);
+
+      /* Now select a correct data to send */
+      /* --> TODO: Needs a select data routine */
+      data_to_send = select_data(shfl, tmp_neighbor);
+
+      /* No data to send found, skip this loop */
+      if (!data_to_send) continue;
+
+      /* Actually send data */
+      rc = zmq_connect(data_share_sockets[i], tmp_neighbor);
+      if (rc) ERROR("Shuffler, exchanging zmq_connect", rc);
+
+      rc = zmq_send(
+        data_share_sockets[i], data_to_send,
+        strlen((char*)data_to_send), 0);
+      if (rc) ERROR("Shuffler, sending data", rc);
+
+      rc = zmq_disconnect(data_share_sockets[i], tmp_neighbor);
+      if (rc) ERROR("zmq_disconnect", rc);
+
+      /* Then receive data */
+      rc = zmq_connect(data_share_recv_sockets[i], tmp_neighbor);
+      if (rc) ERROR("Shuffler, exchanging zmq_connect", rc);
+
+      rc = zmq_recv(data_share_recv_sockets[i], buffer, BUFFER_SIZE, 0);
+      if (rc<0) ERROR("Shuffler, exchanging zmq_recv", rc);
+
+      /* And save them to this shuffler's storage */
+      LPush(shfl->Data, strdup(buffer));
+
+      rc = zmq_disconnect(data_share_recv_sockets[i], tmp_neighbor);
+      if (rc) ERROR("zmq_disconnect", rc);
+
+    } /* for (i=0; i<LLen(shfl->Neighbors); ++i) */
 
     /* TODO: Then send data to reducer */
+
 
     /* Clear up messages */
     zmq_msg_close(&msg);
     zmq_msg_close(&msg_send);
   } /* while (true) */
 
+  // LResetCursor(shfl->Neighbors);
+
   /* freeing up sockets and other stuffs */
-  for (i=0; i<shfl->n_mappers; ++i) pclose(mapper_fp_ary[i]);
+  for (i=0; i<shfl->n_mappers; ++i)
+    pclose(mapper_fp_ary[i]);
   pclose(reducer_fp);
   tfree(mapper_fp_ary);
   zmq_close(data_recv_socket);
-  for (i=0; i<LLen(shfl->Neighbors); ++i) zmq_close(data_share_sockets[i]);
-  tfree(data_share_sockets);
+  for (i=0; i<LLen(shfl->Neighbors); ++i)
+    zmq_close(data_share_sockets[i]);
+  for (i=0; i<LLen(shfl->Neighbors); ++i)
+    zmq_close(data_share_recv_sockets[i]);
+  tfree(data_share_recv_sockets);
 
   zmq_ctx_destroy(ctx);
 

@@ -21,6 +21,7 @@
 #include <zmq.h>
 
 #include "list.h"
+#include "dict.h"
 #include "utils.h"
 
 /* Some default stuff */
@@ -61,6 +62,8 @@ typedef struct _shuffler {
 
   List Keys; /* List<char*>: Keys what we have */
   List Data; /* List<unsigned char*> Data list */
+
+  Dict NeighborToKey; /* Dict<char>[char] matching table */
 
   int status; /* Current status */
   char* mapper_cmd; /* Mapper command path */
