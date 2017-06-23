@@ -20,6 +20,7 @@
 #include <exception>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 /* list_data_t... void* */
 typedef void* list_data_t;
@@ -32,6 +33,9 @@ public:
 	List(const List&);
 	List& operator= (const List&);
 	~List() noexcept;
+
+  /* Initialize with vector */
+  List(std::vector<list_data_t>);
 
 	/* Manipulation methods */
 	void Push(list_data_t);
@@ -55,6 +59,9 @@ public:
 	bool IsEmpty() const;
   /* Reset cursor */
   void ResetCursor();
+
+  /* Some fancy utility */
+  std::vector<list_data_t> ToVector();
 
 private:
   struct lnode;

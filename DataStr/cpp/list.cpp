@@ -316,6 +316,21 @@ void List::ResetCursor()
   cursor_loc = 0;
 }
 
+/********************************************
+  List class fancy utility
+*********************************************/
+/* to std::vector */
+std::vector<list_data_t> List::ToVector()
+{
+  if (this->IsEmpty()) return std::vector<list_data_t>();
+
+  std::vector<list_data_t> d_vec(length);
+  uint64_t i;
+  for (i=0; i<length; ++i)
+    d_vec[i] = this->AtSeq(i);
+
+  return d_vec;
+}
 
 /********************************************
   List class constructors and destructors
@@ -370,4 +385,13 @@ List& List::operator= (const List& other)
 List::~List() noexcept
 {
   this->DeleteNodes();
+}
+
+/* Initialize with vector */
+List::List(std::vector<list_data_t> v) : List()
+{
+  if (!v.size()) return;
+
+  for (auto _v : v) this->Push(_v);
+  this->Reverse();
 }
