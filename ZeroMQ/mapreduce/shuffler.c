@@ -71,8 +71,7 @@ static void PrintStatus(Shuffler shfl)
          "  Shuffler Stats\n"
          "=========================================\n");
 
-  char *f_str_neighbors;
-  f_str_neighbors = char_list_to_str(shfl->Neighbors, "\n  ");
+  char *f_str_neighbors = char_list_to_str(shfl->Neighbors, "\n  ");
 
   printf(">> Address:\n  %s\n", shfl->address);
   printf(">> # of Mappers:\n  %ld\n", shfl->n_mappers);
@@ -80,7 +79,6 @@ static void PrintStatus(Shuffler shfl)
   printf(">> Assigned Key:\n  %s\n", shfl->assigned_key?shfl->assigned_key:"None");
   printf("=========================================\n\n");
 
-  // tfree(f_str_mappers);
   tfree(f_str_neighbors);
 }
 
@@ -130,17 +128,15 @@ static int parse_mapper_data(List keys, List data, const char* data_str)
 }
 
 /* Select proper data to send by neighboring shuffler address */
-/* TODO: Implement a way to populate the NeighborToKey dict */
 static unsigned char* select_data(Shuffler shfl, const char* shfl_neighbor)
 {
   if (!shfl) ERROR("select_data", -1);
   if (!shfl_neighbor) ERROR("select_data", -2);
 
-  unsigned char* sel_data;
-
   if (!LLen(shfl->Data)) return NULL;
 
-  sel_data = (unsigned char*)DGet(shfl->NeighborToKey, shfl_neighbor);
+  unsigned char* sel_data = \
+    (unsigned char*)DGet(shfl->NeighborToKey, shfl_neighbor);
 
   if (sel_data) return (unsigned char*)strdup((char*)sel_data);
   else return NULL;
@@ -299,8 +295,7 @@ int RunShuffler(Shuffler shfl)
   if ( shfl->status==SHFL_WAIT_FOR_MAPPERS ||
     shfl->status==SHFL_WAIT_FOR_SETTING )
   {
-    fprintf(
-      stderr,
+    fprintf(stderr,
       "Check your settings... without mappers,"
       " it's pointless to even try!!\n");
     exit(-1);
@@ -360,17 +355,14 @@ int RunShuffler(Shuffler shfl)
 
     /* Now we have to parse the massive string */
     rc = parse_mapper_data(
-      shfl->Keys, shfl->Data,
-      (char*)mapped_data_string);
+      shfl->Keys, shfl->Data, (char*)mapped_data_string);
     if (rc) ERROR("RunShuffler: parse_mapper_data", rc);
 
     /* TODO: Exchange key-data pairs with other shufflers */
     for (i=0; i<LLen(shfl->Neighbors); ++i) {
-
       tmp_neighbor = (char*)LAtSeq(shfl->Neighbors, i);
 
       /* Now select a correct data to send */
-      /* --> TODO: Needs a select data routine */
       data_to_send = select_data(shfl, tmp_neighbor);
 
       /* No data to send found, skip this loop */

@@ -33,50 +33,50 @@ template <class T> /* datatype */
 class LNode : public std::enable_shared_from_this<LNode<T>>
 {
 public:
-    std::shared_ptr<T> data; /* The data pointer */
-    std::shared_ptr<LNode<T>> next; /* next node */
-    std::shared_ptr<LNode<T>> prev; /* previous node */
+  std::shared_ptr<T> data; /* The data pointer */
+  std::shared_ptr<LNode<T>> next; /* next node */
+  std::shared_ptr<LNode<T>> prev; /* previous node */
 
-    T& Get() const;
-    int Set(std::shared_ptr<T>& ndata);
-    std::shared_ptr<LNode<T>> GetNext() const;
-    std::shared_ptr<LNode<T>> GetPrev() const;
-    void SetNext(std::shared_ptr<LNode<T>> ln);
-    void SetPrev(std::shared_ptr<LNode<T>> ln);
+  T& Get() const;
+  int Set(std::shared_ptr<T>& ndata);
+  std::shared_ptr<LNode<T>> GetNext() const;
+  std::shared_ptr<LNode<T>> GetPrev() const;
+  void SetNext(std::shared_ptr<LNode<T>> ln);
+  void SetPrev(std::shared_ptr<LNode<T>> ln);
 
 	LNode<T>& operator= (const LNode<T>& ln);
 	LNode<T>& operator= (LNode<T>&& ln) noexcept;
 
-    LNode() : data(nullptr), next(nullptr), prev(nullptr) {;}
-    LNode(T& d) : LNode() { data = std::make_shared<T>(d); }
-    LNode(const LNode<T>& ln);
+  LNode() : data(nullptr), next(nullptr), prev(nullptr) {;}
+  LNode(T& d) : LNode() { data = std::make_shared<T>(d); }
+  LNode(const LNode<T>& ln);
 	LNode(LNode<T>&& ln) noexcept;
-    ~LNode();
+  ~LNode();
 };
 
 /* The linked list control class */
 template <class T>
 class List {
 private:
-    std::shared_ptr<LNode<T>> root_node;
-    ULLONG len;
+  std::shared_ptr<LNode<T>> root_node;
+  ULLONG len;
 
 public:
-    // Push, Pop, Access, Reverse methods
-    int Push(T& new_stuff);
-    T& Pop();
-    T& At(ULLONG index) const;
-    int Reverse();
+  // Push, Pop, Access, Reverse methods
+  int Push(T& new_stuff);
+  T& Pop();
+  T& At(ULLONG index) const;
+  int Reverse();
 
-    // Status check methods
-    bool IsEmpty() const;
-    LNode<T>& GetL() const;
-    ULLONG Len() const;
+  // Status check methods
+  bool IsEmpty() const;
+  LNode<T>& GetL() const;
+  ULLONG Len() const;
 
-    // Constructors and destructors
-    List();
-    List(const List& l);
-    virtual ~List();
+  // Constructors and destructors
+  List();
+  List(const List& l);
+  virtual ~List();
 };
 
 #include "list.tcc"

@@ -31,19 +31,19 @@ CXXOBJS=$(CXXSOURCES:.cc=.Po)
 
 SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
-	TESTF_NAME=DataStrTest
+	TESTF_NAME=MeshCPP11Test
 	LIBNAMEV=libmesh-$(VERNUM_SHORT).a
 	DLIBNAMEV=libmesh-$(VERNUM_SHORT).so
 	LIBNAME=libmesh.a
 	DLIBNAME=libmesh.so
 else ifneq (, $(findstring cygwin, $(SYS)))
-	TESTF_NAME=DataStrTest.exe
+	TESTF_NAME=MeshCPP11Test.exe
 	LIBNAMEV=libmesh-$(VERNUM_SHORT).dll.a
 	DLIBNAMEV=cygmesh-$(VERNUM_SHORT).dll
 	LIBNAME=libmesh.dll.a
 	DLIBNAME=cygmesh.dll
 else ifneq (, $(findstring darwin, $(SYS)))
-	TESTF_NAME=DataStrTest
+	TESTF_NAME=MeshCPP11Test
 	LIBNAMEV=libmesh-$(VERNUM_SHORT).a
 	DLIBNAMEV=libmesh-$(VERNUM_SHORT).so
 	LIBNAME=libmesh.a

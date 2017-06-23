@@ -34,12 +34,12 @@ template <class T, class KeyT>
 class BTNode : public std::enable_shared_from_this<BTNode<T, KeyT>>
 {
 public:
-    std::shared_ptr<T> data; /* the data pointer */
-    std::shared_ptr<BTNode<T, KeyT>> left; /* left branch */
-    std::shared_ptr<BTNode<T, KeyT>> right; /* right branch */
+  std::shared_ptr<T> data; /* the data pointer */
+  std::shared_ptr<BTNode<T, KeyT>> left; /* left branch */
+  std::shared_ptr<BTNode<T, KeyT>> right; /* right branch */
 	std::shared_ptr<BTNode<T, KeyT>> parent; /* top branch */
 
-    KeyT key; /* the key. Datatype must be comparable */
+  KeyT key; /* the key. Datatype must be comparable */
 
 	/* Access functions */
 	T& Get();
@@ -53,8 +53,8 @@ public:
 	BTNode<T, KeyT>& operator= (BTNode<T, KeyT>&& btnode) noexcept;
 
 	/* Constructors and Destructors */
-    BTNode();
-    BTNode(T& ndata, KeyT& nkey);
+  BTNode();
+  BTNode(T& ndata, KeyT& nkey);
 	BTNode(std::shared_ptr<T> pndata, KeyT& nkey);
 	BTNode(const BTNode<T, KeyT>& btnode);
 	BTNode(BTNode<T, KeyT>&& btnode) noexcept;
