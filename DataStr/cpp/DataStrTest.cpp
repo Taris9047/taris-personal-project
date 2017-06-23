@@ -16,5 +16,11 @@
 int main (int argc, char* argv[])
 {
 
+	List* pList = new List();
+
+  std::cout << "List length: " << pList->Len() << std::endl;
+
+	delete pList;
+
 	return 0;
 }

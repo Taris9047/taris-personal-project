@@ -15,15 +15,14 @@
 #ifndef CPP11_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
 #define CPP11_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
 
+#include <algorithm>
 #include <cstdint>
+#include <exception>
+#include <iostream>
 #include <memory>
 
 /* list_data_t... void* */
 typedef void* list_data_t;
-
-/* List node definition */
-struct lnode;
-typedef lnode* LNode;
 
 /* Class definition */
 class List {
@@ -31,14 +30,12 @@ public:
 	/* Constructors and destructors */
 	List();
 	List(const List&);
-	List(List&&) noexcept;
 	List& operator= (const List&);
-  List& operator= (List&&) noexcept;
 	~List() noexcept;
 
 	/* Manipulation methods */
-	void Push(list_data_t d);
-	void Push_back(list_data_t d);
+	void Push(list_data_t);
+	void Push_back(list_data_t);
 	list_data_t Pop();
 	list_data_t Pop_back();
 	void Reverse();
@@ -48,10 +45,21 @@ public:
 
 	/* Access methods */
 	uint64_t Len() const;
-	list_data_t At(uint64_t ind) const;
+  /* An intelligent (?) element search method */
+	list_data_t At(uint64_t);
+  /* Not so intelligent element search - iterates from root... last resort */
+  list_data_t At(uint64_t) const;
+  /* Sequential element search */
+  list_data_t AtSeq(uint64_t);
+  /* Is the List empty? */
 	bool IsEmpty() const;
+  /* Reset cursor */
+  void ResetCursor();
 
 private:
+  struct lnode;
+  typedef lnode* LNode;
+
 	LNode root;
 	LNode last;
 	LNode cursor;
