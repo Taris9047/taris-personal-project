@@ -15,8 +15,12 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <vector>
 
 #include "list.hpp"
+#include "btree.hpp"
 
+#define DUMMY_DATA_LENGTH 65535
 
 #endif /* Include guard */

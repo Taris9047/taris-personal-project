@@ -12,8 +12,6 @@
 
 ******************************************/
 
-#include <cstdlib>
-
 #include "list.hpp"
 
 /********************************************
@@ -68,19 +66,22 @@ void List::Push(list_data_t d)
   LNode tmp_node = new lnode();
   tmp_node->SetValue(d);
 
-  if (root) {
-    tmp_node->SetNext(root);
-    root->SetPrev(tmp_node);
-  }
-  root = tmp_node;
-  ++length;
+  #pragma omp critical
+  {
+    if (root) {
+      tmp_node->SetNext(root);
+      root->SetPrev(tmp_node);
+    }
+    root = tmp_node;
+    ++length;
 
-  if (!last) last = root;
-  if (!cursor) {
-    cursor = root;
-    cursor_loc = 0;
+    if (!last) last = root;
+    if (!cursor) {
+      cursor = root;
+      cursor_loc = 0;
+    }
+    else ++cursor_loc;
   }
-  else ++cursor_loc;
 }
 
 /* Push new data into the last */
@@ -89,17 +90,20 @@ void List::Push_back(list_data_t d)
   LNode tmp_node = new lnode();
   tmp_node->SetValue(d);
 
-  if (last) {
-    tmp_node->SetPrev(last);
-    last->SetNext(tmp_node);
-    last = tmp_node;
-  }
-  ++length;
+  #pragma omp critical
+  {
+    if (last) {
+      tmp_node->SetPrev(last);
+      last->SetNext(tmp_node);
+      last = tmp_node;
+    }
+    ++length;
 
-  if (!root) root = last;
-  if (!cursor) {
-    cursor = root;
-    cursor_loc = 0;
+    if (!root) root = last;
+    if (!cursor) {
+      cursor = root;
+      cursor_loc = 0;
+    }
   }
 }
 
@@ -111,13 +115,15 @@ list_data_t List::Pop()
   list_data_t data = root->Value();
   LNode tmp_next = root->Next();
 
-  if (!cursor_loc) cursor = tmp_next;
-  if (last == root) last = tmp_next;
-  delete root;
-  root = tmp_next;
+  #pragma omp critical
+  {
+    if (!cursor_loc) cursor = tmp_next;
+    if (last == root) last = tmp_next;
+    delete root;
+    root = tmp_next;
 
-  cursor_loc--;
-
+    cursor_loc--;
+  }
   return data;
 }
 
@@ -326,8 +332,11 @@ std::vector<list_data_t> List::ToVector()
 
   std::vector<list_data_t> d_vec(length);
   uint64_t i;
-  for (i=0; i<length; ++i)
-    d_vec[i] = this->AtSeq(i);
+  // for (i=0; i<length; ++i)
+  //   d_vec[i] = this->AtSeq(i);
+
+  #pragma omp parallel for
+  for (i=0; i<length; ++i) d_vec[i] = this->At(i);
 
   return d_vec;
 }
@@ -385,6 +394,17 @@ List& List::operator= (const List& other)
 List::~List() noexcept
 {
   this->DeleteNodes();
+}
+
+/* Initialize with array */
+List::List(list_data_t* array, uint64_t array_len) : List()
+{
+  assert(array_len>0);
+  assert(array);
+
+  uint64_t i;
+  for (i=0; i<array_len; ++i) this->Push(array[i]);
+  this->Reverse();
 }
 
 /* Initialize with vector */

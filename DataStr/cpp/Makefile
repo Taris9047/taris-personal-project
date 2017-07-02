@@ -2,24 +2,20 @@
 CC=gcc
 CPP=g++
 
-# UNAME := $(shell uname)
-# ifeq ($(UNALE), darwin)
-# CC=gcc
-# CPP=g++
-# endif
+DIRECTIVES=-fopenmp
 
 LIBNAME=datastr
-CFLAGS=-ggdb3 -fPIC
-CPPFLAGS=-ggdb3 -fPIC -std=c++11
-RCFLAGS=-O3 -fPIC
-RCPPFLAGS=-O3 -fPIC -std=c++11
+CFLAGS=-ggdb3 -fPIC $(DIRECTIVES)
+CPPFLAGS=-ggdb3 -fPIC -std=c++11 $(DIRECTIVES)
+RCFLAGS=-O3 -fPIC $(DIRECTIVES)
+RCPPFLAGS=-O3 -fPIC -std=c++11 $(DIRECTIVES)
 LIBS=-lm -L.
 RLIBS=-lm -L.
 AR=ar
 
 INCLUDE_DIR=./
 
-TESTF_NAME=DataStrTest
+TESTF_NAME=test
 
 SOURCES=$(filter-out DataStrTest.cpp, $(wildcard *.cpp *.cc))
 HEADERS=$(filter-out DataStrTest.hpp, $(wildcard *.h *.hpp))

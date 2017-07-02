@@ -12,14 +12,18 @@
 
 ******************************************/
 
-#ifndef CPP11_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
-#define CPP11_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
+#ifndef CPP_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
+#define CPP_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
 
+#include <omp.h>
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 /* list_data_t... void* */
@@ -28,14 +32,22 @@ typedef void* list_data_t;
 /* Class definition */
 class List {
 public:
+  /* Node struct */
+  struct lnode;
+  typedef lnode* LNode;
+
 	/* Constructors and destructors */
 	List();
 	List(const List&);
 	List& operator= (const List&);
 	~List() noexcept;
 
+  /* Some special constructors */
+  /* Initialize with array */
+  List(list_data_t*, uint64_t);
   /* Initialize with vector */
-  List(std::vector<list_data_t>);
+	List(std::vector<list_data_t>);
+
 
 	/* Manipulation methods */
 	void Push(list_data_t);
@@ -47,26 +59,24 @@ public:
 	void DeleteValues(); /* Delete data! An intrusive method. Use with caution!! */
 	void DeleteNodes(); /* Delete all nodes. clean up!! */
 
-	/* Access methods */
-	uint64_t Len() const;
+  /* Access methods */
+  uint64_t Len() const;
   /* An intelligent (?) element search method */
-	list_data_t At(uint64_t);
+  list_data_t At(uint64_t);
   /* Not so intelligent element search - iterates from root... last resort */
   list_data_t At(uint64_t) const;
   /* Sequential element search */
   list_data_t AtSeq(uint64_t);
   /* Is the List empty? */
-	bool IsEmpty() const;
+  bool IsEmpty() const;
   /* Reset cursor */
   void ResetCursor();
 
   /* Some fancy utility */
   std::vector<list_data_t> ToVector();
+  list_data_t* ToArray();
 
 private:
-  struct lnode;
-  typedef lnode* LNode;
-
 	LNode root;
 	LNode last;
 	LNode cursor;
