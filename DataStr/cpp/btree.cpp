@@ -27,24 +27,24 @@ private:
 
 public:
   /* Some methods */
-  BTNode GetLeft() const;
+  BTNode GetLeft() const { return left; };
   void SetLeft(const BTNode& o) { left = o; }
-  BTNode GetRight() const;
+  BTNode GetRight() const { return right; };
   void SetRight(const BTNode& o) { right = o; }
-  uint64_t GetKey() const;
+  uint64_t GetKey() const { return key; };
   void SetKey(uint64_t o_k) { key = o_k; }
-  bt_data_t GetData() const;
+  bt_data_t GetData() const { return data; };
   void SetData(bt_data_t d) { data = d; }
 
 public:
   /* Constructors and destructors */
   btnode() : left(nullptr), right(nullptr), data(nullptr) {}
-  btnode(const& btnode) : btnode()
+  btnode(const btnode& other) : btnode()
   {
-    left = btnode.left;
-    right = btnode.right;
-    data = btnode.data;
-    key = btnode.key;
+    left = other.left;
+    right = other.right;
+    data = other.data;
+    key = other.key;
   }
   ~btnode() {}
 };
@@ -54,10 +54,46 @@ public:
 ******************************************/
 void BTree::Add(bt_data_t d, uint64_t key)
 {
-  #pragma omp critical
-  {
+  BTNode new_node = new btnode();
+  new_node->SetData(d);
+  new_node->SetKey(key);
 
-  }
+  BTNode tmp_node;
+  if (!root)
+    root = new_node;
+  else {
+    tmp_node = root;
+    while(true) {
+      if (tmp_node->GetKey() < key) {
+        if (!tmp_node->GetLeft()) {
+          #pragma omp critical
+          tmp_node->SetLeft(new_node);
+          break;
+        }
+        else {
+          #pragma omp critical
+          tmp_node = tmp_node->GetLeft();
+        }
+      }
+      else if (tmp_node->GetKey() == key) {
+        #pragma omp critical
+        tmp_node->SetData(d);
+        delete new_node;
+        break;
+      }
+      else {
+        if (!tmp_node->GetRight()) {
+          #pragma omp critical
+          tmp_node->SetRight(new_node);
+          break;
+        }
+        else {
+          #pragma omp critical
+          tmp_node = tmp_node->GetRight();
+        }
+      }
+    } /* while(true) */
+  } /* if (!this->root) */
 }
 
 
@@ -65,6 +101,15 @@ void BTree::Add(bt_data_t d, uint64_t key)
   BTree - Access and utility methods
 ******************************************/
 
+/*****************************************
+  BTree - Private methods
+******************************************/
+
+/* Find a node with key */
+bt_data_t Find(uint64_t key)
+{
+
+}
 
 /*****************************************
   BTree - Constructors and Destructors

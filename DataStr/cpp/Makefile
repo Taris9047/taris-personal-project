@@ -29,10 +29,10 @@ all: $(TESTF_NAME)
 
 release: $(TESTF_NAME)-rel
 
-%.Po: $(SOURCES) $(HEADERS)
+%.Po: %.cpp
 	$(CPP) $(CPPFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
 
-%.RPo: $(SOURCES) $(HEADERS)
+%.RPo: %.cpp
 	$(CPP) $(RCPPFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
 
 $(TESTF_NAME): lib$(LIBNAME).a DataStrTest.cpp DataStrTest.hpp

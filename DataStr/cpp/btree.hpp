@@ -15,6 +15,10 @@
 #ifndef CPP_DATA_STRUCTURE_IMPLEMENTATION_BINARY_TREE_HEADER
 #define CPP_DATA_STRUCTURE_IMPLEMENTATION_BINARY_TREE_HEADER
 
+#if defined(_OPENMP)
+#  include <omp.h>
+#endif
+
 #include <memory>
 #include <vector>
 #include <cstdlib>
@@ -55,7 +59,8 @@ private:
   uint64_t size;
   List* key_list;
 
-  bool Find(bt_data_t);
+  bool Exists(bt_data_t);
+  bt_data_t Find(uint64_t key);
 
 };
 

@@ -15,7 +15,10 @@
 #ifndef CPP_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
 #define CPP_DATA_STRUCTURE_IMPLEMENTATION_LIST_HEADER
 
-#include <omp.h>
+#if defined(_OPENMP)
+#  include <omp.h>
+#endif
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
