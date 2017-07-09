@@ -22,5 +22,12 @@
 #include "btree.hpp"
 
 #define DUMMY_DATA_LENGTH 65535
+#define DUMMY_DATA_T double
+
+/* Prepares dummy data */
+std::vector<DUMMY_DATA_T> PrepDummy(uint64_t dummy_data_len);
+
+/* Test list */
+void TestList(uint64_t dummy_data_len);
 
 #endif /* Include guard */

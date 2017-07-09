@@ -45,6 +45,7 @@ public:
 
   /* Manipulation methods */
   void Add(bt_data_t, uint64_t key);
+  void Insert(bt_data_t, uint64_t key);
   void Remove(uint64_t key);
 
   /* Access methods */

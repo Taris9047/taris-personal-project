@@ -96,6 +96,11 @@ void BTree::Add(bt_data_t d, uint64_t key)
   } /* if (!this->root) */
 }
 
+/* Same as Add... alias */
+void BTree::Insert(bt_data_t d, uint64_t key)
+{
+  Add(d, key);
+}
 
 /*****************************************
   BTree - Access and utility methods
