@@ -122,29 +122,33 @@ int main (void)
 
   Dict test_dict = NewDict();
   DSetHashFunc(test_dict, &hash_str_fnv);
-	List volatile key_list;
+  List volatile key_list;
 
   Dummy* dums = (Dummy*)malloc(sizeof(dictionary)*DICT_ELEMENT_SIZE);
   assert(dums);
 
   int i, tmp_str_len;
-	char* volatile tmp_str = NULL;
-	char* volatile s = NULL;
+  char* tmp_str = NULL;
+  char* s = NULL;
   for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
-		s = ToStr(Encode(i));
+#if defined(__GNUC__) || defined(__clang__)
+    s = ToStr(Encode(i));
+#else
+    s = i_to_str(Encode(i));
+#endif
     tmp_str_len = snprintf(NULL, 0, "Dummy node [%s]", s);
     tmp_str = (char*)malloc(sizeof(char)*(tmp_str_len+1));
     sprintf(tmp_str, "Dummy node [%s]", s);
     dums[i] = NewDummy(tmp_str);
-		free(tmp_str);
-		free(s);
+    free(tmp_str);
+    free(s);
   }
 
   printf("Inserting Dummies!!\n");
   for (i=0; i<DICT_ELEMENT_SIZE; ++i) {
     printf(
-			"Inserting with string \"%s\", Hashed as: %lu \n",
-			dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
+      "Inserting with string \"%s\", Hashed as: %lu \n",
+      dums[i]->dummy_name, hash_str_fnv(dums[i]->dummy_name));
     DInsert(test_dict, dums[i], dums[i]->dummy_name);
   }
 
@@ -166,7 +170,7 @@ int main (void)
 
   for (i=0; i<DICT_ELEMENT_SIZE; ++i)
     DeleteDummy(dums[i]);
-	free(dums);
+  free(dums);
   DeleteDict(test_dict);
 
   return 0;

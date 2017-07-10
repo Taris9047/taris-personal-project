@@ -12,6 +12,7 @@
 *.pyc
 *.o
 *.so
+*.pgo
 *.exe
 bignum/cygBignum.dll
 TEdit/.idea/.name

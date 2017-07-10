@@ -31,7 +31,7 @@ typedef struct _list_node {
   struct _list_node* prev;
   list_data_t value;
 } list_node;
-typedef list_node* LNode;
+//typedef list_node* LNode;
 
 /* for individual Nodes */
 static LNode list_node_init();

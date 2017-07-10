@@ -85,6 +85,7 @@ List DGetKeys(Dict d);
 /* Providing some time-saving utils */
 #define STRMALLOC(N) (char*)malloc(sizeof(char)*(N+1))
 
+/* Don't use this crap unless your compiler understands C11 */
 #define ToStr(T) \
   _Generic( (T), \
     short:sh_to_str, \
