@@ -28,6 +28,7 @@
 
 /* data type */
 typedef void* bt_data_t;
+typedef uint64_t bt_key_t;
 
 /* Binary tree class */
 class BTree
@@ -44,16 +45,16 @@ public:
   typedef btnode* BTNode;
 
   /* Manipulation methods */
-  void Add(bt_data_t, uint64_t key);
-  void Insert(bt_data_t, uint64_t key);
-  void Remove(uint64_t key);
+  void Add(bt_data_t d, bt_key_t key);
+  void Insert(bt_data_t d, bt_key_t key);
+  void Remove(bt_key_t key);
 
   /* Access methods */
-  bt_data_t Get(uint64_t key);
+  bt_data_t Get(bt_key_t key);
 
   /* Some utils */
   bool IsEmpty();
-  uint64_t Size();
+  bt_key_t Size();
 
 private:
   BTNode root;
@@ -62,7 +63,6 @@ private:
 
   bool Exists(bt_data_t);
   bt_data_t Find(uint64_t key);
-
 };
 
 

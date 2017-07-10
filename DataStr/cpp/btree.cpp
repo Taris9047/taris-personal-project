@@ -23,7 +23,7 @@ private:
   BTNode left;
   BTNode right;
   bt_data_t data;
-  uint64_t key;
+  bt_key_t key;
 
 public:
   /* Some methods */
@@ -31,8 +31,8 @@ public:
   void SetLeft(const BTNode& o) { left = o; }
   BTNode GetRight() const { return right; };
   void SetRight(const BTNode& o) { right = o; }
-  uint64_t GetKey() const { return key; };
-  void SetKey(uint64_t o_k) { key = o_k; }
+  bt_key_t GetKey() const { return key; };
+  void SetKey(bt_key_t o_k) { key = o_k; }
   bt_data_t GetData() const { return data; };
   void SetData(bt_data_t d) { data = d; }
 
@@ -52,7 +52,7 @@ public:
 /*****************************************
   BTree - Methods (Manipulation)
 ******************************************/
-void BTree::Add(bt_data_t d, uint64_t key)
+void BTree::Add(bt_data_t d, bt_key_t key)
 {
   BTNode new_node = new btnode();
   new_node->SetData(d);
@@ -94,10 +94,13 @@ void BTree::Add(bt_data_t d, uint64_t key)
       }
     } /* while(true) */
   } /* if (!this->root) */
+  size++;
+  bt_key_t* p_key = new bt_key_t(key);
+  key_list->Push(p_key);
 }
 
 /* Same as Add... alias */
-void BTree::Insert(bt_data_t d, uint64_t key)
+void BTree::Insert(bt_data_t d, bt_key_t key)
 {
   Add(d, key);
 }
@@ -105,24 +108,61 @@ void BTree::Insert(bt_data_t d, uint64_t key)
 /*****************************************
   BTree - Access and utility methods
 ******************************************/
+bool BTree::IsEmpty()
+{
+  if (!root) return true;
+  else return false;
+}
+
+uint64_t BTree::Size()
+{
+  return size;
+}
 
 /*****************************************
   BTree - Private methods
 ******************************************/
 
 /* Find a node with key */
-bt_data_t Find(uint64_t key)
+bt_data_t BTree::Find(bt_key_t key)
 {
+  if (IsEmpty()) return nullptr;
 
+  /* Maybe we need to implement some validation routine for given key here.
+    If given key doesn't exist in this tree, botch it!! */
+
+  /* Currently, finding routine is a mere single core */
+  BTNode tmp_btnode = root;
+  while (true) {
+    if (key == tmp_btnode->GetKey()) return tmp_btnode->GetData();
+    else if (key < tmp_btnode->GetKey())
+      tmp_btnode = tmp_btnode->GetLeft();
+    else tmp_btnode = tmp_btnode->GetRight();
+  }
+
+  /* None shall pass here !! */
+  return nullptr;
 }
 
 /*****************************************
   BTree - Constructors and Destructors
 ******************************************/
-BTree::BTree() : root(nullptr), key_list(nullptr), size(0)
-{}
+BTree::BTree() : root(nullptr), key_list(new List()), size(0)
+{
+}
 
 BTree::BTree(const BTree& other) : BTree()
 {
 
+}
+
+BTree::~BTree()
+{
+  uint64_t i;
+  if (key_list) {
+    #pragma omp parallel for
+    for (i=0; i<key_list->Len(); ++i)
+      delete (bt_key_t*)key_list->At(i);
+    delete key_list;
+  }
 }

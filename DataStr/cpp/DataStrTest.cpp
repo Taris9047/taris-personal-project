@@ -42,18 +42,39 @@ void TestList(uint64_t dummy_data_len)
   uint64_t i;
 
   /* Assigning dummy data to list */
-  #pragma omp parallel
-  {
-    #pragma omp for
-    for (i=0; i<dummy_data_len; ++i)
-      pList->Push(&dummy_vec[i]);
-  } /* #pragma omp parallel */
+  #pragma omp parallel for
+  for (i=0; i<dummy_data_len; ++i)
+    pList->Push(&dummy_vec[i]);
 
   std::cout << "List length after populting: " \
     << pList->Len() << std::endl;
 
   delete pList;
 }
+
+/* Test Binary Tree */
+void TestBTree(uint64_t dummy_data_len)
+{
+  /* Preparing a crappy dummy data */
+  std::cout << "Preparing some dummy data for Binary Tree!" << std::endl;
+  std::vector<DUMMY_DATA_T> dummy_vec = PrepDummy(dummy_data_len);
+
+  BTree* pBTree = new BTree();
+
+  std::cout << "Binary Tree length: " << pBTree->Size() << std::endl;
+
+  uint64_t i;
+
+  #pragma omp parallel for
+  for (i=0; i<dummy_data_len; ++i)
+    pBTree->Insert(nullptr, dummy_vec[i]);
+
+  std::cout << "Binary Tree length after populating: " \
+    << pBTree->Size() << std::endl;
+
+  delete pBTree;
+}
+
 
 /* The main function */
 int main (int argc, char* argv[])
@@ -67,6 +88,9 @@ int main (int argc, char* argv[])
 
   /* Now test list */
   TestList(data_length);
+
+  /* Then test binary tree */
+  TestBTree(data_length);
 
   return 0;
 }

@@ -30,4 +30,7 @@ std::vector<DUMMY_DATA_T> PrepDummy(uint64_t dummy_data_len);
 /* Test list */
 void TestList(uint64_t dummy_data_len);
 
+/* Test Binary Tree */
+void TestBTree(uint64_t dummy_data_len);
+
 #endif /* Include guard */
