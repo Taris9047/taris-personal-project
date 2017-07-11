@@ -27,13 +27,13 @@ private:
 
 public:
   /* Some methods */
-  BTNode GetLeft() const { return left; };
+  BTNode GetLeft() const { return left; }
   void SetLeft(const BTNode& o) { left = o; }
-  BTNode GetRight() const { return right; };
+  BTNode GetRight() const { return right; }
   void SetRight(const BTNode& o) { right = o; }
-  bt_key_t GetKey() const { return key; };
+  bt_key_t GetKey() const { return key; }
   void SetKey(bt_key_t o_k) { key = o_k; }
-  bt_data_t GetData() const { return data; };
+  bt_data_t GetData() const { return data; }
   void SetData(bt_data_t d) { data = d; }
 
 public:
@@ -99,8 +99,8 @@ void BTree::Add(bt_data_t d, bt_key_t key)
   {
   size++;
   }
-  bt_key_t* p_key = new bt_key_t(key);
-  key_list->Push(p_key);
+  // bt_key_t* p_key = new bt_key_t(key);
+  // key_list->Push(p_key);
 
 }
 
@@ -128,6 +128,35 @@ uint64_t BTree::Size()
   BTree - Private methods
 ******************************************/
 
+/* try to find given data (in fact, pointer addr.) */
+/*
+  Reference:
+  http://www.geeksforgeeks.org/iterative-preorder-traversal/
+*/
+bool BTree::Exists(bt_data_t data)
+{
+  /* Empty the node_list */
+  if (!node_list->IsEmpty())
+    node_list->DeleteNodes();
+
+  /* Let's start it */
+  node_list->Push(root);
+
+  BTNode tmp;
+  while (!node_list->IsEmpty()) {
+
+    tmp = (BTNode)node_list->At(0);
+    if (data == tmp->GetData()) return true;
+    node_list->Pop();
+
+    if (tmp->GetRight()) node_list->Push(tmp->GetRight());
+    if (tmp->GetLeft()) node_list->Push(tmp->GetLeft());
+
+  } /* while (!node_list->IsEmpty()) */
+
+  return false;
+}
+
 /* Find a node with key */
 bt_data_t BTree::Find(bt_key_t key)
 {
@@ -142,32 +171,51 @@ bt_data_t BTree::Find(bt_key_t key)
     if (key == tmp_btnode->GetKey()) return tmp_btnode->GetData();
     else if (key < tmp_btnode->GetKey())
       tmp_btnode = tmp_btnode->GetLeft();
-    else tmp_btnode = tmp_btnode->GetRight();
+    else
+      tmp_btnode = tmp_btnode->GetRight();
   }
 
   /* None shall pass here !! */
   return nullptr;
 }
 
+/* Destroys all the nodes recursively */
+void BTree::destroy(BTNode btn)
+{
+  if (!btn) return;
+
+  if (!node_list->IsEmpty())
+    node_list->DeleteNodes();
+
+  BTNode tmp;
+  node_list->Push(root);
+
+  while (!node_list->IsEmpty()) {
+
+    tmp = (BTNode)node_list->At(0);
+
+    if (tmp->GetLeft()) node_list->Push(tmp->GetLeft());
+    if (tmp->GetRight()) node_list->Push(tmp->GetRight());
+
+    delete tmp;
+
+  } /* while (!node_list->IsEmpty()) */
+
+}
+
 /*****************************************
   BTree - Constructors and Destructors
 ******************************************/
-BTree::BTree() : root(nullptr), key_list(new List()), size(0)
+BTree::BTree() : root(nullptr), node_list(new List), size(0)
 {
 }
 
 BTree::BTree(const BTree& other) : BTree()
 {
-
 }
 
 BTree::~BTree()
 {
-  uint64_t i;
-  if (key_list) {
-    #pragma omp parallel for
-    for (i=0; i<key_list->Len(); ++i)
-      delete (bt_key_t*)key_list->At(i);
-    delete key_list;
-  }
+  destroy(root);
+  delete node_list;
 }

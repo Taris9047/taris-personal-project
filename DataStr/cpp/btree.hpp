@@ -59,10 +59,12 @@ public:
 private:
   BTNode root;
   uint64_t size;
-  List* key_list;
+  List* node_list;
 
   bool Exists(bt_data_t);
   bt_data_t Find(uint64_t key);
+
+  void destroy(BTNode);
 };
 
 
