@@ -13,6 +13,10 @@
 #ifndef CPP11_DATA_STRUCTURE_IMPLEMENTATION_TEST_HEADER
 #define CPP11_DATA_STRUCTURE_IMPLEMENTATION_TEST_HEADER
 
+#if defined(_OPENMP)
+#  include <omp.h>
+#endif
+
 #include <iostream>
 #include <string>
 #include <sstream>

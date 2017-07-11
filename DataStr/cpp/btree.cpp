@@ -94,9 +94,14 @@ void BTree::Add(bt_data_t d, bt_key_t key)
       }
     } /* while(true) */
   } /* if (!this->root) */
+
+  #pragma omp critical
+  {
   size++;
+  }
   bt_key_t* p_key = new bt_key_t(key);
   key_list->Push(p_key);
+
 }
 
 /* Same as Add... alias */

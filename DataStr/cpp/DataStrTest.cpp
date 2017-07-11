@@ -79,6 +79,11 @@ void TestBTree(uint64_t dummy_data_len)
 /* The main function */
 int main (int argc, char* argv[])
 {
+  /* Set up omp */
+  #if defined(_OPENMP)
+  omp_set_num_threads(48);
+  #endif
+
   /* Argument check up */
   uint64_t data_length = DUMMY_DATA_LENGTH;
   if (argc > 1) std::stringstream(argv[1]) >> data_length;
