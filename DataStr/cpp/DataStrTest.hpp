@@ -24,6 +24,7 @@
 
 #include "list.hpp"
 #include "btree.hpp"
+#include "trie.hpp"
 
 #define DUMMY_DATA_LENGTH 65535
 #define DUMMY_DATA_T double

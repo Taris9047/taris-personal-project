@@ -67,16 +67,19 @@ void BTree::Add(bt_data_t d, bt_key_t key)
       if (tmp_node->GetKey() < key) {
         if (!tmp_node->GetLeft()) {
           #pragma omp critical
+          {
           tmp_node->SetLeft(new_node);
+          }
           break;
         }
         else {
           #pragma omp critical
+          {
           tmp_node = tmp_node->GetLeft();
+          }
         }
       }
       else if (tmp_node->GetKey() == key) {
-        #pragma omp critical
         tmp_node->SetData(d);
         delete new_node;
         break;
@@ -84,12 +87,16 @@ void BTree::Add(bt_data_t d, bt_key_t key)
       else {
         if (!tmp_node->GetRight()) {
           #pragma omp critical
+          {
           tmp_node->SetRight(new_node);
+          }
           break;
         }
         else {
           #pragma omp critical
+          {
           tmp_node = tmp_node->GetRight();
+          }
         }
       }
     } /* while(true) */
@@ -176,7 +183,7 @@ bt_data_t BTree::Find(bt_key_t key)
   }
 
   /* None shall pass here !! */
-  return nullptr;
+  //return nullptr;
 }
 
 /* Destroys all the nodes recursively */
@@ -187,15 +194,19 @@ void BTree::destroy(BTNode btn)
   if (!node_list->IsEmpty())
     node_list->DeleteNodes();
 
-  BTNode tmp;
+  BTNode tmp, tmp_left, tmp_right;
   node_list->Push(root);
 
   while (!node_list->IsEmpty()) {
 
     tmp = (BTNode)node_list->At(0);
+    tmp_left = tmp->GetLeft();
+    tmp_right = tmp->GetRight();
 
-    if (tmp->GetLeft()) node_list->Push(tmp->GetLeft());
-    if (tmp->GetRight()) node_list->Push(tmp->GetRight());
+    tmp = (BTNode)node_list->Pop(); /* Obvious but... */
+
+    if (tmp_left) node_list->Push(tmp_left);
+    if (tmp_right) node_list->Push(tmp_right);
 
     delete tmp;
 

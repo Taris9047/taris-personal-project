@@ -123,6 +123,7 @@ list_data_t List::Pop()
     root = tmp_next;
 
     cursor_loc--;
+    length--;
   }
   return data;
 }
@@ -172,7 +173,7 @@ void List::DeleteValues()
   LNode tmp_lnode = root;
   while (tmp_lnode) {
     if (tmp_lnode->Value())
-      free(tmp_lnode->Value());
+      free(tmp_lnode->Value()); /* This is actually dangerous since the value could be assigned via new instead of malloc */
     tmp_lnode = tmp_lnode->Next();
   }
 }
