@@ -1,6 +1,6 @@
 /********************************************
 
-  Sparse matrix
+  Test file for CUDA Matrix
 
   Header file
 
@@ -10,10 +10,12 @@
 
 *********************************************/
 
-#ifndef MATRIX_CUDA_SMATRIX_HEADER
-#define MATRIX_CUDA_SMATRIX_HEADER
+#ifndef MATRIX_CUDA_TEST_HEADER
+#define MATRIX_CUDA_TEST_HEADER
 
 #include "utils.hpp"
-#include "num.hpp"
+
+#include "matrix.hpp"
+#include "smatrix.hpp"
 
 #endif /* Include guard */

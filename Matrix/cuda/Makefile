@@ -5,7 +5,7 @@ TESTF_NAME := tmatrix_cuda_test
 # Compilers and tools
 CC=gcc
 CXX=g++
-NVCC=nvcc
+NVCC=nvcc -ccbin=gcc-5.3 -Wno-deprecated-gpu-targets
 AR=ar
 LIBS=-lm -L.
 
@@ -17,12 +17,13 @@ NVCCFLAGS=-g
 # Source files
 SRCDIR=./src
 SOURCES=$(wildcard $(SRCDIR)/*.cpp)
+TEMPLATE_SOURCES=$(wildcard $(SRCDIR)/*.tcc)
 HEADERS=$(wildcard $(SRCDIR)/*.hpp)
 CUDA_SOURCES=$(wildcard $(SRCDIR)/*.cu)
 
 # Object files
 CPU_OBJS=$(SOURCES:.cpp=.Po)
-CUDA_OBJS=$(SOURCES:.cu=.CPo)
+CUDA_OBJS=$(CUDA_SOURCES:.cu=.CPo)
 OBJS=$(CPU_OBJS) $(CUDA_OBJS)
 
 # Library file name detection
@@ -45,22 +46,23 @@ else ifneq (, $(findstring darwin, $(SYS)))
 endif
 
 # Let's make stuff
-all: $(TESTF_NAME) $(LIBNAME)
+all: $(TESTF_NAME)
 
-%.cpp: %.Po
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(SRCDIR)/%.Po: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I.
 
-%.cu: %.CPo
-	$(NVCC) $(NVCCFLAGS) -c $< -o $@
+$(SRCDIR)/%.CPo: $(SRCDIR)/%.cu
+	$(NVCC) $(NVCCFLAGS) -c $< -o $@ -I.
 
-$(LIBNAME): $(OBJS)
-	$(AR) rcs $< $@
+$(LIBNAME): $(CPU_OBJS) $(CUDA_OBJS)
+	$(AR) rcs $@ $(CPU_OBJS) $(CUDA_OBJS)
 
-
+$(TESTF_NAME): test.cpp test.hpp $(LIBNAME) $(SOURCES) $(TEMPLATE_SOURCES) $(CUDA_SOURCES) $(HEADERS)
+	$(CXX) $(CXXFLAGS) test.cpp -I$(SRCDIR) -I. $(LIBS) $(LIBNAME) -o $(TESTF_NAME)
 
 
 clean:
-	rm -rfv $(SRCDIR)/*.Po $(SRCDIR)/*.CPo
+	rm -rfv $(SRCDIR)/*.Po $(SRCDIR)/*.CPo ./*.o ./*.Po
 	rm -rfv $(TESTF_NAME)
 	rm -rfv *.a
 	rm -rfv *.dSYM
