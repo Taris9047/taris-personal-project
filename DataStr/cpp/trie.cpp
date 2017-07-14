@@ -72,18 +72,24 @@ void Trie::Insert(std::string str)
       if (!tmp_tn) {
         new_tmp_tn = new trie_node(*s);
         roots.push_back(new_tmp_tn);
-      }
+      } /* f (s==str.begin()) */
       else new_tmp_tn = tmp_tn;
       curr_stage = new_tmp_tn;
       continue;
-    }
+    } /* if (s==str.begin()) else */
 
     tmp_tn = search_nodes(*s, curr_stage->NextNodes());
+    if (!tmp_tn) {
+      new_tmp_tn = new trie_node(*s);
+      new_tmp_tn->SetParent(curr_stage);
+      curr_stage->NextNodes().push_back(new_tmp_tn);
+    } /* if (!tmp_tn) */
+    else {
+      curr_stage = tmp_tn;
+      continue;
+    } /* if (!tmp_tn) else */
 
-
-  }
-
-
+  } /* for (auto s=str.begin(); s!=str.end(); ++s) */
 }
 void Trie::Insert(const char* c_str)
 {
@@ -94,6 +100,13 @@ void Trie::Insert(const char* c_str)
 /* This string exists? */
 bool Trie::Exists(std::string str)
 {
+  if (str.empty()) return false;
+
+  for (auto s=str.begin(); s!=str.end(); ++i) {
+
+  }
+
+
   return false;
 }
 bool Trie::Exists(const char* c_str)

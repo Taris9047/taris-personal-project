@@ -1,6 +1,6 @@
 # Detecting OS --> let's use clang!!
 CC=gcc
-CPP=g++
+CXX=g++
 
 PGIC=pgcc
 PGICXX=pgc++
@@ -11,9 +11,9 @@ DIRECTIVES_PGI=-mp
 LIBNAME=datastr
 
 CFLAGS=-ggdb3 -fPIC $(DIRECTIVES)
-CPPFLAGS=-ggdb3 -fPIC -std=c++11 $(DIRECTIVES)
+CXXFLAGS=-ggdb3 -fPIC -std=c++11 $(DIRECTIVES)
 RCFLAGS=-O3 -fPIC $(DIRECTIVES)
-RCPPFLAGS=-O3 -fPIC -std=c++11 $(DIRECTIVES)
+RCXXFLAGS=-O3 -fPIC -std=c++11 $(DIRECTIVES)
 PGCFLAGS=-g $(DIRECTIVES_PGI)
 PGCXXFLAGS=-g -std=c++11 $(DIRECTIVES_PGI)
 
@@ -42,19 +42,19 @@ release: $(TESTF_NAME)-rel
 pgi: $(TESTF_NAME)-pgi
 
 %.Po: %.cpp
-	$(CPP) $(CPPFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
 
 %.RPo: %.cpp
-	$(CPP) $(RCPPFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
+	$(CXX) $(RCXXFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
 
 %_pgi.Po: %.cpp
 	$(PGICXX) $(PGCXXFLAGS) -c $< -o $@ -I$(INCLUDE_DIR)
 
 $(TESTF_NAME): lib$(LIBNAME).a DataStrTest.cpp DataStrTest.hpp
-	$(CPP) $(CPPFLAGS) DataStrTest.cpp lib$(LIBNAME).a -o $(TESTF_NAME) $(LIBS) -I$(INCLUDE_DIR)
+	$(CXX) $(CXXFLAGS) DataStrTest.cpp lib$(LIBNAME).a -o $(TESTF_NAME) $(LIBS) -I$(INCLUDE_DIR)
 
 $(TESTF_NAME)-rel: lib$(LIBNAME)-rel.a DataStrTest.cpp DataStrTest.hpp
-	$(CPP) $(RCPPFLAGS) DataStrTest.cpp lib$(LIBNAME)-rel.a -o $(TESTF_NAME) $(RLIBS) -I$(INCLUDE_DIR)
+	$(CXX) $(RCXXFLAGS) DataStrTest.cpp lib$(LIBNAME)-rel.a -o $(TESTF_NAME) $(RLIBS) -I$(INCLUDE_DIR)
 
 $(TESTF_NAME)-pgi: lib$(LIBNAME)-pgi.a DataStrTest.cpp DataStrTest.hpp
 	$(PGICXX) $(PGCXXFLAGS) DataStrTest.cpp lib$(LIBNAME)-pgi.a -o $(TESTF_NAME) $(RLIBS) -I$(INCLUDE_DIR)
