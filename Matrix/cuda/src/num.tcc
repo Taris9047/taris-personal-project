@@ -47,7 +47,7 @@ Num<T>::Num(const T& given_data) : Num()
 template<class T>
 Num<T>::Num(const Num& other) : Num()
 {
-
+  Set(other.Data());
 }
 
 template<class T>
