@@ -102,12 +102,17 @@ bool Trie::Exists(std::string str)
 {
   if (str.empty()) return false;
 
-  for (auto s=str.begin(); s!=str.end(); ++i) {
-
+  std::vector<TrieNode> curr_nodes = roots;
+  TrieNode found_node;
+  for (auto s=str.begin(); s!=str.end(); ++s) {
+    found_node = search_nodes(*s, curr_nodes);
+    if (found_node) {
+      curr_nodes = found_node->NextNodes();
+    }
+    else return false;
   }
 
-
-  return false;
+  return true;
 }
 bool Trie::Exists(const char* c_str)
 {
@@ -118,6 +123,34 @@ bool Trie::Exists(const char* c_str)
 /* Remove a string */
 void Trie::Remove(std::string str)
 {
+  /* This may slow too much down our stuff. Let's not use it */
+  //if (!Exists(str)) return;
+
+  List* Stack = new List();
+  std::vector<TrieNode> curr_nodes = roots;
+  TrieNode found_node;
+  for (auto s=str.begin(); s!=str.end(); ++s) {
+    found_node = search_nodes(*s, curr_nodes);
+    if (found_node) Stack->Push(found_node);
+    else {
+      delete Stack;
+      return;
+    }
+  }
+
+  /* Now we've made the list of nodes. Let's deal with it */
+  TrieNode tmp_parent, tmp;
+  size_t tmp_v_i;
+  for (auto i=0; i<Stack->Len(); ++i) {
+    tmp = (TrieNode)Stack->At(i);
+    tmp_parent = tmp->Parent();
+    erase_vec_elem<TrieNode>(tmp_parent->NextNodes(), tmp);
+    if (tmp_parent->NextNodes().empty())
+      delete tmp;
+    tmp = tmp_parent;
+  }
+
+  delete Stack;
 
 }
 void Trie::Remove(const char* c_str)
@@ -199,7 +232,8 @@ Trie::TrieNode Trie::search_nodes(const char c, std::vector<TrieNode> nodes)
 /*********************************************
   Trie class - Constructors and Destructors
 **********************************************/
-Trie::Trie() : roots(std::vector<TrieNode>())
+Trie::Trie() : \
+  roots(std::vector<TrieNode>())
 {}
 
 Trie::Trie(const Trie& other) : Trie()

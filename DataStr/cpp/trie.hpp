@@ -65,7 +65,6 @@ private:
   TrieNode search_roots(const char c);
   TrieNode search_nodes(const char c, std::vector<TrieNode> nodes);
 
-
 }; /* Trie class */
 
 #endif /* Include guard */
