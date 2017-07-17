@@ -9,6 +9,14 @@ NVCC=nvcc -ccbin=gcc-5.3 -Wno-deprecated-gpu-targets
 AR=ar
 LIBS=-lm -L.
 
+# CUDA libs
+CUDA_INSTALL_PATH ?= /usr/local/cuda
+ifdef cuda-install
+	CUDA_INSTALL_PATH := $(cuda-install)
+endif
+CUDA_LIB_PATH=$(CUDA_INSTALL_PATH)/lib64
+CUDA_LIBS=-L$(CUDA_LIB_PATH) -lcudart
+
 # Compiler flags
 CFLAGS=-ggdb -fopenmp -std=c11
 CXXFLAGS=-ggdb -fopenmp -std=c++11
@@ -23,7 +31,7 @@ CUDA_SOURCES=$(wildcard $(SRCDIR)/*.cu)
 
 # Object files
 CPU_OBJS=$(SOURCES:.cpp=.Po)
-CUDA_OBJS=$(CUDA_SOURCES:.cu=.CPo)
+CUDA_OBJS=$(CUDA_SOURCES:.cu=.cubin)
 OBJS=$(CPU_OBJS) $(CUDA_OBJS)
 
 # Library file name detection
@@ -51,18 +59,18 @@ all: $(TESTF_NAME)
 $(SRCDIR)/%.Po: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -I.
 
-$(SRCDIR)/%.CPo: $(SRCDIR)/%.cu
+$(SRCDIR)/%.cubin: $(SRCDIR)/%.cu
 	$(NVCC) $(NVCCFLAGS) -c $< -o $@ -I.
 
 $(LIBNAME): $(CPU_OBJS) $(CUDA_OBJS)
 	$(AR) rcs $@ $(CPU_OBJS) $(CUDA_OBJS)
 
 $(TESTF_NAME): test.cpp test.hpp $(LIBNAME) $(SOURCES) $(TEMPLATE_SOURCES) $(CUDA_SOURCES) $(HEADERS)
-	$(CXX) $(CXXFLAGS) test.cpp -I$(SRCDIR) -I. $(LIBS) $(LIBNAME) -o $(TESTF_NAME)
+	$(CXX) $(CXXFLAGS) test.cpp -I$(SRCDIR) -I. $(LIBS) $(LIBNAME) -o $(TESTF_NAME) $(CUDA_LIBS)
 
 
 clean:
-	rm -rfv $(SRCDIR)/*.Po $(SRCDIR)/*.CPo ./*.o ./*.Po
+	rm -rfv $(SRCDIR)/*.Po $(SRCDIR)/*.cubin ./*.o ./*.Po
 	rm -rfv $(TESTF_NAME)
 	rm -rfv *.a
 	rm -rfv *.dSYM
