@@ -27,6 +27,8 @@ public:
   matrix_data_t At(size_t, size_t);
   matrix_data_t operator() (size_t, size_t);
 
+  ptype Type() const;
+
   /* Constructors and Destructors */
   SMatrix();
   SMatrix(const SMatrix&);
@@ -37,6 +39,7 @@ public:
 private:
   BTree* data_tree;
   size_t rows, cols;
+  ptype tp;
 };
 
 

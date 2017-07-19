@@ -13,19 +13,19 @@
 Matrix& AddMatrixData(const Matrix& A, const Matrix& B)
 {
 }
-Matrix& AddMatrixDataSC(const Matrix& A, matrix_data_t sc)
+Matrix& AddMatrixDataSC(const Matrix& A, const Num& sc)
 {
 }
 Matrix& SubMatrixData(const Matrix& A, const Matrix& B)
 {
 }
-Matrix& SubMatrixDataSC(const Matrix& A, matrix_data_t sc)
+Matrix& SubMatrixDataSC(const Matrix& A, const Num& sc)
 {
 }
 
 Matrix& MulMatrixData(const Matrix& A, const Matrix& B)
 {
 }
-Matrix& MulMatrixDataSC(const Matrix& A, matrix_data_t sc)
+Matrix& MulMatrixDataSC(const Matrix& A, const Num& sc)
 {
 }

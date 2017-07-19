@@ -22,17 +22,20 @@ public:
   /* Access Methods */
   size_t Rows() const;
   size_t Cols() const;
-  matrix_data_t At(size_t row_index, size_t col_index) const;
-  matrix_data_t operator() (size_t row_index, size_t col_index) const;
+  Num& At(size_t row_index, size_t col_index) const;
+  Num& operator() (size_t row_index, size_t col_index) const;
+
+  /* Get type */
+  ptype Type() const;
 
   /* Operations */
   Matrix& operator+ (const Matrix& B);
-  Matrix& operator+ (matrix_data_t sc);
+  Matrix& operator+ (const Num& sc);
   Matrix& operator- (const Matrix& B);
-  Matrix& operator- (matrix_data_t sc);
+  Matrix& operator- (const Num& sc);
   /* Multiplication */
   Matrix& operator* (const Matrix& B);
-  Matrix& operator* (matrix_data_t sc);
+  Matrix& operator* (const Num& sc);
 
   /* Constructors and Destructors */
   Matrix();
@@ -44,19 +47,22 @@ public:
 
 private:
 
-  matrix_data_t** data;
+  Num** data;
   size_t rows, cols;
+
+  /* Numeric type */
+  ptype tp;
 
 };
 
 
 /* Wrappers for cuda wrappers */
 Matrix& AddMatrixData(const Matrix&, const Matrix&);
-Matrix& AddMatrixDataSC(const Matrix&, matrix_data_t);
+Matrix& AddMatrixDataSC(const Matrix&, const Num&);
 Matrix& SubMatrixData(const Matrix&, const Matrix&);
-Matrix& SubMatrixDataSC(const Matrix&, matrix_data_t);
+Matrix& SubMatrixDataSC(const Matrix&, const Num&);
 
 Matrix& MulMatrixData(const Matrix&, const Matrix&);
-Matrix& MulMatrixDataSC(const Matrix&, matrix_data_t);
+Matrix& MulMatrixDataSC(const Matrix&, const Num&);
 
 #endif /* Include guard */
