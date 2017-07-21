@@ -13,29 +13,34 @@
 #ifndef MATRIX_CUDA_MATRIX_HEADER
 #define MATRIX_CUDA_MATRIX_HEADER
 
-#include "typedefs.hpp"
 #include "utils.hpp"
-#include "num.hpp"
 
+#include <vector>
+
+template <class T>
 class Matrix {
 public:
   /* Access Methods */
   size_t Rows() const;
   size_t Cols() const;
-  Num& At(size_t row_index, size_t col_index) const;
-  Num& operator() (size_t row_index, size_t col_index) const;
+  T& At(size_t row_index, size_t col_index) const;
+  T& operator() (size_t row_index, size_t col_index) const;
 
-  /* Get type */
-  ptype Type() const;
+  /* Assignment methods */
+  void Assign(std::vector<T> vec);
+  void Assign(const T* array, size_t array_sz);
+
+  /* Manipulation Methods */
+  void Tran(); /* Transpose */
 
   /* Operations */
   Matrix& operator+ (const Matrix& B);
-  Matrix& operator+ (const Num& sc);
+  Matrix& operator+ (const T& sc);
   Matrix& operator- (const Matrix& B);
-  Matrix& operator- (const Num& sc);
+  Matrix& operator- (const T& sc);
   /* Multiplication */
   Matrix& operator* (const Matrix& B);
-  Matrix& operator* (const Num& sc);
+  Matrix& operator* (const T& sc);
 
   /* Constructors and Destructors */
   Matrix();
@@ -46,23 +51,26 @@ public:
   ~Matrix() noexcept;
 
 private:
-
-  Num** data;
+  T** data;
   size_t rows, cols;
 
-  /* Numeric type */
-  ptype tp;
-
-};
+}; /* class Matrix */
 
 
 /* Wrappers for cuda wrappers */
-Matrix& AddMatrixData(const Matrix&, const Matrix&);
-Matrix& AddMatrixDataSC(const Matrix&, const Num&);
-Matrix& SubMatrixData(const Matrix&, const Matrix&);
-Matrix& SubMatrixDataSC(const Matrix&, const Num&);
+/* They will be implemented in mul.cpp */
+template <typename T>
+Matrix<T>& AddMatrixData(const Matrix<T>&, const Matrix<T>&);
+template <typename T>
+Matrix<T>& AddMatrixDataSC(const Matrix<T>&, const T&);
+template <typename T>
+Matrix<T>& SubMatrixData(const Matrix<T>&, const Matrix<T>&);
+template <typename T>
+Matrix<T>& SubMatrixDataSC(const Matrix<T>&, const T&);
 
-Matrix& MulMatrixData(const Matrix&, const Matrix&);
-Matrix& MulMatrixDataSC(const Matrix&, const Num&);
+template <typename T>
+Matrix<T>& MulMatrixData(const Matrix<T>&, const Matrix<T>&);
+template <typename T>
+Matrix<T>& MulMatrixDataSC(const Matrix<T>&, const T&);
 
 #endif /* Include guard */

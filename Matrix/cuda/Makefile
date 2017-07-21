@@ -24,13 +24,12 @@ NVCCFLAGS=-g
 
 # Source files
 SRCDIR=./src
-SOURCES=$(wildcard $(SRCDIR)/*.cpp)
-TEMPLATE_SOURCES=$(wildcard $(SRCDIR)/*.tcc)
-HEADERS=$(wildcard $(SRCDIR)/*.hpp)
+SOURCES=$(wildcard $(SRCDIR)/*.cpp) $(wildcard $(SRCDIR)/*.c)
+HEADERS=$(wildcard $(SRCDIR)/*.hpp) $(wildcard $(SRCDIR)/*.h)
 CUDA_SOURCES=$(wildcard $(SRCDIR)/*.cu)
 
 # Object files
-CPU_OBJS=$(SOURCES:.cpp=.Po)
+CPU_OBJS=$(SOURCES:.cpp=.Po) $(SOURCES:.c=.o)
 CUDA_OBJS=$(CUDA_SOURCES:.cu=.cubin)
 OBJS=$(CPU_OBJS) $(CUDA_OBJS)
 
@@ -56,6 +55,9 @@ endif
 # Let's make stuff
 all: $(TESTF_NAME)
 
+$(SRCDIR)/%.o: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@ -I.
+
 $(SRCDIR)/%.Po: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -I.
 
@@ -70,7 +72,7 @@ $(TESTF_NAME): test.cpp test.hpp $(LIBNAME) $(SOURCES) $(TEMPLATE_SOURCES) $(CUD
 
 
 clean:
-	rm -rfv $(SRCDIR)/*.Po $(SRCDIR)/*.cubin ./*.o ./*.Po
+	rm -rfv $(SRCDIR)/*.o $(SRCDIR)/*.Po $(SRCDIR)/*.cubin ./*.o ./*.Po
 	rm -rfv $(TESTF_NAME)
 	rm -rfv *.a
 	rm -rfv *.dSYM

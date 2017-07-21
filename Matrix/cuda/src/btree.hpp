@@ -51,6 +51,7 @@ public:
 
   /* Access methods */
   bt_data_t Get(bt_key_t key);
+  bt_data_t operator() (bt_key_t key);
 
   /* Some utils */
   bool IsEmpty();
