@@ -104,25 +104,17 @@ void Matrix<T>::LU(Matrix<T>* L, Matrix<T>* U)
 template <class T>
 Matrix<T>& Matrix<T>::operator+ (const Matrix<T>& B)
 {
-  return *this;
-}
-
-template <>
-Matrix<int>& Matrix<int>::operator+ (const Matrix<int>& B)
-{
   MATRIX_DIM_CHECK(B);
 
-  int* cuda_data_A = this->_linearlize_data();
-  int* cuda_data_B = B._linearlize_data();
-  int* result = AddCudaInt(cuda_data_A, cuda_data_B, rows, cols);
+  T* cuda_data_A = this->_linearlize_data();
+  T* cuda_data_B = B._linearlize_data();
+  T* result = AddCuda<T>(cuda_data_A, cuda_data_B, rows, cols);
 
   this->Assign(result, rows*cols);
 
   free(result);
   return *this;
 }
-
-
 
 template <class T>
 Matrix<T>& Matrix<T>::operator+ (const T& sc)
@@ -211,13 +203,6 @@ Matrix<T>::Matrix(const Matrix<T>& m) : Matrix()
       data_1d[j] = m.At(i,j);
     data[i] = std::move( data_1d );
   }
-
-  // #pragma omp parallel for
-  // for (auto i=0; i<rows; ++i) {
-  //   data[i] = new T[cols];
-  //   for (auto j=0; j<cols; ++j)
-  //     data[i][j] = m.At(i,j);
-  // }
 }
 
 template <class T>

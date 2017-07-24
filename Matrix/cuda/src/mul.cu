@@ -15,38 +15,44 @@
 /********************************************
   Cuda kernels
 *********************************************/
+template<typename T>
 __global__
-void add_kernel_int(void** ka, void** kb, void** kc)
+void add_kernel(void** ka, void** kb, void** kc)
 {
   return;
 }
 
+template<typename T>
 __global__
-void add_sc_kernel_int(void** ka, void* kb, void** kc)
+void add_sc_kernel(void** ka, void* kb, void** kc)
 {
   return;
 }
 
+template<typename T>
 __global__
-void sub_kernel_int(void** ka, void** kb, void** kc)
+void sub_kernel(void** ka, void** kb, void** kc)
 {
   return;
 }
 
+template<typename T>
 __global__
-void sub_sc_kernel_int(void** ka, void* kb, void** kc)
+void sub_sc_kernel(void** ka, void* kb, void** kc)
 {
   return;
 }
 
+template<typename T>
 __global__
-void mul_kernel_int(void** ka, void** kb, void** kc)
+void mul_kernel(void** ka, void** kb, void** kc)
 {
   return;
 }
 
+template<typename T>
 __global__
-void mul_sc_kernel_int(void** ka, void* kb, void** kc)
+void mul_sc_kernel(void** ka, void* kb, void** kc)
 {
   return;
 }
@@ -57,138 +63,91 @@ void mul_sc_kernel_int(void** ka, void* kb, void** kc)
 #define NULL_CHECK(A) \
   if (!A) throw std::string("Can't calculate NULL pointer!!");
 
-/* Double precision */
-double* AddCudaDBL(double* a, double* b, size_t rows, size_t cols)
-{
-  NULL_CHECK((a||b))
+/* TODO: Gotta implement some wrapper here to reduce tediousness */
 
-  double* c;
-  
-
-
-  return c;
-}
-
-double* AddScCudaDBL(double* a, double s, size_t rows, size_t cols)
-{
-  NULL_CHECK(a)
-}
-
-double* SubCudaDBL(double* a, double* b, size_t rows, size_t cols)
-{
-  NULL_CHECK((a||b))
-}
-
-double* SubScCudaDBL(double* a, double s, size_t rows, size_t cols)
-{
-  NULL_CHECK(a)
-}
-
-
-double* MulCudaDBL(double* a, double* b, size_t rows, size_t cols)
-{
-  NULL_CHECK((a||b))
-}
-
-double* MulScCudaDBL(double* a, double s, size_t rows, size_t cols)
-{
-  NULL_CHECK(a)
-}
-
-
-/* Floating point */
-float* AddCudaFLT(float* a, float* b, size_t rows, size_t cols)
-{
-}
-float* AddScCudaFLT(float* a, float sc, size_t rows, size_t cols)
-{
-}
-float* SubCudaFLT(float* a, float* b, size_t rows, size_t cols)
-{
-}
-float* SubScCudaFLT(float* a, float sc, size_t rows, size_t cols)
-{
-}
-
-float* MulCudaFLT(float* a, float* b, size_t rows, size_t cols)
-{
-}
-float* MulScCudaFLT(float* a, float sc, size_t rows, size_t cols)
-{
-}
-
-
-/* Long integer */
-int64_t* AddCudaLong(int64_t* a, int64_t* b, size_t rows, size_t cols)
-{
-}
-int64_t* AddScCudaLong(int64_t* a, int64_t sc, size_t rows, size_t cols)
-{
-}
-int64_t* SubCudaLong(int64_t* a, int64_t* b, size_t rows, size_t cols)
-{
-}
-int64_t* SubScCudaLong(int64_t* a, int64_t sc, size_t rows, size_t cols)
-{
-}
-
-int64_t* MulCudaLong(int64_t* a, int64_t* b, size_t rows, size_t cols)
-{
-}
-int64_t* MulScCudaLong(int64_t* a, int64_t sc, size_t rows, size_t cols)
-{
-}
-
-
-/* Integer */
-int* AddCudaInt(int* a, int* b, size_t rows, size_t cols)
+/* Cuda wrappers  */
+template <typename T>
+T* AddCuda(T* a, T* b, size_t r, size_t c)
 {
   NULL_CHECK((a||b))
   
-  size_t memsize = rows*cols*sizeof(int);
+  size_t memsize = r*c*sizeof(T);
   
-  int* c = (int*)malloc(memsize);
-  int block_size;
-  int min_grid_size, grid_size;
+  T* res = (T*)malloc(memsize);
+  int block_size, min_grid_size, grid_size;
   
   void** a_vec; cudaMalloc((void**)&a_vec, memsize);
   void** b_vec; cudaMalloc((void**)&b_vec, memsize);
-  void** c_vec; cudaMalloc((void**)&c_vec, memsize);
+  void** res_vec; cudaMalloc((void**)&res_vec, memsize);
   cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice);
   cudaMemcpy(b_vec, b, memsize, cudaMemcpyHostToDevice);
   
   cudaOccupancyMaxPotentialBlockSize(
-    &min_grid_size, &block_size, add_kernel_int, 0, memsize);
+    &min_grid_size, &block_size, add_kernel<T>, 0, memsize);
   
   grid_size = (memsize+block_size-1)/block_size;
   
-  add_kernel_int<<<grid_size,block_size>>>(a_vec, b_vec, c_vec);
+  add_kernel<T><<<grid_size,block_size>>>(a_vec, b_vec, res_vec);
   
-  cudaMemcpy((void**)&c, c_vec, memsize, cudaMemcpyDeviceToHost);
+  cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost);
   
-  return c;
-}
-int* AddScCudaInt(int* a, int sc, size_t rows, size_t cols)
-{
-  NULL_CHECK(a)
-  int* c;
-  add_sc_kernel_int<<<128,1>>>((void**)&a, (void*)&sc, (void**)&c);
-  return c;
-}
-int* SubCudaInt(int* a, int* b, size_t rows, size_t cols)
-{
-  NULL_CHECK((a||b))
-}
-int* SubScCudaInt(int* a, int sc, size_t rows, size_t cols)
-{
-  NULL_CHECK(a)
+  return res;
 }
 
-int* MulCudaInt(int* a, int* b, size_t rows, size_t cols)
+template <typename T>
+T* AddScCuda(T* a, const T& sc, size_t r, size_t c)
 {
-  NULL_CHECK((a||b))
+  NULL_CHECK(a);
+  
+  size_t memsize = r*c*sizeof(T);
+  
+  T* res = (T*)malloc(memsize);
+  int block_size, min_grid_size, grid_size;
+  
+  void** a_vec; cudaMalloc((void**)&a_vec, memsize);
+  void** sc_vec; cudaMalloc((void**)&sc_vec, sizeof(T));
+  void** res_vec; cudaMalloc((void**)&res_vec, memsize);
+  cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice);
+  cudaMemcpy(sc_vec, &sc, sizeof(T), cudaMemcpyHostToDevice);
+  
+  cudaOccupancyMaxPotentialBlockSize(
+    &min_grid_size, &block_size, add_sc_kernel<T>, 0, memsize);
+  
+  grid_size = (memsize+block_size-1)/block_size;
+  
+  add_sc_kernel<T><<<grid_size,block_size>>>(a_vec, *sc_vec, res_vec);
+  
+  cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost);
+  
+  return res;
 }
-int* MulScCudaInt(int* a, int sc, size_t rows, size_t cols)
+
+template <typename T>
+T* SubCuda(T* a, T* b, size_t r, size_t c)
 {
-  NULL_CHECK(a)
 }
+
+template <typename T>
+T* SubScCuda(T* a, const T& sc, size_t r, size_t c)
+{
+}
+
+template <typename T>
+T* MulCuda(T* a, T* b, size_t r, size_t c)
+{
+}
+
+template <typename T>
+T* MulScCuda(T* a, const T& sc, size_t r, size_t c)
+{
+}
+
+
+
+
+
+/* Template instantiations */
+ADD_CUDA_TEMPL(int)
+ADD_CUDA_TEMPL(float)
+ADD_CUDA_TEMPL(double)
+ADD_CUDA_TEMPL(int64_t)

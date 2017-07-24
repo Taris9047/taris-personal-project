@@ -8,42 +8,26 @@
 #include <cstddef>
 
 /* Cuda wrappers: defined in .cu file */
+template <typename T>
+T* AddCuda(T*, T*, size_t, size_t);
+template <typename T>
+T* AddScCuda(T*, const T&, size_t, size_t);
+template <typename T>
+T* SubCuda(T*, T*, size_t, size_t);
+template <typename T>
+T* SubScCuda(T*, const T&, size_t, size_t);
+template <typename T>
+T* MulCuda(T*, T*, size_t, size_t);
+template <typename T>
+T* MulScCuda(T*, const T&, size_t, size_t);
 
-/* Double precision */
-double* AddCudaDBL(double*, double*, size_t, size_t);
-double* AddScCudaDBL(double*, double, size_t, size_t);
-double* SubCudaDBL(double*, double*, size_t, size_t);
-double* SubScCudaDBL(double*, double, size_t, size_t);
-
-double* MulCudaDBL(double*, double*, size_t, size_t);
-double* MulScCudaDBL(double*, double, size_t, size_t);
-
-/* Floating point */
-float* AddCudaFLT(float*, float*, size_t, size_t);
-float* AddScCudaFLT(float*, float, size_t, size_t);
-float* SubCudaFLT(float*, float*, size_t, size_t);
-float* SubScCudaFLT(float*, float, size_t, size_t);
-
-float* MulCudaFLT(float*, float*, size_t, size_t);
-float* MulScCudaFLT(float*, float, size_t, size_t);
-
-/* Long integer */
-int64_t* AddCudaLong(int64_t*, int64_t*, size_t, size_t);
-int64_t* AddScCudaLong(int64_t*, int64_t, size_t, size_t);
-int64_t* SubCudaLong(int64_t*, int64_t*, size_t, size_t);
-int64_t* SubScCudaLong(int64_t*, int64_t, size_t, size_t);
-
-int64_t* MulCudaLong(int64_t*, int64_t*, size_t, size_t);
-int64_t* MulScCudaLong(int64_t*, int64_t, size_t, size_t);
-
-/* Integer */
-int* AddCudaInt(int*, int*, size_t, size_t);
-int* AddScCudaInt(int*, int, size_t, size_t);
-int* SubCudaInt(int*, int*, size_t, size_t);
-int* SubScCudaInt(int*, int, size_t, size_t);
-
-int* MulCudaInt(int*, int*, size_t, size_t);
-int* MulScCudaInt(int*, int, size_t, size_t);
-
+/* Some macros for template instantiations */
+#define ADD_CUDA_TEMPL(TP) \
+  template TP* AddCuda<TP>(TP*, TP*, size_t, size_t); \
+  template TP* AddScCuda<TP>(TP*, const TP&, size_t, size_t); \
+  template TP* SubCuda<TP>(TP*, TP*, size_t, size_t); \
+  template TP* SubScCuda<TP>(TP*, const TP&, size_t, size_t); \
+  template TP* MulCuda<TP>(TP*, TP*, size_t, size_t); \
+  template TP* MulScCuda<TP>(TP*, const TP&, size_t, size_t);
 
 #endif /* Include guard */
