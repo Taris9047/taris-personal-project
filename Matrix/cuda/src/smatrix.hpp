@@ -38,12 +38,12 @@ public:
   SMatrix(SMatrix&&) noexcept;
   SMatrix& operator= (const SMatrix&);
   SMatrix(size_t rows, size_t cols);
-  ~SMatrix() noexcept;
+  virtual ~SMatrix() noexcept;
 
-  T zero;
+  std::unique_ptr<T> zero;
 
 private:
-  BTree* data_tree;
+  std::unique_ptr<BTree> data_tree;
   size_t rows, cols;
 
 }; /* class SMatrix */

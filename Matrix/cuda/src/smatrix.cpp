@@ -48,7 +48,7 @@ T& SMatrix<T>::At(size_t row_index, size_t col_index) const
 
   void* vptr = data_tree->Get(KEY(row_index,col_index));
   if ( vptr ) return *(T*)vptr;
-  else return zero;
+  else return *zero;
 }
 
 template <class T>
@@ -67,8 +67,8 @@ T& SMatrix<T>::operator() (size_t i, size_t j) const
 *********************************************/
 template <class T>
 SMatrix<T>::SMatrix() : \
-  data_tree(new BTree()), rows(0), cols(0),
-  zero(T())
+  data_tree(std::make_unique<BTree>(BTree())), rows(0), cols(0),
+  zero(std::make_unique<T>(T()))
 {;}
 
 template <class T>
@@ -91,25 +91,26 @@ SMatrix<T>::SMatrix(SMatrix<T>&& other) noexcept : SMatrix()
   rows = other.Rows();
   cols = other.Cols();
 
-  data_tree = other.data_tree;
+  data_tree = std::move(other.data_tree);
 }
 
 template <class T>
 SMatrix<T>& SMatrix<T>::operator= (const SMatrix<T>& other)
 {
-
+  SMatrix tmp(other);
+  *this = std::move(tmp);
+  return *this;
 }
 
 template <class T>
-SMatrix<T>::SMatrix(size_t rows, size_t cols) : SMatrix()
+SMatrix<T>::SMatrix(size_t r, size_t c) : SMatrix()
 {
-
+  rows = r; cols = c;
 }
 
 template <class T>
 SMatrix<T>::~SMatrix() noexcept
 {
-  delete data_tree;
 }
 
 /* Explicit template instantiation */

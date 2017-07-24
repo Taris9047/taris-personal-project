@@ -48,10 +48,11 @@ public:
   Matrix(const Matrix& m);
   Matrix(Matrix&& m) noexcept;
   Matrix& operator= (const Matrix& m);
-  ~Matrix() noexcept;
+  virtual ~Matrix() noexcept;
 
 private:
-  T** data;
+  // T** data;
+  std::unique_ptr< std::unique_ptr<T[]>[] > data;
   size_t rows, cols;
 
 }; /* class Matrix */

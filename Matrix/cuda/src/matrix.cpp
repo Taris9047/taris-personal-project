@@ -131,11 +131,20 @@ Matrix<T>::Matrix(size_t r, size_t c) : Matrix()
 
   rows = r;
   cols = c;
-  data = new T*[rows];
+  data = std::make_unique< std::unique_ptr<T[]>[] >(rows);
 
   #pragma omp parallel for
-  for (auto i=0; i<rows; ++i)
-    data[i] = new T[cols];
+  for (auto i=0; i<rows; ++i) {
+    auto data_1d = std::make_unique<T[]>(cols);
+    for (auto j=0; j<cols; ++j) data_1d[j] = T();
+    data[i] = std::move( data_1d );
+  }
+
+  // data = new T*[rows];
+  //
+  // #pragma omp parallel for
+  // for (auto i=0; i<rows; ++i)
+  //   data[i] = new T[cols];
 }
 
 template <class T>
@@ -143,22 +152,29 @@ Matrix<T>::Matrix(const Matrix<T>& m) : Matrix()
 {
   rows = m.Rows();
   cols = m.Cols();
-  data = new T*[rows];
+  data = std::make_unique< std::unique_ptr<T[]>[] >(rows);
 
   #pragma omp parallel for
   for (auto i=0; i<rows; ++i) {
-    data[i] = new T[cols];
+    auto data_1d = std::make_unique<T[]>(cols);
     for (auto j=0; j<cols; ++j)
-      data[i][j] = m.At(i,j);
+      data_1d[j] = m.At(i,j);
+    data[i] = std::move( data_1d );
   }
+
+  // #pragma omp parallel for
+  // for (auto i=0; i<rows; ++i) {
+  //   data[i] = new T[cols];
+  //   for (auto j=0; j<cols; ++j)
+  //     data[i][j] = m.At(i,j);
+  // }
 }
 
 template <class T>
 Matrix<T>::Matrix(Matrix<T>&& m) noexcept : \
-  rows(m.Rows()), cols(m.Cols()), \
-  data(m.data)
+  rows(m.Rows()), cols(m.Cols())
 {
-
+  data = std::move(m.data);
 }
 
 template <class T>
@@ -172,10 +188,10 @@ Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
 template <class T>
 Matrix<T>::~Matrix() noexcept
 {
-  #pragma omp parallel for
-  for (auto i=0; i<rows; ++i)
-    delete [] data[i];
-  delete [] data;
+  // #pragma omp parallel for
+  // for (auto i=0; i<rows; ++i)
+  //   delete [] data[i];
+  // delete [] data;
 }
 
 
