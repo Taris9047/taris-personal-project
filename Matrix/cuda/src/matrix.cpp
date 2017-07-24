@@ -15,6 +15,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <type_traits>
 
 #define MATRIX_DIM_CHECK(other) \
   if (cols != other.Cols() || rows != other.Rows()) \
@@ -68,7 +69,15 @@ void Matrix<T>::Assign(std::vector<T> vec)
 template <class T>
 void Matrix<T>::Assign(const T* array, size_t array_sz)
 {
+  if (rows*cols < array_sz) rows++;
 
+  #pragma omp parallel for
+  for (auto i=0; i<rows; ++i) {
+    for (auto j=0; j<cols; ++j) {
+      if (i*rows+j >= array_sz) data[i][j] = (T)0;
+      else data[i][j] = array[i*rows+j];
+    }
+  }
 }
 
 /********************************************
@@ -81,16 +90,40 @@ void Matrix<T>::Tran()
 
 }
 
+/* LU Decomposition */
+template <class T>
+void Matrix<T>::LU(Matrix<T>* L, Matrix<T>* U)
+{
+  if (!(std::is_same<T, float>::value||std::is_same<T, double>::value))
+    throw std::string("LU: Can't work with integer or boolian matrices.");
+}
+
 /********************************************
   Matrix - Operations
 *********************************************/
 template <class T>
 Matrix<T>& Matrix<T>::operator+ (const Matrix<T>& B)
 {
+  return *this;
+}
+
+template <>
+Matrix<int>& Matrix<int>::operator+ (const Matrix<int>& B)
+{
   MATRIX_DIM_CHECK(B);
 
+  int* cuda_data_A = this->_linearlize_data();
+  int* cuda_data_B = B._linearlize_data();
+  int* result = AddCudaInt(cuda_data_A, cuda_data_B, rows, cols);
 
+  this->Assign(result, rows*cols);
+
+  free(result);
+  return *this;
 }
+
+
+
 template <class T>
 Matrix<T>& Matrix<T>::operator+ (const T& sc)
 {
@@ -115,6 +148,23 @@ template <class T>
 Matrix<T>& Matrix<T>::operator* (const T& sc)
 {
 
+}
+
+template <class T>
+T* Matrix<T>::_linearlize_data() const
+{
+  if (!data) throw std::string("Can't work with empty data!!");
+
+  T* lin_data = (T*)malloc(sizeof(T)*rows*cols);
+  if (!lin_data)
+    throw std::string("Crap, linealization fail!! Out of memory?");
+
+  #pragma omp parallel for
+  for (auto i=0; i<rows; ++i)
+    for (auto j=0; j<cols; ++j)
+      lin_data[i*rows+j] = data[i][j];
+
+  return lin_data;
 }
 
 /********************************************

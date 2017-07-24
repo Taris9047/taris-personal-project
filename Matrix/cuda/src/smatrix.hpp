@@ -48,21 +48,4 @@ private:
 
 }; /* class SMatrix */
 
-
-/* Wrappers for cuda wrappers */
-/* They will be implemented in mul.cpp */
-template <typename T>
-SMatrix<T>& AddSMatrixData(const SMatrix<T>&, const SMatrix<T>&);
-template <typename T>
-SMatrix<T>& AddSMatrixDataSC(const SMatrix<T>&, const T&);
-template <typename T>
-SMatrix<T>& SubSMatrixData(const SMatrix<T>&, const SMatrix<T>&);
-template <typename T>
-SMatrix<T>& SubSMatrixDataSC(const SMatrix<T>&, const T&);
-
-template <typename T>
-SMatrix<T>& MulSMatrixData(const SMatrix<T>&, const SMatrix<T>&);
-template <typename T>
-SMatrix<T>& MulSMatrixDataSC(const SMatrix<T>&, const T&);
-
 #endif /* Include guard */

@@ -32,6 +32,7 @@ public:
 
   /* Manipulation Methods */
   void Tran(); /* Transpose */
+  void LU(Matrix* L, Matrix* U);
 
   /* Operations */
   Matrix& operator+ (const Matrix& B);
@@ -41,6 +42,9 @@ public:
   /* Multiplication */
   Matrix& operator* (const Matrix& B);
   Matrix& operator* (const T& sc);
+
+  /* linearlize data for CUDA */
+  T* _linearlize_data() const;
 
   /* Constructors and Destructors */
   Matrix();
@@ -56,22 +60,5 @@ private:
   size_t rows, cols;
 
 }; /* class Matrix */
-
-
-/* Wrappers for cuda wrappers */
-/* They will be implemented in mul.cpp */
-template <typename T>
-Matrix<T>& AddMatrixData(const Matrix<T>&, const Matrix<T>&);
-template <typename T>
-Matrix<T>& AddMatrixDataSC(const Matrix<T>&, const T&);
-template <typename T>
-Matrix<T>& SubMatrixData(const Matrix<T>&, const Matrix<T>&);
-template <typename T>
-Matrix<T>& SubMatrixDataSC(const Matrix<T>&, const T&);
-
-template <typename T>
-Matrix<T>& MulMatrixData(const Matrix<T>&, const Matrix<T>&);
-template <typename T>
-Matrix<T>& MulMatrixDataSC(const Matrix<T>&, const T&);
 
 #endif /* Include guard */
