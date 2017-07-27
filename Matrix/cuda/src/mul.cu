@@ -57,45 +57,64 @@ void mul_sc_kernel(void** ka, void* kb, void** kc)
   return;
 }
 
+
+/********************************************
+  Some typedefs for Cuda Kernels
+*********************************************/
+template <typename T>
+using MtoMKernel = void (*)(void**, void**, void**);
+// struct MtoMKernel {
+//   typedef void (*type)(void**, void**, void**);
+// };
+//using mat_to_mat_kernel_t = void (*)(void**, void**, void**);
+template <typename T>
+using MtoScKernel = void (*)(void**, void*, void**);
+// struct MtoScKernel {
+//   typedef void (*type)(void**, void*, void**);
+// };
+//using mat_to_sc_kernel_t = void (*)(void**, void*, void**);
+
 /********************************************
   Cuda Wrappers - Assume everything's malloced data
 *********************************************/
 #define NULL_CHECK(A) \
   if (!A) throw std::string("Can't calculate NULL pointer!!");
 
-/* TODO: Gotta implement some wrapper here to reduce tediousness */
-
-/* Cuda wrappers  */
+/* Static functions */
+/* Prepares data to GPU and preforms given Kernel operation */
+/* Matrix To Matrix */
 template <typename T>
-T* AddCuda(T* a, T* b, size_t r, size_t c)
+T* RK_MatMat(T* a, T* b, size_t r, size_t c, MtoMKernel<T> KERNEL_FUNC)
 {
-  NULL_CHECK((a||b))
+  NULL_CHECK((a||b)) 
+  size_t memsize = r*c*sizeof(T); 
   
-  size_t memsize = r*c*sizeof(T);
+  T* res = (T*)malloc(memsize); 
+  int block_size, min_grid_size, grid_size; 
   
-  T* res = (T*)malloc(memsize);
-  int block_size, min_grid_size, grid_size;
-  
-  void** a_vec; cudaMalloc((void**)&a_vec, memsize);
-  void** b_vec; cudaMalloc((void**)&b_vec, memsize);
-  void** res_vec; cudaMalloc((void**)&res_vec, memsize);
-  cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice);
-  cudaMemcpy(b_vec, b, memsize, cudaMemcpyHostToDevice);
-  
+  void** a_vec; cudaMalloc((void**)&a_vec, memsize); 
+  void** b_vec; cudaMalloc((void**)&b_vec, memsize); 
+  void** res_vec; cudaMalloc((void**)&res_vec, memsize); 
+  cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice); 
+  cudaMemcpy(b_vec, b, memsize, cudaMemcpyHostToDevice); 
+
   cudaOccupancyMaxPotentialBlockSize(
-    &min_grid_size, &block_size, add_kernel<T>, 0, memsize);
+    &min_grid_size, &block_size, add_kernel<T>, 0, memsize); 
   
-  grid_size = (memsize+block_size-1)/block_size;
+  grid_size = (memsize+block_size-1)/block_size; 
   
-  add_kernel<T><<<grid_size,block_size>>>(a_vec, b_vec, res_vec);
+  KERNEL_FUNC<<<grid_size,block_size>>>(a_vec, b_vec, res_vec); 
   
-  cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost);
+  cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost); 
+  
+  cudaFree(a_vec); cudaFree(b_vec); cudaFree(res_vec);
   
   return res;
 }
 
+/* Matrix To Scalar */
 template <typename T>
-T* AddScCuda(T* a, const T& sc, size_t r, size_t c)
+T* RK_MatSc(T* a, const T& sc, size_t r, size_t c, MtoScKernel<T> KERNEL_FUNC)
 {
   NULL_CHECK(a);
   
@@ -115,31 +134,50 @@ T* AddScCuda(T* a, const T& sc, size_t r, size_t c)
   
   grid_size = (memsize+block_size-1)/block_size;
   
-  add_sc_kernel<T><<<grid_size,block_size>>>(a_vec, *sc_vec, res_vec);
+  KERNEL_FUNC<<<grid_size,block_size>>>(a_vec, *sc_vec, res_vec);
   
   cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost);
   
+  cudaFree(a_vec); cudaFree(sc_vec); cudaFree(res_vec);
+  
   return res;
+}
+
+/* Cuda wrappers  */
+template <typename T>
+T* AddCuda(T* a, T* b, size_t r, size_t c)
+{
+  return RK_MatMat<T>(a,b,r,c,&add_kernel<T>);
+}
+
+template <typename T>
+T* AddScCuda(T* a, const T& sc, size_t r, size_t c)
+{
+  return RK_MatSc<T>(a,sc,r,c,&add_sc_kernel<T>);
 }
 
 template <typename T>
 T* SubCuda(T* a, T* b, size_t r, size_t c)
 {
+  return RK_MatMat<T>(a,b,r,c,&sub_kernel<T>);
 }
 
 template <typename T>
 T* SubScCuda(T* a, const T& sc, size_t r, size_t c)
 {
+  return RK_MatSc<T>(a,sc,r,c,&sub_sc_kernel<T>);
 }
 
 template <typename T>
 T* MulCuda(T* a, T* b, size_t r, size_t c)
 {
+  return RK_MatMat<T>(a,b,r,c,&mul_kernel<T>);
 }
 
 template <typename T>
 T* MulScCuda(T* a, const T& sc, size_t r, size_t c)
 {
+  return RK_MatSc<T>(a,sc,r,c,&mul_sc_kernel<T>);
 }
 
 

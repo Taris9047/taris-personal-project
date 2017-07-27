@@ -3,11 +3,18 @@ LIB_PROJ_NAME := tmatrix_cuda
 TESTF_NAME := tmatrix_cuda_test
 
 # Compilers and tools
+SYS := $(shell gcc -dumpmachine)
+ifneq (, $(findstring linux, $(SYS)))
 CC=gcc
 CXX=g++
+else ifneq (, $(findstring darwin, $(SYS)))
+CC=gcc-7
+CXX=g++-7
+endif
 NVCC=nvcc -ccbin=gcc-5.3 -Wno-deprecated-gpu-targets
 AR=ar
 LIBS=-lm -L.
+
 
 # CUDA libs
 CUDA_INSTALL_PATH ?= /usr/local/cuda
@@ -20,7 +27,7 @@ CUDA_LIBS=-L$(CUDA_LIB_PATH) -lcudart
 # Compiler flags
 CFLAGS=-ggdb -fopenmp -std=c11
 CXXFLAGS=-ggdb -fopenmp -std=c++11
-NVCCFLAGS=-g
+NVCCFLAGS=-g -std=c++11
 
 # Source files
 SRCDIR=./src
@@ -34,7 +41,6 @@ CUDA_OBJS=$(CUDA_SOURCES:.cu=.cubin)
 OBJS=$(CPU_OBJS) $(CUDA_OBJS)
 
 # Library file name detection
-SYS := $(shell gcc -dumpmachine)
 ifneq (, $(findstring linux, $(SYS)))
 	LIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).a
 	DLIBNAMEV=lib$(LIB_PROJ_NAME)-$(VERNUM).so
