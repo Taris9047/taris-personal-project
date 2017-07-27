@@ -22,3 +22,5 @@ TEdit/.idea/TEdit.iml
 MeshCPP11/DataStrTest.exe.stackdump
 *.a
 *.dll
+DataStr/c/.gdb_history
+DataStr/c/DataStrTest.dSYM/Contents/Info.plist
