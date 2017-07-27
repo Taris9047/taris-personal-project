@@ -17,42 +17,50 @@
 *********************************************/
 template<typename T>
 __global__
-void add_kernel(void** ka, void** kb, void** kc)
+void add_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
+{
+  auto n = r*c;
+  T* a_data = (T*)ka;
+  T* b_data = (T*)kb;
+  T* c_data = (T*)kc;
+  for (auto i=0; i<n; ++i) {
+    c_data[i] = a_data[i] + b_data[i];
+  }
+  
+  return;
+}
+
+template<typename T>
+__global__
+void add_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
 {
   return;
 }
 
 template<typename T>
 __global__
-void add_sc_kernel(void** ka, void* kb, void** kc)
+void sub_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
 {
   return;
 }
 
 template<typename T>
 __global__
-void sub_kernel(void** ka, void** kb, void** kc)
+void sub_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
 {
   return;
 }
 
 template<typename T>
 __global__
-void sub_sc_kernel(void** ka, void* kb, void** kc)
+void mul_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
 {
   return;
 }
 
 template<typename T>
 __global__
-void mul_kernel(void** ka, void** kb, void** kc)
-{
-  return;
-}
-
-template<typename T>
-__global__
-void mul_sc_kernel(void** ka, void* kb, void** kc)
+void mul_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
 {
   return;
 }
@@ -62,17 +70,9 @@ void mul_sc_kernel(void** ka, void* kb, void** kc)
   Some typedefs for Cuda Kernels
 *********************************************/
 template <typename T>
-using MtoMKernel = void (*)(void**, void**, void**);
-// struct MtoMKernel {
-//   typedef void (*type)(void**, void**, void**);
-// };
-//using mat_to_mat_kernel_t = void (*)(void**, void**, void**);
+using MtoMKernel = void (*)(void*, void*, void*, size_t, size_t);
 template <typename T>
-using MtoScKernel = void (*)(void**, void*, void**);
-// struct MtoScKernel {
-//   typedef void (*type)(void**, void*, void**);
-// };
-//using mat_to_sc_kernel_t = void (*)(void**, void*, void**);
+using MtoScKernel = void (*)(void*, void*, void*, size_t, size_t);
 
 /********************************************
   Cuda Wrappers - Assume everything's malloced data
@@ -91,10 +91,10 @@ T* RK_MatMat(T* a, T* b, size_t r, size_t c, MtoMKernel<T> KERNEL_FUNC)
   
   T* res = (T*)malloc(memsize); 
   int block_size, min_grid_size, grid_size; 
-  
-  void** a_vec; cudaMalloc((void**)&a_vec, memsize); 
-  void** b_vec; cudaMalloc((void**)&b_vec, memsize); 
-  void** res_vec; cudaMalloc((void**)&res_vec, memsize); 
+
+  void* a_vec; cudaMalloc((void**)&a_vec, memsize); 
+  void* b_vec; cudaMalloc((void**)&b_vec, memsize); 
+  void* res_vec; cudaMalloc((void**)&res_vec, memsize); 
   cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice); 
   cudaMemcpy(b_vec, b, memsize, cudaMemcpyHostToDevice); 
 
@@ -103,9 +103,9 @@ T* RK_MatMat(T* a, T* b, size_t r, size_t c, MtoMKernel<T> KERNEL_FUNC)
   
   grid_size = (memsize+block_size-1)/block_size; 
   
-  KERNEL_FUNC<<<grid_size,block_size>>>(a_vec, b_vec, res_vec); 
+  KERNEL_FUNC<<<grid_size,block_size>>>(a_vec, b_vec, res_vec, r, c); 
   
-  cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost); 
+  cudaMemcpy((void*)res, res_vec, memsize, cudaMemcpyDeviceToHost); 
   
   cudaFree(a_vec); cudaFree(b_vec); cudaFree(res_vec);
   
@@ -123,9 +123,9 @@ T* RK_MatSc(T* a, const T& sc, size_t r, size_t c, MtoScKernel<T> KERNEL_FUNC)
   T* res = (T*)malloc(memsize);
   int block_size, min_grid_size, grid_size;
   
-  void** a_vec; cudaMalloc((void**)&a_vec, memsize);
-  void** sc_vec; cudaMalloc((void**)&sc_vec, sizeof(T));
-  void** res_vec; cudaMalloc((void**)&res_vec, memsize);
+  void* a_vec; cudaMalloc((void**)&a_vec, memsize);
+  void* sc_vec; cudaMalloc((void**)&sc_vec, sizeof(T));
+  void* res_vec; cudaMalloc((void**)&res_vec, memsize);
   cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice);
   cudaMemcpy(sc_vec, &sc, sizeof(T), cudaMemcpyHostToDevice);
   
@@ -134,9 +134,9 @@ T* RK_MatSc(T* a, const T& sc, size_t r, size_t c, MtoScKernel<T> KERNEL_FUNC)
   
   grid_size = (memsize+block_size-1)/block_size;
   
-  KERNEL_FUNC<<<grid_size,block_size>>>(a_vec, *sc_vec, res_vec);
+  KERNEL_FUNC<<<grid_size,block_size>>>(a_vec, sc_vec, res_vec, r, c);
   
-  cudaMemcpy((void**)&res, res_vec, memsize, cudaMemcpyDeviceToHost);
+  cudaMemcpy((void*)res, res_vec, memsize, cudaMemcpyDeviceToHost);
   
   cudaFree(a_vec); cudaFree(sc_vec); cudaFree(res_vec);
   

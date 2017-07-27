@@ -76,7 +76,13 @@ int main(int argc, char* argv[])
   AccessRandSpots<int>(A, B, 10);
   std::cout << std::endl;
 
-
+  std::cout << "Attempting some Arithematic operations..." << std::endl;
+  Matrix<int> C(m_rows, m_cols);
+  std::cout << "Trying + operation..." << std::endl;
+  C = A+B;
+  std::cout << "Accessing a few random spots for + operation..." << std::endl;
+  AccessRandSpots<int>(A, B, 10);
+  std::cout << std::endl;
 
   return 0;
 }

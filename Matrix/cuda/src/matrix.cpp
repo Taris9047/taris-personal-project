@@ -74,7 +74,7 @@ void Matrix<T>::Assign(const T* array, size_t array_sz)
   #pragma omp parallel for
   for (auto i=0; i<rows; ++i) {
     for (auto j=0; j<cols; ++j) {
-      if (i*rows+j >= array_sz) data[i][j] = (T)0;
+      if (i*rows+j >= array_sz) data[i][j] = T();
       else data[i][j] = array[i*rows+j];
     }
   }
@@ -181,12 +181,6 @@ Matrix<T>::Matrix(size_t r, size_t c) : Matrix()
     for (auto j=0; j<cols; ++j) data_1d[j] = T();
     data[i] = std::move( data_1d );
   }
-
-  // data = new T*[rows];
-  //
-  // #pragma omp parallel for
-  // for (auto i=0; i<rows; ++i)
-  //   data[i] = new T[cols];
 }
 
 template <class T>
@@ -223,10 +217,6 @@ Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
 template <class T>
 Matrix<T>::~Matrix() noexcept
 {
-  // #pragma omp parallel for
-  // for (auto i=0; i<rows; ++i)
-  //   delete [] data[i];
-  // delete [] data;
 }
 
 
