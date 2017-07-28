@@ -17,7 +17,7 @@ T* SubCuda(T*, T*, size_t, size_t);
 template <typename T>
 T* SubScCuda(T*, const T&, size_t, size_t);
 template <typename T>
-T* MulCuda(T*, T*, size_t, size_t);
+T* MulCuda(T*, T*, size_t, size_t, size_t, size_t);
 template <typename T>
 T* MulScCuda(T*, const T&, size_t, size_t);
 
@@ -27,7 +27,7 @@ T* MulScCuda(T*, const T&, size_t, size_t);
   template TP* AddScCuda<TP>(TP*, const TP&, size_t, size_t); \
   template TP* SubCuda<TP>(TP*, TP*, size_t, size_t); \
   template TP* SubScCuda<TP>(TP*, const TP&, size_t, size_t); \
-  template TP* MulCuda<TP>(TP*, TP*, size_t, size_t); \
+  template TP* MulCuda<TP>(TP*, TP*, size_t, size_t, size_t, size_t); \
   template TP* MulScCuda<TP>(TP*, const TP&, size_t, size_t);
 
 #endif /* Include guard */

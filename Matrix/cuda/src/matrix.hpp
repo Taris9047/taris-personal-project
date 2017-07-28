@@ -35,16 +35,13 @@ public:
   void LU(Matrix* L, Matrix* U);
 
   /* Operations */
-  Matrix& operator+ (const Matrix& B);
-  Matrix& operator+ (const T& sc);
-  Matrix& operator- (const Matrix& B);
-  Matrix& operator- (const T& sc);
+  Matrix operator+ (const Matrix& B);
+  Matrix operator+ (const T& sc);
+  Matrix operator- (const Matrix& B);
+  Matrix operator- (const T& sc);
   /* Multiplication */
-  Matrix& operator* (const Matrix& B);
-  Matrix& operator* (const T& sc);
-
-  /* linearlize data for CUDA */
-  // T* _linearlize_data() const;
+  Matrix operator* (const Matrix& B);
+  Matrix operator* (const T& sc);
 
   /* Constructors and Destructors */
   Matrix();
@@ -56,8 +53,6 @@ public:
   virtual ~Matrix() noexcept;
 
 private:
-  // T** data;
-  //std::unique_ptr< std::unique_ptr<T[]>[] > data;
   std::unique_ptr<T[]> data;
   size_t rows, cols;
 

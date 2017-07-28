@@ -89,46 +89,92 @@ void Matrix<T>::LU(Matrix<T>* L, Matrix<T>* U)
   Matrix - Operations
 *********************************************/
 template <class T>
-Matrix<T>& Matrix<T>::operator+ (const Matrix<T>& B)
+Matrix<T> Matrix<T>::operator+ (const Matrix<T>& B)
 {
   MATRIX_DIM_CHECK(B);
 
-  // T* cuda_data_A = this->_linearlize_data();
-  // T* cuda_data_B = B._linearlize_data();
+  Matrix<T> ResultMatrix(rows, cols);
+
   T* cuda_data_A = this->data.get();
   T* cuda_data_B = B.data.get();
   T* result = AddCuda<T>(cuda_data_A, cuda_data_B, rows, cols);
 
-  this->Assign(result, rows*cols);
+  ResultMatrix.Assign(result, rows*cols);
 
   free(result);
-  return *this;
+  return ResultMatrix;
 }
 
 template <class T>
-Matrix<T>& Matrix<T>::operator+ (const T& sc)
+Matrix<T> Matrix<T>::operator+ (const T& sc)
 {
+  Matrix<T> ResultMatrix(rows, cols);
 
+  T* cuda_data_A = this->data.get();
+  T* result = AddScCuda<T>(cuda_data_A, sc, rows, cols);
+
+  ResultMatrix.Assign(result, rows*cols);
+  free(result);
+
+  return ResultMatrix;
 }
 template <class T>
-Matrix<T>& Matrix<T>::operator- (const Matrix<T>& B)
+Matrix<T> Matrix<T>::operator- (const Matrix<T>& B)
 {
   MATRIX_DIM_CHECK(B);
-}
-template <class T>
-Matrix<T>& Matrix<T>::operator- (const T& sc)
-{
 
+  Matrix<T> ResultMatrix(rows, cols);
+
+  T* cuda_data_A = this->data.get();
+  T* cuda_data_B = B.data.get();
+  T* result = SubCuda<T>(cuda_data_A, cuda_data_B, rows, cols);
+
+  ResultMatrix.Assign(result, rows*cols);
+
+  free(result);
+  return ResultMatrix;
 }
 template <class T>
-Matrix<T>& Matrix<T>::operator* (const Matrix<T>& B)
+Matrix<T> Matrix<T>::operator- (const T& sc)
+{
+  Matrix<T> ResultMatrix(rows, cols);
+
+  T* cuda_data_A = this->data.get();
+  T* result = SubScCuda<T>(cuda_data_A, sc, rows, cols);
+
+  ResultMatrix.Assign(result, rows*cols);
+  free(result);
+
+  return ResultMatrix;
+}
+template <class T>
+Matrix<T> Matrix<T>::operator* (const Matrix<T>& B)
 {
   MATRIX_MUL_DIM_CHECK(B);
+
+  Matrix<T> ResultMatrix(rows, cols);
+
+  T* cuda_data_A = this->data.get();
+  T* cuda_data_B = B.data.get();
+  T* result = MulCuda<T>(cuda_data_A, cuda_data_B, rows, cols, B.Rows(), B.Cols());
+
+  ResultMatrix.Assign(result, rows*cols);
+
+  free(result);
+  return ResultMatrix;
 }
 template <class T>
-Matrix<T>& Matrix<T>::operator* (const T& sc)
+Matrix<T> Matrix<T>::operator* (const T& sc)
 {
+  Matrix<T> ResultMatrix(rows, cols);
 
+  T* cuda_data_A = this->data.get();
+  T* result = MulScCuda<T>(cuda_data_A, sc, rows, cols);
+
+  ResultMatrix.Assign(result, rows*cols);
+  free(result);
+
+  return ResultMatrix;
 }
 
 /********************************************
