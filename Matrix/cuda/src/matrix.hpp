@@ -44,7 +44,7 @@ public:
   Matrix& operator* (const T& sc);
 
   /* linearlize data for CUDA */
-  T* _linearlize_data() const;
+  // T* _linearlize_data() const;
 
   /* Constructors and Destructors */
   Matrix();
@@ -52,11 +52,13 @@ public:
   Matrix(const Matrix& m);
   Matrix(Matrix&& m) noexcept;
   Matrix& operator= (const Matrix& m);
+  Matrix& operator= (Matrix&& m) noexcept;
   virtual ~Matrix() noexcept;
 
 private:
   // T** data;
-  std::unique_ptr< std::unique_ptr<T[]>[] > data;
+  //std::unique_ptr< std::unique_ptr<T[]>[] > data;
+  std::unique_ptr<T[]> data;
   size_t rows, cols;
 
 }; /* class Matrix */

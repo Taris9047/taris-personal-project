@@ -38,7 +38,7 @@ T& Matrix<T>::At(size_t row_index, size_t col_index) const
 {
   if (row_index >= rows || col_index >= cols)
     throw std::out_of_range("Matrix out of range!!");
-  return data[row_index][col_index];
+  return data[row_index*rows+col_index];
 }
 
 template <class T>
@@ -54,30 +54,17 @@ template <class T>
 void Matrix<T>::Assign(std::vector<T> vec)
 {
   size_t vec_len = vec.size();
-  if (rows*cols < vec_len) rows++;
 
   #pragma omp parallel for
-  for (auto i=0; i<rows; ++i) {
-    for (auto j=0; j<cols; ++j) {
-      if (i*rows+j >= vec_len) data[i][j] = (T)0;
-      else data[i][j] = vec[i*rows+j];
-    }
-  }
+  for (auto i=0; i<rows*cols; ++i) data[i] = vec[i];
 
 }
 
 template <class T>
 void Matrix<T>::Assign(const T* array, size_t array_sz)
 {
-  if (rows*cols < array_sz) rows++;
-
   #pragma omp parallel for
-  for (auto i=0; i<rows; ++i) {
-    for (auto j=0; j<cols; ++j) {
-      if (i*rows+j >= array_sz) data[i][j] = T();
-      else data[i][j] = array[i*rows+j];
-    }
-  }
+  for (auto i=0; i<rows*cols; ++i) data[i] = array[i];
 }
 
 /********************************************
@@ -106,8 +93,10 @@ Matrix<T>& Matrix<T>::operator+ (const Matrix<T>& B)
 {
   MATRIX_DIM_CHECK(B);
 
-  T* cuda_data_A = this->_linearlize_data();
-  T* cuda_data_B = B._linearlize_data();
+  // T* cuda_data_A = this->_linearlize_data();
+  // T* cuda_data_B = B._linearlize_data();
+  T* cuda_data_A = this->data.get();
+  T* cuda_data_B = B.data.get();
   T* result = AddCuda<T>(cuda_data_A, cuda_data_B, rows, cols);
 
   this->Assign(result, rows*cols);
@@ -142,23 +131,6 @@ Matrix<T>& Matrix<T>::operator* (const T& sc)
 
 }
 
-template <class T>
-T* Matrix<T>::_linearlize_data() const
-{
-  if (!data) throw std::string("Can't work with empty data!!");
-
-  T* lin_data = (T*)malloc(sizeof(T)*rows*cols);
-  if (!lin_data)
-    throw std::string("Crap, linealization fail!! Out of memory?");
-
-  #pragma omp parallel for
-  for (auto i=0; i<rows; ++i)
-    for (auto j=0; j<cols; ++j)
-      lin_data[i*rows+j] = data[i][j];
-
-  return lin_data;
-}
-
 /********************************************
   Matrix - Constructors and Destructors
 *********************************************/
@@ -173,14 +145,11 @@ Matrix<T>::Matrix(size_t r, size_t c) : Matrix()
 
   rows = r;
   cols = c;
-  data = std::make_unique< std::unique_ptr<T[]>[] >(rows);
+  data = std::make_unique<T[]>(rows*cols);
 
   #pragma omp parallel for
-  for (auto i=0; i<rows; ++i) {
-    auto data_1d = std::make_unique<T[]>(cols);
-    for (auto j=0; j<cols; ++j) data_1d[j] = T();
-    data[i] = std::move( data_1d );
-  }
+  for (auto i=0; i<rows*cols; ++i) data[i] = T();
+
 }
 
 template <class T>
@@ -188,15 +157,11 @@ Matrix<T>::Matrix(const Matrix<T>& m) : Matrix()
 {
   rows = m.Rows();
   cols = m.Cols();
-  data = std::make_unique< std::unique_ptr<T[]>[] >(rows);
+  data = std::make_unique<T[]>(rows*cols);
 
   #pragma omp parallel for
-  for (auto i=0; i<rows; ++i) {
-    auto data_1d = std::make_unique<T[]>(cols);
-    for (auto j=0; j<cols; ++j)
-      data_1d[j] = m.At(i,j);
-    data[i] = std::move( data_1d );
-  }
+  for (auto i=0; i<rows*cols; ++i) data[i] = m.data[i];
+
 }
 
 template <class T>
@@ -213,6 +178,19 @@ Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
   *this = std::move(new_Matrix);
   return *this;
 }
+
+template <class T>
+Matrix<T>& Matrix<T>::operator= (Matrix<T>&& m) noexcept
+{
+  data = std::make_unique<T[]>(rows*cols);
+  #pragma omp parallel for
+  for (auto i=0; i<rows*cols; ++i)
+    data[i] = m.data[i];
+
+  m.data = nullptr;
+  return *this;
+}
+
 
 template <class T>
 Matrix<T>::~Matrix() noexcept
