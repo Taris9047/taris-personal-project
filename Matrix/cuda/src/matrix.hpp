@@ -43,6 +43,11 @@ public:
   Matrix operator* (const Matrix& B);
   Matrix operator* (const T& sc);
 
+  /* Misc. utility methods */
+  std::string Print();
+  void stdout_print();
+  std::string print_row(size_t row_index);
+
   /* Constructors and Destructors */
   Matrix();
   Matrix(size_t rows, size_t cols);

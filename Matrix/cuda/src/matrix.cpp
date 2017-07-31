@@ -16,6 +16,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <type_traits>
+#include <sstream>
 
 #define MATRIX_DIM_CHECK(other) \
   if (cols != other.Cols() || rows != other.Rows()) \
@@ -152,13 +153,13 @@ Matrix<T> Matrix<T>::operator* (const Matrix<T>& B)
 {
   MATRIX_MUL_DIM_CHECK(B);
 
-  Matrix<T> ResultMatrix(rows, cols);
+  Matrix<T> ResultMatrix(rows, B.Cols());
 
   T* cuda_data_A = this->data.get();
   T* cuda_data_B = B.data.get();
   T* result = MulCuda<T>(cuda_data_A, cuda_data_B, rows, cols, B.Rows(), B.Cols());
 
-  ResultMatrix.Assign(result, rows*cols);
+  ResultMatrix.Assign(result, rows*B.Cols());
 
   free(result);
   return ResultMatrix;
@@ -175,6 +176,58 @@ Matrix<T> Matrix<T>::operator* (const T& sc)
   free(result);
 
   return ResultMatrix;
+}
+
+/********************************************
+  Matrix - Misc. utility methods
+*********************************************/
+template <class T>
+std::string Matrix<T>::Print()
+{
+  std::stringstream ss;
+
+  for (auto i=0; i<rows; ++i) {
+
+    if ((rows > 6 && (i > rows-1-3 || i < 3)) || rows < 6)
+      ss << print_row(i);
+    else if (i==3)
+      ss << "[ ... some rows ... ]" << std::endl;
+    else continue;
+
+  } /* for (auto i=0; i<rows; ++i) */
+
+  return ss.str();
+}
+
+template <class T>
+void Matrix<T>::stdout_print()
+{
+  std::cout << this->Print() << std::endl;
+}
+
+template <class T>
+std::string Matrix<T>::print_row(size_t row_index)
+{
+  if (row_index >= rows)
+    throw std::out_of_range("print_row, given row index out of range!!");
+
+  std::stringstream ss;
+
+  ss << "[";
+  for (auto j=0; j<cols; ++j) {
+    if ((cols > 6 && (j > cols-1-3 || j < 3)) || cols < 6)
+      ss << this->At(row_index, j);
+    else if (j == 3)
+      ss << " ... ";
+    else continue;
+
+    if (j==cols-1) continue;
+    else ss << " ";
+  } /* for (auto j=0; j<cols; ++j) */
+
+  ss << "]" << std::endl;
+
+  return ss.str();
 }
 
 /********************************************

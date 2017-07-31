@@ -27,9 +27,18 @@ void PrepareData(size_t r, size_t c, std::vector<T>* v, const T& max_vel)
   assert(r*c);
   std::vector<T> vec(r*c);
 
-  #pragma omp parallel for
-  for (auto i=0; i<r*c; ++i)
-    vec[i] = (T)(((int)rand())%(int)max_vel)*(T)pow(-1.0,rand());
+  // #pragma omp parallel for
+  // for (auto i=0; i<r*c; ++i)
+  //   vec[i] = (T)(((int)rand())%(int)max_vel)*(T)pow(-1.0,rand());
+
+
+  #pragma omp paralle for
+  for (size_t i=0; i<r*c; ++i) {
+    auto row = i/r;
+    auto col = i%c;
+    vec[i] = (T)(((row+col)*(row+col+1)+1)/2)*(T)pow(-1.0,row+col);
+  }
+
   *v = vec;
 }
 
@@ -42,8 +51,6 @@ std::vector<Tuple<T>> AccessRandSpots(const Matrix<T>& A, const Matrix<T>& B, si
   for (auto n=0; n<nspots; ++n) {
     auto iA=(int)rand()%A.Rows();
     auto jA=(int)rand()%A.Cols();
-    // auto iB=(int)rand()%B.Rows();
-    // auto jB=(int)rand()%B.Cols();
     auto iB = iA; auto jB = jA;
     std::cout \
       << "A[" << iA << "," << jA << "] = " << A(iA,jA) << "\t" \
@@ -62,8 +69,6 @@ std::vector<Tuple<T>> AccessRandSpots(const Matrix<T>& A, size_t nspots, std::st
   for (auto n=0; n<nspots; ++n) {
     auto iA=(int)rand()%A.Rows();
     auto jA=(int)rand()%A.Cols();
-    // auto iB=(int)rand()%B.Rows();
-    // auto jB=(int)rand()%B.Cols();
     auto iB = iA; auto jB = jA;
     std::cout \
       << name << "[" << iA << "," << jA << "] = " << A(iA,jA) << std::endl;
@@ -98,53 +103,73 @@ void TestMatrix(size_t rows, size_t cols)
   PrepareData<T>(rows, cols, &vec_B, MATRIX_VALUE_MAX/2);
 
   Matrix<T> A(rows, cols);
-  Matrix<T> B(rows, cols);
+  Matrix<T> B(cols, rows);
 
   std::cout << "Populating Matrix A and B..." << std::endl;
   A.Assign(vec_A); B.Assign(vec_B);
   std::cout << std::endl;
 
-  std::cout << "Accessing a few random spots..." << std::endl;
-  auto rand_spots = AccessRandSpots<T>(A, B, 5);
+  std::cout << "Printing out A and B" << std::endl;
+  std::cout << "A = " << std::endl;
+  A.stdout_print();
+  std::cout << std::endl;
+  std::cout << "B = " << std::endl;
+  B.stdout_print();
   std::cout << std::endl;
 
-  std::cout << "Attempting some Arithematic operations..." << std::endl;
   Matrix<T> C(rows, cols);
-  std::cout << "Trying A + B" << std::endl;
-  C = A+B;
-  std::cout << "Accessing a few random spots for + operation..." << std::endl;
-  AccessSpots<T>(C, rand_spots, "C");
-  std::cout << std::endl;
-
-  std::cout << "Trying A - B" << std::endl;
-  C = A-B;
-  std::cout << "Accessing a few random spots for - operation..." << std::endl;
-  AccessSpots<T>(C, rand_spots, "C");
-  std::cout << std::endl;
-
   Matrix<T> D(A.Rows(), B.Cols());
-  std::cout << "Trying A * B" << std::endl;
-  D = A*B;
-  std::cout << "Accessing a few random spots for * operation..." << std::endl;
-  /* TODO: Maybe just implement print functions to Matrix class */
-  AccessRandSpots<T>(D, 5, "D");
-  std::cout << std::endl;
+
+  if (A.Rows() == B.Rows() && A.Cols() == B.Cols()) {
+    std::cout << "Attempting some Arithematic operations..." << std::endl;
+
+    std::cout << "Trying A + B" << std::endl;
+    C = A+B;
+    std::cout << "Printing out the result Matrix: C" << std::endl;
+    std::cout << "C = " << std::endl;
+    C.stdout_print();
+    std::cout << std::endl;
+  }
+
+  if (A.Rows() == B.Rows() && A.Cols() == B.Cols()) {
+    std::cout << "Trying A - B" << std::endl;
+    C = A-B;
+    std::cout << "Printing out the result Matrix: C" << std::endl;
+    std::cout << "C = " << std::endl;
+    C.stdout_print();
+    std::cout << std::endl;
+  }
+
+  if (A.Rows() == B.Cols()) {
+    std::cout << "Trying A * B" << std::endl;
+    D = A*B;
+    std::cout << "Printing out the result Matrix: D" << std::endl;
+    std::cout << "D = " << std::endl;
+    D.stdout_print();
+    std::cout << std::endl;
+  }
 
   std::cout << "Attempting some scalar operations..." << std::endl;
   T sc = (T)(((int)rand())%100);
   std::cout << "Trying A + " << sc << std::endl;
   C = A+sc;
-  AccessSpots<T>(C, rand_spots, "C");
+  std::cout << "Printing out the result Matrix: C" << std::endl;
+  std::cout << "C = " << std::endl;
+  C.stdout_print();
   std::cout << std::endl;
 
   std::cout << "Trying A - " << sc << std::endl;
   C = A-sc;
-  AccessSpots<T>(C, rand_spots, "C");
+  std::cout << "Printing out the result Matrix: C" << std::endl;
+  std::cout << "C = " << std::endl;
+  C.stdout_print();
   std::cout << std::endl;
 
   std::cout << "Trying A * " << sc << std::endl;
   C = A*sc;
-  AccessSpots<T>(C, rand_spots, "C");
+  std::cout << "Printing out the result Matrix: C" << std::endl;
+  std::cout << "C = " << std::endl;
+  C.stdout_print();
   std::cout << std::endl;
 }
 
@@ -159,10 +184,10 @@ int main(int argc, char* argv[])
 
   m_rows = MATRIX_ROWS;
   m_cols = MATRIX_COLS;
-  if (argc == 2) m_rows = atoi(argv[1]);
+  if (argc >= 2) m_rows = atoi(argv[1]);
   if (argc >= 3) m_cols = atoi(argv[2]);
 
-  TestMatrix<double>(m_rows, m_cols);
+  TestMatrix<int>(m_rows, m_cols);
 
   return 0;
 }

@@ -75,6 +75,7 @@ void sub_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
   return;
 }
 
+/* TODO: this part is kinda wrong */
 template<typename T>
 __global__
 void mul_kernel(void* ka, void* kb, void* kc, size_t a_r, size_t a_c, size_t b_r, size_t b_c)
@@ -84,16 +85,15 @@ void mul_kernel(void* ka, void* kb, void* kc, size_t a_r, size_t a_c, size_t b_r
   T* c_data = (T*)kc;
   
   T tmp;
-  size_t i=0,j=0,k=0;
-  for (i=0; i<a_r; ++i) {
-    tmp = T();
-    for (j=0; j<a_c; ++j) {
-      for (k=0; k<b_r; ++k) {
+  for (auto i=0; i<a_r; ++i) {
+    for (auto j=0; j<a_c; ++j) {
+      tmp = T();
+      for (auto k=0; k<b_r; ++k) {
         tmp += a_data[i*a_r+k]*b_data[k*b_r+j];
-      }
-    }
-    c_data[i*a_r+j] = tmp;
-  }
+      } /* for (k=0; k<b_r; ++k) */
+      c_data[i*a_r+j] = tmp;
+    } /* for (j=0; j<a_c; ++j) */
+  } /* for (i=0; i<a_r; ++i) */
   
   return;
 }
