@@ -75,7 +75,32 @@ void Matrix<T>::Assign(const T* array, size_t array_sz)
 template <class T>
 void Matrix<T>::Tran()
 {
+  /* Square matrix case */
+  if (rows == cols) {
+    #pragma omp parallel for
+    for (auto i=1; i<rows; ++i) {
+      for (auto j=0; j<i+1; ++j) {
+        if (this->At(i,j)==this->At(j,i)) continue;
+        swap(i,i*rows+j);
+      }
+    }
+  }
+  /* Not so square matrix case */
+  else {
+    std::unique_ptr<T[]> tmp_data = std::make_unique<T[]>(cols*rows);
 
+    #pragma omp parallel for
+    for (auto i=0; i<rows; ++i) {
+      for (auto j=0; j<cols; ++j)
+        tmp_data[j*cols+i] = data[i*rows+j];
+    }
+
+    data = std::move(tmp_data);
+
+    auto tmp = rows;
+    rows = cols;
+    cols = tmp;
+  }
 }
 
 /* LU Decomposition */
@@ -84,6 +109,23 @@ void Matrix<T>::LU(Matrix<T>* L, Matrix<T>* U)
 {
   if (!(std::is_same<T, float>::value||std::is_same<T, double>::value))
     throw std::string("LU: Can't work with integer or boolian matrices.");
+}
+
+/********************************************
+  Matrix - Private Methods
+*********************************************/
+/* Swap data with given indices */
+template <class T>
+void Matrix<T>::swap(size_t i, size_t j)
+{
+  if (i >= rows*cols || j >= rows*cols)
+    throw std::out_of_range("swap: out of range!!");
+
+  T tmp = data[i];
+  data[i] = data[j];
+  data[j] = tmp;
+
+  return;
 }
 
 /********************************************

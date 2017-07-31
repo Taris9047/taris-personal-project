@@ -25,21 +25,16 @@ template <typename T>
 void PrepareData(size_t r, size_t c, std::vector<T>* v, const T& max_vel)
 {
   assert(r*c);
-  std::vector<T> vec(r*c);
 
-  // #pragma omp parallel for
-  // for (auto i=0; i<r*c; ++i)
-  //   vec[i] = (T)(((int)rand())%(int)max_vel)*(T)pow(-1.0,rand());
-
+  auto sz = r*c;
 
   #pragma omp paralle for
-  for (size_t i=0; i<r*c; ++i) {
+  for (size_t i=0; i<sz; ++i) {
     auto row = i/r;
     auto col = i%c;
-    vec[i] = (T)(((row+col)*(row+col+1)+1)/2)*(T)pow(-1.0,row+col);
+    v->at(i) = (T)(((row+col)*(row+col+1)/2+col))*(T)pow(-1.0,row+col);
   }
 
-  *v = vec;
 }
 
 /* Access random spots */
@@ -49,8 +44,8 @@ std::vector<Tuple<T>> AccessRandSpots(const Matrix<T>& A, const Matrix<T>& B, si
   std::vector<Tuple<T>> coords(nspots);
 
   for (auto n=0; n<nspots; ++n) {
-    auto iA=(int)rand()%A.Rows();
-    auto jA=(int)rand()%A.Cols();
+    auto iA=(size_t)rand()%A.Rows();
+    auto jA=(size_t)rand()%A.Cols();
     auto iB = iA; auto jB = jA;
     std::cout \
       << "A[" << iA << "," << jA << "] = " << A(iA,jA) << "\t" \
@@ -67,8 +62,8 @@ std::vector<Tuple<T>> AccessRandSpots(const Matrix<T>& A, size_t nspots, std::st
   std::vector<Tuple<T>> coords(nspots);
 
   for (auto n=0; n<nspots; ++n) {
-    auto iA=(int)rand()%A.Rows();
-    auto jA=(int)rand()%A.Cols();
+    auto iA=(size_t)rand()%A.Rows();
+    auto jA=(size_t)rand()%A.Cols();
     auto iB = iA; auto jB = jA;
     std::cout \
       << name << "[" << iA << "," << jA << "] = " << A(iA,jA) << std::endl;
@@ -98,9 +93,9 @@ void AccessSpots(const Matrix<T>& A, const std::vector<Tuple<T>>& spots, std::st
 template <typename T>
 void TestMatrix(size_t rows, size_t cols)
 {
-  std::vector<T> vec_A, vec_B;
+  std::vector<T> vec_A(rows*cols), vec_B(cols*rows);
   PrepareData<T>(rows, cols, &vec_A, MATRIX_VALUE_MAX);
-  PrepareData<T>(rows, cols, &vec_B, MATRIX_VALUE_MAX/2);
+  PrepareData<T>(cols, rows, &vec_B, MATRIX_VALUE_MAX);
 
   Matrix<T> A(rows, cols);
   Matrix<T> B(cols, rows);

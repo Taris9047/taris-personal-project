@@ -61,6 +61,8 @@ private:
   std::unique_ptr<T[]> data;
   size_t rows, cols;
 
+  void swap(size_t i, size_t);
+
 }; /* class Matrix */
 
 #endif /* Include guard */
