@@ -27,7 +27,7 @@ CUDA_LIBS=-L$(CUDA_LIB_PATH) -lcudart
 # Compiler flags
 CFLAGS=-ggdb -fopenmp -std=c11
 CXXFLAGS=-ggdb -fopenmp -std=c++11
-NVCCFLAGS=-g -std=c++11
+NVCCFLAGS=-g -G -std=c++11
 
 # Source files
 SRCDIR=./src

@@ -35,15 +35,15 @@ template <class T>
 size_t Matrix<T>::Cols() const { return cols; }
 
 template <class T>
-T& Matrix<T>::At(size_t row_index, size_t col_index) const
+T& Matrix<T>::At(size_t row_index, size_t col_index)
 {
   if (row_index >= rows || col_index >= cols)
     throw std::out_of_range("Matrix out of range!!");
-  return data[row_index*rows+col_index];
+  return data[row_index*cols+col_index];
 }
 
 template <class T>
-T& Matrix<T>::operator() (size_t row_index, size_t col_index) const
+T& Matrix<T>::operator() (size_t row_index, size_t col_index)
 {
   return At(row_index, col_index);
 }
@@ -81,19 +81,19 @@ void Matrix<T>::Tran()
     for (auto i=1; i<rows; ++i) {
       for (auto j=0; j<i+1; ++j) {
         if (this->At(i,j)==this->At(j,i)) continue;
-        swap(i,i*rows+j);
+        swap(i*cols+j,j*cols+i);
       }
-    }
+    } /* for (auto i=1; i<rows; ++i) */
   }
   /* Not so square matrix case */
   else {
-    std::unique_ptr<T[]> tmp_data = std::make_unique<T[]>(cols*rows);
+    std::vector<T> tmp_data(cols*rows);
 
     #pragma omp parallel for
     for (auto i=0; i<rows; ++i) {
       for (auto j=0; j<cols; ++j)
-        tmp_data[j*cols+i] = data[i*rows+j];
-    }
+        tmp_data[j*rows+i] = data[i*cols+j];
+    } /* for (auto i=0; i<rows; ++i) */
 
     data = std::move(tmp_data);
 
@@ -138,8 +138,8 @@ Matrix<T> Matrix<T>::operator+ (const Matrix<T>& B)
 
   Matrix<T> ResultMatrix(rows, cols);
 
-  T* cuda_data_A = this->data.get();
-  T* cuda_data_B = B.data.get();
+  T* cuda_data_A = &this->data[0];
+  T* cuda_data_B = (T*)&B.data[0];
   T* result = AddCuda<T>(cuda_data_A, cuda_data_B, rows, cols);
 
   ResultMatrix.Assign(result, rows*cols);
@@ -153,7 +153,7 @@ Matrix<T> Matrix<T>::operator+ (const T& sc)
 {
   Matrix<T> ResultMatrix(rows, cols);
 
-  T* cuda_data_A = this->data.get();
+  T* cuda_data_A = &this->data[0];
   T* result = AddScCuda<T>(cuda_data_A, sc, rows, cols);
 
   ResultMatrix.Assign(result, rows*cols);
@@ -168,8 +168,8 @@ Matrix<T> Matrix<T>::operator- (const Matrix<T>& B)
 
   Matrix<T> ResultMatrix(rows, cols);
 
-  T* cuda_data_A = this->data.get();
-  T* cuda_data_B = B.data.get();
+  T* cuda_data_A = &this->data[0];
+  T* cuda_data_B = (T*)&B.data[0];
   T* result = SubCuda<T>(cuda_data_A, cuda_data_B, rows, cols);
 
   ResultMatrix.Assign(result, rows*cols);
@@ -182,7 +182,7 @@ Matrix<T> Matrix<T>::operator- (const T& sc)
 {
   Matrix<T> ResultMatrix(rows, cols);
 
-  T* cuda_data_A = this->data.get();
+  T* cuda_data_A = &this->data[0];
   T* result = SubScCuda<T>(cuda_data_A, sc, rows, cols);
 
   ResultMatrix.Assign(result, rows*cols);
@@ -197,8 +197,8 @@ Matrix<T> Matrix<T>::operator* (const Matrix<T>& B)
 
   Matrix<T> ResultMatrix(rows, B.Cols());
 
-  T* cuda_data_A = this->data.get();
-  T* cuda_data_B = B.data.get();
+  T* cuda_data_A = &this->data[0];
+  T* cuda_data_B = (T*)&B.data[0];
   T* result = MulCuda<T>(cuda_data_A, cuda_data_B, rows, cols, B.Rows(), B.Cols());
 
   ResultMatrix.Assign(result, rows*B.Cols());
@@ -211,7 +211,7 @@ Matrix<T> Matrix<T>::operator* (const T& sc)
 {
   Matrix<T> ResultMatrix(rows, cols);
 
-  T* cuda_data_A = this->data.get();
+  T* cuda_data_A = &this->data[0];
   T* result = MulScCuda<T>(cuda_data_A, sc, rows, cols);
 
   ResultMatrix.Assign(result, rows*cols);
@@ -224,15 +224,15 @@ Matrix<T> Matrix<T>::operator* (const T& sc)
   Matrix - Misc. utility methods
 *********************************************/
 template <class T>
-std::string Matrix<T>::Print()
+std::string Matrix<T>::Print(size_t vis)
 {
   std::stringstream ss;
 
   for (auto i=0; i<rows; ++i) {
 
-    if ((rows > 6 && (i > rows-1-3 || i < 3)) || rows < 6)
+    if ((rows > vis*2 && (i > rows-1-vis || i < vis)) || rows < vis*2)
       ss << print_row(i);
-    else if (i==3)
+    else if (rows > vis*2 && i==vis)
       ss << "[ ... some rows ... ]" << std::endl;
     else continue;
 
@@ -248,23 +248,26 @@ void Matrix<T>::stdout_print()
 }
 
 template <class T>
-std::string Matrix<T>::print_row(size_t row_index)
+std::string Matrix<T>::print_row(size_t row_index, size_t vis)
 {
   if (row_index >= rows)
     throw std::out_of_range("print_row, given row index out of range!!");
 
-  std::stringstream ss;
+  std::stringstream ss(std::stringstream::in|std::stringstream::out);
 
   ss << "[";
+
   for (auto j=0; j<cols; ++j) {
-    if ((cols > 6 && (j > cols-1-3 || j < 3)) || cols < 6)
+
+    if ((cols > vis*2 && (j > cols-1-vis || j < vis)) || cols < vis*2)
       ss << this->At(row_index, j);
-    else if (j == 3)
+    else if (cols > vis*2 && j == vis)
       ss << " ... ";
     else continue;
 
     if (j==cols-1) continue;
     else ss << " ";
+
   } /* for (auto j=0; j<cols; ++j) */
 
   ss << "]" << std::endl;
@@ -276,7 +279,7 @@ std::string Matrix<T>::print_row(size_t row_index)
   Matrix - Constructors and Destructors
 *********************************************/
 template <class T>
-Matrix<T>::Matrix() : data(nullptr), rows(0), cols(0) {;}
+Matrix<T>::Matrix() : data({}), rows(0), cols(0) {;}
 
 template <class T>
 Matrix<T>::Matrix(size_t r, size_t c) : Matrix()
@@ -286,10 +289,11 @@ Matrix<T>::Matrix(size_t r, size_t c) : Matrix()
 
   rows = r;
   cols = c;
-  data = std::make_unique<T[]>(rows*cols);
+  std::vector<T> tmp_vec(rows*cols, T());
+  data = tmp_vec;
 
-  #pragma omp parallel for
-  for (auto i=0; i<rows*cols; ++i) data[i] = T();
+  // #pragma omp parallel for
+  // for (auto i=0; i<rows*cols; ++i) data[i] = T();
 
 }
 
@@ -298,7 +302,8 @@ Matrix<T>::Matrix(const Matrix<T>& m) : Matrix()
 {
   rows = m.Rows();
   cols = m.Cols();
-  data = std::make_unique<T[]>(rows*cols);
+  std::vector<T> tmp_vec(rows*cols);
+  data = tmp_vec;
 
   #pragma omp parallel for
   for (auto i=0; i<rows*cols; ++i) data[i] = m.data[i];
@@ -323,12 +328,7 @@ Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
 template <class T>
 Matrix<T>& Matrix<T>::operator= (Matrix<T>&& m) noexcept
 {
-  data = std::make_unique<T[]>(rows*cols);
-  #pragma omp parallel for
-  for (auto i=0; i<rows*cols; ++i)
-    data[i] = m.data[i];
-
-  m.data = nullptr;
+  data = std::move(m.data);
   return *this;
 }
 

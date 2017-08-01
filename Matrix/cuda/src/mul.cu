@@ -86,12 +86,12 @@ void mul_kernel(void* ka, void* kb, void* kc, size_t a_r, size_t a_c, size_t b_r
   
   T tmp;
   for (auto i=0; i<a_r; ++i) {
-    for (auto j=0; j<a_c; ++j) {
+    for (auto j=0; j<b_c; ++j) {
       tmp = T();
       for (auto k=0; k<b_r; ++k) {
-        tmp += a_data[i*a_r+k]*b_data[k*b_r+j];
+        tmp += a_data[i*a_c+k]*b_data[k*b_c+j];
       } /* for (k=0; k<b_r; ++k) */
-      c_data[i*a_r+j] = tmp;
+      c_data[i*b_c+j] = tmp;
     } /* for (j=0; j<a_c; ++j) */
   } /* for (i=0; i<a_r; ++i) */
   
@@ -137,7 +137,7 @@ T* RK_MatMat(T* a, T* b, size_t r, size_t c, MtoMKernel<T> KERNEL_FUNC)
   NULL_CHECK((a||b)) 
   size_t memsize = r*c*sizeof(T); 
   
-  T* res = (T*)malloc(memsize); 
+  T* res = (T*)malloc(memsize);
   int block_size, min_grid_size, grid_size; 
 
   void* a_vec; cudaMalloc((void**)&a_vec, memsize); 

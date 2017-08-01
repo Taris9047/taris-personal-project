@@ -13,6 +13,8 @@
 #ifndef MATRIX_CUDA_MATRIX_HEADER
 #define MATRIX_CUDA_MATRIX_HEADER
 
+#define DEFAULT_VIS_NUMBER 3
+
 #include "utils.hpp"
 
 #include <vector>
@@ -23,8 +25,8 @@ public:
   /* Access Methods */
   size_t Rows() const;
   size_t Cols() const;
-  T& At(size_t row_index, size_t col_index) const;
-  T& operator() (size_t row_index, size_t col_index) const;
+  T& At(size_t row_index, size_t col_index);
+  T& operator() (size_t row_index, size_t col_index);
 
   /* Assignment methods */
   void Assign(std::vector<T> vec);
@@ -44,9 +46,9 @@ public:
   Matrix operator* (const T& sc);
 
   /* Misc. utility methods */
-  std::string Print();
+  std::string Print(size_t vis=DEFAULT_VIS_NUMBER);
   void stdout_print();
-  std::string print_row(size_t row_index);
+  std::string print_row(size_t row_index, size_t vis=DEFAULT_VIS_NUMBER);
 
   /* Constructors and Destructors */
   Matrix();
@@ -58,7 +60,7 @@ public:
   virtual ~Matrix() noexcept;
 
 private:
-  std::unique_ptr<T[]> data;
+  std::vector<T> data;
   size_t rows, cols;
 
   void swap(size_t i, size_t);

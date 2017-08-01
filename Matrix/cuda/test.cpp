@@ -95,14 +95,16 @@ void TestMatrix(size_t rows, size_t cols)
 {
   std::vector<T> vec_A(rows*cols), vec_B(cols*rows);
   PrepareData<T>(rows, cols, &vec_A, MATRIX_VALUE_MAX);
-  PrepareData<T>(cols, rows, &vec_B, MATRIX_VALUE_MAX);
+  //PrepareData<T>(cols, rows, &vec_B, MATRIX_VALUE_MAX);
 
   Matrix<T> A(rows, cols);
-  Matrix<T> B(cols, rows);
+  //Matrix<T> B(cols, rows);
 
   std::cout << "Populating Matrix A and B..." << std::endl;
-  A.Assign(vec_A); B.Assign(vec_B);
+  A.Assign(vec_A); //B.Assign(vec_B);
   std::cout << std::endl;
+  Matrix<T> B(A);
+  B.Tran();
 
   std::cout << "Printing out A and B" << std::endl;
   std::cout << "A = " << std::endl;
