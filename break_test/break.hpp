@@ -221,8 +221,7 @@ void* qt_worker(void* params)
       auto index = id*ARY_LEN_MULTI+i;
       if ((*dummy_array)[index]) {
         if (rand_coin_toss()) {
-          auto tmp = (*dummy_array)[index];
-          free(tmp);
+          free((*dummy_array)[index]);
           (*dummy_array)[index] = (scNode*)malloc(sizeof(scNode));
         }
         else continue;
