@@ -101,7 +101,7 @@ void TestMatrix(size_t rows, size_t cols)
   //Matrix<T> B(cols, rows);
 
   std::cout << "Populating Matrix A and B..." << std::endl;
-  A.Assign(vec_A); //B.Assign(vec_B);
+  A.Assign(vec_A);
   std::cout << std::endl;
   Matrix<T> B(A);
   B.Tran();

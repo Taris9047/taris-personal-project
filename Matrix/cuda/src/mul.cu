@@ -23,9 +23,10 @@ void add_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
   T* a_data = (T*)ka;
   T* b_data = (T*)kb;
   T* c_data = (T*)kc;
-  for (auto i=0; i<n; ++i) {
+  auto index = blockIdx.x * blockDim.x + threadIdx.x;
+  auto stride = blockDim.x * gridDim.x;
+  for (auto i=index; i<n; i+=stride)
     c_data[i] = a_data[i] + b_data[i];
-  }
   
   return;
 }
@@ -38,7 +39,9 @@ void add_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
   T* a_data = (T*)ka;
   T* b_data = (T*)kb;
   T* c_data = (T*)kc;
-  for (auto i=0; i<n; ++i) {
+  auto index = blockIdx.x * blockDim.x + threadIdx.x;
+  auto stride = blockDim.x * gridDim.x;
+  for (auto i=index; i<n; i+=stride) {
     c_data[i] = a_data[i] + (*b_data);
   }
 
@@ -53,7 +56,9 @@ void sub_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
   T* a_data = (T*)ka;
   T* b_data = (T*)kb;
   T* c_data = (T*)kc;
-  for (auto i=0; i<n; ++i) {
+  auto index = blockIdx.x * blockDim.x + threadIdx.x;
+  auto stride = blockDim.x * gridDim.x;
+  for (auto i=index; i<n; i+=stride) {
     c_data[i] = a_data[i] - b_data[i];
   }
   
@@ -68,7 +73,9 @@ void sub_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
   T* a_data = (T*)ka;
   T* b_data = (T*)kb;
   T* c_data = (T*)kc;
-  for (auto i=0; i<n; ++i) {
+  auto index = blockIdx.x * blockDim.x + threadIdx.x;
+  auto stride = blockDim.x * gridDim.x;
+  for (auto i=index; i<n; i+=stride) {
     c_data[i] = a_data[i] - (*b_data);
   }
 
@@ -85,16 +92,23 @@ void mul_kernel(void* ka, void* kb, void* kc, size_t a_r, size_t a_c, size_t b_r
   T* c_data = (T*)kc;
   
   T tmp;
-  for (auto i=0; i<a_r; ++i) {
-    for (auto j=0; j<b_c; ++j) {
+  auto index_r = blockIdx.x * blockDim.x + threadIdx.x;
+  auto stride_r = blockDim.x * gridDim.x;
+  for (auto i=index_r; i<a_r; i+=stride_r) {
+    auto index_c = blockIdx.y * blockDim.y + threadIdx.y;
+    auto stride_c = blockDim.y * gridDim.y;
+    for (auto j=index_c; j<b_c; j+=stride_c) {
       tmp = T();
-      for (auto k=0; k<b_r; ++k) {
+      auto index_x = blockIdx.z * blockDim.z + threadIdx.z;
+      auto stride_x = blockDim.z * gridDim.z;
+      for (auto k=index_x; k<b_r; k+=stride_x) {
+      //for (auto k=0; k<b_r; ++k) {
         tmp += a_data[i*a_c+k]*b_data[k*b_c+j];
       } /* for (k=0; k<b_r; ++k) */
       c_data[i*b_c+j] = tmp;
     } /* for (j=0; j<a_c; ++j) */
   } /* for (i=0; i<a_r; ++i) */
-  
+
   return;
 }
 
@@ -106,7 +120,9 @@ void mul_sc_kernel(void* ka, void* kb, void* kc, size_t r, size_t c)
   T* a_data = (T*)ka;
   T* b_data = (T*)kb;
   T* c_data = (T*)kc;
-  for (auto i=0; i<n; ++i) {
+  auto index = blockIdx.x * blockDim.x + threadIdx.x;
+  auto stride = blockDim.x * gridDim.x;
+  for (auto i=index; i<n; i+=stride) {
     c_data[i] = a_data[i] * (*b_data);
   }
 
@@ -140,14 +156,14 @@ T* RK_MatMat(T* a, T* b, size_t r, size_t c, MtoMKernel<T> KERNEL_FUNC)
   T* res = (T*)malloc(memsize);
   int block_size, min_grid_size, grid_size; 
 
-  void* a_vec; cudaMalloc((void**)&a_vec, memsize); 
-  void* b_vec; cudaMalloc((void**)&b_vec, memsize); 
-  void* res_vec; cudaMalloc((void**)&res_vec, memsize); 
+  void* a_vec; cudaMallocManaged((void**)&a_vec, memsize); 
+  void* b_vec; cudaMallocManaged((void**)&b_vec, memsize); 
+  void* res_vec; cudaMallocManaged((void**)&res_vec, memsize); 
   cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice); 
   cudaMemcpy(b_vec, b, memsize, cudaMemcpyHostToDevice); 
 
   cudaOccupancyMaxPotentialBlockSize(
-    &min_grid_size, &block_size, add_kernel<T>, 0, memsize); 
+    &min_grid_size, &block_size, KERNEL_FUNC, 0, memsize); 
   
   grid_size = (memsize+block_size-1)/block_size; 
   
@@ -171,14 +187,14 @@ T* RK_MatSc(T* a, const T& sc, size_t r, size_t c, MtoScKernel<T> KERNEL_FUNC)
   T* res = (T*)malloc(memsize);
   int block_size, min_grid_size, grid_size;
   
-  void* a_vec; cudaMalloc((void**)&a_vec, memsize);
-  void* sc_vec; cudaMalloc((void**)&sc_vec, sizeof(T));
-  void* res_vec; cudaMalloc((void**)&res_vec, memsize);
+  void* a_vec; cudaMallocManaged((void**)&a_vec, memsize);
+  void* sc_vec; cudaMallocManaged((void**)&sc_vec, sizeof(T));
+  void* res_vec; cudaMallocManaged((void**)&res_vec, memsize);
   cudaMemcpy(a_vec, a, memsize, cudaMemcpyHostToDevice);
   cudaMemcpy(sc_vec, &sc, sizeof(T), cudaMemcpyHostToDevice);
   
   cudaOccupancyMaxPotentialBlockSize(
-    &min_grid_size, &block_size, add_sc_kernel<T>, 0, memsize);
+    &min_grid_size, &block_size, KERNEL_FUNC, 0, memsize);
   
   grid_size = (memsize+block_size-1)/block_size;
   
@@ -203,14 +219,14 @@ T* RK_MatMatMul(T* a, T* b, size_t a_r, size_t a_c, size_t b_r, size_t b_c)
   T* res = (T*)malloc(c_memsize); 
   int block_size, min_grid_size, grid_size; 
 
-  void* a_vec; cudaMalloc((void**)&a_vec, a_memsize); 
-  void* b_vec; cudaMalloc((void**)&b_vec, b_memsize); 
-  void* res_vec; cudaMalloc((void**)&res_vec, c_memsize); 
+  void* a_vec; cudaMallocManaged((void**)&a_vec, a_memsize); 
+  void* b_vec; cudaMallocManaged((void**)&b_vec, b_memsize); 
+  void* res_vec; cudaMallocManaged((void**)&res_vec, c_memsize); 
   cudaMemcpy(a_vec, a, a_memsize, cudaMemcpyHostToDevice); 
   cudaMemcpy(b_vec, b, b_memsize, cudaMemcpyHostToDevice); 
 
   cudaOccupancyMaxPotentialBlockSize(
-    &min_grid_size, &block_size, add_kernel<T>, 0, c_memsize); 
+    &min_grid_size, &block_size, mul_kernel<T>, 0, c_memsize); 
   
   grid_size = (c_memsize+block_size-1)/block_size; 
   

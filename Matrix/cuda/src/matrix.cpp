@@ -233,7 +233,7 @@ std::string Matrix<T>::Print(size_t vis)
     if ((rows > vis*2 && (i > rows-1-vis || i < vis)) || rows < vis*2)
       ss << print_row(i);
     else if (rows > vis*2 && i==vis)
-      ss << "[ ... some rows ... ]" << std::endl;
+      ss << "[ ... " << rows-vis*2 << " rows ... ]" << std::endl;
     else continue;
 
   } /* for (auto i=0; i<rows; ++i) */
@@ -262,7 +262,7 @@ std::string Matrix<T>::print_row(size_t row_index, size_t vis)
     if ((cols > vis*2 && (j > cols-1-vis || j < vis)) || cols < vis*2)
       ss << this->At(row_index, j);
     else if (cols > vis*2 && j == vis)
-      ss << " ... ";
+      ss << " ... " << cols-vis*2 << " elements ... ";
     else continue;
 
     if (j==cols-1) continue;
