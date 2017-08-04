@@ -22,6 +22,8 @@ int main (int argc, char* argv[])
 	QList<scNode*> ql_dummy_array;
 	ql_dummy_array.reserve(ary_len);
 	qt_break_malloc(n_threads, ql_dummy_array);
+	for (auto i=0; i<ary_len; ++i)
+		ql_dummy_array[i] = NULL;
 #else
 	scNode** dummy_array = (scNode**)calloc(sizeof(scNode*),ary_len);
 	if (!dummy_array) exit(-1);

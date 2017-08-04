@@ -221,7 +221,8 @@ void* qt_worker(void* params)
       auto index = id*ARY_LEN_MULTI+i;
       if ((*dummy_array)[index]) {
         if (rand_coin_toss()) {
-          free((*dummy_array)[index]);
+          auto tmp = (*dummy_array)[index];
+          free(tmp);
           (*dummy_array)[index] = (scNode*)malloc(sizeof(scNode));
         }
         else continue;
@@ -243,7 +244,7 @@ void qt_break_malloc(size_t n_threads, QList<scNode*>& dummy_array)
   
   /* Let's call the workers */
   int rc;
-  uint64_t t;
+  uint32_t t;
   pthread_t threads[n_threads];
   
   pthread_mutex_init(&text_print_mutex, NULL);
@@ -252,7 +253,7 @@ void qt_break_malloc(size_t n_threads, QList<scNode*>& dummy_array)
     wp[t] = (QtWParam*)malloc(sizeof(QtWParam));
     wp[t]->id = t;
     wp[t]->array = &dummy_array;
-    rc = pthread_create(&threads[t], NULL, worker, (void*)wp[t]);
+    rc = pthread_create(&threads[t], NULL, qt_worker, (void*)wp[t]);
     if (rc) {
       fprintf(stderr, "Yikes, failed to spawn a thread!!\n");
       exit(-1);

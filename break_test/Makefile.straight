@@ -8,11 +8,12 @@
 
 ####### Compiler, tools and options
 
+OPTIMIZE      = -ggdb3
 CC            = gcc
 CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED
-CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT $(DEFINES)
-CXXFLAGS      = -pipe -O2 -Wall -W -D_REENTRANT $(DEFINES)
+CFLAGS        = -pipe $(OPTIMIZE) -Wall -W -D_REENTRANT $(DEFINES) -mpreferred-stack-boundary=4 -mstackrealign
+CXXFLAGS      = -pipe $(OPTIMIZE) -Wall -W -D_REENTRANT $(DEFINES) -mpreferred-stack-boundary=4 -mstackrealign
 INCPATH       = -I../../local/Qt/mkspecs/linux-g++ -I. -I../../local/Qt/include/QtCore -I../../local/Qt/include/QtGui -I../../local/Qt/include -I. -I.
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/data/KSHIN/local/Qt/lib
