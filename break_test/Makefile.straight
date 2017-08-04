@@ -1,0 +1,18 @@
+CXX=/data/KSHIN/local/gcc_cuda/bin/g++
+
+OMP=-fopenmp
+PTH=-pthread
+
+CXXFLAGS=-O3 -std=c++11
+
+all: break_omp break_pth
+
+break_omp: break.cpp break.hpp
+	$(CXX) $(CXXFLAGS) $(OMP) break.cpp -o $@
+
+break_pth: break.cpp break.hpp
+	$(CXX) $(CXXFLAGS) $(PTH) break.cpp -o $@
+	
+clean:
+	rm -rfv break_pth break_omp *.o
+
