@@ -3,9 +3,10 @@ CC=gcc
 CXX=g++
 
 UNAME := $(shell uname)
-ifeq ($(UNALE), darwin)
-CC=gcc
-CXX=g++
+UNAME := $(call lc,$(UNAME))
+ifeq ($(UNAME), darwin)
+CC=gcc-7
+CXX=g++-7
 endif
 
 CFLAGS=-ggdb3 -fPIC
