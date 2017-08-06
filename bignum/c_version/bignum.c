@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "bignum.h"
 #include "parse_num.h"
@@ -44,13 +45,22 @@ static int* Zero()
 }
 
 /* Dot */
-// static char* Dot()
-// {
-//     char* dot = (char*)malloc(sizeof(char));
-//     assert(dot);
-//     (*dot) = '.';
-//     return dot;
-// }
+static char* Dot()
+{
+    char* dot = (char*)malloc(sizeof(char));
+    assert(dot);
+    (*dot) = '.';
+    return dot;
+}
+
+/* Minus */
+static char* Minus()
+{
+    char* m = (char*)malloc(sizeof(char));
+    assert(m);
+    (*m) = '-';
+    return m;
+}
 
 /* Constructors and destructors */
 /* New bignum from string */
@@ -60,9 +70,53 @@ Bignum NewBignum(const char* num_str)
 
     Bignum bn = New();
     BNParser bn_parse = ParseNumStr(num_str);
+	bn->n_string = (char*)malloc(bn_parse->str_len+1);
+	strcpy(bn->n_string, bn_parse->the_string);
+
+	size_t i;
+    switch (bn_parse->num_type) {
+
+		case INT:
+			bn->cnum = NewList()
+
+			for (i=0; i<bn_parse->str_len; ++i) {
+				LPush(bn->cnum, %bn->n_string[i]);
+			}
 
 
-    DeleteParser(1, bn_parse);
+
+		case MONEY:
+
+			break;
+
+		case FLOAT:
+			bn->cnum = NewList();
+			bn->dnum = NewList();
+
+			for (i=0; i<bn_parse->str_len; ++i) {
+				if (i<bn_parse->dec_p)
+					LPush(bn->cnum, &bn->n_string[i]);
+				else if (i>bn_parse->dec_p)
+					LPush(bn->dnum, &bn->n_string[i]);
+			}
+
+		break;
+			break;
+
+		case ENG:
+
+			break;
+
+		default:
+
+			break;
+
+	}
+
+	if (bn_parse->sgn_cnum == 0)
+		LPush(bn->cnum, Minus());
+
+    DeleteParser(bn_parse);
     return bn;
 }
 
