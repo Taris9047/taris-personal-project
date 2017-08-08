@@ -53,6 +53,9 @@ typedef struct _bignum {
 
     /* Actual type of number */
     enum bntype num_type;
+
+	/* number string storage */
+	char* n_string;
 } bignum;
 typedef bignum* Bignum;
 

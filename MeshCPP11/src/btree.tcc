@@ -75,7 +75,6 @@ BTNode<T, KeyT>& BTNode<T, KeyT>::operator= (BTNode<T, KeyT>&& btnode) noexcept
 	data = nullptr;
 	left = nullptr;
 	right = nullptr;
-	//parent = nullptr;
 
 	data = std::move(btnode.data);
 	left = std::move(btnode.left);
@@ -114,15 +113,10 @@ BTNode<T, KeyT>::BTNode(std::shared_ptr<T> pndata, KeyT& nkey)
 template <class T, class KeyT>
 BTNode<T, KeyT>::BTNode(const BTNode<T, KeyT>& btnode)
 {
-	T& tmp_data = *btnode->Get();
-	BTNode<T, KeyT>& tmp_l = *btnode->left;
-	BTNode<T, KeyT>& tmp_r = *btnode->right;
-	BTNode<T, KeyT>& tmp_p = *btnode->parent;
-
-	data = std::make_shared<T>(tmp_data);
-	left = std::make_shared<BTNode<T, KeyT>>(tmp_l);
-	right = std::make_shared<BTNode<T, KeyT>>(tmp_r);
-	parent = std::make_shared<BTNode<T, KeyT>>(tmp_p);
+	data = btnode.Get();
+	left = btnode.left;
+	right = btnode.right;
+	parent = btnode.parent;
 
 	key = btnode->GetKey();
 }

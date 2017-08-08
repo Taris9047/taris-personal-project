@@ -5,6 +5,13 @@ CXX=g++
 PGIC=pgcc
 PGICXX=pgc++
 
+UNAME := $(shell uname)
+UNAME := $(call lc,$(UNAME))
+ifeq ($(UNAME), darwin)
+CC=gcc-7
+CXX=g++-7
+endif
+
 DIRECTIVES=-fopenmp
 DIRECTIVES_PGI=-mp
 

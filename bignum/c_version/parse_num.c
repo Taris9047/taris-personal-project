@@ -40,15 +40,16 @@ BNParser ParseNumStr(const char* num_str)
 
     /* Let's make the input string to lowercase... */
     bnp->str_len = strlen(num_str);
+    lnum_str = (char*)calloc(sizeof(char), bnp->str_len+1);
     str_to_lower(lnum_str, num_str, bnp->str_len);
     bnp->the_string = lnum_str;
 
     /* let's find e and dot */
     e = strchr(lnum_str, 'e');
-    //dot = strchr((const char*)lnum_str, '.');
+    dot = strchr((const char*)lnum_str, '.');
 
     /* this is engineering number */
-    if (!e) {
+    if (e) {
         /* Engineering type */
         bnp->num_type = ENG;
         /* let's split the string with e */
