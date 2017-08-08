@@ -13,6 +13,27 @@
 #include <stdexcept>
 
 /********************************************
+  Block assignment tool
+*********************************************/
+#define MAX_THREADS_PER_BLOCK_SQRT 8
+static inline void assign_blocks_mul(size_t rows, size_t cols, dim3* blocks, dim3* thr_per_block)
+{
+  size_t r_threads, c_threads;
+  if (rows < MAX_THREADS_PER_BLOCK_SQRT) r_threads = rows/2;
+  else r_threads = MAX_THREADS_PER_BLOCK_SQRT;
+  if (cols < MAX_THREADS_PER_BLOCK_SQRT) c_threads = cols/2;
+  else c_threads = MAX_THREADS_PER_BLOCK_SQRT;
+  if (!r_threads) r_threads = 1;
+  if (!c_threads) c_threads = 1;
+  
+  dim3 tpb(r_threads, c_threads);
+  dim3 nb(rows/tpb.x, cols/tpb.y);
+  
+  (*blocks) = nb;
+  (*thr_per_block) = tpb;
+}
+
+/********************************************
   Cuda kernels
 *********************************************/
 template<typename T>
@@ -217,7 +238,6 @@ T* RK_MatMatMul(T* a, T* b, size_t a_r, size_t a_c, size_t b_r, size_t b_c)
   size_t c_memsize = a_r*b_c*sizeof(T);
   
   T* res = (T*)malloc(c_memsize); 
-  int block_size, min_grid_size, grid_size; 
 
   void* a_vec; cudaMallocManaged((void**)&a_vec, a_memsize); 
   void* b_vec; cudaMallocManaged((void**)&b_vec, b_memsize); 
@@ -225,12 +245,21 @@ T* RK_MatMatMul(T* a, T* b, size_t a_r, size_t a_c, size_t b_r, size_t b_c)
   cudaMemcpy(a_vec, a, a_memsize, cudaMemcpyHostToDevice); 
   cudaMemcpy(b_vec, b, b_memsize, cudaMemcpyHostToDevice); 
 
-  cudaOccupancyMaxPotentialBlockSize(
-    &min_grid_size, &block_size, mul_kernel<T>, 0, c_memsize); 
+  // int block_size, min_grid_size, grid_size; 
+  // cudaOccupancyMaxPotentialBlockSize(
+  //   &min_grid_size, &block_size, mul_kernel<T>, 0, c_memsize); 
+  // 
+  // grid_size = (c_memsize+block_size-1)/block_size;
+  // mul_kernel<T><<<grid_size,block_size>>>(a_vec, b_vec, res_vec, a_r, a_c, b_r, b_c); 
   
-  grid_size = (c_memsize+block_size-1)/block_size; 
+  // dim3 threadsPerBlock(8, 8);
+  // dim3 numBlocks(a_r/threadsPerBlock.x, b_c/threadsPerBlock.y);
+  dim3 threadsPerBlock;
+  dim3 numBlocks;
   
-  mul_kernel<T><<<grid_size,block_size>>>(a_vec, b_vec, res_vec, a_r, a_c, b_r, b_c); 
+  assign_blocks_mul(a_r, b_c, &numBlocks, &threadsPerBlock);
+  
+  mul_kernel<T><<<numBlocks,threadsPerBlock>>>(a_vec, b_vec, res_vec, a_r, a_c, b_r, b_c); 
   
   cudaMemcpy((void*)res, res_vec, c_memsize, cudaMemcpyDeviceToHost); 
   
