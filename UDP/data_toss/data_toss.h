@@ -16,19 +16,19 @@
 #include <time.h>
 #include <locale.h>
 
+#include <pthread.h>
+
 #include "utils.h"
 
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"
 #define DEF_PORT 9930
 #define BUFLEN 1024*10
-#define CHUNK_LEN 100000L
+#define CHUNK_LEN 10000L
 // #define SLEEP_INTERVAL 10
-
-/* Generates random byte */
-unsigned char rand_byte(void);
+#define N_TOSSERS 5
 
 /* The server toutine */
-void keep_sending(int port_num);
+void keep_sending(int port_num, size_t n_threads);
 
 #endif /* Include guard */
