@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
   printf("Listening from Port %d\n", PORT);
   while(1) {
     if ( recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *)&si_other, &slen)==-1 ) ERROR("recvfrom()");
-    printf("Received packet from %s:%d\nData: %s\n\n",
+	slen = sizeof(si_other);
+    printf("Received packet from %s:%d\nData: %s\n",
       inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port), buf);
   }
 
