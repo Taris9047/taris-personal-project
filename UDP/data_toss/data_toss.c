@@ -46,35 +46,43 @@ void keep_sending(int port_num)
   
   /* Some status report */
   printf(
-    "Sending data to ... %s:%d\n",
+    "Tossing data (UDP) to ... %s:%d\n",
     inet_ntoa(si_me.sin_addr), ntohs(si_me.sin_port));
   
   /* Preparing timers */
   struct timespec ts_start, ts_end;
   double elapsed;
   
+  // struct timespec ts_interval;
+  // ts_interval.tv_sec = 0;
+  // ts_interval.tv_nsec = SLEEP_INTERVAL;
+  
   /* Let's run it!! */
   int counter = 0;
+  clock_gettime(CLOCK_MONOTONIC, &ts_start);
   while(1) {
-    clock_gettime(CLOCK_MONOTONIC, &ts_start);
     for (int i=0; i<BUFLEN; ++i) buf[i] = rand_byte();
     slen = sizeof(si_me);
     if ( sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen)==-1 )
       ERROR("sendto()");
     counter++;
     
+    /* Some slow down was needed */
+    // nanosleep(&ts_interval, NULL);
+    
     if (counter > CHUNK_LEN) {
       clock_gettime(CLOCK_MONOTONIC, &ts_end);
       elapsed = \
         ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - 
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-      //printf("elapsed time for %ld bytes: %.9f seconds\n", CHUNK_LEN, elapsed);
-      printf("Transfer rate: %'ld bps\r", CHUNK_LEN*BUFLEN*8/elapsed);
+      printf("elapsed time for %'ld bytes: %.5f seconds\n", CHUNK_LEN*BUFLEN, elapsed);
+      printf("Transfer rate: %'ld bps\n", (long)((double)(CHUNK_LEN*BUFLEN*8)/elapsed));
       fflush(stdout);
       
       counter = 0;
+      clock_gettime(CLOCK_MONOTONIC, &ts_start);
     }
-  }
+  } /* while(1) */
   
   tfree(buf);
   
