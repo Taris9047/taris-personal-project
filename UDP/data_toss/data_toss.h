@@ -13,7 +13,16 @@
 #ifndef DATA_TOSS_HEADER_FILE
 #define DATA_TOSS_HEADER_FILE
 
+#include <time.h>
+#include <locale.h>
+
 #include "utils.h"
+
+/* Some macro defs */
+#define SRV_IP "127.0.0.1"
+#define DEF_PORT 9930
+#define BUFLEN 1024
+#define CHUNK_LEN 100000
 
 /* Generates random byte */
 unsigned char rand_byte(void);

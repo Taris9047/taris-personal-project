@@ -1,10 +1,15 @@
 CC=gcc
-CFLAGS=-O3
+CFLAGS=-ggdb3
 
-all: data_toss
+TARGET=data_toss
+
+all: debug
 	
-data_toss: data_toss.c data_toss.h
+debug: data_toss.c data_toss.h
 	$(CC) $(CFLAGS) data_toss.c -o data_toss
 
+release: data_toss.c data_toss.h
+	$(CC) -O3 data_toss.c -o data_toss
+
 clean:
-	rm -rfv ./data_toss
+	rm -rfv ./$(TARGET)
