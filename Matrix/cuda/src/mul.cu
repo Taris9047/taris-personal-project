@@ -245,15 +245,6 @@ T* RK_MatMatMul(T* a, T* b, size_t a_r, size_t a_c, size_t b_r, size_t b_c)
   cudaMemcpy(a_vec, a, a_memsize, cudaMemcpyHostToDevice); 
   cudaMemcpy(b_vec, b, b_memsize, cudaMemcpyHostToDevice); 
 
-  // int block_size, min_grid_size, grid_size; 
-  // cudaOccupancyMaxPotentialBlockSize(
-  //   &min_grid_size, &block_size, mul_kernel<T>, 0, c_memsize); 
-  // 
-  // grid_size = (c_memsize+block_size-1)/block_size;
-  // mul_kernel<T><<<grid_size,block_size>>>(a_vec, b_vec, res_vec, a_r, a_c, b_r, b_c); 
-  
-  // dim3 threadsPerBlock(8, 8);
-  // dim3 numBlocks(a_r/threadsPerBlock.x, b_c/threadsPerBlock.y);
   dim3 threadsPerBlock;
   dim3 numBlocks;
   
