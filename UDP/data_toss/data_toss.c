@@ -18,11 +18,31 @@
 /*************************************************
   Static functions
 **************************************************/
+/* xorshift 32 bit */
+#if defined(__GNUC__)
+#define AAF(ADDR, VAL) __sync_add_and_fetch((ADDR), (VAL))
+#else
+#define AAF(ADDR, VAL) (*ADDR)+=VAL
+#endif
+static inline unsigned int xorshift(void* state)
+{
+  unsigned int num = *(unsigned int*)state;
+  num ^= num >> 6;
+  num ^= num << 12;
+  num ^= num >> 17;
+  num *= UINT32_C(2147483647);
+  return AAF((unsigned int*)state, num);
+}
+
 /* Generates random byte */
 static inline unsigned char rand_byte(void* p_state)
 {
   unsigned int *state = p_state;
-  *state = time(NULL) ^ getpid();
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  int time_now = (int)(ts.tv_sec*1e9+ts.tv_nsec);
+  *state = time_now ^ getpid();
+  xorshift(state);
   return (unsigned char)rand_r(state);
 }
 
@@ -60,6 +80,8 @@ static void* sendto_worker(void *t)
   }
 
   pthread_exit(NULL);
+
+  return NULL;
 }
 
 /*************************************************
@@ -67,7 +89,7 @@ static void* sendto_worker(void *t)
 **************************************************/
 
 /* The server toutine */
-void keep_sending(int port_num, size_t n_threads)
+void keep_sending(int port_num, size_t n_threads, int daemon)
 {
   if (!n_threads) {
     fprintf(stderr, "keep_sending: 0 threads given!! assuming to 1\n");
@@ -77,6 +99,7 @@ void keep_sending(int port_num, size_t n_threads)
   struct sockaddr_in si_me;
   int s;
   int th, ib;
+  int total_iteration = ITER;
 
   unsigned char** buf_ary = \
     (unsigned char**)tmalloc(sizeof(unsigned char*)*n_threads);
@@ -117,7 +140,7 @@ void keep_sending(int port_num, size_t n_threads)
   /* Let's run it!! */
   int counter = 0;
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  while(1) {
+  while(total_iteration!=0) {
 
     for (th=0; th<n_threads; ++th) {
       thr_data[th].socket = s;
@@ -151,16 +174,19 @@ void keep_sending(int port_num, size_t n_threads)
         ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) -
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
       printf("elapsed time for %'ld bytes: %.5f seconds\n",
-        CHUNK_LEN*BUFLEN*n_threads, elapsed);
+        CHUNK_LEN*DATA_LEN*n_threads, elapsed);
       printf("Transfer rate: %'ld bps\n",
-        (long)((double)(CHUNK_LEN*BUFLEN*8*n_threads)/elapsed));
+        (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
       // fflush(stdout);
 
       counter = 0;
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
+
+      total_iteration--;
+      if (daemon!=0) total_iteration++;
     } /* if (counter > CHUNK_LEN) */
 
-  } /* while(1) */
+  } /* while */
 
   pthread_attr_destroy(&attr);
   pthread_exit(NULL);
@@ -192,13 +218,15 @@ int main (int argc, char* argv[])
 
   int default_port = DEF_PORT;
   int n_tossers = N_TOSSERS;
+  int daemon = 0;
   if (argc > 1) default_port = atoi(argv[1]);
   if (argc > 2) n_tossers = atoi(argv[2]);
+  if (argc > 3) daemon = 1;
 
   printf("Port: %d\nConcurrent tossers: %d\n", default_port, n_tossers);
   printf("\n");
 
-  keep_sending(default_port, n_tossers);
+  keep_sending(default_port, n_tossers, daemon);
 
   return 0;
 }

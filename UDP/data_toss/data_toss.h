@@ -38,8 +38,9 @@
 #define SENDTO_ITER 3
 #define DATA_LEN BUFLEN*SENDTO_ITER
 #define N_TOSSERS 5
+#define ITER 1
 
 /* The server toutine */
-void keep_sending(int port_num, size_t n_threads);
+void keep_sending(int port_num, size_t n_threads, int daemon);
 
 #endif /* Include guard */
