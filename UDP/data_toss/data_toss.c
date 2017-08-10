@@ -43,16 +43,21 @@ static void* sendto_worker(void *t)
 {
   sendto_data* var = (sendto_data*)t;
   struct sockaddr_in si_me = *(var->socket_addr);
-  int i, s = var->socket;
+  int iter, i, s = var->socket;
   unsigned char *buf = var->buffer;
   unsigned int state = var->rnd_state;
   socklen_t slen;
 
-  for (i=0; i<BUFLEN; ++i) buf[i] = rand_byte(&state);
+  for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte(&state);
 
-  slen = sizeof(si_me);
-  if ( sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen)==-1 )
-    ERROR("sendto()");
+  for (iter=0; iter<SENDTO_ITER; ++iter) {
+
+    if (iter>0) buf += BUFLEN;
+    slen = sizeof(si_me);
+    if ( sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen)==-1 )
+      ERROR("sendto()");
+
+  }
 
   pthread_exit(NULL);
 }
@@ -76,7 +81,7 @@ void keep_sending(int port_num, size_t n_threads)
   unsigned char** buf_ary = \
     (unsigned char**)tmalloc(sizeof(unsigned char*)*n_threads);
   for (ib=0; ib<n_threads; ++ib)
-    buf_ary[ib] = (unsigned char*)tmalloc(BUFLEN);
+    buf_ary[ib] = (unsigned char*)tmalloc(DATA_LEN);
 
   /* Open socket */
   if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
@@ -127,8 +132,6 @@ void keep_sending(int port_num, size_t n_threads)
       }
     }
 
-    // printf("Created %d threads\n", n_threads);
-
     for (th=0; th<n_threads; ++th) {
       rc = pthread_join(send_thrs[th], &status);
       if (rc) {
@@ -136,9 +139,6 @@ void keep_sending(int port_num, size_t n_threads)
         exit(-1);
       }
     }
-
-    // printf("Joined %d threads\n", n_threads);
-
     counter++;
     printf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
       n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);

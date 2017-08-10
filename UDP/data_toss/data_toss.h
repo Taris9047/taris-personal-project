@@ -35,7 +35,8 @@
 #define DEF_PORT 9930
 #define BUFLEN 1500
 #define CHUNK_LEN 10000L
-// #define SLEEP_INTERVAL 10
+#define SENDTO_ITER 3
+#define DATA_LEN BUFLEN*SENDTO_ITER
 #define N_TOSSERS 5
 
 /* The server toutine */
