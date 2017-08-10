@@ -13,4 +13,4 @@ release: data_toss.c data_toss.h
 	$(CC) -O3 data_toss.c -o data_toss $(LIBS)
 
 clean:
-	rm -rfv ./$(TARGET)
+	rm -rfv ./$(TARGET) *.dSYM

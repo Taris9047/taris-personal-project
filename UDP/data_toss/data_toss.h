@@ -1,17 +1,27 @@
 /*************************************************
   A simple UDP random generator
-  
-  Purpose 
+
+  Purpose
   To emulate massive data influx from the
   VIPIC board.
 
   Writen by Taylor Shin
-  
+
   Aug. 9th 2017
 
 **************************************************/
 #ifndef DATA_TOSS_HEADER_FILE
 #define DATA_TOSS_HEADER_FILE
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/udp.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <netdb.h>
 
 #include <time.h>
 #include <locale.h>
@@ -23,7 +33,7 @@
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"
 #define DEF_PORT 9930
-#define BUFLEN 1024*10
+#define BUFLEN 1500
 #define CHUNK_LEN 10000L
 // #define SLEEP_INTERVAL 10
 #define N_TOSSERS 5
