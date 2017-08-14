@@ -1,5 +1,5 @@
 /*************************************************
-  A simple UDP random generator
+  A simple UDP random packet generator
 
   Purpose
   To emulate massive data influx from the
@@ -25,7 +25,6 @@
 
 #include <time.h>
 #include <locale.h>
-
 #include <pthread.h>
 
 #include "utils.h"

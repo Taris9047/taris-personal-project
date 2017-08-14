@@ -177,7 +177,6 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
         CHUNK_LEN*DATA_LEN*n_threads, elapsed);
       printf("Transfer rate: %'ld bps\n",
         (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
-      // fflush(stdout);
 
       counter = 0;
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -192,8 +191,8 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
   pthread_exit(NULL);
 
   for (ib=0; ib<n_threads; ++ib)
-    free(buf_ary[ib]);
-  free(buf_ary);
+    tfree(buf_ary[ib]);
+  tfree(buf_ary);
 
   return;
 }
