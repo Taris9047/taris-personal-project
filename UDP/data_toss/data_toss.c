@@ -14,37 +14,11 @@
 **************************************************/
 
 #include "data_toss.h"
+#include "rand_safe.h"
 
 /*************************************************
   Static functions
 **************************************************/
-/* xorshift 32 bit */
-#if defined(__GNUC__)
-#define AAF(ADDR, VAL) __sync_add_and_fetch((ADDR), (VAL))
-#else
-#define AAF(ADDR, VAL) (*ADDR)+=VAL
-#endif
-static inline unsigned int xorshift(void* state)
-{
-  unsigned int num = *(unsigned int*)state;
-  num ^= num >> 6;
-  num ^= num << 12;
-  num ^= num >> 17;
-  num *= UINT32_C(2147483647);
-  return AAF((unsigned int*)state, num);
-}
-
-/* Generates random byte */
-static inline unsigned char rand_byte(void* p_state)
-{
-  unsigned int *state = p_state;
-  struct timespec ts;
-  clock_gettime(CLOCK_REALTIME, &ts);
-  int time_now = (int)(ts.tv_sec*1e9+ts.tv_nsec);
-  *state = time_now ^ getpid();
-  xorshift(state);
-  return (unsigned char)rand_r(state);
-}
 
 /*************************************************
   Thread struct
@@ -53,7 +27,7 @@ typedef struct _sendto_data {
   int socket;
   struct sockaddr_in* socket_addr;
   unsigned char* buffer;
-  unsigned int rnd_state;
+  uint32_t rnd_state;
 } sendto_data;
 
 /*************************************************
@@ -65,10 +39,12 @@ static void* sendto_worker(void *t)
   struct sockaddr_in si_me = *(var->socket_addr);
   int iter, i, s = var->socket;
   unsigned char *buf = var->buffer;
-  unsigned int state = var->rnd_state;
+  uint32_t state = var->rnd_state;
   socklen_t slen;
 
-  for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte(&state);
+  for (i=0; i<DATA_LEN; ++i) {
+    buf[i] = rand_byte();
+  }
 
   for (iter=0; iter<SENDTO_ITER; ++iter) {
 
@@ -76,7 +52,6 @@ static void* sendto_worker(void *t)
     slen = sizeof(si_me);
     if ( sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen)==-1 )
       ERROR("sendto()");
-
   }
 
   pthread_exit(NULL);
@@ -211,7 +186,7 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
 int main (int argc, char* argv[])
 {
   setlocale(LC_NUMERIC, "");
-  srand(time(NULL));
+  srand_init();
 
   printf("Data Toss!!! - Only works for localhost!!\n");
 

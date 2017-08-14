@@ -15,20 +15,30 @@ LIBS=-pthread
 PGCC=pgcc
 PGCCFLAGS=-fast -Mipa=fast,inline
 
-SOURCES=$(wildcard *.c)
-HEADERS=$(wildcard *.h)
+OBJS=rand_safe.o
+OBJS_REL=rand_safe_rel.o
+OBJS_PGI=rand_safe_pgi.o
 TARGET=data_toss
 
 all: debug
 
-debug: $(SOURCES) $(HEADERS)
-	$(CC) $(CFLAGS) data_toss.c -o $(TARGET) $(LIBS)
+rand_safe.o: rand_safe.c rand_safe.h
+	$(CC) $(CFLAGS) -c rand_safe.c -o $@
 
-release: $(SOURCES) $(HEADERS)
-	$(CC) $(RELCFLAGS) data_toss.c -o $(TARGET) $(LIBS)
+rand_safe_rel.o: rand_safe.c rand_safe.h
+	$(CC) $(RELCFLAGS) -c rand_safe.c -o $@
 
-pgi: $(SOURCES) $(HEADERS)
-	$(PGCC) $(PGCCFLAGS) data_toss.c -o $(TARGET) -lpthread
+rand_safe_pgi.o: rand_safe.c rand_safe.h
+	$(PGCC) $(PGCCFLAGS) -c rand_safe.c -o $@
+
+debug: data_toss.c data_toss.h $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) data_toss.c -o $(TARGET) $(LIBS)
+
+release: data_toss.c data_toss.h $(OBJS_REL)
+	$(CC) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) $(LIBS)
+
+pgi: data_toss.c data_toss.h $(OBJS_PGI)
+	$(PGCC) $(PGCCFLAGS) $(OBJS_PGI) data_toss.c -o $(TARGET) -lpthread
 
 clean:
 	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo
