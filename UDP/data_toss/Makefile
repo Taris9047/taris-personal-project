@@ -16,6 +16,7 @@ PGCC=pgcc
 PGCCFLAGS=-fast -Mipa=fast,inline
 
 MPICC=mpicc
+MPICFLAGS=-DUSE_MPI
 
 OBJS=rand_safe.o
 OBJS_REL=rand_safe_rel.o
@@ -43,7 +44,7 @@ pgi: data_toss.c data_toss.h $(OBJS_PGI)
 	$(PGCC) $(PGCCFLAGS) $(OBJS_PGI) data_toss.c -o $(TARGET) -lpthread
 
 mpi: data_toss.c data_toss.h $(OBJS_REL)
-	$(MPICC) $(OBJS_REL) data_toss.c -o $(TARGET) -lpthread
+	$(MPICC) $(MPICFLAGS) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) -lpthread
 
 clean:
 	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo

@@ -27,11 +27,11 @@
 #include <locale.h>
 #include <pthread.h>
 
-#include "utils.h"
-
-#if defined(MPICH) || defined(OPEN_MPI)
+#if defined(USE_MPI)
 #  include <mpi.h>
 #endif
+
+#include "utils.h"
 
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"

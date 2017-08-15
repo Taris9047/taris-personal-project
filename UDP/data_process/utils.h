@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -24,5 +25,29 @@
 #define tmemset(var, val) memset((char*)(&var), (int)val, sizeof(var))
 #define tfree(p) if (p) { free(p); p = NULL; }
 
+#if !defined(USE_MPI)
+  #define mprintf(...) printf(__VA_ARGS__)
+  #define mfprintf(s_,...) fprintf((s_), __VA_ARGS__)
+#else
+  /* Some convenient printf for MPI stuff */
+  void mpi_printf(const char* format, ...) {
+    int rnk; MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
+    va_list args;
+    va_start(args, format);
+    fprintf(stdout, "[%d] ", rnk);
+    vfprintf(stdout, format, args);
+    va_end(args);
+  }
+  void mpi_fprintf(FILE* stream, const char* format, ...) {
+    int rnk; MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
+    va_list args;
+    va_start(args, format);
+    fprintf(stream, "[%d] ", rnk);
+    vfprintf(stream, format, args);
+    va_end(args);
+  }
+  #define mprintf(...) mpi_printf(__VA_ARGS__)
+  #define mfprintf(s_,...) mpi_fprintf((s_), __VA_ARGS__)
+#endif /* #if !defined(USE_MPI) */
 
 #endif /* Include guard */

@@ -67,7 +67,7 @@ static void* sendto_worker(void *t)
 void keep_sending(int port_num, size_t n_threads, int daemon)
 {
   if (!n_threads) {
-    fprintf(stderr, "keep_sending: 0 threads given!! assuming to 1\n");
+    mfprintf(stderr, "keep_sending: 0 threads given!! assuming to 1\n");
     n_threads = 1;
   }
 
@@ -107,15 +107,21 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
   void* status;
   int rc;
 
-  sendto_data thr_data[n_threads];
+#if defined(USE_MPI)
+  int wld_sz, rnk, ri;
+  MPI_Comm_size(MPI_COMM_WORLD, &wld_sz);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
+#endif
 
-  pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  sendto_data thr_data[n_threads];
 
   /* Let's run it!! */
   int counter = 0;
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   while(total_iteration!=0) {
+
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     for (th=0; th<n_threads; ++th) {
       thr_data[th].socket = s;
@@ -125,20 +131,26 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
       rc = pthread_create(
         &send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
       if (rc) {
-        fprintf(stderr, "pthread_create error!!\n");
+        mfprintf(stderr, "pthread_create error!! [%d]\n", rc);
         exit(-1);
       }
-    }
+    } /* for (th=0; th<n_threads; ++th) */
+
+    pthread_attr_destroy(&attr);
 
     for (th=0; th<n_threads; ++th) {
       rc = pthread_join(send_thrs[th], &status);
       if (rc) {
-        fprintf(stderr, "pthread_join error!!\n");
+        mfprintf(stderr, "pthread_join error!! [%d]\n", rc);
         exit(-1);
       }
-    }
+    } /* for (th=0; th<n_threads; ++th) */
+
     counter++;
-    printf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
+
+#if !defined(USE_MPI)
+
+    mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
       n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
     fflush(stdout);
 
@@ -146,11 +158,11 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
     if (counter > CHUNK_LEN) {
       clock_gettime(CLOCK_MONOTONIC, &ts_end);
       elapsed = \
-        ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) -
+        ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-      printf("elapsed time for %'ld bytes: %.5f seconds\n",
-        CHUNK_LEN*DATA_LEN*n_threads, elapsed);
-      printf("Transfer rate: %'ld bps\n",
+      printf("\n");
+      mprintf("Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
+        CHUNK_LEN*DATA_LEN*n_threads, elapsed,
         (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
 
       counter = 0;
@@ -160,9 +172,52 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
       if (daemon!=0) total_iteration++;
     } /* if (counter > CHUNK_LEN) */
 
+#else /* #if !defined(USE_MPI) */
+
+    int rank=0;
+    while (rank < wld_sz) {
+      if (rnk == rank) {
+        for (ri=0; ri<=rnk; ++ri) printf("\n");
+        mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
+          n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
+        fflush(stdout);
+        for (ri=0; ri<=rnk; ++ri) {
+          printf("\033[1A");
+          fflush(stdout);
+        }
+      }
+
+      /* checking up status */
+      if (counter > CHUNK_LEN) {
+        for (ri=0; ri<=rnk; ++ri) printf("\n");
+        printf("\n");
+
+        clock_gettime(CLOCK_MONOTONIC, &ts_end);
+        elapsed = \
+          ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
+          ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
+
+        mprintf("Elapsed time for %'ld bytes: %.5f seconds,\n"
+          "    Transfer rate: %'ld bps\n",
+          CHUNK_LEN*DATA_LEN*n_threads, elapsed,
+          (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
+        //for (ri=0; ri<=rnk; ++ri) { printf("\033[1A"); printf("\033[1A"); }
+
+        counter = 0;
+        clock_gettime(CLOCK_MONOTONIC, &ts_start);
+
+        total_iteration--;
+        if (daemon!=0) total_iteration++;
+      } /* if (counter > CHUNK_LEN) */
+
+      rank++;
+      MPI_Barrier(MPI_COMM_WORLD);
+    } /* while (rank < wld_sz) */
+
+#endif /* #if !defined(USE_MPI) */
+
   } /* while */
 
-  pthread_attr_destroy(&attr);
   pthread_exit(NULL);
 
   for (ib=0; ib<n_threads; ++ib) tfree(buf_ary[ib]);
@@ -187,11 +242,11 @@ int main (int argc, char* argv[])
   setlocale(LC_NUMERIC, "");
   srand_init();
 
-  printf("Data Toss!!! - Only works for localhost!!\n");
-
   #if defined(MPICH) || defined(OPEN_MPI)
-    MPI_Init(argc, argv);
+    MPI_Init(&argc, &argv);
   #endif
+
+  mprintf("Data Toss!!! - Only works for localhost at this moment!!\n");
 
   int default_port = DEF_PORT;
   int n_tossers = N_TOSSERS;
@@ -200,12 +255,11 @@ int main (int argc, char* argv[])
   if (argc > 2) n_tossers = atoi(argv[2]);
   if (argc > 3) daemon = 1;
 
-  printf("Port: %d\nConcurrent tossers: %d\n", default_port, n_tossers);
-  printf("\n");
+  mprintf("Port: %d\nConcurrent tossers: %d\n\n", default_port, n_tossers);
 
   keep_sending(default_port, n_tossers, daemon);
 
-  #if defined(MPICH) || defined(OPEN_MPI)
+  #if defined(USE_MPI)
     MPI_Finalize();
   #endif
 
