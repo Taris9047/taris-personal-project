@@ -29,6 +29,10 @@
 
 #include "utils.h"
 
+#if defined(MPICH) || defined(OPEN_MPI)
+#  include <mpi.h>
+#endif
+
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"
 #define DEF_PORT 9930

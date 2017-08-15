@@ -165,8 +165,7 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
   pthread_attr_destroy(&attr);
   pthread_exit(NULL);
 
-  for (ib=0; ib<n_threads; ++ib)
-    tfree(buf_ary[ib]);
+  for (ib=0; ib<n_threads; ++ib) tfree(buf_ary[ib]);
   tfree(buf_ary);
 
   return;
@@ -190,6 +189,10 @@ int main (int argc, char* argv[])
 
   printf("Data Toss!!! - Only works for localhost!!\n");
 
+  #if defined(MPICH) || defined(OPEN_MPI)
+    MPI_Init(argc, argv);
+  #endif
+
   int default_port = DEF_PORT;
   int n_tossers = N_TOSSERS;
   int daemon = 0;
@@ -201,6 +204,10 @@ int main (int argc, char* argv[])
   printf("\n");
 
   keep_sending(default_port, n_tossers, daemon);
+
+  #if defined(MPICH) || defined(OPEN_MPI)
+    MPI_Finalize();
+  #endif
 
   return 0;
 }
