@@ -21,9 +21,21 @@
   exit(-1); \
   }
 
-#define tmalloc(sz) calloc(1, sz)
-#define tmemset(var, val) memset((char*)(&var), (int)val, sizeof(var))
-#define tfree(p) if (p) { free(p); p = NULL; }
+#if defined(NDEBUG)
+# define tmalloc(sz) malloc(sz)
+# define tmemset(var, val) memset((char*)(&var), (int)val, sizeof(var))
+# define tfree(p) free(p)
+#else
+# define tmalloc(sz) calloc(1, sz)
+  void* safe_memset(void* str, int c, size_t n)
+  {
+    static void *(*volatile const memset_)(void*, int, size_t) = memset;
+    return memset_(str, c, n);
+  }
+# define tmemset(var, val) safe_memset((char*)(&var), (int)val, sizeof(var))
+  void free_to_null(void* p) { if (p) free(p); p=NULL; return; }
+# define tfree(p) free_to_null(p)
+#endif /* #if defined(NDEBUG) */
 
 #if !defined(USE_MPI)
   #define mprintf(...) printf(__VA_ARGS__)

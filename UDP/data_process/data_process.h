@@ -27,19 +27,29 @@
 #include <locale.h>
 #include <pthread.h>
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <assert.h>
+#include <stdbool.h>
+
 #include "utils.h"
 
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
 #define DEFAULT_SERVER_PORT 9930
 
-#define BUF_LEN 1024
-#define BUF_LEN_MUL 256
+#define BUF_LEN 512
+#define BUF_LEN_MUL 4
 
 /* the data container */
 unsigned char* data_container;
 
+/* dummy declaration of proc args */
+typedef struct _data_proc_args data_proc_args;
+
 /* The processer itself */
-void process(const char* addr, int port, size_t data_sz);
+void process(data_proc_args* options);
 
 
 #endif /* Include guard */

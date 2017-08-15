@@ -9,7 +9,7 @@ CXX=g++-7
 endif
 
 CFLAGS=-ggdb3
-RELCFLAGS=-O3 -march=native -m64 -fomit-frame-pointer
+RELCFLAGS=-O3 -DNDEBUG -march=native -m64 -fomit-frame-pointer
 LIBS=-pthread
 
 PGCC=pgcc
