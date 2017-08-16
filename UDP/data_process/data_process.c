@@ -32,19 +32,26 @@ typedef struct _data_proc_args {
 typedef struct _recv_worker_data_set {
   size_t start_idx;
   size_t span_length;
+  size_t sections;
   unsigned char* p_container;
   int socket;
   struct sockaddr_in* sock_addr;
 } rw_data_set;
 typedef rw_data_set* RecvDS;
+
 /* Constructor */
-static RecvDS NewRecvDS(int* sock, struct sockaddr_in* sock_addr_in, size_t start_index, size_t buffer_length, unsigned char* main_data_container)
+static RecvDS NewRecvDS(
+  int* sock, struct sockaddr_in* sock_addr_in,
+  size_t start_index, size_t buffer_length, size_t n_sections,
+  unsigned char* main_data_container)
 {
   RecvDS new_rcvds = (RecvDS)tmalloc(sizeof(rw_data_set));
   assert(new_rcvds);
 
   new_rcvds->start_idx = start_index;
   new_rcvds->span_length = buffer_length;
+  new_rcvds->sections = n_sections;
+
   new_rcvds->p_container = main_data_container;
   new_rcvds->socket = *sock;
   new_rcvds->sock_addr = sock_addr_in;
@@ -64,21 +71,26 @@ static void* recv_worker(void* args)
 {
   size_t st_idx = ((RecvDS)args)->start_idx;
   size_t buf_len = ((RecvDS)args)->span_length;
+  size_t sections = ((RecvDS)args)->sections;
   int s = ((RecvDS)args)->socket;
   struct sockaddr_in* si = ((RecvDS)args)->sock_addr;
   socklen_t si_len = sizeof(*si);
   unsigned char* p_cont = ((RecvDS)args)->p_container;
-  p_cont += st_idx;
 
-  unsigned char* buf = (unsigned char*)tmalloc(sizeof(unsigned char));
+  unsigned char* buf = \
+    (unsigned char*)tmalloc(sizeof(unsigned char)*buf_len);
   assert(buf);
 
-  int i;
-  for (i=0; i<buf_len; ++i) {
-    if ( recvfrom(s, buf, buf_len, 0, (struct sockaddr*)si, &si_len)==-1 )
+  int i, j;
+  for (i=0; i<sections; ++i) {
+    if ( recvfrom(s, buf, buf_len, 0, (struct sockaddr*)si, &si_len)==-1 ) {
+      printf("pid: %d\n", getpid());
+      printf("buffer_length: %lu, section: %lu\n", buf_len, sections);
       ERROR("recvfrom()")
+    }
     si_len = sizeof(*si);
-  }
+    for (j=0; j<buf_len; ++j) p_cont[j+st_idx+i*sections] = buf[j];
+  } /* for (i=0; i<sections; ++i) */
 
   // TODO: Maybe write some stuff to save the buffer?
 
@@ -112,6 +124,7 @@ void process(data_proc_args* options)
   /* Preparing thread operation */
   pthread_t threads[options->n_threads];
   pthread_attr_t attr;
+  uint64_t recv_sz = 0;
   void* status;
   int rc;
   RecvDS worker_args[options->n_threads];
@@ -122,7 +135,9 @@ void process(data_proc_args* options)
     for (i=0; i<options->n_threads; ++i) {
       worker_args[i] = \
         NewRecvDS(&s, &si_me,
-          i*options->n_threads, options->data_section_sz,
+          i*options->n_threads*BUF_LEN,
+          options->data_section_sz,
+          options->n_threads,
           data_container);
     }
 
@@ -130,12 +145,12 @@ void process(data_proc_args* options)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     for (i=0; i<options->n_threads; ++i) {
       rc = pthread_create(
-        &threads[i], &attr, recv_worker, (void*)&worker_args[i]);
+        &threads[i], &attr, recv_worker, (void*)worker_args[i]);
       if (rc) {
         fprintf(stderr, "pthread_create crashed with %d\n", rc);
         exit(-1);
       }
-    }
+    } /* for (i=0; i<options->n_threads; ++i) */
 
     pthread_attr_destroy(&attr);
     for (i=0; i<options->n_threads; ++i) {
@@ -144,15 +159,17 @@ void process(data_proc_args* options)
         fprintf(stderr, "pthread_join crashed with %d\n", rc);
         exit(-1);
       }
-    }
+    } /* for (i=0; i<options->n_threads; ++i) */
+
+    recv_sz += options->n_threads*options->data_section_sz;
+    printf("Received packets from (%lu threads) %s of %'lu bytes\r",
+      options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz);
+    fflush(stdout);
 
     if (options->keepalive) cnt = 1;
     else cnt = 0;
 
   } /* while (cnt) */
-
-  printf("Received packets from %s of %zu bytes\n",
-    inet_ntoa(si_me.sin_addr), options->n_threads*options->data_section_sz);
 
   for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
 
@@ -174,7 +191,7 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   strcpy(dpa->address, DEFAULT_SERVER_ADDR);
   dpa->port = DEFAULT_SERVER_PORT;
   dpa->n_threads = BUF_LEN_MUL;
-  dpa->data_section_sz = BUF_LEN;
+  dpa->data_section_sz = SECTION_LEN;
   dpa->keepalive = false;
 
   char c;
@@ -214,6 +231,8 @@ static data_proc_args* ArgParser(int argc, char* argv[])
 **************************************************/
 int main(int argc, char* argv[])
 {
+  setlocale(LC_NUMERIC, "");
+
   data_proc_args* opts = ArgParser(argc, argv);
 
   printf("Simple data receiver from UDP\n");
@@ -221,7 +240,9 @@ int main(int argc, char* argv[])
   printf("Port: %d\n", opts->port);
 
   /* Preparing data container */
-  data_container = (unsigned char*)tmalloc(opts->n_threads*opts->data_section_sz);
+  data_container = \
+    (unsigned char*)tmalloc(
+      opts->n_threads*opts->data_section_sz*CONTAINER_LEN_MUL);
   assert(data_container);
 
   /* Then run the data_receiver */
