@@ -1,0 +1,20 @@
+UDP data toss!!
+
+1. Program options
+
+data_toss -p <Port> -i <IP address> -t <number of threads> -d -q
+
+Default values:
+Port: 9930
+IP Address: 127.0.0.1 (localhost)
+Number of threads: 5
+Daemon Mode: False
+Quiet Mode: False
+
+
+2. Compile options (Makefile options)
+default: gcc debug compilation. Slow as hell.
+release: gcc release. Not so fast.
+pgi: uses PGI compiler. Very fast.
+mpi: Not fully implemented yet. MPICH.
+clean: yeap, clean everything up.

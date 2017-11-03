@@ -45,7 +45,7 @@
 #define ITER 1
 
 /* The server toutine */
-void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon);
+void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int quiet_mode);
 
 /* show usage */
 void usage();

@@ -64,7 +64,7 @@ static void* sendto_worker(void *t)
 **************************************************/
 
 /* The server toutine */
-void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
+void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int quiet_mode)
 {
   if (!n_threads) {
     mfprintf(stderr, "keep_sending: 0 threads given!! assuming to 1\n");
@@ -150,10 +150,12 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
 
 #if !defined(USE_MPI)
 
-    mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-      n_threads, (long)counter+1, CHUNK_LEN,
-      (double)(counter+1)/CHUNK_LEN*100);
-    fflush(stdout);
+    if (!quiet_mode) {
+      mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
+        n_threads, (long)counter+1, CHUNK_LEN,
+        (double)(counter+1)/CHUNK_LEN*100);
+      fflush(stdout);
+    }
 
     /* checking up status */
     if (counter > CHUNK_LEN) {
@@ -179,9 +181,11 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
     while (rank < wld_sz) {
       if (rnk == rank) {
         for (ri=0; ri<=rnk; ++ri) printf("\n");
-        mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-          n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
-        fflush(stdout);
+        if (!quiet_mode) {
+          mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
+            n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
+          fflush(stdout);
+        }
         for (ri=0; ri<=rnk; ++ri) {
           printf("\033[1A");
           fflush(stdout);
@@ -249,11 +253,12 @@ int main (int argc, char* argv[])
   int default_port = DEF_PORT;
   int n_tossers = N_TOSSERS;
   int daemon = 0;
+  int quiet_mode = 0;
   char* srv_ip = (char*)malloc(strlen(SRV_IP)+1);
   strcpy(srv_ip, SRV_IP);
 
   int c;
-  while ((c=getopt(argc, argv, "p:i:t:dh"))!=-1) {
+  while ((c=getopt(argc, argv, "p:i:t:dhq"))!=-1) {
     switch (c)
     {
       case 'p':
@@ -266,6 +271,9 @@ int main (int argc, char* argv[])
         break;
       case 't':
         n_tossers = atoi(optarg);
+        break;
+      case 'q':
+        quiet_mode = 1;
         break;
       case 'd':
         daemon = 1;
@@ -281,7 +289,7 @@ int main (int argc, char* argv[])
 
   mprintf("Port: %d\nConcurrent tossers: %d\n\n", default_port, n_tossers);
 
-  keep_sending(srv_ip, default_port, n_tossers, daemon);
+  keep_sending(srv_ip, default_port, n_tossers, daemon, quiet_mode);
 
   #if defined(USE_MPI)
     MPI_Finalize();
@@ -301,6 +309,7 @@ void usage()
   printf("-p <PORT> (default: 9930)\n");
   printf("-t <Number of Threads> (default: 5)\n");
   printf("-i <IP Address> (default: 127.0.0.1)\n");
+  printf("-q Quiet mode\n");
   printf("-h Shows this message.\n");
   printf("\n");
 }
