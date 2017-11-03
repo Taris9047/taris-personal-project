@@ -186,7 +186,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
           printf("\033[1A");
           fflush(stdout);
         }
-      }
+      } /* if (rnk == rank) */
 
       /* checking up status */
       if (counter > CHUNK_LEN) {
@@ -202,7 +202,6 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
           "    Transfer rate: %'ld bps\n",
           CHUNK_LEN*DATA_LEN*n_threads, elapsed,
           (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
-        //for (ri=0; ri<=rnk; ++ri) { printf("\033[1A"); printf("\033[1A"); }
 
         counter = 0;
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -217,7 +216,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
 
 #endif /* #if !defined(USE_MPI) */
 
-  } /* while */
+  } /* while(total_iteration!=0) */
 
   pthread_exit(NULL);
 
@@ -252,33 +251,33 @@ int main (int argc, char* argv[])
   int daemon = 0;
   char* srv_ip = (char*)malloc(strlen(SRV_IP)+1);
   strcpy(srv_ip, SRV_IP);
-  // if (argc > 1) default_port = atoi(argv[1]);
-  // if (argc > 2) n_tossers = atoi(argv[2]);
-  // if (argc > 3) daemon = 1;
 
   int c;
-  while ((c=getopt(argc, argv, "p:i:t:dh"))) {
+  while ((c=getopt(argc, argv, "p:i:t:dh"))!=-1) {
     switch (c)
     {
       case 'p':
         default_port = atoi(optarg);
         break;
       case 'i':
-        free(srv_ip);
+        tfree(srv_ip);
         srv_ip = (char*)malloc(strlen(optarg)+1);
         strcpy(srv_ip, optarg);
         break;
       case 't':
         n_tossers = atoi(optarg);
         break;
+      case 'd':
+        daemon = 1;
+        break;
       case 'h':
         usage();
         exit(0);
       default:
         usage();
-        exit(0);
+        break;
     } /* switch (c) */
-  }
+  } /* while ((c=getopt(argc, argv, "p:i:t:dh"))) */
 
   mprintf("Port: %d\nConcurrent tossers: %d\n\n", default_port, n_tossers);
 
@@ -288,7 +287,7 @@ int main (int argc, char* argv[])
     MPI_Finalize();
   #endif
 
-  free(srv_ip);
+  tfree(srv_ip);
 
   return 0;
 }
