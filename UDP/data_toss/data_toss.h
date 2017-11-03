@@ -27,6 +27,7 @@
 #include <locale.h>
 #include <pthread.h>
 
+
 #if defined(USE_MPI)
 #  include <mpi.h>
 #endif
@@ -44,6 +45,9 @@
 #define ITER 1
 
 /* The server toutine */
-void keep_sending(int port_num, size_t n_threads, int daemon);
+void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon);
+
+/* show usage */
+void usage();
 
 #endif /* Include guard */

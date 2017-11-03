@@ -25,7 +25,7 @@
 
 #include <time.h>
 #include <locale.h>
-#include <pthread.h>
+#include <pthread.h>r
 
 #include <ctype.h>
 #include <stdlib.h>

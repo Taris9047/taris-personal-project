@@ -64,7 +64,7 @@ static void* sendto_worker(void *t)
 **************************************************/
 
 /* The server toutine */
-void keep_sending(int port_num, size_t n_threads, int daemon)
+void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon)
 {
   if (!n_threads) {
     mfprintf(stderr, "keep_sending: 0 threads given!! assuming to 1\n");
@@ -89,7 +89,7 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
   tmemset(si_me, 0);
   si_me.sin_family = AF_INET;
   si_me.sin_port = htons(port_num);
-  if ( !inet_aton(SRV_IP, &si_me.sin_addr) )
+  if ( !inet_aton(srv_ip, &si_me.sin_addr) )
     ERROR("inet_aton()");
 
   /* Some status report */
@@ -151,7 +151,8 @@ void keep_sending(int port_num, size_t n_threads, int daemon)
 #if !defined(USE_MPI)
 
     mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-      n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
+      n_threads, (long)counter+1, CHUNK_LEN,
+      (double)(counter+1)/CHUNK_LEN*100);
     fflush(stdout);
 
     /* checking up status */
@@ -246,22 +247,61 @@ int main (int argc, char* argv[])
     MPI_Init(&argc, &argv);
   #endif
 
-  mprintf("Data Toss!!! - Only works for localhost at this moment!!\n");
-
   int default_port = DEF_PORT;
   int n_tossers = N_TOSSERS;
   int daemon = 0;
-  if (argc > 1) default_port = atoi(argv[1]);
-  if (argc > 2) n_tossers = atoi(argv[2]);
-  if (argc > 3) daemon = 1;
+  char* srv_ip = (char*)malloc(strlen(SRV_IP)+1);
+  strcpy(srv_ip, SRV_IP);
+  // if (argc > 1) default_port = atoi(argv[1]);
+  // if (argc > 2) n_tossers = atoi(argv[2]);
+  // if (argc > 3) daemon = 1;
+
+  int c;
+  while ((c=getopt(argc, argv, "p:i:t:dh"))) {
+    switch (c)
+    {
+      case 'p':
+        default_port = atoi(optarg);
+        break;
+      case 'i':
+        free(srv_ip);
+        srv_ip = (char*)malloc(strlen(optarg)+1);
+        strcpy(srv_ip, optarg);
+        break;
+      case 't':
+        n_tossers = atoi(optarg);
+        break;
+      case 'h':
+        usage();
+        exit(0);
+      default:
+        usage();
+        exit(0);
+    } /* switch (c) */
+  }
 
   mprintf("Port: %d\nConcurrent tossers: %d\n\n", default_port, n_tossers);
 
-  keep_sending(default_port, n_tossers, daemon);
+  keep_sending(srv_ip, default_port, n_tossers, daemon);
 
   #if defined(USE_MPI)
     MPI_Finalize();
   #endif
 
+  free(srv_ip);
+
   return 0;
+}
+
+
+/* Shows usage */
+void usage()
+{
+  printf("\n");
+  printf("Usage: data_toss <options>\n");
+  printf("-p <PORT> (default: 9930)\n");
+  printf("-t <Number of Threads> (default: 5)\n");
+  printf("-i <IP Address> (default: 127.0.0.1)\n");
+  printf("-h Shows this message.\n");
+  printf("\n");
 }
