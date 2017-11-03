@@ -1,6 +1,9 @@
 #!/bin/sh -e
 echo "ZeroMQ library installer"
 
+# Get cpu processors
+PROCESSES=`cat /proc/cpuinfo | awk '/^processor/{print $3}' | tail -1`
+
 # Input is prefix
 if [ $# -eq 0 ]; then
 	PREFIX=/usr/local
@@ -10,9 +13,9 @@ fi
 
 # Check prefix directory permission
 if [ -w $PREFIX ]; then
-	NEED_SUDO=0
+	NEED_SUDO="n"
 else
-	NEED_SUDO=1
+	NEED_SUDO="y"
 fi
 
 # URLs
@@ -44,8 +47,8 @@ git clone $LIBZMQ_URL $BLD_DIR/libzmq
 cd $BLD_DIR/libzmq
 ./autogen.sh
 ./configure --prefix=$PREFIX
-make -j 8
-if [ $NEED_SUDO ]; then
+make -j$PROCESSES
+if [[ $NEED_SUDO == "y" ]]; then
 	sudo make install
 else
 	make install
@@ -57,10 +60,11 @@ cd $BLD_DIR
 # then czmq
 git clone $CZMQ_URL $BLD_DIR/czmq
 cd $BLD_DIR/czmq
-./autogen.sh
-./configure --prefix=$PREFIX
-make -j 8
-if [ $NEED_SUDO ]; then
+./autogen.sh && \
+LDFLAGS=-L$PREFIX/lib \
+./configure --prefix=$PREFIX && \
+make -j$PROCESSES
+if [[ $NEED_SUDO == "y" ]]; then
 	sudo make install
 else
 	make install
