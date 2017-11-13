@@ -37,9 +37,9 @@
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"
 #define DEF_PORT 9930
-#define BUFLEN 1500
+#define BUFLEN 2048
 #define CHUNK_LEN 10000L
-#define SENDTO_ITER 3
+#define SENDTO_ITER 20
 #define DATA_LEN BUFLEN*SENDTO_ITER
 #define N_TOSSERS 5
 #define ITER 1

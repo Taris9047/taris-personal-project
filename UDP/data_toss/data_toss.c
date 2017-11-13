@@ -16,6 +16,8 @@
 #include "data_toss.h"
 #include "rand_safe.h"
 
+static unsigned char *buf;
+
 /*************************************************
   Static functions
 **************************************************/
@@ -26,7 +28,6 @@
 typedef struct _sendto_data {
   int socket;
   struct sockaddr_in* socket_addr;
-  unsigned char* buffer;
   uint32_t rnd_state;
 } sendto_data;
 
@@ -37,18 +38,11 @@ static void* sendto_worker(void *t)
 {
   sendto_data* var = (sendto_data*)t;
   struct sockaddr_in si_me = *(var->socket_addr);
-  int iter, i, s = var->socket;
-  unsigned char *buf = var->buffer;
+  int iter, s = var->socket;
   uint32_t state = var->rnd_state;
   socklen_t slen;
 
-  for (i=0; i<DATA_LEN; ++i) {
-    buf[i] = rand_byte();
-  }
-
   for (iter=0; iter<SENDTO_ITER; ++iter) {
-
-    if (iter>0) buf += BUFLEN;
     slen = sizeof(si_me);
     if ( sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen)==-1 )
       ERROR("sendto()");
@@ -75,11 +69,6 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
   int s;
   int th, ib;
   int total_iteration = ITER;
-
-  unsigned char** buf_ary = \
-    (unsigned char**)tmalloc(sizeof(unsigned char*)*n_threads);
-  for (ib=0; ib<n_threads; ++ib)
-    buf_ary[ib] = (unsigned char*)tmalloc(DATA_LEN);
 
   /* Open socket */
   if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
@@ -126,7 +115,6 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
     for (th=0; th<n_threads; ++th) {
       thr_data[th].socket = s;
       thr_data[th].socket_addr = &si_me;
-      thr_data[th].buffer = buf_ary[th];
       thr_data[th].rnd_state = th;
       rc = pthread_create(
         &send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
@@ -224,9 +212,6 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
 
   pthread_exit(NULL);
 
-  for (ib=0; ib<n_threads; ++ib) tfree(buf_ary[ib]);
-  tfree(buf_ary);
-
   return;
 }
 
@@ -246,9 +231,9 @@ int main (int argc, char* argv[])
   setlocale(LC_NUMERIC, "");
   srand_init();
 
-  #if defined(MPICH) || defined(OPEN_MPI)
+#if defined(MPICH) || defined(OPEN_MPI)
     MPI_Init(&argc, &argv);
-  #endif
+#endif
 
   int default_port = DEF_PORT;
   int n_tossers = N_TOSSERS;
@@ -257,7 +242,7 @@ int main (int argc, char* argv[])
   char* srv_ip = (char*)malloc(strlen(SRV_IP)+1);
   strcpy(srv_ip, SRV_IP);
 
-  int c;
+  int c, i;
   while ((c=getopt(argc, argv, "p:i:t:dhq"))!=-1) {
     switch (c)
     {
@@ -289,13 +274,21 @@ int main (int argc, char* argv[])
 
   mprintf("Port: %d\nConcurrent tossers: %d\n\n", default_port, n_tossers);
 
+  mprintf("Generating %d bytes of random data.\n", DATA_LEN);
+  buf = (unsigned char*)\
+    tmalloc(sizeof(unsigned char)*DATA_LEN);
+  for (i=0; i<DATA_LEN; ++i)
+    buf[i] = rand_byte();
+
+  mprintf("Starting Send!!\n");
   keep_sending(srv_ip, default_port, n_tossers, daemon, quiet_mode);
 
-  #if defined(USE_MPI)
+#if defined(USE_MPI)
     MPI_Finalize();
-  #endif
+#endif
 
   tfree(srv_ip);
+  tfree(buf);
 
   return 0;
 }
