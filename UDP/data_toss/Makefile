@@ -12,6 +12,8 @@ CFLAGS=-ggdb3
 RELCFLAGS=-O3 -march=native -m64 -fomit-frame-pointer
 LIBS=-pthread
 
+LLVMCC=clang
+
 PGCC=pgcc
 PGCCFLAGS=-fast -Mipa=fast,inline
 
@@ -39,6 +41,9 @@ debug: data_toss.c data_toss.h $(OBJS)
 
 release: data_toss.c data_toss.h $(OBJS_REL)
 	$(CC) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) $(LIBS)
+
+llvm: data_toss.c data_toss.h $(OBJS_REL)
+	$(LLVMCC) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) $(LIBS)
 
 pgi: data_toss.c data_toss.h $(OBJS_PGI)
 	$(PGCC) $(PGCCFLAGS) $(OBJS_PGI) data_toss.c -o $(TARGET) -lpthread

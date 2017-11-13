@@ -16,4 +16,5 @@ set title 'Data Rate Comparison (POSIX threads)'
 set key bottom right
 
 plot 'toss_benchmark.txt' using ($1):($2*1e-9) title "PGI 17.4-0" w l ls 1, \
-  'toss_benchmark.txt' using ($1):($3*1e-9) title "GCC 7.1.0" w l ls 2
+     'toss_benchmark.txt' using ($1):($3*1e-9) title "GCC 7.1.0" w l ls 2, \
+     'toss_benchmark.txt' using ($1):($4*1e-9) title "Clang 5.0.0" w l ls 3
