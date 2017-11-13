@@ -27,7 +27,6 @@
 #include <locale.h>
 #include <pthread.h>
 
-
 #if defined(USE_MPI)
 #  include <mpi.h>
 #endif
@@ -44,7 +43,7 @@
 #define N_TOSSERS 5
 #define ITER 1
 
-/* The server toutine */
+/* The server routine */
 void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int quiet_mode);
 
 /* show usage */

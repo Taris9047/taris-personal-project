@@ -14,7 +14,8 @@ Quiet Mode: False
 
 2. Compile options (Makefile options)
 default: gcc debug compilation. Slow as hell.
-release: gcc release. Not so fast.
-pgi: uses PGI compiler. Very fast.
+release: gcc release.
+pgi: uses PGI compiler.
 mpi: Not fully implemented yet. MPICH.
+llvm: uses clang (make sure you have it) compiler.
 clean: yeap, clean everything up.
