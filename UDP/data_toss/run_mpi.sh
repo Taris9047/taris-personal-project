@@ -2,7 +2,8 @@
 PROCESSES=5
 PORT=9930
 THREADS=3
-DAEMON=''
+DEMON=''
+QUIET='True'
 
 EXEC=$(command -v ./data_toss)
 if [[ -z "$EXEC" ]]; then
@@ -43,14 +44,22 @@ fi
 if [[ -z "$4" ]]; then
   true
 else
-  DAEMON=1
+  if [[ "$4" == "n" ]]; then
+    DEMON=''
+  else
+    DEMON='-d'
+  fi
 fi
 
 if [[ -z "$5" ]]; then
   true
 else
-  EXEC=$5
+  if [[ "$5" == "n" ]]; then
+    QUIET=''
+  else
+    QUIET='-q'
+  fi
 fi
 
 # Finally, run the program...
-$MPIRUN -n $PROCESSES $EXEC $PORT $THREADS $DAEMON
+$MPIRUN -n $PROCESSES $EXEC $PORT $THREADS $DEMON $QUIET

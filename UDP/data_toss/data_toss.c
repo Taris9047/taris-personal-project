@@ -95,9 +95,12 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
   pthread_attr_t attr;
   void* status;
   int rc;
+  long bit_rate;
 
 #if defined(USE_MPI)
   int wld_sz, rnk, ri;
+  double mpi_total_elapsed_time = 0.0f;
+  long mpi_total_data_rate = 0L;
   MPI_Comm_size(MPI_COMM_WORLD, &wld_sz);
   MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
 #endif
@@ -152,9 +155,9 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
         ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
       printf("\n");
+      bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed);
       mprintf("Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
-        CHUNK_LEN*DATA_LEN*n_threads, elapsed,
-        (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
+        CHUNK_LEN*DATA_LEN*n_threads, elapsed, bit_rate);
 
       counter = 0;
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -168,32 +171,32 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
     int rank=0;
     while (rank < wld_sz) {
       if (rnk == rank) {
-        for (ri=0; ri<=rnk; ++ri) printf("\n");
+        // for (ri=0; ri<=rnk; ++ri) printf("\n");
         if (!quiet_mode) {
           mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
             n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
           fflush(stdout);
         }
-        for (ri=0; ri<=rnk; ++ri) {
-          printf("\033[1A");
-          fflush(stdout);
-        }
+        // for (ri=0; ri<=rnk; ++ri) {
+        //   printf("\033[1A");
+        //   fflush(stdout);
+        // }
       } /* if (rnk == rank) */
 
       /* checking up status */
       if (counter > CHUNK_LEN) {
-        for (ri=0; ri<=rnk; ++ri) printf("\n");
-        printf("\n");
+        //  for (ri=0; ri<=rnk; ++ri) printf("\n");
+        //printf("\n");
 
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         elapsed = \
           ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
           ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-
-        mprintf("Elapsed time for %'ld bytes: %.5f seconds,\n"
-          "    Transfer rate: %'ld bps\n",
-          CHUNK_LEN*DATA_LEN*n_threads, elapsed,
-          (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
+        bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed);
+        // mprintf("Elapsed time for %'ld bytes: %.5f seconds,"
+        //   " Transfer rate: %'ld bps\n",
+        //   CHUNK_LEN*DATA_LEN*n_threads, elapsed,
+        //   (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
 
         counter = 0;
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -202,8 +205,26 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
         if (daemon!=0) total_iteration++;
       } /* if (counter > CHUNK_LEN) */
 
+      mpi_total_data_rate += bit_rate;
+      mpi_total_elapsed_time = \
+        (elapsed > mpi_total_elapsed_time ? elapsed : mpi_total_elapsed_time);
+
       rank++;
+
+      if (rnk == rank && rnk == wld_sz-1) {
+        mprintf(
+          "Elapsed time for %'ld bytes: %.5f seconds,"
+          " Transfer rate: %'ld bps\r",
+          CHUNK_LEN*DATA_LEN*n_threads*wld_sz,
+          mpi_total_elapsed_time, mpi_total_data_rate);
+        fflush(stdout);
+
+        mpi_total_elapsed_time = 0.0f;
+        mpi_total_data_rate = 0L;
+      }
+
       MPI_Barrier(MPI_COMM_WORLD);
+
     } /* while (rank < wld_sz) */
 
 #endif /* #if !defined(USE_MPI) */
@@ -232,7 +253,7 @@ int main (int argc, char* argv[])
   srand_init();
 
 #if defined(MPICH) || defined(OPEN_MPI)
-    MPI_Init(&argc, &argv);
+  MPI_Init(&argc, &argv);
 #endif
 
   int default_port = DEF_PORT;
@@ -284,7 +305,7 @@ int main (int argc, char* argv[])
   keep_sending(srv_ip, default_port, n_tossers, daemon, quiet_mode);
 
 #if defined(USE_MPI)
-    MPI_Finalize();
+  MPI_Finalize();
 #endif
 
   tfree(srv_ip);
