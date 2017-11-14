@@ -211,6 +211,18 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
 
       rank++;
 
+      /*
+        In fact, doing this only displays x rnk value of transfer rate.
+        each MPI part is a fully independent program in MPI. So, there is NO
+        shared memory between then.
+
+        But in our case, the data toss rate isn't so different from sub-program
+        to sub-program. So, we can say, doing this shows 'estimated' total
+        data transfer rate.
+
+        To be precise, we need to implement a dedicated routine that collects
+        the transfer rate.
+      */
       if (rnk == rank && rnk == wld_sz-1) {
         mprintf(
           "Elapsed time for %'ld bytes: %.5f seconds,"
