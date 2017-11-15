@@ -40,13 +40,10 @@
 #define DEFAULT_SERVER_PORT 9930
 
 #define BUF_LEN 1024
-#define BUF_LEN_MUL 4
+#define BUF_LEN_MUL 64
 #define SECTION_LEN BUF_LEN*BUF_LEN_MUL
-#define CONTAINER_LEN_MUL 100
+#define CONTAINER_LEN_MUL 16
 #define CONTAINER_LEN SECTION_LEN*CONTAINER_LEN_MUL
-
-/* the data container */
-unsigned char* data_container;
 
 /* dummy declaration of proc args */
 typedef struct _data_proc_args data_proc_args;

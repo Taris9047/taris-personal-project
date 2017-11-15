@@ -3,7 +3,7 @@
 
   Purpose
   To emulate massive data influx from the
-  VIPIC board.
+  VIPIC (or FELIX) board.
 
   Implementation file
 
@@ -82,7 +82,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
     ERROR("inet_aton()");
 
   /* Some status report */
-  printf(
+  mprintf(
     "Tossing data (UDP) to ... %s:%d\n",
     inet_ntoa(si_me.sin_addr), ntohs(si_me.sin_port));
 
@@ -171,32 +171,23 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
     int rank=0;
     while (rank < wld_sz) {
       if (rnk == rank) {
-        // for (ri=0; ri<=rnk; ++ri) printf("\n");
+
         if (!quiet_mode) {
           mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
             n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
           fflush(stdout);
         }
-        // for (ri=0; ri<=rnk; ++ri) {
-        //   printf("\033[1A");
-        //   fflush(stdout);
-        // }
+
       } /* if (rnk == rank) */
 
       /* checking up status */
       if (counter > CHUNK_LEN) {
-        //  for (ri=0; ri<=rnk; ++ri) printf("\n");
-        //printf("\n");
 
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         elapsed = \
           ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
           ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
         bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed);
-        // mprintf("Elapsed time for %'ld bytes: %.5f seconds,"
-        //   " Transfer rate: %'ld bps\n",
-        //   CHUNK_LEN*DATA_LEN*n_threads, elapsed,
-        //   (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed));
 
         counter = 0;
         clock_gettime(CLOCK_MONOTONIC, &ts_start);

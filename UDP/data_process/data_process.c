@@ -63,6 +63,7 @@ static RecvDS NewRecvDS(
 static int DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
+  tfree(rds->p_container);
   tfree(rds);
 }
 
@@ -92,8 +93,8 @@ static void* recv_worker(void* args)
     for (j=0; j<buf_len; ++j) p_cont[j+st_idx+i*sections] = buf[j];
   } /* for (i=0; i<sections; ++i) */
 
-  // TODO: Maybe write some stuff to save the buffer?
-
+  // For now, we're freeing everytihng...
+  tfree(buf);
 }
 
 /*************************************************
@@ -109,6 +110,8 @@ void process(data_proc_args* options)
   size_t i, dc_i, j;
   socklen_t si_me_len;
 
+  unsigned char* data_container;
+
   /* setting up si_me */
   tmemset(si_me, 0);
   si_me.sin_family = AF_INET;
@@ -117,20 +120,31 @@ void process(data_proc_args* options)
 
   /* Preparing socket */
   if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 ) ERROR("socket()")
-
   if ( !inet_aton(options->address, &si_me.sin_addr) ) ERROR("inet_aton()")
   if ( bind(s, (struct sockaddr*)&si_me, sizeof(si_me))==-1 ) ERROR("bind()")
 
   /* Preparing thread operation */
   pthread_t threads[options->n_threads];
   pthread_attr_t attr;
-  uint64_t recv_sz = 0;
+  uint64_t recv_sz_now, recv_sz = 0;
   void* status;
   int rc;
   RecvDS worker_args[options->n_threads];
 
+  struct timespec ts_start, ts_end;
+  long bit_rate = 0L;
+  double elapsed = 0.0f;
+
   short cnt = 1;
   while (cnt) {
+
+    /* Preparing data container */
+    data_container = (unsigned char*)tmalloc(
+       options->n_threads*options->data_section_sz*CONTAINER_LEN_MUL);
+    assert(data_container);
+
+    /* Set up timer */
+    clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
     for (i=0; i<options->n_threads; ++i) {
       worker_args[i] = \
@@ -139,8 +153,9 @@ void process(data_proc_args* options)
           options->data_section_sz,
           options->n_threads,
           data_container);
-    }
+    } /* for (i=0; i<options->n_threads; ++i) */
 
+    /* Set up threads and start the job */
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     for (i=0; i<options->n_threads; ++i) {
@@ -161,13 +176,29 @@ void process(data_proc_args* options)
       }
     } /* for (i=0; i<options->n_threads; ++i) */
 
-    recv_sz += options->n_threads*options->data_section_sz;
-    printf("Received packets from (%lu threads) %s of %'lu bytes\r",
-      options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz);
-    fflush(stdout);
+    /* Measure bit rate -- not so correct at this moment */
+    recv_sz_now = options->n_threads*options->data_section_sz;
+    recv_sz += recv_sz_now;
 
-    if (options->keepalive) cnt = 1;
-    else cnt = 0;
+    tfree(data_container);
+
+    clock_gettime(CLOCK_MONOTONIC, &ts_end);
+    elapsed = \
+      ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
+      ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
+    bit_rate = (long)((double)(recv_sz_now*8)/elapsed);
+
+    if (options->keepalive) {
+      printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
+        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz, bit_rate);
+      fflush(stdout);
+      cnt = 1;
+    }
+    else {
+      printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
+        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz, bit_rate);
+      cnt = 0;
+    }
 
   } /* while (cnt) */
 
@@ -215,10 +246,10 @@ static data_proc_args* ArgParser(int argc, char* argv[])
         dpa->keepalive = true;
         break;
       case '?':
-        fprintf(stderr, "Options: -[aptd]\n");
+        fprintf(stderr, "Options: -[aptdk]\n");
         exit(1);
       default:
-        fprintf(stderr, "Options: -[aptd]\n");
+        fprintf(stderr, "Options: -[aptdk]\n");
         exit(1);
     }
   } /* while ((c=getopt(argc, argv, "a:p:t:d:"))!=-1) */
@@ -239,17 +270,10 @@ int main(int argc, char* argv[])
   printf("Listening to... %s\n", opts->address);
   printf("Port: %d\n", opts->port);
 
-  /* Preparing data container */
-  data_container = \
-    (unsigned char*)tmalloc(
-      opts->n_threads*opts->data_section_sz*CONTAINER_LEN_MUL);
-  assert(data_container);
-
   /* Then run the data_receiver */
   process(opts);
 
   tfree(opts->address); tfree(opts);
-  tfree(data_container);
 
   return 0;
 }
