@@ -178,9 +178,7 @@ void process(data_proc_args* options)
 
     /* Measure bit rate -- not so correct at this moment */
     recv_sz_now = options->n_threads*options->data_section_sz;
-    recv_sz += recv_sz_now;
-
-    tfree(data_container);
+    //recv_sz += recv_sz_now;
 
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
     elapsed = \
@@ -190,15 +188,17 @@ void process(data_proc_args* options)
 
     if (options->keepalive) {
       printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
-        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz, bit_rate);
+        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
       fflush(stdout);
       cnt = 1;
     }
     else {
       printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
-        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz, bit_rate);
+        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
       cnt = 0;
     }
+
+    tfree(data_container);
 
   } /* while (cnt) */
 
