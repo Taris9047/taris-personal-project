@@ -19,8 +19,23 @@
 static unsigned char *buf;
 
 /*************************************************
+  Keep sending argument struct (redef)
+**************************************************/
+typedef struct _keep_sending_args {
+  char* srv_ip;
+  int port_num;
+  size_t n_threads;
+  int daemon;
+  int quiet_mode;
+  int seamless_mode;
+} keep_sending_args;
+
+/*************************************************
   Static functions
 **************************************************/
+/* Constructor and Destructor for Ksa */
+static Ksa NewKsa(int argc, char* argv[]);
+static void DeleteKsa(Ksa ksa);
 
 /*************************************************
   Thread struct
@@ -58,12 +73,9 @@ static void* sendto_worker(void *t)
 **************************************************/
 
 /* The server toutine */
-void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int quiet_mode)
+void keep_sending(Ksa args)
 {
-  if (!n_threads) {
-    mfprintf(stderr, "keep_sending: 0 threads given!! assuming to 1\n");
-    n_threads = 1;
-  }
+  assert(args);
 
   struct sockaddr_in si_me;
   int s;
@@ -77,8 +89,8 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
   /* Preparing socket struct */
   tmemset(si_me, 0);
   si_me.sin_family = AF_INET;
-  si_me.sin_port = htons(port_num);
-  if ( !inet_aton(srv_ip, &si_me.sin_addr) )
+  si_me.sin_port = htons(args->port_num);
+  if ( inet_aton(args->srv_ip, &si_me.sin_addr) == 0 )
     ERROR("inet_aton()");
 
   /* Some status report */
@@ -91,7 +103,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
   double elapsed;
 
   /* Prepare pthread stuffs */
-  pthread_t send_thrs[n_threads];
+  pthread_t send_thrs[args->n_threads];
   pthread_attr_t attr;
   void* status;
   int rc;
@@ -105,7 +117,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
   MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
 #endif
 
-  sendto_data thr_data[n_threads];
+  sendto_data thr_data[args->n_threads];
 
   /* Let's run it!! */
   int counter = 0;
@@ -115,7 +127,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-    for (th=0; th<n_threads; ++th) {
+    for (th=0; th<args->n_threads; ++th) {
       thr_data[th].socket = s;
       thr_data[th].socket_addr = &si_me;
       thr_data[th].rnd_state = th;
@@ -129,7 +141,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
 
     pthread_attr_destroy(&attr);
 
-    for (th=0; th<n_threads; ++th) {
+    for (th=0; th<args->n_threads; ++th) {
       rc = pthread_join(send_thrs[th], &status);
       if (rc) {
         mfprintf(stderr, "pthread_join error!! [%d]\n", rc);
@@ -141,30 +153,30 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
 
 #if !defined(USE_MPI)
 
-    if (!quiet_mode) {
+    if (!args->quiet_mode && !args->seamless_mode) {
       mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-        n_threads, (long)counter+1, CHUNK_LEN,
+        args->n_threads, (long)counter+1, CHUNK_LEN,
         (double)(counter+1)/CHUNK_LEN*100);
       fflush(stdout);
     }
 
     /* checking up status */
-    if (counter > CHUNK_LEN) {
+    if (counter > CHUNK_LEN && !args->seamless_mode) {
       clock_gettime(CLOCK_MONOTONIC, &ts_end);
       elapsed = \
         ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
       printf("\n");
-      bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed);
+      bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*args->n_threads)/elapsed);
       mprintf("Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
-        CHUNK_LEN*DATA_LEN*n_threads, elapsed, bit_rate);
+        CHUNK_LEN*DATA_LEN*args->n_threads, elapsed, bit_rate);
 
       counter = 0;
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
       total_iteration--;
-      if (daemon!=0) total_iteration++;
-    } /* if (counter > CHUNK_LEN) */
+      if (args->daemon!=0 || args->seamless_mode) total_iteration++;
+    } /* if (counter > CHUNK_LEN && !args->seamless_mode) */
 
 #else /* #if !defined(USE_MPI) */
 
@@ -172,16 +184,17 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
     while (rank < wld_sz) {
       if (rnk == rank) {
 
-        if (!quiet_mode) {
+        if (!args->quiet_mode && !args->seamless_mode) {
           mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-            n_threads, (long)counter+1, CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
+            args->n_threads, (long)counter+1,
+            CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
           fflush(stdout);
         }
 
       } /* if (rnk == rank) */
 
       /* checking up status */
-      if (counter > CHUNK_LEN) {
+      if (counter > CHUNK_LEN && !args->seamless_mode) {
 
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         elapsed = \
@@ -193,7 +206,7 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
         total_iteration--;
-        if (daemon!=0) total_iteration++;
+        if (args->daemon!=0 || args->seamless_mode) total_iteration++;
       } /* if (counter > CHUNK_LEN) */
 
       mpi_total_data_rate += bit_rate;
@@ -214,11 +227,11 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
         To be precise, we need to implement a dedicated routine that collects
         the transfer rate.
       */
-      if (rnk == rank && rnk == wld_sz-1) {
+      if (rnk == rank && rnk == wld_sz-1 && !args->seamless_mode) {
         mprintf(
           "Elapsed time for %'ld bytes: %.5f seconds,"
           " Transfer rate: %'ld bps\r",
-          CHUNK_LEN*DATA_LEN*n_threads*wld_sz,
+          CHUNK_LEN*DATA_LEN*args->n_threads*wld_sz,
           mpi_total_elapsed_time, mpi_total_data_rate);
         fflush(stdout);
 
@@ -240,11 +253,69 @@ void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int 
 }
 
 
+/*************************************************
+  Constructor for Ksa
+  --> Basically serves as an input parameter parser
+**************************************************/
+Ksa NewKsa(int argc, char* argv[])
+{
+  Ksa ksa = (Ksa)tmalloc(sizeof(Ksa));
+  assert(ksa);
 
+  ksa->port_num = DEF_PORT;
+  ksa->n_threads = N_TOSSERS;
+  ksa->daemon = 0;
+  ksa->quiet_mode = 0;
+  ksa->seamless_mode = 0;
+  ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
+  strcpy(ksa->srv_ip, SRV_IP);
 
+  char c;
+  while ((c=getopt(argc, argv, "p:i:t:dhqs"))!=-1) {
+    switch (c)
+    {
+      case 'p':
+        ksa->port_num = atoi(optarg);
+        break;
+      case 'i':
+        tfree(ksa->srv_ip);
+        ksa->srv_ip = (char*)malloc(strlen(optarg)+1);
+        strcpy(ksa->srv_ip, optarg);
+        break;
+      case 't':
+        ksa->n_threads = atoi(optarg);
+        break;
+      case 'q':
+        ksa->quiet_mode = 1;
+        break;
+      case 'd':
+        ksa->daemon = 1;
+        break;
+      case 's':
+        ksa->seamless_mode = 1;
+        break;
+      case 'h':
+        usage();
+        exit(0);
+      default:
+        usage();
+        break;
+    } /* switch (c) */
+  } /* while ((c=getopt(argc, argv, "p:i:t:dhqs"))!=-1) */
 
+  return ksa;
+}
 
-
+/*************************************************
+  Destructor for Ksa
+**************************************************/
+void DeleteKsa(Ksa ksa)
+{
+  assert(ksa);
+  tfree(ksa->srv_ip);
+  tfree(ksa);
+  return;
+}
 
 
 /*************************************************
@@ -259,60 +330,25 @@ int main (int argc, char* argv[])
   MPI_Init(&argc, &argv);
 #endif
 
-  int default_port = DEF_PORT;
-  int n_tossers = N_TOSSERS;
-  int daemon = 0;
-  int quiet_mode = 0;
-  char* srv_ip = (char*)malloc(strlen(SRV_IP)+1);
-  strcpy(srv_ip, SRV_IP);
+  Ksa args = NewKsa(argc, argv);
 
-  int c, i;
-  while ((c=getopt(argc, argv, "p:i:t:dhq"))!=-1) {
-    switch (c)
-    {
-      case 'p':
-        default_port = atoi(optarg);
-        break;
-      case 'i':
-        tfree(srv_ip);
-        srv_ip = (char*)malloc(strlen(optarg)+1);
-        strcpy(srv_ip, optarg);
-        break;
-      case 't':
-        n_tossers = atoi(optarg);
-        break;
-      case 'q':
-        quiet_mode = 1;
-        break;
-      case 'd':
-        daemon = 1;
-        break;
-      case 'h':
-        usage();
-        exit(0);
-      default:
-        usage();
-        break;
-    } /* switch (c) */
-  } /* while ((c=getopt(argc, argv, "p:i:t:dh"))) */
-
-  mprintf("Port: %d\nConcurrent tossers: %d\n\n", default_port, n_tossers);
-
+  if (args->seamless_mode) mprintf("Seamless Mode!!\n");
+  mprintf("Port: %d\nConcurrent tossers: %zu\n\n", args->port_num, args->n_threads);
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);
-  buf = (unsigned char*)\
-    tmalloc(sizeof(unsigned char)*DATA_LEN);
+  buf = (unsigned char*)tmalloc(sizeof(unsigned char)*DATA_LEN);
+  int i;
   for (i=0; i<DATA_LEN; ++i)
     buf[i] = rand_byte();
 
   mprintf("Starting Send!!\n");
-  keep_sending(srv_ip, default_port, n_tossers, daemon, quiet_mode);
+  keep_sending(args);
 
 #if defined(USE_MPI)
   MPI_Finalize();
 #endif
 
-  tfree(srv_ip);
   tfree(buf);
+  DeleteKsa(args);
 
   return 0;
 }

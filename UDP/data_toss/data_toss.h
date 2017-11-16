@@ -23,6 +23,7 @@
 #include <sys/mman.h>
 #include <netdb.h>
 
+#include <assert.h>
 #include <time.h>
 #include <locale.h>
 #include <pthread.h>
@@ -41,10 +42,14 @@
 #define SENDTO_ITER 20
 #define DATA_LEN BUFLEN*SENDTO_ITER
 #define N_TOSSERS 5
-#define ITER 1
+#define ITER 10
+
+/* Input data struct for function keep_sending */
+typedef struct _keep_sending_args keep_sending_args;
+typedef keep_sending_args* Ksa;
 
 /* The server routine */
-void keep_sending(char* srv_ip, int port_num, size_t n_threads, int daemon, int quiet_mode);
+void keep_sending(Ksa args);
 
 /* show usage */
 void usage();

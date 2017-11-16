@@ -2,7 +2,7 @@ UDP data toss!!
 
 1. Program options
 
-data_toss -p <Port> -i <IP address> -t <number of threads> -d -q
+data_toss -p <Port> -i <IP address> -t <number of threads> -d -q -s
 
 Default values:
 Port: 9930
@@ -10,6 +10,7 @@ IP Address: 127.0.0.1 (localhost)
 Number of threads: 5
 Daemon Mode: False
 Quiet Mode: False
+Seamless Mode: False --> Toss out garbages without showing anywhing... endlessly...
 
 
 2. Compile options (Makefile options)

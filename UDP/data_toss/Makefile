@@ -23,6 +23,7 @@ MPICFLAGS=-DUSE_MPI
 OBJS=rand_safe.o
 OBJS_REL=rand_safe_rel.o
 OBJS_PGI=rand_safe_pgi.o
+OBJS_LLVM_REL=rand_safe_rel_llvm.o
 TARGET=data_toss
 
 all: debug
@@ -33,6 +34,9 @@ rand_safe.o: rand_safe.c rand_safe.h
 rand_safe_rel.o: rand_safe.c rand_safe.h
 	$(CC) $(RELCFLAGS) -c rand_safe.c -o $@
 
+rand_safe_rel_llvm.o: rand_safe.c rand_safe.h
+	$(LLVMCC) $(RELCFLAGS) -c rand_safe.c -o $@
+
 rand_safe_pgi.o: rand_safe.c rand_safe.h
 	$(PGCC) $(PGCCFLAGS) -c rand_safe.c -o $@
 
@@ -42,8 +46,8 @@ debug: data_toss.c data_toss.h $(OBJS)
 release: data_toss.c data_toss.h $(OBJS_REL)
 	$(CC) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) $(LIBS)
 
-llvm: data_toss.c data_toss.h $(OBJS_REL)
-	$(LLVMCC) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) $(LIBS)
+llvm: data_toss.c data_toss.h $(OBJS_LLVM_REL)
+	$(LLVMCC) $(RELCFLAGS) $(OBJS_LLVM_REL) data_toss.c -o $(TARGET) $(LIBS)
 
 pgi: data_toss.c data_toss.h $(OBJS_PGI)
 	$(PGCC) $(PGCCFLAGS) $(OBJS_PGI) data_toss.c -o $(TARGET) -lpthread
