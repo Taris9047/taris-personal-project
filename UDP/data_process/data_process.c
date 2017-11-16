@@ -63,7 +63,7 @@ static RecvDS NewRecvDS(
 static int DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
-  tfree(rds->p_container);
+  // tfree(rds->p_container);
   tfree(rds);
 }
 
@@ -135,13 +135,13 @@ void process(data_proc_args* options)
   long bit_rate = 0L;
   double elapsed = 0.0f;
 
+  /* Preparing data container */
+  data_container = (unsigned char*)tmalloc(
+     options->n_threads*options->data_section_sz*CONTAINER_LEN_MUL);
+  assert(data_container);
+
   short cnt = 1;
   while (cnt) {
-
-    /* Preparing data container */
-    data_container = (unsigned char*)tmalloc(
-       options->n_threads*options->data_section_sz*CONTAINER_LEN_MUL);
-    assert(data_container);
 
     /* Set up timer */
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -198,12 +198,10 @@ void process(data_proc_args* options)
       cnt = 0;
     }
 
-    tfree(data_container);
-
   } /* while (cnt) */
 
   for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
-
+  tfree(data_container);
   close(s);
 
   return;
