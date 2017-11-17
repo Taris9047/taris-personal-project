@@ -10,12 +10,13 @@ endif
 
 CFLAGS=-ggdb3
 RELCFLAGS=-O3 -march=native -m64 -fomit-frame-pointer
+RELLLVMFLAGS=-O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
 LIBS=-pthread
 
 LLVMCC=clang
 
 PGCC=pgcc
-PGCCFLAGS=-fast -Mipa=fast,inline
+PGCCFLAGS=-fast -Mipa=fast,inline -tp x64
 
 MPICC=mpicc
 MPICFLAGS=-DUSE_MPI
@@ -35,7 +36,7 @@ rand_safe_rel.o: rand_safe.c rand_safe.h
 	$(CC) $(RELCFLAGS) -c rand_safe.c -o $@
 
 rand_safe_rel_llvm.o: rand_safe.c rand_safe.h
-	$(LLVMCC) $(RELCFLAGS) -c rand_safe.c -o $@
+	$(LLVMCC) $(RELLLVMFLAGS) -c rand_safe.c -o $@
 
 rand_safe_pgi.o: rand_safe.c rand_safe.h
 	$(PGCC) $(PGCCFLAGS) -c rand_safe.c -o $@
@@ -47,7 +48,7 @@ release: data_toss.c data_toss.h $(OBJS_REL)
 	$(CC) $(RELCFLAGS) $(OBJS_REL) data_toss.c -o $(TARGET) $(LIBS)
 
 llvm: data_toss.c data_toss.h $(OBJS_LLVM_REL)
-	$(LLVMCC) $(RELCFLAGS) $(OBJS_LLVM_REL) data_toss.c -o $(TARGET) $(LIBS)
+	$(LLVMCC) $(RELLLVMFLAGS) $(OBJS_LLVM_REL) data_toss.c -o $(TARGET) $(LIBS)
 
 pgi: data_toss.c data_toss.h $(OBJS_PGI)
 	$(PGCC) $(PGCCFLAGS) $(OBJS_PGI) data_toss.c -o $(TARGET) -lpthread

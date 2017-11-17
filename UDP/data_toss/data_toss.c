@@ -44,6 +44,7 @@ typedef struct _sendto_data {
   int socket;
   struct sockaddr_in* socket_addr;
   uint32_t rnd_state;
+  ssize_t sent_size;
 } sendto_data;
 
 /*************************************************
@@ -56,12 +57,15 @@ static void* sendto_worker(void *t)
   int iter, s = var->socket;
   uint32_t state = var->rnd_state;
   socklen_t slen;
+  ssize_t sent_size = var->sent_size;
 
   for (iter=0; iter<SENDTO_ITER; ++iter) {
     slen = sizeof(si_me);
-    if ( sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen)==-1 )
-      ERROR("sendto()");
+    sent_size = sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen);
+    if ( sent_size == -1 ) ERROR("sendto()");
   }
+
+  var->sent_size = sent_size;
 
   pthread_exit(NULL);
 
@@ -107,7 +111,8 @@ void keep_sending(Ksa args)
   pthread_attr_t attr;
   void* status;
   int rc;
-  long bit_rate;
+  long bit_rate, total_bit_rate;
+  ssize_t total_sent_sz;
 
 #if defined(USE_MPI)
   int wld_sz, rnk, ri;
@@ -121,6 +126,8 @@ void keep_sending(Ksa args)
 
   /* Let's run it!! */
   int counter = 0;
+  total_bit_rate = 0;
+  total_sent_sz = 0;
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
   while(total_iteration!=0) {
 
@@ -131,51 +138,55 @@ void keep_sending(Ksa args)
       thr_data[th].socket = s;
       thr_data[th].socket_addr = &si_me;
       thr_data[th].rnd_state = th;
-      rc = pthread_create(
-        &send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
+      thr_data[th].sent_size = 0;
+      rc = pthread_create(&send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
       if (rc) {
         mfprintf(stderr, "pthread_create error!! [%d]\n", rc);
         exit(-1);
       }
     } /* for (th=0; th<n_threads; ++th) */
 
-    pthread_attr_destroy(&attr);
-
     for (th=0; th<args->n_threads; ++th) {
       rc = pthread_join(send_thrs[th], &status);
+      total_sent_sz += thr_data[th].sent_size;
       if (rc) {
         mfprintf(stderr, "pthread_join error!! [%d]\n", rc);
         exit(-1);
       }
     } /* for (th=0; th<n_threads; ++th) */
 
-    counter++;
+    pthread_attr_destroy(&attr);
+
+
 
 #if !defined(USE_MPI)
 
     if (!args->quiet_mode && !args->seamless_mode) {
       mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-        args->n_threads, (long)counter+1, CHUNK_LEN,
-        (double)(counter+1)/CHUNK_LEN*100);
+        args->n_threads, (long)counter, CHUNK_LEN,
+        (double)(counter)/CHUNK_LEN*100);
       fflush(stdout);
     }
 
     /* checking up status */
-    if (counter > CHUNK_LEN && !args->seamless_mode) {
+    if (counter >= CHUNK_LEN && !args->seamless_mode) {
       clock_gettime(CLOCK_MONOTONIC, &ts_end);
       elapsed = \
         ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
       printf("\n");
-      bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*args->n_threads)/elapsed);
-      mprintf("Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
-        CHUNK_LEN*DATA_LEN*args->n_threads, elapsed, bit_rate);
+      bit_rate = (long)((double)(total_sent_sz*8)/elapsed);
+      total_bit_rate += bit_rate;
+      mprintf(
+        "Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
+        total_sent_sz, elapsed, bit_rate);
 
       counter = 0;
+      total_sent_sz = 0;
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
       total_iteration--;
-      if (args->daemon!=0 || args->seamless_mode) total_iteration++;
+      if (args->daemon || args->seamless_mode) total_iteration = 1;
     } /* if (counter > CHUNK_LEN && !args->seamless_mode) */
 
 #else /* #if !defined(USE_MPI) */
@@ -200,7 +211,7 @@ void keep_sending(Ksa args)
         elapsed = \
           ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
           ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-        bit_rate = (long)((double)(CHUNK_LEN*DATA_LEN*8*n_threads)/elapsed);
+        bit_rate = (long)((double)(total_sent_sz*8)/elapsed);
 
         counter = 0;
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -231,7 +242,7 @@ void keep_sending(Ksa args)
         mprintf(
           "Elapsed time for %'ld bytes: %.5f seconds,"
           " Transfer rate: %'ld bps\r",
-          CHUNK_LEN*DATA_LEN*args->n_threads*wld_sz,
+          total_sent_sz*wld_sz,
           mpi_total_elapsed_time, mpi_total_data_rate);
         fflush(stdout);
 
@@ -245,7 +256,14 @@ void keep_sending(Ksa args)
 
 #endif /* #if !defined(USE_MPI) */
 
+    counter++;
+
   } /* while(total_iteration!=0) */
+
+  if (!args->quiet_mode || !args->seamless_mode)
+    mprintf(
+      "Total averaged bit rate: %zu bps\n",
+      (size_t)(total_bit_rate/(double)(ITER)));
 
   pthread_exit(NULL);
 
@@ -268,6 +286,7 @@ Ksa NewKsa(int argc, char* argv[])
   ksa->quiet_mode = 0;
   ksa->seamless_mode = 0;
   ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
+  assert(ksa->srv_ip);
   strcpy(ksa->srv_ip, SRV_IP);
 
   char c;
@@ -279,7 +298,8 @@ Ksa NewKsa(int argc, char* argv[])
         break;
       case 'i':
         tfree(ksa->srv_ip);
-        ksa->srv_ip = (char*)malloc(strlen(optarg)+1);
+        ksa->srv_ip = (char*)tmalloc(strlen(optarg)+1);
+        assert(ksa->srv_ip);
         strcpy(ksa->srv_ip, optarg);
         break;
       case 't':
@@ -336,6 +356,8 @@ int main (int argc, char* argv[])
   mprintf("Port: %d\nConcurrent tossers: %zu\n\n", args->port_num, args->n_threads);
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);
   buf = (unsigned char*)tmalloc(sizeof(unsigned char)*DATA_LEN);
+  assert(buf);
+
   int i;
   for (i=0; i<DATA_LEN; ++i)
     buf[i] = rand_byte();
