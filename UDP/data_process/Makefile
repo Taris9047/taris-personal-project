@@ -8,6 +8,8 @@ CC=gcc-7
 CXX=g++-7
 endif
 
+LLVMCC=clang
+
 CFLAGS=-ggdb3
 RELCFLAGS=-O3 -DNDEBUG -march=native -m64 -fomit-frame-pointer
 LIBS=-pthread
@@ -29,6 +31,9 @@ release: $(SOURCES) $(HEADERS)
 
 pgi: $(SOURCES) $(HEADERS)
 	$(PGCC) $(PGCCFLAGS) data_process.c -o  $(TARGET) -lpthread
+
+llvm: $(SOURCES) $(HEADERS)
+	$(LLVMCC) $(RELCFLAGS) data_process.c -o $(TARGET) $(LIBS)
 
 clean:
 	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo

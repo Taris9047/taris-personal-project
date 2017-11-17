@@ -22,6 +22,8 @@ typedef struct _data_proc_args {
   int port;
   size_t n_threads;
   size_t data_section_sz;
+  size_t buf_len;
+  int iter_cnt;
   bool keepalive;
 } data_proc_args;
 
@@ -36,6 +38,7 @@ typedef struct _recv_worker_data_set {
   unsigned char* p_container;
   int socket;
   struct sockaddr_in* sock_addr;
+  int64_t recv_len;
 } rw_data_set;
 typedef rw_data_set* RecvDS;
 
@@ -45,7 +48,8 @@ static RecvDS NewRecvDS(
   size_t start_index, size_t buffer_length, size_t n_sections,
   unsigned char* main_data_container)
 {
-  RecvDS new_rcvds = (RecvDS)tmalloc(sizeof(rw_data_set));
+  RecvDS new_rcvds = \
+    (RecvDS)tmalloc(sizeof(rw_data_set));
   assert(new_rcvds);
 
   new_rcvds->start_idx = start_index;
@@ -56,15 +60,18 @@ static RecvDS NewRecvDS(
   new_rcvds->socket = *sock;
   new_rcvds->sock_addr = sock_addr_in;
 
+  new_rcvds->recv_len = 0;
+
   return new_rcvds;
 }
 
 /* Destructor */
-static int DeleteRecvDS(RecvDS rds)
+static void DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
   // tfree(rds->p_container);
   tfree(rds);
+  return;
 }
 
 /* recv_worker */
@@ -77,6 +84,7 @@ static void* recv_worker(void* args)
   struct sockaddr_in* si = ((RecvDS)args)->sock_addr;
   socklen_t si_len = sizeof(*si);
   unsigned char* p_cont = ((RecvDS)args)->p_container;
+  int64_t recv_len;
 
   unsigned char* buf = \
     (unsigned char*)tmalloc(sizeof(unsigned char)*buf_len);
@@ -84,7 +92,8 @@ static void* recv_worker(void* args)
 
   int i, j;
   for (i=0; i<sections; ++i) {
-    if ( recvfrom(s, buf, buf_len, 0, (struct sockaddr*)si, &si_len)==-1 ) {
+    recv_len = recvfrom(s, buf, buf_len, 0, (struct sockaddr*)si, &si_len);
+    if ( recv_len == -1 ) {
       printf("pid: %d\n", getpid());
       printf("buffer_length: %lu, section: %lu\n", buf_len, sections);
       ERROR("recvfrom()")
@@ -95,6 +104,12 @@ static void* recv_worker(void* args)
 
   // For now, we're freeing everytihng...
   tfree(buf);
+
+  if (recv_len >= 0) {
+    ((RecvDS)args)->recv_len = recv_len;
+    pthread_exit(args);
+  }
+  else pthread_exit(0);
 }
 
 /*************************************************
@@ -109,7 +124,6 @@ void process(data_proc_args* options)
   int s;
   size_t i, dc_i, j;
   socklen_t si_me_len;
-
   unsigned char* data_container;
 
   /* setting up si_me */
@@ -133,15 +147,18 @@ void process(data_proc_args* options)
 
   struct timespec ts_start, ts_end;
   long bit_rate = 0L;
+  long total_bit_rate = 0L;
   double elapsed = 0.0f;
 
   /* Preparing data container */
-  data_container = (unsigned char*)tmalloc(
-     options->n_threads*options->data_section_sz*CONTAINER_LEN_MUL);
+  data_container = \
+    (unsigned char*)tmalloc(
+    options->n_threads*options->data_section_sz*CONTAINER_LEN_MUL);
   assert(data_container);
 
-  short cnt = 1;
+  int cnt = options->iter_cnt;
   while (cnt) {
+    recv_sz_now = 0;
 
     /* Set up timer */
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -149,7 +166,7 @@ void process(data_proc_args* options)
     for (i=0; i<options->n_threads; ++i) {
       worker_args[i] = \
         NewRecvDS(&s, &si_me,
-          i*options->n_threads*BUF_LEN,
+          i*options->n_threads*options->buf_len,
           options->data_section_sz,
           options->n_threads,
           data_container);
@@ -170,21 +187,22 @@ void process(data_proc_args* options)
     pthread_attr_destroy(&attr);
     for (i=0; i<options->n_threads; ++i) {
       rc = pthread_join(threads[i], &status);
+      recv_sz_now += worker_args[i]->recv_len;
       if (rc) {
         fprintf(stderr, "pthread_join crashed with %d\n", rc);
         exit(-1);
       }
     } /* for (i=0; i<options->n_threads; ++i) */
 
-    /* Measure bit rate -- not so correct at this moment */
-    recv_sz_now = options->n_threads*options->data_section_sz;
-    //recv_sz += recv_sz_now;
+    /* Free up thread control stuffs */
+    for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
 
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
     elapsed = \
       ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
       ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
     bit_rate = (long)((double)(recv_sz_now*8)/elapsed);
+    total_bit_rate += bit_rate;
 
     if (options->keepalive) {
       printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
@@ -195,12 +213,14 @@ void process(data_proc_args* options)
     else {
       printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
         options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
-      cnt = 0;
+      cnt--;
     }
-
   } /* while (cnt) */
 
-  for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
+  if (!options->keepalive) {
+    printf("Average recv. rate is %'lu bps\n", (long)(total_bit_rate/(double)options->iter_cnt));
+  }
+
   tfree(data_container);
   close(s);
 
@@ -219,12 +239,14 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   dpa->address = (char*)tmalloc(strlen(DEFAULT_SERVER_ADDR)+1);
   strcpy(dpa->address, DEFAULT_SERVER_ADDR);
   dpa->port = DEFAULT_SERVER_PORT;
-  dpa->n_threads = BUF_LEN_MUL;
+  dpa->n_threads = N_THREADS;
+  dpa->buf_len = BUF_LEN;
   dpa->data_section_sz = SECTION_LEN;
+  dpa->iter_cnt = DEF_ITER_CNT;
   dpa->keepalive = false;
 
   char c;
-  while ((c=getopt(argc, argv, "a:p:t:d:k?"))!=-1) {
+  while ((c=getopt(argc, argv, "a:p:t:b:d:i:k?"))!=-1) {
     switch (c) {
       case 'a':
         tfree(dpa->address);
@@ -237,20 +259,26 @@ static data_proc_args* ArgParser(int argc, char* argv[])
       case 't':
         dpa->n_threads = atol(optarg);
         break;
+      case 'b':
+        dpa->buf_len = atol(optarg);
+        break;
       case 'd':
         dpa->data_section_sz = atol(optarg);
         break;
       case 'k':
         dpa->keepalive = true;
         break;
+      case 'i':
+        dpa->iter_cnt = atoi(optarg);
+        break;
       case '?':
-        fprintf(stderr, "Options: -[aptdk]\n");
+        fprintf(stderr, "Options: -[aptbdik]\n");
         exit(1);
       default:
-        fprintf(stderr, "Options: -[aptdk]\n");
+        fprintf(stderr, "Options: -[aptbdik]\n");
         exit(1);
     }
-  } /* while ((c=getopt(argc, argv, "a:p:t:d:"))!=-1) */
+  } /* while ((c=getopt(argc, argv, "a:p:t:d:k?"))!=-1) */
 
   return dpa;
 }
@@ -267,6 +295,10 @@ int main(int argc, char* argv[])
   printf("Simple data receiver from UDP\n");
   printf("Listening to... %s\n", opts->address);
   printf("Port: %d\n", opts->port);
+  printf("Buffer Size per Threads: %lu bytes.\n", opts->buf_len);
+  printf("Total Memory Size: %lu bytes.\n", opts->data_section_sz*CONTAINER_LEN_MUL);
+  if (!opts->keepalive)
+    printf("Iteration count: %d\n", opts->iter_cnt);
 
   /* Then run the data_receiver */
   process(opts);
