@@ -27,6 +27,7 @@
 #include <time.h>
 #include <locale.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 #if defined(USE_MPI)
 #  include <mpi.h>
@@ -37,7 +38,7 @@
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"
 #define DEF_PORT 9930
-#define BUFLEN 8096*8
+#define BUFLEN 8096
 #define CHUNK_LEN 10000L
 #define SENDTO_ITER 20
 #define DATA_LEN BUFLEN*SENDTO_ITER

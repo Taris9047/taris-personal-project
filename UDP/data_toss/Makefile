@@ -9,14 +9,14 @@ CXX=g++-7
 endif
 
 CFLAGS=-ggdb3
-RELCFLAGS=-O3 -march=native -m64 -fomit-frame-pointer
-RELLLVMFLAGS=-O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
+RELCFLAGS=-DNDEBUG -O3 -march=native -m64 -fomit-frame-pointer
+RELLLVMFLAGS=-DNDEBUG -O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
 LIBS=-pthread
 
 LLVMCC=clang
 
 PGCC=pgcc
-PGCCFLAGS=-fast -Mipa=fast,inline -tp x64
+PGCCFLAGS=-DNDEBUG -fast -Mipa=fast,inline -tp x64
 
 MPICC=mpicc
 MPICFLAGS=-DUSE_MPI
@@ -58,3 +58,5 @@ mpi: data_toss.c data_toss.h $(OBJS_REL)
 
 clean:
 	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo
+	rm -rfv vcore.*
+

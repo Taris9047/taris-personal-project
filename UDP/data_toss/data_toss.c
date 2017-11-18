@@ -50,9 +50,9 @@ typedef struct _sendto_data {
 /*************************************************
   Thread workers
 **************************************************/
-static void* sendto_worker(void *t)
+static void* sendto_worker(void *worker_args)
 {
-  sendto_data* var = (sendto_data*)t;
+  sendto_data* var = (sendto_data*)worker_args;
   struct sockaddr_in si_me = *(var->socket_addr);
   int iter, s = var->socket;
   uint32_t state = var->rnd_state;
@@ -157,8 +157,6 @@ void keep_sending(Ksa args)
 
     pthread_attr_destroy(&attr);
 
-
-
 #if !defined(USE_MPI)
 
     if (!args->quiet_mode && !args->seamless_mode) {
@@ -187,7 +185,7 @@ void keep_sending(Ksa args)
 
       total_iteration--;
       if (args->daemon || args->seamless_mode) total_iteration = 1;
-    } /* if (counter > CHUNK_LEN && !args->seamless_mode) */
+    } /* if (counter >= CHUNK_LEN && !args->seamless_mode) */
 
 #else /* #if !defined(USE_MPI) */
 
@@ -218,7 +216,7 @@ void keep_sending(Ksa args)
 
         total_iteration--;
         if (args->daemon!=0 || args->seamless_mode) total_iteration++;
-      } /* if (counter > CHUNK_LEN) */
+      } /* iif (counter > CHUNK_LEN && !args->seamless_mode) */
 
       mpi_total_data_rate += bit_rate;
       mpi_total_elapsed_time = \
@@ -277,7 +275,7 @@ void keep_sending(Ksa args)
 **************************************************/
 Ksa NewKsa(int argc, char* argv[])
 {
-  Ksa ksa = (Ksa)tmalloc(sizeof(Ksa));
+  Ksa ksa = (Ksa)malloc(sizeof(keep_sending_args));
   assert(ksa);
 
   ksa->port_num = DEF_PORT;
@@ -285,7 +283,7 @@ Ksa NewKsa(int argc, char* argv[])
   ksa->daemon = 0;
   ksa->quiet_mode = 0;
   ksa->seamless_mode = 0;
-  ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
+  ksa->srv_ip = (char*)malloc(strlen(SRV_IP)+1);
   assert(ksa->srv_ip);
   strcpy(ksa->srv_ip, SRV_IP);
 
@@ -298,7 +296,7 @@ Ksa NewKsa(int argc, char* argv[])
         break;
       case 'i':
         tfree(ksa->srv_ip);
-        ksa->srv_ip = (char*)tmalloc(strlen(optarg)+1);
+        ksa->srv_ip = (char*)malloc(strlen(optarg)+1);
         assert(ksa->srv_ip);
         strcpy(ksa->srv_ip, optarg);
         break;
@@ -353,14 +351,16 @@ int main (int argc, char* argv[])
   Ksa args = NewKsa(argc, argv);
 
   if (args->seamless_mode) mprintf("Seamless Mode!!\n");
-  mprintf("Port: %d\nConcurrent tossers: %zu\n\n", args->port_num, args->n_threads);
+  mprintf(
+    "Port: %d\nConcurrent tossers: %zu\n\n",
+    args->port_num, args->n_threads);
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);
   buf = (unsigned char*)tmalloc(sizeof(unsigned char)*DATA_LEN);
   assert(buf);
 
+  /* Prepare dummy data to send */
   int i;
-  for (i=0; i<DATA_LEN; ++i)
-    buf[i] = rand_byte();
+  for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte();
 
   mprintf("Starting Send!!\n");
   keep_sending(args);
