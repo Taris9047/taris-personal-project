@@ -29,6 +29,5 @@ PARALLEL_RUN_OPTION=$(for (( c=$START; c<=$MAX_PARALLELS; c++ )); do printf "\"$
 echo "Parallel program parameter options: $PARALLEL_RUN_OPTION"
 
 # Now run it with GNU Parallel!!
-echo "Not sure why, but issuing the command directly doesn't work. So I'll let you copy/paste the command!"
 CMD="$PARALLEL_CMD $PARALLEL_OPTION $DATA_TOSS_CMD ::: $PARALLEL_RUN_OPTION"
-echo $CMD
+$CMD
