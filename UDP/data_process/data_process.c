@@ -48,8 +48,7 @@ static RecvDS NewRecvDS(
   size_t start_index, size_t buffer_length, size_t n_sections,
   unsigned char* main_data_container)
 {
-  RecvDS new_rcvds = \
-    (RecvDS)tmalloc(sizeof(rw_data_set));
+  RecvDS new_rcvds = (RecvDS)tmalloc(sizeof(rw_data_set));
   assert(new_rcvds);
 
   new_rcvds->start_idx = start_index;
@@ -198,9 +197,8 @@ void process(data_proc_args* options)
     for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
 
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
-    elapsed = \
-      ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
-      ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
+    elapsed = ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
+            ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
     bit_rate = (long)((double)(recv_sz_now*8)/elapsed);
     total_bit_rate += bit_rate;
 
@@ -218,7 +216,8 @@ void process(data_proc_args* options)
   } /* while (cnt) */
 
   if (!options->keepalive) {
-    printf("Average recv. rate is %'lu bps\n", (long)(total_bit_rate/(double)options->iter_cnt));
+    printf("Average recv. rate is %lu bps\n",
+      (long)(total_bit_rate/(double)options->iter_cnt));
   }
 
   tfree(data_container);
@@ -250,7 +249,7 @@ static data_proc_args* ArgParser(int argc, char* argv[])
     switch (c) {
       case 'a':
         tfree(dpa->address);
-        dpa->address = tmalloc(strlen(optarg)+1);
+        dpa->address = (char*)tmalloc(strlen(optarg)+1);
         strcpy(dpa->address, optarg);
         break;
       case 'p':

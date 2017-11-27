@@ -187,7 +187,7 @@ void keep_sending(Ksa args)
       if (args->daemon || args->seamless_mode) total_iteration = 1;
     } /* if (counter >= CHUNK_LEN && !args->seamless_mode) */
 
-#else /* #if !defined(USE_MPI) */
+#else /* MPI case - #if !defined(USE_MPI) */
 
     int rank=0;
     while (rank < wld_sz) {
