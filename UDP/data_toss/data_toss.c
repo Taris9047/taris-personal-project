@@ -199,7 +199,6 @@ void keep_sending(Ksa args)
             CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
           fflush(stdout);
         }
-
       } /* if (rnk == rank) */
 
       /* checking up status */
