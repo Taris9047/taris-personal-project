@@ -245,7 +245,7 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   dpa->keepalive = false;
 
   char c;
-  while ((c=getopt(argc, argv, "a:p:t:b:d:i:k?"))!=-1) {
+  while ((c=getopt(argc, argv, "a:p:t:b:i:kh?"))!=-1) {
     switch (c) {
       case 'a':
         tfree(dpa->address);
@@ -261,9 +261,6 @@ static data_proc_args* ArgParser(int argc, char* argv[])
       case 'b':
         dpa->buf_len = atol(optarg);
         break;
-      case 'd':
-        dpa->data_section_sz = atol(optarg);
-        break;
       case 'k':
         dpa->keepalive = true;
         break;
@@ -271,10 +268,13 @@ static data_proc_args* ArgParser(int argc, char* argv[])
         dpa->iter_cnt = atoi(optarg);
         break;
       case '?':
-        fprintf(stderr, "Options: -[aptbdik]\n");
+        usage();
+        exit(1);
+      case 'h':
+        usage();
         exit(1);
       default:
-        fprintf(stderr, "Options: -[aptbdik]\n");
+        usage();
         exit(1);
     }
   } /* while ((c=getopt(argc, argv, "a:p:t:d:k?"))!=-1) */
@@ -305,4 +305,23 @@ int main(int argc, char* argv[])
   tfree(opts->address); tfree(opts);
 
   return 0;
+}
+
+/*************************************************
+  Usage function
+**************************************************/
+void usage()
+{
+  printf("Usage: data_toss -[aptbkih?]\n\n");
+  printf(
+    "-a <Address>: IP address to listen to. (Default: 127.0.0.1)\n"
+    "-p <Port>: Port (Default: 9930)\n"
+    "-t <number of threads>: Number listeners (thread workers) (Default: 4)\n"
+    "-b <buffer length>: Buffer size per thread in bytes. (Default: 1024*24)\n"
+    "-k : Keep alive. (Default: False)\n"
+    "-i <number of recv. sessions>: Number of receiving operations. (Default: 1024)\n"
+    "-h or -?: Prints out this message\n"
+    "\n"
+  );
+  return;
 }

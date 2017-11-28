@@ -215,7 +215,7 @@ void keep_sending(Ksa args)
 
         total_iteration--;
         if (args->daemon!=0 || args->seamless_mode) total_iteration++;
-      } /* iif (counter > CHUNK_LEN && !args->seamless_mode) */
+      } /* if (counter > CHUNK_LEN && !args->seamless_mode) */
 
       mpi_total_data_rate += bit_rate;
       mpi_total_elapsed_time = \

@@ -25,9 +25,13 @@ else
 fi
 
 # Setting up program parameters GNU Parallel run
-PARALLEL_RUN_OPTION=$(for (( c=$START; c<=$MAX_PARALLELS; c++ )); do printf "\"$DATA_TOSS_OPTION\" "; done)
-echo "Parallel program parameter options: $PARALLEL_RUN_OPTION"
+PARALLEL_RUN_OPTION=$(for (( c=$START; c<=$MAX_PARALLELS; c++ )); do printf "\"$DATA_TOSS_CMD $DATA_TOSS_OPTION\" "; done)
+# echo "Parallel program parameter options: $PARALLEL_RUN_OPTION"
 
 # Now run it with GNU Parallel!!
-CMD="$PARALLEL_CMD $PARALLEL_OPTION $DATA_TOSS_CMD ::: $PARALLEL_RUN_OPTION"
-$CMD
+CMD="$PARALLEL_CMD $PARALLEL_OPTION ::: $PARALLEL_RUN_OPTION"
+eval $CMD
+
+# CMD=$(for (( c=$START; c<=$MAX_PARALLELS; c++)); do printf "$DATA_TOSS_CMD $DATA_TOSS_OPTION &"; done)
+# CMD=${CMD%?}
+# eval $CMD

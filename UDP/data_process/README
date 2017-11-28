@@ -1,0 +1,18 @@
+UDP data process!!
+
+1. Program options
+data_process -[aptbkih?]
+-a <Address>: IP address to listen to. (Default: 127.0.0.1)
+-p <Port>: Port (Default: 9930)
+-t <number of threads>: Number listeners (thread workers) (Default: 4)
+-b <buffer length>: Buffer size per thread in bytes. (Default: 1024*24)
+-k : Keep alive. (Default: False)
+-i <number of recv. sessions>: Number of receiving operations. (Default: 1024)
+-h or -? : Prints out help message
+
+2. Compile options (Makefile options)
+default: gcc debug compilation. Slow as hell.
+release: gcc release.
+pgi: uses PGI compiler.
+llvm: uses clang (make sure you have it) compiler.
+clean: yeap, clean everything up.
