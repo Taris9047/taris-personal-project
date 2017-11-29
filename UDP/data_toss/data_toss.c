@@ -57,15 +57,15 @@ static void* sendto_worker(void *worker_args)
   int iter, s = var->socket;
   uint32_t state = var->rnd_state;
   socklen_t slen;
-  ssize_t sent_size = var->sent_size;
+  ssize_t sent_size;
+  var->sent_size = 0L;
 
   for (iter=0; iter<SENDTO_ITER; ++iter) {
     slen = sizeof(si_me);
     sent_size = sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen);
     if ( sent_size == -1 ) ERROR("sendto()");
+    var->sent_size += sent_size;
   }
-
-  var->sent_size = sent_size;
 
   pthread_exit(NULL);
 
@@ -157,7 +157,7 @@ void keep_sending(Ksa args)
 
     pthread_attr_destroy(&attr);
 
-#if !defined(USE_MPI)
+#if !defined(USE_MPI) /* No MPI case */
 
     if (!args->quiet_mode && !args->seamless_mode) {
       mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
