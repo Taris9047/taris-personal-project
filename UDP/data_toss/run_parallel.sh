@@ -13,7 +13,7 @@ echo "data_toss found at $DATA_TOSS_CMD"
 echo ""
 
 # Ok, let's run it with parallel!!
-DATA_TOSS_OPTION="-d -q -t 5"
+DATA_TOSS_OPTION="-s -t 5"
 PARALLEL_OPTION="--progress"
 
 START=1

@@ -34,6 +34,7 @@
 #endif
 
 #include "utils.h"
+#include "custom_header.h"
 
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"

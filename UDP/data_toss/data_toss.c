@@ -16,6 +16,9 @@
 #include "data_toss.h"
 #include "rand_safe.h"
 
+/*************************************************
+  Data buffer
+**************************************************/
 static unsigned char *buf;
 
 /*************************************************
@@ -28,6 +31,7 @@ typedef struct _keep_sending_args {
   int daemon;
   int quiet_mode;
   int seamless_mode;
+  int udp_format;
 } keep_sending_args;
 
 /*************************************************
@@ -45,6 +49,7 @@ typedef struct _sendto_data {
   struct sockaddr_in* socket_addr;
   uint32_t rnd_state;
   ssize_t sent_size;
+  int seamless;
 } sendto_data;
 
 /*************************************************
@@ -58,13 +63,18 @@ static void* sendto_worker(void *worker_args)
   uint32_t state = var->rnd_state;
   socklen_t slen;
   ssize_t sent_size;
+  int seamless = var->seamless;
   var->sent_size = 0L;
 
-  for (iter=0; iter<SENDTO_ITER; ++iter) {
-    slen = sizeof(si_me);
+  iter = SENDTO_ITER;
+  slen = sizeof(si_me);
+  while (iter--) {
+
     sent_size = sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen);
     if ( sent_size == -1 ) ERROR("sendto()");
     var->sent_size += sent_size;
+
+    if (seamless) if (!iter) iter = SENDTO_ITER;
   }
 
   pthread_exit(NULL);
@@ -119,7 +129,9 @@ void keep_sending(Ksa args)
   double mpi_total_elapsed_time = 0.0f;
   long mpi_total_data_rate = 0L;
   MPI_Comm_size(MPI_COMM_WORLD, &wld_sz);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rnk);#include <assert.h>
+#include <stdlib.h>
+#include <stdint.h>
 #endif
 
   sendto_data thr_data[args->n_threads];
@@ -133,12 +145,15 @@ void keep_sending(Ksa args)
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-
+#include <assert.h>
+#include <stdlib.h>
+#include <stdint.h>
     for (th=0; th<args->n_threads; ++th) {
       thr_data[th].socket = s;
       thr_data[th].socket_addr = &si_me;
       thr_data[th].rnd_state = th;
       thr_data[th].sent_size = 0;
+      thr_data[th].seamless = args->seamless_mode;
       rc = pthread_create(&send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
       if (rc) {
         mfprintf(stderr, "pthread_create error!! [%d]\n", rc);
@@ -186,7 +201,9 @@ void keep_sending(Ksa args)
       total_iteration--;
       if (args->daemon || args->seamless_mode) total_iteration = 1;
     } /* if (counter >= CHUNK_LEN && !args->seamless_mode) */
-
+#include <assert.h>
+#include <stdlib.h>
+#include <stdint.h>
 #else /* MPI case - #if !defined(USE_MPI) */
 
     int rank=0;
@@ -202,7 +219,9 @@ void keep_sending(Ksa args)
       } /* if (rnk == rank) */
 
       /* checking up status */
-      if (counter > CHUNK_LEN && !args->seamless_mode) {
+      if (counter > CHUNK_LEN && !args->seamless_mode)#include <assert.h>
+#include <stdlib.h>
+#include <stdint.h> {
 
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         elapsed = \
@@ -283,11 +302,12 @@ Ksa NewKsa(int argc, char* argv[])
   ksa->quiet_mode = 0;
   ksa->seamless_mode = 0;
   ksa->srv_ip = (char*)malloc(strlen(SRV_IP)+1);
+  ksa->udp_format = 0;
   assert(ksa->srv_ip);
   strcpy(ksa->srv_ip, SRV_IP);
 
   char c;
-  while ((c=getopt(argc, argv, "p:i:t:dhqs"))!=-1) {
+  while ((c=getopt(argc, argv, "p:i:t:dhqsu"))!=-1) {
     switch (c)
     {
       case 'p':
@@ -310,6 +330,9 @@ Ksa NewKsa(int argc, char* argv[])
         break;
       case 's':
         ksa->seamless_mode = 1;
+        break;
+      case 'u':
+        ksa->udp_format = 1;
         break;
       case 'h':
         usage();
@@ -353,13 +376,25 @@ int main (int argc, char* argv[])
   mprintf(
     "Port: %d\nConcurrent tossers: %zu\n\n",
     args->port_num, args->n_threads);
+
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);
-  buf = (unsigned char*)tmalloc(sizeof(unsigned char)*DATA_LEN);
-  assert(buf);
 
   /* Prepare dummy data to send */
   int i;
-  for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte();
+  if (!args->udp_format) {
+    buf = (unsigned char*)tmalloc(sizeof(unsigned char)*DATA_LEN);
+    assert(buf);
+    for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte();
+  }
+  else {
+    header hd;
+    hd.src_port = args->port_num;
+    hd.dest_port = args->port_num;
+    // hd.socket_length = (sizeof(header)+BUFLEN)*SENDTO_ITER;
+    hd.socket_length = BUFLEN;
+    hd.chksum = 0;
+    buf = rnd_custom_data_w_header(&hd, SENDTO_ITER);
+  }
 
   mprintf("Starting Send!!\n");
   keep_sending(args);
