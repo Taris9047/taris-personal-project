@@ -28,10 +28,10 @@ typedef struct _keep_sending_args {
   char* srv_ip;
   int port_num;
   size_t n_threads;
-  int daemon;
-  int quiet_mode;
-  int seamless_mode;
-  int udp_format;
+  bool daemon;
+  bool quiet_mode;
+  bool seamless_mode;
+  bool udp_format;
 } keep_sending_args;
 
 /*************************************************
@@ -49,7 +49,7 @@ typedef struct _sendto_data {
   struct sockaddr_in* socket_addr;
   uint32_t rnd_state;
   ssize_t sent_size;
-  int seamless;
+  bool seamless;
 } sendto_data;
 
 /*************************************************
@@ -63,7 +63,7 @@ static void* sendto_worker(void *worker_args)
   uint32_t state = var->rnd_state;
   socklen_t slen;
   ssize_t sent_size;
-  int seamless = var->seamless;
+  bool seamless = var->seamless;
   var->sent_size = 0L;
 
   iter = SENDTO_ITER;
@@ -75,6 +75,7 @@ static void* sendto_worker(void *worker_args)
     var->sent_size += sent_size;
 
     if (seamless) if (!iter) iter = SENDTO_ITER;
+
   }
 
   pthread_exit(NULL);
@@ -121,17 +122,15 @@ void keep_sending(Ksa args)
   pthread_attr_t attr;
   void* status;
   int rc;
-  long bit_rate, total_bit_rate;
+  uint64_t bit_rate, total_bit_rate;
   ssize_t total_sent_sz;
 
 #if defined(USE_MPI)
   int wld_sz, rnk, ri;
   double mpi_total_elapsed_time = 0.0f;
-  long mpi_total_data_rate = 0L;
+  uint64_t mpi_total_data_rate = 0L;
   MPI_Comm_size(MPI_COMM_WORLD, &wld_sz);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rnk);#include <assert.h>
-#include <stdlib.h>
-#include <stdint.h>
+  MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
 #endif
 
   sendto_data thr_data[args->n_threads];
@@ -145,9 +144,7 @@ void keep_sending(Ksa args)
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-#include <assert.h>
-#include <stdlib.h>
-#include <stdint.h>
+
     for (th=0; th<args->n_threads; ++th) {
       thr_data[th].socket = s;
       thr_data[th].socket_addr = &si_me;
@@ -176,7 +173,7 @@ void keep_sending(Ksa args)
 
     if (!args->quiet_mode && !args->seamless_mode) {
       mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-        args->n_threads, (long)counter, CHUNK_LEN,
+        args->n_threads, (uint64_t)counter, CHUNK_LEN,
         (double)(counter)/CHUNK_LEN*100);
       fflush(stdout);
     }
@@ -187,8 +184,7 @@ void keep_sending(Ksa args)
       elapsed = \
         ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
         ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-      printf("\n");
-      bit_rate = (long)((double)(total_sent_sz*8)/elapsed);
+      bit_rate = (uint64_t)((double)(total_sent_sz*8)/elapsed);
       total_bit_rate += bit_rate;
       mprintf(
         "Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
@@ -201,9 +197,7 @@ void keep_sending(Ksa args)
       total_iteration--;
       if (args->daemon || args->seamless_mode) total_iteration = 1;
     } /* if (counter >= CHUNK_LEN && !args->seamless_mode) */
-#include <assert.h>
-#include <stdlib.h>
-#include <stdint.h>
+
 #else /* MPI case - #if !defined(USE_MPI) */
 
     int rank=0;
@@ -212,22 +206,20 @@ void keep_sending(Ksa args)
 
         if (!args->quiet_mode && !args->seamless_mode) {
           mprintf("Progress[%lu threads] : %ld/%ld [%.2f %%]\r",
-            args->n_threads, (long)counter+1,
+            args->n_threads, (uint64_t)counter+1,
             CHUNK_LEN, (double)(counter+1)/CHUNK_LEN*100);
           fflush(stdout);
         }
       } /* if (rnk == rank) */
 
       /* checking up status */
-      if (counter > CHUNK_LEN && !args->seamless_mode)#include <assert.h>
-#include <stdlib.h>
-#include <stdint.h> {
+      if (counter > CHUNK_LEN && !args->seamless_mode)
 
         clock_gettime(CLOCK_MONOTONIC, &ts_end);
         elapsed = \
           ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
           ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-        bit_rate = (long)((double)(total_sent_sz*8)/elapsed);
+        bit_rate = (uint64_t)((double)(total_sent_sz*8)/elapsed);
 
         counter = 0;
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -293,16 +285,16 @@ void keep_sending(Ksa args)
 **************************************************/
 Ksa NewKsa(int argc, char* argv[])
 {
-  Ksa ksa = (Ksa)malloc(sizeof(keep_sending_args));
+  Ksa ksa = (Ksa)tmalloc(sizeof(keep_sending_args));
   assert(ksa);
 
   ksa->port_num = DEF_PORT;
   ksa->n_threads = N_TOSSERS;
-  ksa->daemon = 0;
-  ksa->quiet_mode = 0;
-  ksa->seamless_mode = 0;
-  ksa->srv_ip = (char*)malloc(strlen(SRV_IP)+1);
-  ksa->udp_format = 0;
+  ksa->daemon = false;
+  ksa->quiet_mode = false;
+  ksa->seamless_mode = false;
+  ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
+  ksa->udp_format = false;
   assert(ksa->srv_ip);
   strcpy(ksa->srv_ip, SRV_IP);
 
@@ -315,7 +307,7 @@ Ksa NewKsa(int argc, char* argv[])
         break;
       case 'i':
         tfree(ksa->srv_ip);
-        ksa->srv_ip = (char*)malloc(strlen(optarg)+1);
+        ksa->srv_ip = (char*)tmalloc(strlen(optarg)+1);
         assert(ksa->srv_ip);
         strcpy(ksa->srv_ip, optarg);
         break;
@@ -323,16 +315,16 @@ Ksa NewKsa(int argc, char* argv[])
         ksa->n_threads = atoi(optarg);
         break;
       case 'q':
-        ksa->quiet_mode = 1;
+        ksa->quiet_mode = true;
         break;
       case 'd':
-        ksa->daemon = 1;
+        ksa->daemon = true;
         break;
       case 's':
-        ksa->seamless_mode = 1;
+        ksa->seamless_mode = true;
         break;
       case 'u':
-        ksa->udp_format = 1;
+        ksa->udp_format = true;
         break;
       case 'h':
         usage();
@@ -341,7 +333,7 @@ Ksa NewKsa(int argc, char* argv[])
         usage();
         break;
     } /* switch (c) */
-  } /* while ((c=getopt(argc, argv, "p:i:t:dhqs"))!=-1) */
+  } /* while ((c=getopt(argc, argv, "p:i:t:dhqsu"))!=-1) */
 
   return ksa;
 }
@@ -413,12 +405,14 @@ int main (int argc, char* argv[])
 /* Shows usage */
 void usage()
 {
-  printf("\n");
-  printf("Usage: data_toss <options>\n");
-  printf("-p <PORT> (default: 9930)\n");
-  printf("-t <Number of Threads> (default: 5)\n");
-  printf("-i <IP Address> (default: 127.0.0.1)\n");
-  printf("-q Quiet mode\n");
-  printf("-h Shows this message.\n");
-  printf("\n");
+  printf("\n"
+    "Usage: data_toss <options>\n"
+    "-p <PORT> (default: 9930)\n"
+    "-t <Number of Threads> (default: 5)\n"
+    "-i <IP Address> (default: 127.0.0.1)\n"
+    "-q Quiet mode\n"
+    "-s Seamless mode. Recommended for flood experiment.\n"
+    "-u Packet mode. Emits a bit formatted dummy data.\n"
+    "-h Shows this message.\n"
+    "\n");
 }
