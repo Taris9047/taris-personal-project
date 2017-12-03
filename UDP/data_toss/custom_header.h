@@ -39,27 +39,28 @@ typedef header* Header;
 unsigned char* rnd_custom_data_w_header(Header hd, uint16_t worker_iter)
 {
   /* At least socket should be longer than header. right? */
-  assert(hd->socket_length > 8);
+  assert(hd->socket_length > sizeof(header));
 
   /* entire bit array size in bytes */
-  uint16_t entire_ary_sz = hd->socket_length*worker_iter;
+  uint16_t skt_sz = hd->socket_length;
+  uint64_t entire_ary_sz = skt_sz*worker_iter;
 
   /* The actual bit array */
   unsigned char* pix_data = (unsigned char*)tmalloc(entire_ary_sz);
   assert(pix_data);
 
-  uint16_t i, j;
-  int data_sz, skt_sz;
-  unsigned char *hdr_buf, *data_buf, *skt_buf;
-  /*
-    Basically, this part can be just 8 bytes. But let's leave it this way
-    for clarity...
-  */
   int src_port_sz = sizeof(uint16_t);
   int dest_port_sz = sizeof(uint16_t);
   int socket_length_sz = sizeof(uint16_t);
   int chksum_sz = sizeof(uint16_t);
   int header_sz = src_port_sz+dest_port_sz+socket_length_sz+chksum_sz; /* 8 Bytes */
+
+  uint64_t i, j;
+  unsigned char *hdr_buf, *skt_buf;
+  /*
+    Basically, this part can be just 8 bytes. But let's leave it this way
+    for clarity...
+  */
   for (i=0; i<worker_iter; ++i) {
     hdr_buf = (unsigned char*)tmalloc(header_sz);
     assert(hdr_buf);
@@ -74,22 +75,13 @@ unsigned char* rnd_custom_data_w_header(Header hd, uint16_t worker_iter)
     hdr_buf[6] = (hd->chksum >> 8) & 0xFF;
     hdr_buf[7] = (hd->chksum) & 0xFF;
 
-    /* Populate data portion */
-    data_sz = hd->socket_length-header_sz;
-    if (data_sz) {
-      data_buf = (unsigned char*)tmalloc(data_sz);
-      assert(data_buf);
-      /* No need to worry about bit order, it's just random noise */
-      for (j=0; j<data_sz; ++j) data_buf[j] = rand_byte();
-    }
-
     /* Let's populate skt_buf (skt_buf = hdr_buf+data_buf) */
-    skt_sz = header_sz+data_sz;
     skt_buf = (unsigned char*)tmalloc(skt_sz);
     assert(skt_buf);
     for (j=0; j<skt_sz; ++j) {
       if (j<header_sz) skt_buf[j] = hdr_buf[j];
-      else skt_buf[j] = data_buf[j-header_sz];
+      /* Populating data portion... just random data */
+      else skt_buf[j] = rand_byte();
     }
 
     /* And then populate the main buffer, pix_data */
@@ -98,7 +90,6 @@ unsigned char* rnd_custom_data_w_header(Header hd, uint16_t worker_iter)
     }
 
     /* Clean up temporary buffers */
-    if (!data_sz) tfree(data_buf);
     tfree(hdr_buf);
     tfree(skt_buf);
   } /* for (i=0; i<entire_ary_sz; ++i) */
