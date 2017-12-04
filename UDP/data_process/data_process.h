@@ -42,9 +42,9 @@
 #define BUF_LEN 1024*8
 #define N_THREADS 4
 #define SECTION_LEN BUF_LEN*N_THREADS
-#define CONTAINER_LEN_MUL 1024
+#define CONTAINER_LEN_MUL 64
 #define CONTAINER_LEN SECTION_LEN*CONTAINER_LEN_MUL
-#define DEF_ITER_CNT 1024
+#define DEF_ITER_CNT 4096
 
 /* dummy declaration of proc args */
 typedef struct _data_proc_args data_proc_args;

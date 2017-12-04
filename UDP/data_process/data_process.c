@@ -25,6 +25,7 @@ typedef struct _data_proc_args {
   size_t buf_len;
   int iter_cnt;
   bool keepalive;
+  bool quiet_mode;
 } data_proc_args;
 
 /*************************************************
@@ -89,6 +90,7 @@ static void* recv_worker(void* args)
     (unsigned char*)tmalloc(sizeof(unsigned char)*buf_len);
   assert(buf);
 
+  ((RecvDS)args)->recv_len = 0L;
   int i, j;
   for (i=0; i<sections; ++i) {
     recv_len = recvfrom(s, buf, buf_len, 0, (struct sockaddr*)si, &si_len);
@@ -99,16 +101,13 @@ static void* recv_worker(void* args)
     }
     si_len = sizeof(*si);
     for (j=0; j<buf_len; ++j) p_cont[j+st_idx+i*sections] = buf[j];
+    ((RecvDS)args)->recv_len += recv_len;
   } /* for (i=0; i<sections; ++i) */
 
   // For now, we're freeing everytihng...
   tfree(buf);
 
-  if (recv_len >= 0) {
-    ((RecvDS)args)->recv_len = recv_len;
-    pthread_exit(args);
-  }
-  else pthread_exit(0);
+  pthread_exit(args);
 }
 
 /*************************************************
@@ -163,12 +162,11 @@ void process(data_proc_args* options)
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
     for (i=0; i<options->n_threads; ++i) {
-      worker_args[i] = \
-        NewRecvDS(&s, &si_me,
-          i*options->n_threads*options->buf_len,
-          options->data_section_sz,
-          options->n_threads,
-          data_container);
+      worker_args[i] = NewRecvDS(&s, &si_me,
+        i*options->n_threads*options->buf_len,
+        options->data_section_sz,
+        options->n_threads,
+        data_container);
     } /* for (i=0; i<options->n_threads; ++i) */
 
     /* Set up threads and start the job */
@@ -203,20 +201,27 @@ void process(data_proc_args* options)
     total_bit_rate += bit_rate;
 
     if (options->keepalive) {
-      printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
-        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
-      fflush(stdout);
+      if (!options->quiet_mode) {
+        printf(
+          "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
+          options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
+        fflush(stdout);
+      }
       cnt = 1;
-    }
+    } /* if (options->keepalive) */
     else {
-      printf("Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
-        options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
+      if (!options->quiet_mode)
+        printf(
+          "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
+          options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
       cnt--;
-    }
+    } /* if (options->keepalive) else */
   } /* while (cnt) */
 
   if (!options->keepalive) {
-    printf("Average recv. rate is %lu bps\n",
+    printf(
+      "\n"
+      "Average recv. rate is %lu bps\n",
       (long)(total_bit_rate/(double)options->iter_cnt));
   }
 
@@ -243,9 +248,10 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   dpa->data_section_sz = SECTION_LEN;
   dpa->iter_cnt = DEF_ITER_CNT;
   dpa->keepalive = false;
+  dpa->quiet_mode = false;
 
   char c;
-  while ((c=getopt(argc, argv, "a:p:t:b:i:kh?"))!=-1) {
+  while ((c=getopt(argc, argv, "a:p:t:b:i:qkh?"))!=-1) {
     switch (c) {
       case 'a':
         tfree(dpa->address);
@@ -266,6 +272,9 @@ static data_proc_args* ArgParser(int argc, char* argv[])
         break;
       case 'i':
         dpa->iter_cnt = atoi(optarg);
+        break;
+      case 'q':
+        dpa->quiet_mode = true;
         break;
       case '?':
         usage();
@@ -312,16 +321,19 @@ int main(int argc, char* argv[])
 **************************************************/
 void usage()
 {
-  printf("Usage: data_toss -[aptbkih?]\n\n");
+  printf("Usage: data_process -[aptbiqkh?]\n\n");
   printf(
     "-a <Address>: IP address to listen to. (Default: 127.0.0.1)\n"
     "-p <Port>: Port (Default: 9930)\n"
     "-t <number of threads>: Number listeners (thread workers) (Default: 4)\n"
-    "-b <buffer length>: Buffer size per thread in bytes. (Default: 1024*24)\n"
+    "-b <buffer length>: Buffer size per thread in bytes. (Default: %d)\n"
     "-k : Keep alive. (Default: False)\n"
-    "-i <number of recv. sessions>: Number of receiving operations. (Default: 1024)\n"
+    "-i <number of recv. sessions>: Number of receiving operations. (Default: %d)\n"
+    "-q : Quiet Mode. (Defualt: False)\n"
     "-h or -?: Prints out this message\n"
-    "\n"
+    "\n",
+    BUF_LEN,
+    DEF_ITER_CNT
   );
   return;
 }
