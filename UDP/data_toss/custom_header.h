@@ -30,7 +30,7 @@ typedef struct _vipic_data_header {
   // uint16_t row;
   // uint16_t col;
   // uint32_t cnt;
-} header;
+} header __attribute__ ((aligned(8)));
 typedef header* Header;
 
 /*************************************************

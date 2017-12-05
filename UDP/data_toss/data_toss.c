@@ -59,24 +59,42 @@ static void* sendto_worker(void *worker_args)
 {
   sendto_data* var = (sendto_data*)worker_args;
   struct sockaddr_in si_me = *(var->socket_addr);
-  int iter, s = var->socket;
+  int iter = SENDTO_ITER, s = var->socket;
   uint32_t state = var->rnd_state;
-  socklen_t slen;
+  socklen_t slen = sizeof(si_me);
   ssize_t sent_size;
   bool seamless = var->seamless;
-  var->sent_size = 0L;
 
-  iter = SENDTO_ITER;
-  slen = sizeof(si_me);
-  while (iter--) {
+# if defined(__GNUC__) || defined(__llvm__)
+  __atomic_store_n(&var->sent_size, 0L, 0);
+# else
+  var->sent_size = 0L;
+# endif
+
+  while (iter) {
 
     sent_size = sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen);
+#   if defined(__GNUC__) || defined(__llvm__)
+    if ( !__atomic_fetch_sub(&sent_size, 1, 0) ) ERROR("sendto()");
+    __atomic_fetch_add(&var->sent_size, sent_size, 0);
+    __atomic_fetch_add(&iter, -1, 0);
+#   else
     if ( sent_size == -1 ) ERROR("sendto()");
     var->sent_size += sent_size;
+    iter--;
+#   endif
 
-    if (seamless) if (!iter) iter = SENDTO_ITER;
+    if (seamless) {
+      if (!iter) {
+#       if defined(__GNUC__) || defined(__llvm__)
+        __atomic_store_n(&iter, SENDTO_ITER, 0);
+#       else
+        iter = SENDTO_ITER;
+#       endif
+      } /* if (!iter) */
+    } /* if (seamless) */
 
-  }
+  } /* while (iter) */
 
   pthread_exit(NULL);
 
@@ -96,6 +114,7 @@ void keep_sending(Ksa args)
   int s;
   int th, ib;
   int total_iteration = ITER;
+  int counter = 0;
 
   /* Open socket */
   if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
@@ -122,8 +141,8 @@ void keep_sending(Ksa args)
   pthread_attr_t attr;
   void* status;
   int rc;
-  uint64_t bit_rate, total_bit_rate;
-  ssize_t total_sent_sz;
+  uint64_t bit_rate = 0L, total_bit_rate = 0L;
+  ssize_t total_sent_sz = 0L;
 
 #if defined(USE_MPI)
   int wld_sz, rnk, ri;
@@ -136,11 +155,9 @@ void keep_sending(Ksa args)
   sendto_data thr_data[args->n_threads];
 
   /* Let's run it!! */
-  int counter = 0;
-  total_bit_rate = 0;
-  total_sent_sz = 0;
   clock_gettime(CLOCK_MONOTONIC, &ts_start);
-  while(total_iteration!=0) {
+
+  while(total_iteration) {
 
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -161,6 +178,7 @@ void keep_sending(Ksa args)
     for (th=0; th<args->n_threads; ++th) {
       rc = pthread_join(send_thrs[th], &status);
       total_sent_sz += thr_data[th].sent_size;
+
       if (rc) {
         mfprintf(stderr, "pthread_join error!! [%d]\n", rc);
         exit(-1);
@@ -190,12 +208,13 @@ void keep_sending(Ksa args)
         "Elapsed time for %'ld bytes: %.5f seconds, Transfer rate: %'ld bps\n",
         total_sent_sz, elapsed, bit_rate);
 
+      total_iteration--;
       counter = 0;
       total_sent_sz = 0;
+      if (args->daemon || args->seamless_mode) total_iteration = ITER;
+
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
-      total_iteration--;
-      if (args->daemon || args->seamless_mode) total_iteration = 1;
     } /* if (counter >= CHUNK_LEN && !args->seamless_mode) */
 
 #else /* MPI case - #if !defined(USE_MPI) */
@@ -222,10 +241,12 @@ void keep_sending(Ksa args)
         bit_rate = (uint64_t)((double)(total_sent_sz*8)/elapsed);
 
         counter = 0;
+        total_iteration--;
+        if (args->daemon || args->seamless_mode) total_iteration = ITER;
+
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
-        total_iteration--;
-        if (args->daemon!=0 || args->seamless_mode) total_iteration++;
+
       } /* if (counter > CHUNK_LEN && !args->seamless_mode) */
 
       mpi_total_data_rate += bit_rate;
@@ -234,18 +255,6 @@ void keep_sending(Ksa args)
 
       rank++;
 
-      /*
-        In fact, doing this only displays x rnk value of transfer rate.
-        each MPI part is a fully independent program in MPI. So, there is NO
-        shared memory between then.
-
-        But in our case, the data toss rate isn't so different from sub-program
-        to sub-program. So, we can say, doing this shows 'estimated' total
-        data transfer rate.
-
-        To be precise, we need to implement a dedicated routine that collects
-        the transfer rate.
-      */
       if (rnk == rank && rnk == wld_sz-1 && !args->seamless_mode) {
         mprintf(
           "Elapsed time for %'ld bytes: %.5f seconds,"
@@ -266,7 +275,7 @@ void keep_sending(Ksa args)
 
     counter++;
 
-  } /* while(total_iteration!=0) */
+  } /* while(total_iteration) */
 
   if (!args->quiet_mode || !args->seamless_mode)
     mprintf(
