@@ -14,6 +14,9 @@
 
 #include "data_process.h"
 
+/* Defining a universal(?) buffer */
+unsigned char **buf;
+
 /*************************************************
   struct for program options
 **************************************************/
@@ -40,6 +43,7 @@ typedef struct _recv_worker_data_set {
   int socket;
   struct sockaddr_in* sock_addr;
   int64_t recv_len;
+  int thr_id;
 } rw_data_set;
 typedef rw_data_set* RecvDS;
 
@@ -47,7 +51,7 @@ typedef rw_data_set* RecvDS;
 static RecvDS NewRecvDS(
   int* sock, struct sockaddr_in* sock_addr_in,
   size_t start_index, size_t buffer_length, size_t n_sections,
-  unsigned char* main_data_container)
+  unsigned char* main_data_container, int thr_id)
 {
   RecvDS new_rcvds = (RecvDS)tmalloc(sizeof(rw_data_set));
   assert(new_rcvds);
@@ -61,6 +65,7 @@ static RecvDS NewRecvDS(
   new_rcvds->sock_addr = sock_addr_in;
 
   new_rcvds->recv_len = 0;
+  new_rcvds->thr_id = thr_id;
 
   return new_rcvds;
 }
@@ -77,35 +82,45 @@ static void DeleteRecvDS(RecvDS rds)
 /* recv_worker */
 static void* recv_worker(void* args)
 {
-  size_t st_idx = ((RecvDS)args)->start_idx;
-  size_t buf_len = ((RecvDS)args)->span_length;
-  size_t sections = ((RecvDS)args)->sections;
-  int s = ((RecvDS)args)->socket;
-  struct sockaddr_in* si = ((RecvDS)args)->sock_addr;
+  RecvDS rds = (RecvDS)args;
+  size_t st_idx = rds->start_idx;
+  size_t buf_len = rds->span_length;
+  size_t sections = rds->sections;
+  int s = rds->socket;
+  struct sockaddr_in* si = rds->sock_addr;
   socklen_t si_len = sizeof(*si);
-  unsigned char* p_cont = ((RecvDS)args)->p_container;
+  unsigned char* p_cont = rds->p_container;
   int64_t recv_len;
 
-  unsigned char* buf = \
-    (unsigned char*)tmalloc(sizeof(unsigned char)*buf_len);
-  assert(buf);
+# if defined(__GNUC__) || defined(__llvm__)
+  __atomic_store_n(&rds->recv_len, 0L, 0);
+# else
+  rds->recv_len = 0L;
+# endif
 
-  ((RecvDS)args)->recv_len = 0L;
   int i, j;
   for (i=0; i<sections; ++i) {
-    recv_len = recvfrom(s, buf, buf_len, 0, (struct sockaddr*)si, &si_len);
+    recv_len = \
+      recvfrom(s, buf[rds->thr_id], buf_len, 0, (struct sockaddr*)si, &si_len);
     if ( recv_len == -1 ) {
       printf("pid: %d\n", getpid());
       printf("buffer_length: %lu, section: %lu\n", buf_len, sections);
       ERROR("recvfrom()")
     }
-    si_len = sizeof(*si);
-    for (j=0; j<buf_len; ++j) p_cont[j+st_idx+i*sections] = buf[j];
-    ((RecvDS)args)->recv_len += recv_len;
-  } /* for (i=0; i<sections; ++i) */
+    for (j=0; j<buf_len; ++j) {
+#     if defined(__GNUC__) || defined(__llvm__)
+      __atomic_store_n(&p_cont[j+st_idx+i*sections], buf[rds->thr_id][j], 0);
+#     else
+      p_cont[j+st_idx+i*sections] = buf[rds->thr_id][j];
+#     endif
+    } /* for (j=0; j<buf_len; ++j) */
 
-  // For now, we're freeing everytihng...
-  tfree(buf);
+#   if defined(__GNUC__) || defined(__llvm__)
+    __atomic_fetch_add(&rds->recv_len, recv_len, 0);
+#   else
+    rds->recv_len += recv_len;
+#   endif
+  } /* for (i=0; i<sections; ++i) */
 
   pthread_exit(args);
 }
@@ -155,18 +170,27 @@ void process(data_proc_args* options)
   assert(data_container);
 
   int cnt = options->iter_cnt;
-  while (cnt) {
-    recv_sz_now = 0;
+  while (cnt--) {
+    recv_sz_now = 0L;
+
+    /* Preparing universal buffer */
+    buf = (unsigned char**)tmalloc(sizeof(unsigned char*)*options->n_threads);
+    assert(buf);
+    for (i=0; i<options->n_threads; ++i) {
+      buf[i] = (unsigned char*)tmalloc(options->data_section_sz);
+      assert(buf[i]);
+    }
 
     /* Set up timer */
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
     for (i=0; i<options->n_threads; ++i) {
-      worker_args[i] = NewRecvDS(&s, &si_me,
+      worker_args[i] = NewRecvDS(
+        &s, &si_me,
         i*options->n_threads*options->buf_len,
         options->data_section_sz,
         options->n_threads,
-        data_container);
+        data_container, i);
     } /* for (i=0; i<options->n_threads; ++i) */
 
     /* Set up threads and start the job */
@@ -184,21 +208,29 @@ void process(data_proc_args* options)
     pthread_attr_destroy(&attr);
     for (i=0; i<options->n_threads; ++i) {
       rc = pthread_join(threads[i], &status);
+#     if defined(__GNUC__) || defined(__llvm__)
+      __atomic_fetch_add(&recv_sz_now, worker_args[i]->recv_len, 0);
+#     else
       recv_sz_now += worker_args[i]->recv_len;
+#     endif
       if (rc) {
         fprintf(stderr, "pthread_join crashed with %d\n", rc);
         exit(-1);
       }
     } /* for (i=0; i<options->n_threads; ++i) */
 
-    /* Free up thread control stuffs */
-    for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
-
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
     elapsed = ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
             ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
     bit_rate = (long)((double)(recv_sz_now*8)/elapsed);
     total_bit_rate += bit_rate;
+
+    /* Free up thread control stuffs */
+    for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
+
+    /* Free up universal buffer */
+    for (i=0; i<options->n_threads; ++i) tfree(buf[i]);
+    tfree(buf);
 
     if (options->keepalive) {
       if (!options->quiet_mode) {
@@ -207,14 +239,13 @@ void process(data_proc_args* options)
           options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
         fflush(stdout);
       }
-      cnt = 1;
+      cnt = options->iter_cnt;
     } /* if (options->keepalive) */
     else {
       if (!options->quiet_mode)
         printf(
           "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
           options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
-      cnt--;
     } /* if (options->keepalive) else */
   } /* while (cnt) */
 

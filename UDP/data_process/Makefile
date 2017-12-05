@@ -15,7 +15,7 @@ RELCFLAGS=-O3 -DNDEBUG -march=native -m64 -fomit-frame-pointer
 LIBS=-pthread
 
 PGCC=pgcc
-PGCCFLAGS=-fast -Mipa=fast,inline
+PGCCFLAGS=-DNDEBUG -m64 -tp=x64 -Mvect -Mcache_align -Mipa=fast,inline -Munroll=c:65535
 
 SOURCES=$(wildcard *.c)
 HEADERS=$(wildcard *.h)

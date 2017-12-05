@@ -16,7 +16,7 @@ LIBS=-pthread
 LLVMCC=clang
 
 PGCC=pgcc
-PGCCFLAGS=-DNDEBUG -fast -Mipa=fast,inline -tp x64
+PGCCFLAGS=-DNDEBUG -m64 -tp=x64 -Mvect -Mcache_align -Mipa=fast,inline -Munroll=c:65535
 
 MPICC=mpicc
 MPICFLAGS=-DUSE_MPI
@@ -59,4 +59,3 @@ mpi: data_toss.c data_toss.h $(OBJS_REL)
 clean:
 	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo
 	rm -rfv vcore.*
-
