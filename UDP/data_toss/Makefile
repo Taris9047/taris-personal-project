@@ -10,10 +10,10 @@ endif
 
 CFLAGS=-ggdb3
 RELCFLAGS=-DNDEBUG -O3 -march=native -m64 -fomit-frame-pointer
-RELLLVMFLAGS=-DNDEBUG -O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
 LIBS=-pthread
 
 LLVMCC=clang
+RELLLVMFLAGS=-DNDEBUG -O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
 
 PGCC=pgcc
 PGCCFLAGS=-DNDEBUG -m64 -tp=x64 -Mvect -Mcache_align -Mipa=fast,inline -Munroll=c:65535

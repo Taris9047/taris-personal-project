@@ -15,7 +15,7 @@
 #include "data_process.h"
 
 /* Defining a universal(?) buffer */
-unsigned char **buf;
+static unsigned char **buf;
 
 /*************************************************
   struct for program options
@@ -208,11 +208,8 @@ void process(data_proc_args* options)
     pthread_attr_destroy(&attr);
     for (i=0; i<options->n_threads; ++i) {
       rc = pthread_join(threads[i], &status);
-#     if defined(__GNUC__) || defined(__llvm__)
-      __atomic_fetch_add(&recv_sz_now, worker_args[i]->recv_len, 0);
-#     else
       recv_sz_now += worker_args[i]->recv_len;
-#     endif
+
       if (rc) {
         fprintf(stderr, "pthread_join crashed with %d\n", rc);
         exit(-1);

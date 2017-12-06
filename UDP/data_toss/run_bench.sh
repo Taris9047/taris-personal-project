@@ -12,7 +12,7 @@ RUN_MODE=$1
 THREAD_ARY=(1 2 3 4 5 6 7 8 16 24 32 48 72 96 128 192)
 
 # Clean up screen
-reset
+# reset
 
 # Let's check up if ./data_toss exists.
 DATA_TOSS=$(command -v ./data_toss)
@@ -46,9 +46,9 @@ fi # if [[ -z $DATA_TOSS ]]; then
 
 
 # Let's run the benchmark!!
-for t in "${THREAD_ARY[@]}"
+for th in "${THREAD_ARY[@]}"
 do
-  $DATA_TOSS -q -t "$t"
-  echo "$t done!!"
+  eval "$DATA_TOSS -q -t $th"
+  echo "$th done!!"
   echo ""
 done
