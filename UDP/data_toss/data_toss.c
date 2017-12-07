@@ -47,7 +47,6 @@ static void DeleteKsa(Ksa ksa);
 typedef struct _sendto_data {
   int socket;
   struct sockaddr_in* socket_addr;
-  uint32_t rnd_state;
   ssize_t sent_size;
   bool seamless;
 } sendto_data;
@@ -59,32 +58,23 @@ static void* sendto_worker(void *worker_args)
 {
   sendto_data* var = (sendto_data*)worker_args;
   struct sockaddr_in si_me = *(var->socket_addr);
-  int iter = SENDTO_ITER, s = var->socket;
-  uint32_t state = var->rnd_state;
-  socklen_t slen = sizeof(si_me);
+  int iter = SENDTO_ITER;
   ssize_t sent_size;
-  bool seamless = var->seamless;
-
-# if defined(__GNUC__) || defined(__llvm__)
-  __atomic_store_n(&var->sent_size, 0L, 0);
-# else
-  var->sent_size = 0L;
-# endif
 
   while (iter) {
 
-    sent_size = sendto(s, buf, BUFLEN, 0, (struct sockaddr*)&si_me, slen);
-#   if defined(__GNUC__) || defined(__llvm__)
-    if ( !__atomic_fetch_sub(&sent_size, 1, 0) ) ERROR("sendto()");
-    __atomic_fetch_add(&var->sent_size, sent_size, 0);
-    __atomic_fetch_add(&iter, -1, 0);
-#   else
+    sent_size = sendto(
+      var->socket, buf, BUFLEN, 0, (struct sockaddr*)&si_me, sizeof(si_me));
     if ( sent_size == -1 ) ERROR("sendto()");
+#   if defined(__GNUC__) || defined(__llvm__)
+    __atomic_fetch_add(&var->sent_size, sent_size, 0);
+#   else
     var->sent_size += sent_size;
-    iter--;
 #   endif
 
-    if (seamless) {
+    iter--;
+
+    if (var->seamless) {
       if (!iter) {
 #       if defined(__GNUC__) || defined(__llvm__)
         __atomic_store_n(&iter, SENDTO_ITER, 0);
@@ -165,8 +155,7 @@ void keep_sending(Ksa args)
     for (th=0; th<args->n_threads; ++th) {
       thr_data[th].socket = s;
       thr_data[th].socket_addr = &si_me;
-      thr_data[th].rnd_state = th;
-      thr_data[th].sent_size = 0;
+      thr_data[th].sent_size = 0L;
       thr_data[th].seamless = args->seamless_mode;
       rc = pthread_create(&send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
       if (rc) {
@@ -383,7 +372,7 @@ int main (int argc, char* argv[])
   /* Prepare dummy data to send */
   int i;
   if (!args->udp_format) {
-    buf = (unsigned char*)tmalloc(sizeof(unsigned char)*DATA_LEN);
+    buf = (unsigned char*)tmalloc(DATA_LEN);
     assert(buf);
     for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte();
   }

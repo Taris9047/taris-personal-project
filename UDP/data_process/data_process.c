@@ -64,7 +64,7 @@ static RecvDS NewRecvDS(
   new_rcvds->socket = *sock;
   new_rcvds->sock_addr = sock_addr_in;
 
-  new_rcvds->recv_len = 0;
+  new_rcvds->recv_len = 0L;
   new_rcvds->thr_id = thr_id;
 
   return new_rcvds;
@@ -91,12 +91,6 @@ static void* recv_worker(void* args)
   socklen_t si_len = sizeof(*si);
   unsigned char* p_cont = rds->p_container;
   int64_t recv_len;
-
-# if defined(__GNUC__) || defined(__llvm__)
-  __atomic_store_n(&rds->recv_len, 0L, 0);
-# else
-  rds->recv_len = 0L;
-# endif
 
   int i, j;
   for (i=0; i<sections; ++i) {

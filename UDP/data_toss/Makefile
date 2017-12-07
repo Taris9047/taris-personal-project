@@ -16,7 +16,7 @@ LLVMCC=clang
 RELLLVMFLAGS=-DNDEBUG -O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
 
 PGCC=pgcc
-PGCCFLAGS=-DNDEBUG -m64 -tp=x64 -Mvect -Mcache_align -Mipa=fast,inline -Munroll=c:65535
+PGCCFLAGS=-DNDEBUG -O4 -m64 -tp=x64
 
 MPICC=mpicc
 MPICFLAGS=-DUSE_MPI
