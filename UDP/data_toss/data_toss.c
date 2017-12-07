@@ -158,20 +158,13 @@ void keep_sending(Ksa args)
       thr_data[th].sent_size = 0L;
       thr_data[th].seamless = args->seamless_mode;
       rc = pthread_create(&send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
-      if (rc) {
-        mfprintf(stderr, "pthread_create error!! [%d]\n", rc);
-        exit(-1);
-      }
+      if (rc) ERROR_NUM("pthread_create", rc)
     } /* for (th=0; th<n_threads; ++th) */
 
     for (th=0; th<args->n_threads; ++th) {
       rc = pthread_join(send_thrs[th], &status);
+      if (rc) ERROR_NUM("pthread_join", rc)
       total_sent_sz += thr_data[th].sent_size;
-
-      if (rc) {
-        mfprintf(stderr, "pthread_join error!! [%d]\n", rc);
-        exit(-1);
-      }
     } /* for (th=0; th<n_threads; ++th) */
 
     pthread_attr_destroy(&attr);

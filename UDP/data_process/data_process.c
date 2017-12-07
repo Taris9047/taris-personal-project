@@ -83,38 +83,41 @@ static void DeleteRecvDS(RecvDS rds)
 static void* recv_worker(void* args)
 {
   RecvDS rds = (RecvDS)args;
-  size_t st_idx = rds->start_idx;
-  size_t buf_len = rds->span_length;
-  size_t sections = rds->sections;
-  int s = rds->socket;
   struct sockaddr_in* si = rds->sock_addr;
   socklen_t si_len = sizeof(*si);
-  unsigned char* p_cont = rds->p_container;
   int64_t recv_len;
 
   int i, j;
-  for (i=0; i<sections; ++i) {
+  for (i=0; i<rds->sections; ++i) {
     recv_len = \
-      recvfrom(s, buf[rds->thr_id], buf_len, 0, (struct sockaddr*)si, &si_len);
+      recvfrom(
+        rds->socket, buf[rds->thr_id],
+        rds->span_length, 0, (struct sockaddr*)si, &si_len);
+
     if ( recv_len == -1 ) {
       printf("pid: %d\n", getpid());
-      printf("buffer_length: %lu, section: %lu\n", buf_len, sections);
+      printf("buffer_length: %lu, section: %lu\n", rds->span_length, rds->sections);
       ERROR("recvfrom()")
     }
-    for (j=0; j<buf_len; ++j) {
+
+    for (j=0; j<rds->span_length; ++j) {
+
 #     if defined(__GNUC__) || defined(__llvm__)
-      __atomic_store_n(&p_cont[j+st_idx+i*sections], buf[rds->thr_id][j], 0);
+      __atomic_store_n(
+        &rds->p_container[j+rds->start_idx+i*rds->sections],
+        buf[rds->thr_id][j], 0);
 #     else
-      p_cont[j+st_idx+i*sections] = buf[rds->thr_id][j];
+      rds->p_container[j+rds->start_idx+i*rds->sections] = buf[rds->thr_id][j];
 #     endif
-    } /* for (j=0; j<buf_len; ++j) */
+
+    } /* for (j=0; j<rds->span_length; ++j) */
 
 #   if defined(__GNUC__) || defined(__llvm__)
     __atomic_fetch_add(&rds->recv_len, recv_len, 0);
 #   else
     rds->recv_len += recv_len;
 #   endif
-  } /* for (i=0; i<sections; ++i) */
+  } /* for (i=0; i<rds->sections; ++i) */
 
   pthread_exit(args);
 }
@@ -173,7 +176,7 @@ void process(data_proc_args* options)
     for (i=0; i<options->n_threads; ++i) {
       buf[i] = (unsigned char*)tmalloc(options->data_section_sz);
       assert(buf[i]);
-    }
+    } /* for (i=0; i<options->n_threads; ++i) */
 
     /* Set up timer */
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
@@ -193,26 +196,27 @@ void process(data_proc_args* options)
     for (i=0; i<options->n_threads; ++i) {
       rc = pthread_create(
         &threads[i], &attr, recv_worker, (void*)worker_args[i]);
-      if (rc) {
-        fprintf(stderr, "pthread_create crashed with %d\n", rc);
-        exit(-1);
-      }
+      if (rc) ERROR_NUM("pthread_create", rc)
     } /* for (i=0; i<options->n_threads; ++i) */
 
     pthread_attr_destroy(&attr);
     for (i=0; i<options->n_threads; ++i) {
-      rc = pthread_join(threads[i], &status);
-      recv_sz_now += worker_args[i]->recv_len;
 
-      if (rc) {
-        fprintf(stderr, "pthread_join crashed with %d\n", rc);
-        exit(-1);
-      }
+      rc = pthread_join(threads[i], &status);
+      if (rc) ERROR_NUM("pthread_join", rc)
+
+#     if defined(__GNUC__) || defined(__llvm__)
+      recv_sz_now += __atomic_load_n(&worker_args[i]->recv_len, 0);
+#     else
+      recv_sz_now += worker_args[i]->recv_len;
+#     endif
+
     } /* for (i=0; i<options->n_threads; ++i) */
 
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
-    elapsed = ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
-            ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
+    elapsed = \
+      ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
+      ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
     bit_rate = (long)((double)(recv_sz_now*8)/elapsed);
     total_bit_rate += bit_rate;
 
@@ -238,7 +242,7 @@ void process(data_proc_args* options)
           "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
           options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
     } /* if (options->keepalive) else */
-  } /* while (cnt) */
+  } /* while (cnt--) */
 
   if (!options->keepalive) {
     printf(
@@ -327,13 +331,13 @@ int main(int argc, char* argv[])
   printf("Port: %d\n", opts->port);
   printf("Buffer Size per Threads: %lu bytes.\n", opts->buf_len);
   printf("Total Memory Size: %lu bytes.\n", opts->data_section_sz*CONTAINER_LEN_MUL);
-  if (!opts->keepalive)
-    printf("Iteration count: %d\n", opts->iter_cnt);
+  if (!opts->keepalive) printf("Iteration count: %d\n", opts->iter_cnt);
 
   /* Then run the data_receiver */
   process(opts);
 
-  tfree(opts->address); tfree(opts);
+  tfree(opts->address);
+  tfree(opts);
 
   return 0;
 }

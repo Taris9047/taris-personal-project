@@ -18,7 +18,12 @@
 #define ERROR(str) \
   { \
   fprintf(stderr, "Complication at %s with ERR: %s\n", str, strerror(errno)); \
-  exit(-1); \
+  exit(errno); \
+  }
+#define ERROR_NUM(str, err_num) \
+  { \
+    fprintf(stderr, "Complication at %s with ERRNO: %d\n", str, err_num); \
+    exit(err_num); \
   }
 
 #if defined(NDEBUG)

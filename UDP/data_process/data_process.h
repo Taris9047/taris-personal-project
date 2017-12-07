@@ -39,12 +39,16 @@
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
 #define DEFAULT_SERVER_PORT 9930
 
+/*
+  It seems BUF_LEN has some kind of sweet spot. It's a buffer length.. and
+  generally conceived a larger buffer length ensures better recv. speed...
+*/
 #define BUF_LEN 1024*8
 #define N_THREADS 4
 #define SECTION_LEN BUF_LEN*N_THREADS
 #define CONTAINER_LEN_MUL 64
 #define CONTAINER_LEN SECTION_LEN*CONTAINER_LEN_MUL
-#define DEF_ITER_CNT 4096
+#define DEF_ITER_CNT 1024
 
 /* dummy declaration of proc args */
 typedef struct _data_proc_args data_proc_args;
