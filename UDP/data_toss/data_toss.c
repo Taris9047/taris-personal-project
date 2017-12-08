@@ -25,8 +25,9 @@ static unsigned char *buf;
   Keep sending argument struct (redef)
 **************************************************/
 typedef struct _keep_sending_args {
-  char* srv_ip;
-  int port_num;
+  // char* srv_ip;
+  // int port_num;
+  IP_Table ipt;
   size_t n_threads;
   bool daemon;
   bool quiet_mode;
@@ -100,27 +101,32 @@ void keep_sending(Ksa args)
 {
   assert(args);
 
-  struct sockaddr_in si_me;
-  int s;
+  // struct sockaddr_in si_me;
+  struct sockaddr_in si_me[args->n_threads];
+  int s[args->n_threads];
   int th, ib;
   int total_iteration = ITER;
   int counter = 0;
 
-  /* Open socket */
-  if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
-    ERROR("socket()");
+  for (th=0; th<args->n_threads; ++th) {
+    /* Open socket */
+    if ( (s[th]=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
+      ERROR("socket()");
 
-  /* Preparing socket struct */
-  tmemset(si_me, 0);
-  si_me.sin_family = AF_INET;
-  si_me.sin_port = htons(args->port_num);
-  if ( inet_aton(args->srv_ip, &si_me.sin_addr) == 0 )
-    ERROR("inet_aton()");
+    /* Preparing socket struct */
+    tmemset(si_me[th], 0);
+    si_me[th].sin_family = AF_INET;
+    si_me[th].sin_port = htons(IPTPortAt(args->ipt, th));
+    if (
+      inet_aton(
+        IPTAddrAt(args->ipt, th), &si_me[th].sin_addr) == 0 )
+      ERROR("inet_aton()");
 
-  /* Some status report */
-  mprintf(
-    "Tossing data (UDP) to ... %s:%d\n",
-    inet_ntoa(si_me.sin_addr), ntohs(si_me.sin_port));
+    /* Some status report */
+    mprintf(
+      "Tossing data (UDP) to ... %s:%d\n",
+      inet_ntoa(si_me[th].sin_addr), ntohs(si_me[th].sin_port));
+  } /* for (th=0; th<args->n_threads; ++th) */
 
   /* Preparing timers */
   struct timespec ts_start, ts_end;
@@ -153,8 +159,8 @@ void keep_sending(Ksa args)
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
     for (th=0; th<args->n_threads; ++th) {
-      thr_data[th].socket = s;
-      thr_data[th].socket_addr = &si_me;
+      thr_data[th].socket = s[th];
+      thr_data[th].socket_addr = &si_me[th];
       thr_data[th].sent_size = 0L;
       thr_data[th].seamless = args->seamless_mode;
       rc = pthread_create(&send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
@@ -193,7 +199,8 @@ void keep_sending(Ksa args)
       total_iteration--;
       counter = 0;
       total_sent_sz = 0;
-      if (args->daemon || args->seamless_mode) total_iteration = ITER;
+      if (args->daemon || args->seamless_mode)
+        total_iteration = ITER;
 
       clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
@@ -224,7 +231,8 @@ void keep_sending(Ksa args)
 
         counter = 0;
         total_iteration--;
-        if (args->daemon || args->seamless_mode) total_iteration = ITER;
+        if (args->daemon || args->seamless_mode)
+          total_iteration = ITER;
 
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
@@ -279,28 +287,31 @@ Ksa NewKsa(int argc, char* argv[])
   Ksa ksa = (Ksa)tmalloc(sizeof(keep_sending_args));
   assert(ksa);
 
-  ksa->port_num = DEF_PORT;
+  // ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
+  // assert(ksa->srv_ip);
+  // strcpy(ksa->srv_ip, SRV_IP);
+  // ksa->port_num = DEF_PORT;
   ksa->n_threads = N_TOSSERS;
   ksa->daemon = false;
   ksa->quiet_mode = false;
   ksa->seamless_mode = false;
-  ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
   ksa->udp_format = false;
-  assert(ksa->srv_ip);
-  strcpy(ksa->srv_ip, SRV_IP);
+
+  ksa->ipt = NewIP_Table();
 
   char c;
-  while ((c=getopt(argc, argv, "p:i:t:dhqsu"))!=-1) {
+  while ((c=getopt(argc, argv, "a:t:dhqsu"))!=-1) {
     switch (c)
     {
-      case 'p':
-        ksa->port_num = atoi(optarg);
-        break;
-      case 'i':
-        tfree(ksa->srv_ip);
-        ksa->srv_ip = (char*)tmalloc(strlen(optarg)+1);
-        assert(ksa->srv_ip);
-        strcpy(ksa->srv_ip, optarg);
+      // case 'p':
+      //   ksa->port_num = atoi(optarg);
+      //   break;
+      case 'a':
+        // tfree(ksa->srv_ip);
+        // ksa->srv_ip = (char*)tmalloc(strlen(optarg)+1);
+        // assert(ksa->srv_ip);
+        // strcpy(ksa->srv_ip, optarg);
+        IPTPushAddr(ksa->ipt, optarg);
         break;
       case 't':
         ksa->n_threads = atoi(optarg);
@@ -326,6 +337,28 @@ Ksa NewKsa(int argc, char* argv[])
     } /* switch (c) */
   } /* while ((c=getopt(argc, argv, "p:i:t:dhqsu"))!=-1) */
 
+  /*
+    Make a list of IP Addresses to match the
+    requested # of threads.
+  */
+  if (IPTGetSz(ksa->ipt)==0)
+    IPTPushAddr(ksa->ipt, "127.0.0.1:9930");
+
+  int i, sub, max_port;
+  uint64_t max_port_ind;
+  char* max_port_addr;
+  if (IPTGetSz(ksa->ipt) > ksa->n_threads) {
+    ksa->n_threads = IPTGetSz(ksa->ipt);
+  }
+  else { /* if (ksa->ipt->size > ksa->n_threads) */
+    sub = ksa->n_threads - IPTGetSz(ksa->ipt);
+    max_port_ind = IPTMaxPort(ksa->ipt);
+    max_port = IPTPortAt(ksa->ipt, max_port_ind);
+    max_port_addr = IPTAddrAt(ksa->ipt, max_port_ind);
+    for (i=1; i<=sub; ++i)
+      IPTPush(ksa->ipt, max_port_addr, max_port+i);
+  } /* if (ksa->ipt->size > ksa->n_threads) else */
+
   return ksa;
 }
 
@@ -335,7 +368,7 @@ Ksa NewKsa(int argc, char* argv[])
 void DeleteKsa(Ksa ksa)
 {
   assert(ksa);
-  tfree(ksa->srv_ip);
+  DeleteIP_Table(ksa->ipt);
   tfree(ksa);
   return;
 }
@@ -354,29 +387,34 @@ int main (int argc, char* argv[])
 #endif
 
   Ksa args = NewKsa(argc, argv);
+  int i;
 
   if (args->seamless_mode) mprintf("Seamless Mode!!\n");
-  mprintf(
-    "Port: %d\nConcurrent tossers: %zu\n\n",
-    args->port_num, args->n_threads);
+
+  for (i=0; i<args->n_threads; ++i) {
+    mprintf(
+      "Port: %d\nConcurrent tossers: %zu\n\n",
+      IPTPortAt(args->ipt, i), args->n_threads);
+  }
 
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);
 
   /* Prepare dummy data to send */
-  int i;
   if (!args->udp_format) {
     buf = (unsigned char*)tmalloc(DATA_LEN);
     assert(buf);
     for (i=0; i<DATA_LEN; ++i) buf[i] = rand_byte();
   }
   else {
-    header hd;
-    hd.src_port = args->port_num;
-    hd.dest_port = args->port_num;
-    // hd.socket_length = (sizeof(header)+BUFLEN)*SENDTO_ITER;
-    hd.socket_length = BUFLEN;
-    hd.chksum = 0;
-    buf = rnd_custom_data_w_header(&hd, SENDTO_ITER);
+    header hd[args->n_threads];
+    for (i=0; i<args->n_threads; ++i) {
+      hd[i].src_port = IPTPortAt(args->ipt, i);
+      hd[i].dest_port = IPTPortAt(args->ipt, i);
+      // hd.socket_length = (sizeof(header)+BUFLEN)*SENDTO_ITER;
+      hd[i].socket_length = BUFLEN;
+      hd[i].chksum = 0;
+      buf = rnd_custom_data_w_header(&hd[i], SENDTO_ITER);
+    }
   }
 
   mprintf("Starting Send!!\n");
@@ -396,14 +434,15 @@ int main (int argc, char* argv[])
 /* Shows usage */
 void usage()
 {
-  printf("\n"
+  printf(
+    "\n"
     "Usage: data_toss <options>\n"
-    "-p <PORT> (default: 9930)\n"
     "-t <Number of Threads> (default: 5)\n"
-    "-i <IP Address> (default: 127.0.0.1)\n"
+    "-a <IP Address>:<Start Port> (default: %s:%d)\n"
     "-q Quiet mode\n"
     "-s Seamless mode. Recommended for flood experiment.\n"
     "-u Packet mode. Emits a bit formatted dummy data.\n"
     "-h Shows this message.\n"
-    "\n");
+    "\n",
+    SRV_IP, DEF_PORT);
 }

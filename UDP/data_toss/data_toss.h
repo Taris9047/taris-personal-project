@@ -34,6 +34,7 @@
 #endif
 
 #include "utils.h"
+#include "ip_addr.h"
 #include "custom_header.h"
 
 /* Some macro defs */

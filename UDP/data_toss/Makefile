@@ -16,15 +16,15 @@ LLVMCC=clang
 RELLLVMFLAGS=-DNDEBUG -O3 -march=x86-64 -m64 -momit-leaf-frame-pointer
 
 PGCC=pgcc
-PGCCFLAGS=-DNDEBUG -O4 -m64 -tp=x64
+PGCCFLAGS=-DNDEBUG -O4 -m64
 
 MPICC=mpicc
 MPICFLAGS=-DUSE_MPI
 
-OBJS=rand_safe.o
-OBJS_REL=rand_safe_rel.o
-OBJS_PGI=rand_safe_pgi.o
-OBJS_LLVM_REL=rand_safe_rel_llvm.o
+OBJS=rand_safe.o ip_addr.o
+OBJS_REL=rand_safe_rel.o ip_addr_rel.o
+OBJS_PGI=rand_safe_pgi.o ip_addr_pgi.o
+OBJS_LLVM_REL=rand_safe_rel_llvm.o ip_addr_rel_llvm.o
 TARGET=data_toss
 
 all: debug
@@ -32,14 +32,34 @@ all: debug
 rand_safe.o: rand_safe.c rand_safe.h
 	$(CC) $(CFLAGS) -c rand_safe.c -o $@
 
+ip_addr.o: ip_addr.c ip_addr.h
+	$(CC) $(CFLAGS) -c ip_addr.c -o $@
+
+
+
 rand_safe_rel.o: rand_safe.c rand_safe.h
 	$(CC) $(RELCFLAGS) -c rand_safe.c -o $@
+
+ip_addr_rel.o: ip_addr.c ip_addr.h
+	$(CC) $(RELCFLAGS) -c ip_addr.c -o $@
+
+
 
 rand_safe_rel_llvm.o: rand_safe.c rand_safe.h
 	$(LLVMCC) $(RELLLVMFLAGS) -c rand_safe.c -o $@
 
+ip_addr_rel_llvm.o: ip_addr.c ip_addr.h
+	$(CC) $(RELLLVMFLAGS) -c ip_addr.c -o $@
+
+
+
 rand_safe_pgi.o: rand_safe.c rand_safe.h
 	$(PGCC) $(PGCCFLAGS) -c rand_safe.c -o $@
+
+ip_addr_pgi.o: ip_addr.c ip_addr.h
+	$(CC) $(PGCCFLAGS) -c ip_addr.c -o $@
+
+
 
 debug: data_toss.c data_toss.h $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) data_toss.c -o $(TARGET) $(LIBS)
