@@ -1,0 +1,28 @@
+According to...
+https://unix.stackexchange.com/questions/295447/how-do-i-specify-which-core-a-pthread-is-spawned-on
+
+
+answered Jul 12 '16 at 17:27
+meuh
+24.5k11038
+
+
+
+Meuh, I just read the man page you suggested, and ran the sample code. I think this is exactly what I needed. Tonight I will attempt to generate some performance metrics 1) letting the thread scheduler distribute 8 threads and 2) forcing each of the eight threads to a separate core. -Thanks – Steve S Jul 12 '16 at 17:40
+
+
+I took a numerical integration problem I did in grad school, and ran it sequentially 4 times. Then, I ran it inside 4 threads. The overall time for the sequential was 83.626s average 20.9061s per job. The threaded version took 27.35s overall with average thread taking 26.7949s. When a used scheduled affinity the overall time was 26.497s with an average job taking 26.4663. The threads added significant overhead to the sequential jobs. However when you divide by 4 it makes up for it. – Steve S Jul 13 '16 at 18:14
+
+
+Next I ran it sequentially 8 times. Then, I ran it inside 8 threads. The overall time for the sequential was 165.563s average 20.6952s per job. The threaded version took 30.675s overall with average thread taking 30.4653s. When I used scheduled affinity the overall time was 30.089s with an average job taking 29.9674 – Steve S Jul 13 '16 at 18:21
+
+
+Are you using floating point? If you have 4 real cores and 4 hyperthreaded cpus you may be sharing each float unit between 2 cpus. I dont know the intel E5430 cpu architecture. – meuh Jul 13 '16 at 18:34
+
+
+The conclusion (as detailed in my comment to Gilles, above), was that the improvement when using CPU affinity was not, in my opinion, significant enough to justify the coding overhead of measuring the load of each core and assigning threads manually. Thank you both for your comments. – Steve S Jul 13 '16 at 18:36
+
+
+----------------------
+
+So, yeah, it's not worth it since our job is quite simple for affinity setting overhead to be ignored.
