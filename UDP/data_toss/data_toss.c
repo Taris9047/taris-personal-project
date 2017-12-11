@@ -12,7 +12,6 @@
   Aug. 9th 2017
 
 **************************************************/
-
 #include "data_toss.h"
 #include "rand_safe.h"
 
@@ -99,7 +98,6 @@ void keep_sending(Ksa args)
 {
   assert(args);
 
-  // struct sockaddr_in si_me;
   struct sockaddr_in si_me[args->n_threads];
   int s[args->n_threads];
   int th, ib;
@@ -108,7 +106,7 @@ void keep_sending(Ksa args)
 
   for (th=0; th<args->n_threads; ++th) {
     /* Open socket */
-    if ( (s[th]=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
+    if ( (s[th]=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1 )
       ERROR("socket()");
 
     /* Preparing socket struct */
@@ -122,7 +120,8 @@ void keep_sending(Ksa args)
 
     /* Some status report */
     mprintf(
-      "Tossing data (UDP) to ... %s:%d\n",
+      "[Thread: %d] Tossing data (UDP) to ... %s:%d\n",
+      th,
       inet_ntoa(si_me[th].sin_addr), ntohs(si_me[th].sin_port));
   } /* for (th=0; th<args->n_threads; ++th) */
 
@@ -161,7 +160,8 @@ void keep_sending(Ksa args)
       thr_data[th].socket_addr = &si_me[th];
       thr_data[th].sent_size = 0L;
       thr_data[th].seamless = args->seamless_mode;
-      rc = pthread_create(&send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
+      rc = pthread_create(
+        &send_thrs[th], &attr, sendto_worker, (void*)&thr_data[th]);
       if (rc) ERROR_NUM("pthread_create", rc)
     } /* for (th=0; th<n_threads; ++th) */
 
@@ -234,12 +234,11 @@ void keep_sending(Ksa args)
 
         clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
-
       } /* if (counter > CHUNK_LEN && !args->seamless_mode) */
 
       mpi_total_data_rate += bit_rate;
       mpi_total_elapsed_time = \
-        (elapsed > mpi_total_elapsed_time ? elapsed : mpi_total_elapsed_time);
+        ((elapsed>mpi_total_elapsed_time) ? elapsed : mpi_total_elapsed_time);
 
       rank++;
 
@@ -285,10 +284,6 @@ Ksa NewKsa(int argc, char* argv[])
   Ksa ksa = (Ksa)tmalloc(sizeof(keep_sending_args));
   assert(ksa);
 
-  // ksa->srv_ip = (char*)tmalloc(strlen(SRV_IP)+1);
-  // assert(ksa->srv_ip);
-  // strcpy(ksa->srv_ip, SRV_IP);
-  // ksa->port_num = DEF_PORT;
   ksa->n_threads = N_TOSSERS;
   ksa->daemon = false;
   ksa->quiet_mode = false;
@@ -386,7 +381,8 @@ int main (int argc, char* argv[])
     mprintf(
       "Address: %s:%d\nTosser: %zu/%zu\n",
       IPTAddrAt(args->ipt, i),
-      IPTPortAt(args->ipt, i), i, args->n_threads);
+      IPTPortAt(args->ipt, i),
+      i, args->n_threads-1);
   }
 
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);
@@ -402,11 +398,10 @@ int main (int argc, char* argv[])
     for (i=0; i<args->n_threads; ++i) {
       hd[i].src_port = IPTPortAt(args->ipt, i);
       hd[i].dest_port = IPTPortAt(args->ipt, i);
-      // hd.socket_length = (sizeof(header)+BUFLEN)*SENDTO_ITER;
       hd[i].socket_length = BUFLEN;
       hd[i].chksum = 0;
       buf = rnd_custom_data_w_header(&hd[i], SENDTO_ITER);
-    }
+    } /* for (i=0; i<args->n_threads; ++i) */
   }
 
   mprintf("Starting Send!!\n");

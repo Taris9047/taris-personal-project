@@ -35,7 +35,7 @@
   #define mfprintf(s_,...) fprintf((s_), __VA_ARGS__)
 #else
   /* Some convenient printf for MPI stuff */
-  void mpi_printf(const char* format, ...) {
+  static void mpi_printf(const char* format, ...) {
     int rnk;
     MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
     va_list args;
@@ -44,7 +44,7 @@
     vfprintf(stdout, format, args);
     va_end(args);
   }
-  void mpi_fprintf(FILE* stream, const char* format, ...) {
+  static void mpi_fprintf(FILE* stream, const char* format, ...) {
     int rnk;
     MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
     va_list args;

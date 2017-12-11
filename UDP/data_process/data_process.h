@@ -9,7 +9,6 @@
   Aug. 14th 2017
 
 **************************************************/
-
 #ifndef UDP_DATA_PROCESS_MAIN_HEADER
 #define UDP_DATA_PROCESS_MAIN_HEADER
 
@@ -29,12 +28,14 @@
 
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 
 #include <assert.h>
 #include <stdbool.h>
 
 #include "utils.h"
+#include "ip_addr.h"
 
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
 #define DEFAULT_SERVER_PORT 9930

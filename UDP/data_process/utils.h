@@ -1,7 +1,6 @@
 /********************************************
   Some general utility stuffs
 *********************************************/
-
 #ifndef UDP_DATA_PROCESS_UTILS_HEADER
 #define UDP_DATA_PROCESS_UTILS_HEADER
 
@@ -32,13 +31,13 @@
 # define tfree(p) free(p)
 #else
 # define tmalloc(sz) calloc(1, sz)
-  void* safe_memset(void* str, int c, size_t n)
+  static void* safe_memset(void* str, int c, size_t n)
   {
     static void *(*volatile const memset_)(void*, int, size_t) = memset;
     return memset_(str, c, n);
   }
 # define tmemset(var, val) safe_memset((char*)(&var), (int)val, sizeof(var))
-  void free_to_null(void* p) { if (p) free(p); p=NULL; return; }
+  static void free_to_null(void* p) { if (p) free(p); p=NULL; return; }
 # define tfree(p) free_to_null(p)
 #endif /* #if defined(NDEBUG) */
 

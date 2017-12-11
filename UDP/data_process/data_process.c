@@ -128,7 +128,7 @@ static void* recv_worker(void* args)
 void process(data_proc_args* options)
 {
   assert(options->address);
-  assert(options->port < 65535 && options->port >= 0);
+  assert(options->port<65535 && options->port>=1000);
 
   struct sockaddr_in si_me;
   int s;
@@ -156,8 +156,8 @@ void process(data_proc_args* options)
   RecvDS worker_args[options->n_threads];
 
   struct timespec ts_start, ts_end;
-  long bit_rate = 0L;
-  long total_bit_rate = 0L;
+  int64_t bit_rate = 0L;
+  int64_t total_bit_rate = 0L;
   double elapsed = 0.0f;
 
   /* Preparing data container */
@@ -217,7 +217,7 @@ void process(data_proc_args* options)
     elapsed = \
       ((double)ts_end.tv_sec+1e-9*ts_end.tv_nsec) - \
       ((double)ts_start.tv_sec+1e-9*ts_start.tv_nsec);
-    bit_rate = (long)((double)(recv_sz_now*8)/elapsed);
+    bit_rate = (int64_t)((double)(recv_sz_now*8)/elapsed);
     total_bit_rate += bit_rate;
 
     /* Free up thread control stuffs */
