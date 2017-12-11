@@ -253,8 +253,9 @@ void IPTPushAddr(IP_Table ipt, const char* faddr)
 {
   char* addr;
   int port;
-  dt_urlparse(faddr, addr, &port);
+  dt_urlparse(faddr, &addr, &port);
   IPTPush(ipt, addr, port);
+  tfree(addr);
   return;
 }
 
@@ -282,8 +283,7 @@ uint64_t IPTMaxPort(IP_Table ipt)
   for (i=1; i<ipt->size; ++i) {
 
     max_ind = \
-      (NLAt(ipt->ports, i-1) > NLAt(ipt->ports, i)) ? \
-      (i-1) : i;
+      (NLAt(ipt->ports, i-1) > NLAt(ipt->ports, i)) ? (i-1) : i;
 
     tmp = tmp->next;
 
@@ -302,9 +302,17 @@ uint64_t IPTGetSz(IP_Table ipt)
   Utilities
 ***********************************************/
 /* URL parser */
-void dt_urlparse(const char* FAddr, char* Addr, int* port)
+void dt_urlparse(const char* FAddr, char** Addr, int* port)
 {
   assert(FAddr);
-  sscanf(FAddr, "%99[^:]:%99d", Addr, &port);
+  char* colon = strchr(FAddr, ':');
+  int ip_length = colon - FAddr;
+  *Addr = (char*)tmalloc(ip_length+1);
+  strncpy(*Addr, FAddr, ip_length);
+  int port_length = strlen(FAddr) - ip_length;
+  char port_str[port_length];
+  strncpy(port_str, FAddr+ip_length+1, port_length);
+  *port = atoi(port_str);
+
   return;
 }

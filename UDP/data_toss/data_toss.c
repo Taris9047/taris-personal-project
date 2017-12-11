@@ -25,8 +25,6 @@ static unsigned char *buf;
   Keep sending argument struct (redef)
 **************************************************/
 typedef struct _keep_sending_args {
-  // char* srv_ip;
-  // int port_num;
   IP_Table ipt;
   size_t n_threads;
   bool daemon;
@@ -303,14 +301,7 @@ Ksa NewKsa(int argc, char* argv[])
   while ((c=getopt(argc, argv, "a:t:dhqsu"))!=-1) {
     switch (c)
     {
-      // case 'p':
-      //   ksa->port_num = atoi(optarg);
-      //   break;
       case 'a':
-        // tfree(ksa->srv_ip);
-        // ksa->srv_ip = (char*)tmalloc(strlen(optarg)+1);
-        // assert(ksa->srv_ip);
-        // strcpy(ksa->srv_ip, optarg);
         IPTPushAddr(ksa->ipt, optarg);
         break;
       case 't':
@@ -393,8 +384,9 @@ int main (int argc, char* argv[])
 
   for (i=0; i<args->n_threads; ++i) {
     mprintf(
-      "Port: %d\nConcurrent tossers: %zu\n\n",
-      IPTPortAt(args->ipt, i), args->n_threads);
+      "Address: %s:%d\nTosser: %zu/%zu\n",
+      IPTAddrAt(args->ipt, i),
+      IPTPortAt(args->ipt, i), i, args->n_threads);
   }
 
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);

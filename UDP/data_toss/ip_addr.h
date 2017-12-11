@@ -63,6 +63,6 @@ uint64_t IPTGetSz(IP_Table ipt);
 
 /* Some other utilities */
 /* URL... or Full IP address (xxx.xxx.xxx.xxx:pppp) parser */
-void dt_urlparse(const char* FAddr, char* Addr, int* port);
+void dt_urlparse(const char* FAddr, char** Addr, int* port);
 
 #endif /* Include guard */
