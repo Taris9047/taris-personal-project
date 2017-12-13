@@ -328,7 +328,7 @@ Ksa NewKsa(int argc, char* argv[])
     requested # of threads.
   */
   if (IPTGetSz(ksa->ipt)==0)
-    IPTPushAddr(ksa->ipt, "127.0.0.1:9930");
+    IPTPush(ksa->ipt, SRV_IP, DEF_PORT);
 
   int i, sub, max_port;
   uint64_t max_port_ind;
@@ -382,7 +382,7 @@ int main (int argc, char* argv[])
       "Address: %s:%d\nTosser: %zu/%zu\n",
       IPTAddrAt(args->ipt, i),
       IPTPortAt(args->ipt, i),
-      i, args->n_threads-1);
+      (size_t)i, args->n_threads-1);
   }
 
   mprintf("Generating %d bytes of random data.\n", DATA_LEN);

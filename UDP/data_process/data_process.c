@@ -14,15 +14,11 @@
 
 #include "data_process.h"
 
-/* Defining a universal(?) buffer */
-static unsigned char **buf;
-
 /*************************************************
   struct for program options
 **************************************************/
 typedef struct _data_proc_args {
-  char* address;
-  int port;
+  IP_Table ipt;
   size_t n_threads;
   size_t data_section_sz;
   size_t buf_len;
@@ -38,8 +34,8 @@ typedef struct _data_proc_args {
 typedef struct _recv_worker_data_set {
   size_t start_idx;
   size_t span_length;
-  size_t sections;
-  unsigned char* p_container;
+  size_t total_memory_length;
+  unsigned char** p_container;
   int socket;
   struct sockaddr_in* sock_addr;
   int64_t recv_len;
@@ -50,15 +46,14 @@ typedef rw_data_set* RecvDS;
 /* Constructor */
 static RecvDS NewRecvDS(
   int* sock, struct sockaddr_in* sock_addr_in,
-  size_t start_index, size_t buffer_length, size_t n_sections,
-  unsigned char* main_data_container, int thr_id)
+  size_t start_index, size_t buffer_length,
+  unsigned char** main_data_container, int thr_id)
 {
   RecvDS new_rcvds = (RecvDS)tmalloc(sizeof(rw_data_set));
   assert(new_rcvds);
 
   new_rcvds->start_idx = start_index;
   new_rcvds->span_length = buffer_length;
-  new_rcvds->sections = n_sections;
 
   new_rcvds->p_container = main_data_container;
   new_rcvds->socket = *sock;
@@ -74,7 +69,7 @@ static RecvDS NewRecvDS(
 static void DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
-  // tfree(rds->p_container);
+
   tfree(rds);
   return;
 }
@@ -83,41 +78,37 @@ static void DeleteRecvDS(RecvDS rds)
 static void* recv_worker(void* args)
 {
   RecvDS rds = (RecvDS)args;
-  struct sockaddr_in* si = rds->sock_addr;
-  socklen_t si_len = sizeof(*si);
-  int64_t recv_len;
+  unsigned char* buf = (*rds->p_container)+rds->start_idx;
+  struct sockaddr_in si = *rds->sock_addr;
+  socklen_t si_len = sizeof(si);
+  int64_t recv_len = 0L;
 
-  int i, j;
-  for (i=0; i<rds->sections; ++i) {
-    recv_len = \
-      recvfrom(
-        rds->socket, buf[rds->thr_id],
-        rds->span_length, 0, (struct sockaddr*)si, &si_len);
+  // mprintf("Running recvfrom at thread %d\n", rds->thr_id);
+  recv_len = \
+    recvfrom(
+      rds->socket, buf,
+      rds->span_length, 0, (struct sockaddr*)&si, &si_len);
+  // mprintf("Received %d bytes at thread %d\n", recv_len, rds->thr_id);
 
-    if ( recv_len == -1 ) {
-      printf("pid: %d\n", getpid());
-      printf("buffer_length: %lu, section: %lu\n", rds->span_length, rds->sections);
-      ERROR("recvfrom()")
-    }
+  if ( recv_len == -1 ) {
+    mprintf("pid: %d, thread: %d\n", getpid(), rds->thr_id);
+    mprintf(
+      "total_memory_length: %lu,"
+      " buffer_length: %lu,"
+      " section: %lu,"
+      " start index: %lu\n",
+      rds->total_memory_length,
+      rds->span_length,
+      rds->thr_id,
+      rds->start_idx);
+    ERROR("recvfrom()")
+  }
 
-    for (j=0; j<rds->span_length; ++j) {
-
-#     if defined(__GNUC__) || defined(__llvm__)
-      __atomic_store_n(
-        &rds->p_container[j+rds->start_idx+i*rds->sections],
-        buf[rds->thr_id][j], 0);
-#     else
-      rds->p_container[j+rds->start_idx+i*rds->sections] = buf[rds->thr_id][j];
-#     endif
-
-    } /* for (j=0; j<rds->span_length; ++j) */
-
-#   if defined(__GNUC__) || defined(__llvm__)
-    __atomic_fetch_add(&rds->recv_len, recv_len, 0);
-#   else
-    rds->recv_len += recv_len;
-#   endif
-  } /* for (i=0; i<rds->sections; ++i) */
+# if defined(__GNUC__) || defined(__llvm__)
+  __atomic_fetch_add(&rds->recv_len, recv_len, 0);
+# else
+  rds->recv_len += recv_len;
+#  endif
 
   pthread_exit(args);
 }
@@ -127,86 +118,91 @@ static void* recv_worker(void* args)
 **************************************************/
 void process(data_proc_args* options)
 {
-  assert(options->address);
-  assert(options->port<65535 && options->port>=1000);
-
-  struct sockaddr_in si_me;
-  int s;
+  int ind, ipt_sz = IPTGetSz(options->ipt);
+  struct sockaddr_in si_me[ipt_sz];
+  int s[ipt_sz];
   size_t i, dc_i, j;
-  socklen_t si_me_len;
-  unsigned char* data_container;
+  socklen_t si_me_len[ipt_sz];
 
-  /* setting up si_me */
-  tmemset(si_me, 0);
-  si_me.sin_family = AF_INET;
-  si_me.sin_port = htons(options->port);
-  si_me_len = sizeof(si_me);
 
-  /* Preparing socket */
-  if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 ) ERROR("socket()")
-  if ( !inet_aton(options->address, &si_me.sin_addr) ) ERROR("inet_aton()")
-  if ( bind(s, (struct sockaddr*)&si_me, sizeof(si_me))==-1 ) ERROR("bind()")
+  /* Preparing data container */
+  unsigned char* data_container = \
+    (unsigned char*)tmalloc(
+      options->n_threads*ipt_sz*\
+      options->data_section_sz);
+  assert(data_container);
+
+  /* Preparing sockets */
+  for (ind=0; ind<ipt_sz; ++ind) {
+
+    /* setting up si_me */
+    tmemset(si_me[ind], 0);
+    si_me[ind].sin_family = AF_INET;
+    si_me[ind].sin_port = htons(IPTPortAt(options->ipt, ind));
+    si_me_len[ind] = sizeof(si_me[ind]);
+
+    /* Preparing socket */
+    if ( (s[ind]=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP))==-1 )
+      ERROR("socket()")
+    if ( !inet_aton(IPTAddrAt(options->ipt, ind), &si_me[ind].sin_addr) )
+      ERROR("inet_aton()")
+    if ( bind(s[ind], (struct sockaddr*)&si_me[ind], sizeof(si_me[ind]))==-1 )
+      ERROR("bind()")
+
+  } /* for (ind=0; ind<ipt_sz; ++ind) */
 
   /* Preparing thread operation */
-  pthread_t threads[options->n_threads];
+  int total_n_threads = options->n_threads*ipt_sz;
+  pthread_t threads[total_n_threads];
+  RecvDS worker_args[total_n_threads];
   pthread_attr_t attr;
-  uint64_t recv_sz_now, recv_sz = 0;
+  uint64_t recv_sz_now = 0L, recv_sz = 0L;
   void* status;
   int rc;
-  RecvDS worker_args[options->n_threads];
 
   struct timespec ts_start, ts_end;
   int64_t bit_rate = 0L;
   int64_t total_bit_rate = 0L;
   double elapsed = 0.0f;
 
-  /* Preparing data container */
-  data_container = \
-    (unsigned char*)tmalloc(
-    options->n_threads*options->data_section_sz*CONTAINER_LEN_MUL);
-  assert(data_container);
-
+  /* Actually running the rec. process */
   int cnt = options->iter_cnt;
   while (cnt--) {
     recv_sz_now = 0L;
 
-    /* Preparing universal buffer */
-    buf = (unsigned char**)tmalloc(sizeof(unsigned char*)*options->n_threads);
-    assert(buf);
-    for (i=0; i<options->n_threads; ++i) {
-      buf[i] = (unsigned char*)tmalloc(options->data_section_sz);
-      assert(buf[i]);
-    } /* for (i=0; i<options->n_threads; ++i) */
-
     /* Set up timer */
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
-    for (i=0; i<options->n_threads; ++i) {
+    for (i=0; i<total_n_threads; ++i) {
       worker_args[i] = NewRecvDS(
-        &s, &si_me,
-        i*options->n_threads*options->buf_len,
+        &s[i/ipt_sz], &si_me[i/ipt_sz],
+        i*options->data_section_sz,
         options->data_section_sz,
-        options->n_threads,
-        data_container, i);
+        &data_container, i);
+      worker_args[i]->total_memory_length = \
+        total_n_threads*options->data_section_sz;
     } /* for (i=0; i<options->n_threads; ++i) */
 
     /* Set up threads and start the job */
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-    for (i=0; i<options->n_threads; ++i) {
+    for (i=0; i<total_n_threads; ++i) {
       rc = pthread_create(
-        &threads[i], &attr, recv_worker, (void*)worker_args[i]);
+        &threads[i],
+        &attr, recv_worker, (void*)worker_args[i]);
       if (rc) ERROR_NUM("pthread_create", rc)
     } /* for (i=0; i<options->n_threads; ++i) */
 
+    /* Join threads */
     pthread_attr_destroy(&attr);
-    for (i=0; i<options->n_threads; ++i) {
+    for (i=0; i<total_n_threads; ++i) {
 
       rc = pthread_join(threads[i], &status);
       if (rc) ERROR_NUM("pthread_join", rc)
 
 #     if defined(__GNUC__) || defined(__llvm__)
-      recv_sz_now += __atomic_load_n(&worker_args[i]->recv_len, 0);
+      recv_sz_now += \
+        __atomic_load_n(&worker_args[i]->recv_len, 0);
 #     else
       recv_sz_now += worker_args[i]->recv_len;
 #     endif
@@ -221,38 +217,44 @@ void process(data_proc_args* options)
     total_bit_rate += bit_rate;
 
     /* Free up thread control stuffs */
-    for (i=0; i<options->n_threads; ++i) DeleteRecvDS(worker_args[i]);
+    for (i=0; i<total_n_threads; ++i)
+      DeleteRecvDS(worker_args[i]);
 
-    /* Free up universal buffer */
-    for (i=0; i<options->n_threads; ++i) tfree(buf[i]);
-    tfree(buf);
+    /* Report current progress */
+    for (ind=0; ind<ipt_sz; ++ind) {
 
-    if (options->keepalive) {
-      if (!options->quiet_mode) {
-        printf(
-          "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
-          options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
-        fflush(stdout);
-      }
-      cnt = options->iter_cnt;
-    } /* if (options->keepalive) */
-    else {
-      if (!options->quiet_mode)
-        printf(
-          "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
-          options->n_threads, inet_ntoa(si_me.sin_addr), recv_sz_now, bit_rate);
-    } /* if (options->keepalive) else */
+      if (options->keepalive) {
+        if (!options->quiet_mode) {
+          mprintf(
+            "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\r",
+            options->n_threads,
+            inet_ntoa(si_me[ind].sin_addr), recv_sz_now, bit_rate);
+          fflush(stdout);
+        } /* if (!options->quiet_mode) */
+        cnt = options->iter_cnt;
+      } /* if (options->keepalive) */
+      else {
+        if (!options->quiet_mode)
+          mprintf(
+            "Received packets from (%lu threads) %s of %'lu bytes, bit rate: %'lu bps\n",
+            options->n_threads,
+            inet_ntoa(si_me[ind].sin_addr), recv_sz_now, bit_rate);
+      } /* if (options->keepalive) else */
+
+    } /* for (ind=0; ind<ipt_sz; ++ind)  */
+
   } /* while (cnt--) */
 
   if (!options->keepalive) {
-    printf(
+    mprintf(
       "\n"
       "Average recv. rate is %lu bps\n",
-      (long)(total_bit_rate/(double)options->iter_cnt));
+      (uint64_t)(total_bit_rate/(double)options->iter_cnt));
   }
 
+  for (ind=0; ind<ipt_sz; ++ind) close(s[ind]);
+
   tfree(data_container);
-  close(s);
 
   return;
 }
@@ -263,15 +265,14 @@ void process(data_proc_args* options)
 
 static data_proc_args* ArgParser(int argc, char* argv[])
 {
-  data_proc_args* dpa = (data_proc_args*)tmalloc(sizeof(data_proc_args));
+  data_proc_args* dpa = \
+    (data_proc_args*)tmalloc(sizeof(data_proc_args));
   assert(dpa);
 
-  dpa->address = (char*)tmalloc(strlen(DEFAULT_SERVER_ADDR)+1);
-  strcpy(dpa->address, DEFAULT_SERVER_ADDR);
-  dpa->port = DEFAULT_SERVER_PORT;
-  dpa->n_threads = N_THREADS;
+  dpa->ipt = NewIP_Table();
+  dpa->n_threads = (long)N_THREADS;
   dpa->buf_len = BUF_LEN;
-  dpa->data_section_sz = SECTION_LEN;
+  dpa->data_section_sz = BUF_LEN;
   dpa->iter_cnt = DEF_ITER_CNT;
   dpa->keepalive = false;
   dpa->quiet_mode = false;
@@ -280,12 +281,12 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   while ((c=getopt(argc, argv, "a:p:t:b:i:qkh?"))!=-1) {
     switch (c) {
       case 'a':
-        tfree(dpa->address);
-        dpa->address = (char*)tmalloc(strlen(optarg)+1);
-        strcpy(dpa->address, optarg);
+        /* Input as XXX.XXX.XXX.XXX:XXXX */
+        IPTPushAddr(dpa->ipt, optarg);
         break;
       case 'p':
-        dpa->port = atoi(optarg);
+        /* Input as XXX.XXX.XXX.XXX:XXXX-XXXX */
+        IPTPushAddrPortRngStr(dpa->ipt, optarg);
         break;
       case 't':
         dpa->n_threads = atol(optarg);
@@ -312,7 +313,11 @@ static data_proc_args* ArgParser(int argc, char* argv[])
         usage();
         exit(1);
     }
-  } /* while ((c=getopt(argc, argv, "a:p:t:d:k?"))!=-1) */
+  } /* while ((c=getopt(argc, argv, "a:p:t:b:i:qkh?"))!=-1) */
+
+  /* Push in a default address if none are given */
+  if (!IPTGetSz(dpa->ipt))
+    IPTPush(dpa->ipt, DEFAULT_SERVER_ADDR, DEFAULT_SERVER_PORT);
 
   return dpa;
 }
@@ -325,18 +330,23 @@ int main(int argc, char* argv[])
   setlocale(LC_NUMERIC, "");
 
   data_proc_args* opts = ArgParser(argc, argv);
+  mprintf("Simple data receiver from UDP\n");
 
-  printf("Simple data receiver from UDP\n");
-  printf("Listening to... %s\n", opts->address);
-  printf("Port: %d\n", opts->port);
-  printf("Buffer Size per Threads: %lu bytes.\n", opts->buf_len);
-  printf("Total Memory Size: %lu bytes.\n", opts->data_section_sz*CONTAINER_LEN_MUL);
-  if (!opts->keepalive) printf("Iteration count: %d\n", opts->iter_cnt);
+  int i, ipt_sz = IPTGetSz(opts->ipt);
+  mprintf(">>> Listening to... \n");
+  for (i=0; i<ipt_sz; ++i)
+    mprintf("%s:%d ", IPTAddrAt(opts->ipt, i), IPTPortAt(opts->ipt, i));
+  mprintf("\n");
+  mprintf(">>> Buffer Size per Threads: %lu bytes.\n", opts->buf_len);
+  mprintf(">>> Total Memory Size: %lu bytes.\n",
+    opts->data_section_sz*ipt_sz*opts->n_threads);
+  if (!opts->keepalive)
+    mprintf(">>> Iteration count: %d\n", opts->iter_cnt);
 
   /* Then run the data_receiver */
   process(opts);
 
-  tfree(opts->address);
+  DeleteIP_Table(opts->ipt);
   tfree(opts);
 
   return 0;
@@ -347,8 +357,8 @@ int main(int argc, char* argv[])
 **************************************************/
 void usage()
 {
-  printf("Usage: data_process -[aptbiqkh?]\n\n");
-  printf(
+  mprintf("Usage: data_process -[aptbiqkh?]\n\n");
+  mprintf(
     "-a <Address>: IP address to listen to. (Default: 127.0.0.1)\n"
     "-p <Port>: Port (Default: 9930)\n"
     "-t <number of threads>: Number listeners (thread workers) (Default: 4)\n"

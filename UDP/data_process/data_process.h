@@ -45,10 +45,8 @@
   generally conceived a larger buffer length ensures better recv. speed...
 */
 #define BUF_LEN 1024*8
-#define N_THREADS 4
-#define SECTION_LEN BUF_LEN*N_THREADS
-#define CONTAINER_LEN_MUL 64
-#define CONTAINER_LEN SECTION_LEN*CONTAINER_LEN_MUL
+#define N_THREADS 3
+#define SECTIONS 8
 #define DEF_ITER_CNT 1024
 
 /* dummy declaration of proc args */

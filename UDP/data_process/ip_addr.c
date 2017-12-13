@@ -242,6 +242,11 @@ void DeleteIP_Table(IP_Table ipt)
 void IPTPush(IP_Table ipt, const char* addr, int port)
 {
   assert(ipt);
+  assert(addr);
+
+  if (port >= 65535 || port < 1000)
+    ERROR("IPTPush() Port range check!!")
+
   LPush(ipt->addresses, addr);
   NLPush(ipt->ports, port);
   ipt->size++;
@@ -250,13 +255,72 @@ void IPTPush(IP_Table ipt, const char* addr, int port)
 
 void IPTPushAddr(IP_Table ipt, const char* faddr)
 {
+  assert(ipt);
+  assert(faddr);
+
   char* addr;
   int port;
-  dt_urlparse(faddr, &addr, &port);
+  dt_IPAddrparse(faddr, &addr, &port);
   IPTPush(ipt, addr, port);
+
   tfree(addr);
   return;
 }
+
+void IPTPushAddrPortRngStr(IP_Table ipt, const char* faddr_ptrng)
+{
+  assert(ipt);
+  assert(faddr_ptrng);
+
+  char *addr;
+  int start_pt, end_pt, i;
+
+  dt_IPAddrportparse(faddr_ptrng, &addr, &start_pt, &end_pt);
+  assert(*addr);
+
+  for (i=0; i<end_pt-start_pt+1; ++i)
+    IPTPush(ipt, addr, start_pt+i);
+
+  tfree(addr);
+  return;
+}
+
+void IPTPushPortRngStr(IP_Table ipt, const char* addr, const char* port_rng)
+{
+  assert(ipt);
+  assert(addr);
+  assert(port_rng);
+
+  char *st_port, *end_port;
+  dt_portparse(port_rng, &st_port, &end_port);
+  IPTPushPortRng(ipt, addr, atoi(st_port), atoi(end_port));
+
+  tfree(st_port);
+  tfree(end_port);
+
+  return;
+}
+
+void IPTPushPortRng(IP_Table ipt, const char* addr, int st_port, int end_port)
+{
+  assert(addr);
+  assert(ipt);
+  assert(end_port-st_port>=0);
+
+  if (end_port-st_port == 0) {
+    IPTPush(ipt, addr, st_port);
+    return;
+  }
+
+  int i, n_ports = end_port-st_port+1;
+
+  for (i=0; i<n_ports; ++i) {
+    IPTPush(ipt, addr, st_port+1);
+  }
+
+  return;
+}
+
 
 char* IPTAddrAt(IP_Table ipt, uint64_t index)
 {
@@ -300,22 +364,96 @@ uint64_t IPTGetSz(IP_Table ipt)
 /**********************************************
   Utilities
 ***********************************************/
-/* URL parser */
-void dt_urlparse(const char* FAddr, char** Addr, int* port)
+/* Some other utilities */
+/* IPAddr... or Full IP address (xxx.xxx.xxx.xxx:pppp) parser */
+void dt_IPAddrparse(const char* FAddr, char** Addr, int* port)
 {
   assert(FAddr);
 
-  /* Picking up address */
-  char* colon = strchr(FAddr, ':');
-  int ip_length = colon - FAddr;
-  *Addr = (char*)tmalloc(ip_length+1);
-  strncpy(*Addr, FAddr, ip_length);
+  char* pt_str;
+  if ( str_div(FAddr, Addr, &pt_str, ':') == 1)
+    mprintf(
+      "dt_IPAddrparse: Check up given FAddr.\n"
+      "It should be... XXX.XXX.XXX.XXX:XXXXX\n"
+    );
 
-  /* Picking up port */
-  int port_length = strlen(FAddr) - ip_length;
-  char port_str[port_length];
-  strncpy(port_str, FAddr+ip_length+1, port_length);
-  *port = atoi(port_str);
+  *port = atoi(pt_str);
 
   return;
+}
+
+/* Port range parse */
+/* i.e. 10000-10020 to 10000 and 10020 */
+void dt_portparse(const char* PTrng, char** start_pt, char** end_pt)
+{
+  assert(PTrng);
+
+  if (str_div(PTrng, start_pt, end_pt, '-') == 1) {
+    mprintf(
+      "dt_portparse: Check up given port range.\n"
+      "It should be XXXX-XXXX format.\n");
+    *start_pt = NULL;
+    *end_pt = NULL;
+  }
+
+  return;
+}
+
+/* IP Addr and port parse */
+void dt_IPAddrportparse(const char* FAddr_portrng, char** Addr, int* start_pt, int* end_pt)
+{
+  assert(FAddr_portrng);
+
+  char* pt_rng_str;
+  if (str_div(FAddr_portrng, Addr, &pt_rng_str, ':') == 1) {
+    mprintf(
+      "dt_IPAddrportparse: Check up the given format!!\n"
+      "Format should be..\n"
+      "XXX.XXX.XXX.XXX:XXXXX-XXXXX\n"
+    );
+    *Addr = NULL;
+    *start_pt = 0;
+    *end_pt = 0;
+    return;
+  }
+
+  assert(pt_rng_str);
+
+  char *st_pt_str, *end_pt_str;
+  if (str_div(pt_rng_str, &st_pt_str, &end_pt_str, '-') == 1) {
+    st_pt_str = NULL;
+    end_pt_str = NULL;
+    return;
+  }
+
+  *start_pt = atoi(st_pt_str);
+  *end_pt = atoi(end_pt_str);
+
+  return;
+}
+
+/* General string divider */
+int str_div(const char* orig_str, char** fwd_pt, char** aft_pt, char delim)
+{
+  assert(orig_str);
+  assert(fwd_pt); assert(aft_pt);
+
+  char* p_delim = strchr(orig_str, delim);
+  if (*p_delim == '\0') {
+    mprintf("str_div: Can't find delimiter in the given string.\n");
+    *fwd_pt = NULL; *aft_pt = NULL;
+    return 1;
+  }
+
+  int fwd_pt_len = p_delim - orig_str;
+  *fwd_pt = (char*)tmalloc(fwd_pt_len+1);
+  assert(*fwd_pt);
+  strncpy(*fwd_pt, orig_str, fwd_pt_len);
+
+  int aft_pt_len = strlen(orig_str) - fwd_pt_len;
+  *aft_pt = (char*)tmalloc(aft_pt_len+1);
+  assert(*aft_pt);
+  strncpy(*aft_pt, orig_str+fwd_pt_len+1, aft_pt_len);
+
+  return 0;
 }
