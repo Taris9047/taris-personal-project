@@ -78,16 +78,18 @@ static void DeleteRecvDS(RecvDS rds)
 static void* recv_worker(void* args)
 {
   RecvDS rds = (RecvDS)args;
+  int s = rds->socket;
   unsigned char* buf = (*rds->p_container)+rds->start_idx;
-  struct sockaddr_in si = *rds->sock_addr;
-  socklen_t si_len = sizeof(si);
+  int buf_len = rds->span_length;
+  struct sockaddr_in* si = rds->sock_addr;
+  socklen_t si_len = sizeof(*si);
   int64_t recv_len = 0L;
 
   // mprintf("Running recvfrom at thread %d\n", rds->thr_id);
   recv_len = \
     recvfrom(
-      rds->socket, buf,
-      rds->span_length, 0, (struct sockaddr*)&si, &si_len);
+      s, buf,
+      buf_len, 0, (struct sockaddr*)si, &si_len);
   // mprintf("Received %d bytes at thread %d\n", recv_len, rds->thr_id);
 
   if ( recv_len == -1 ) {
@@ -121,15 +123,14 @@ void process(data_proc_args* options)
   int ind, ipt_sz = IPTGetSz(options->ipt);
   struct sockaddr_in si_me[ipt_sz];
   int s[ipt_sz];
-  size_t i, dc_i, j;
+  size_t i, j, sock_ind, sock_ind_mult;
   socklen_t si_me_len[ipt_sz];
 
-
   /* Preparing data container */
+  int total_n_threads = options->n_threads*ipt_sz;
   unsigned char* data_container = \
     (unsigned char*)tmalloc(
-      options->n_threads*ipt_sz*\
-      options->data_section_sz);
+      total_n_threads*options->data_section_sz);
   assert(data_container);
 
   /* Preparing sockets */
@@ -152,7 +153,6 @@ void process(data_proc_args* options)
   } /* for (ind=0; ind<ipt_sz; ++ind) */
 
   /* Preparing thread operation */
-  int total_n_threads = options->n_threads*ipt_sz;
   pthread_t threads[total_n_threads];
   RecvDS worker_args[total_n_threads];
   pthread_attr_t attr;
@@ -173,9 +173,20 @@ void process(data_proc_args* options)
     /* Set up timer */
     clock_gettime(CLOCK_MONOTONIC, &ts_start);
 
+    /* Setting up thread array */
+    sock_ind = 0;
+    sock_ind_mult = 1;
     for (i=0; i<total_n_threads; ++i) {
+
+      if (ipt_sz==1) sock_ind = 0;
+      else {
+        if (ipt_sz*sock_ind_mult == i)
+          sock_ind++;
+          sock_ind_mult++;
+      }
+
       worker_args[i] = NewRecvDS(
-        &s[i/ipt_sz], &si_me[i/ipt_sz],
+        &s[sock_ind], &si_me[sock_ind],
         i*options->data_section_sz,
         options->data_section_sz,
         &data_container, i);
@@ -183,7 +194,7 @@ void process(data_proc_args* options)
         total_n_threads*options->data_section_sz;
     } /* for (i=0; i<options->n_threads; ++i) */
 
-    /* Set up threads and start the job */
+    /* Start the job */
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     for (i=0; i<total_n_threads; ++i) {
@@ -191,12 +202,8 @@ void process(data_proc_args* options)
         &threads[i],
         &attr, recv_worker, (void*)worker_args[i]);
       if (rc) ERROR_NUM("pthread_create", rc)
-    } /* for (i=0; i<options->n_threads; ++i) */
 
-    /* Join threads */
-    pthread_attr_destroy(&attr);
-    for (i=0; i<total_n_threads; ++i) {
-
+      /* Join threads */
       rc = pthread_join(threads[i], &status);
       if (rc) ERROR_NUM("pthread_join", rc)
 
@@ -208,6 +215,8 @@ void process(data_proc_args* options)
 #     endif
 
     } /* for (i=0; i<options->n_threads; ++i) */
+
+    pthread_attr_destroy(&attr);
 
     clock_gettime(CLOCK_MONOTONIC, &ts_end);
     elapsed = \
@@ -241,7 +250,7 @@ void process(data_proc_args* options)
             inet_ntoa(si_me[ind].sin_addr), recv_sz_now, bit_rate);
       } /* if (options->keepalive) else */
 
-    } /* for (ind=0; ind<ipt_sz; ++ind)  */
+    } /* for (ind=0; ind<ipt_sz; ++ind) */
 
   } /* while (cnt--) */
 
@@ -250,10 +259,12 @@ void process(data_proc_args* options)
       "\n"
       "Average recv. rate is %lu bps\n",
       (uint64_t)(total_bit_rate/(double)options->iter_cnt));
-  }
+  } /* if (!options->keepalive) */
 
+  /* Close up the sockets */
   for (ind=0; ind<ipt_sz; ++ind) close(s[ind]);
 
+  /* Clean up the data container memory */
   tfree(data_container);
 
   return;
