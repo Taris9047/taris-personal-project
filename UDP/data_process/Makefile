@@ -60,4 +60,4 @@ llvm: $(TARGET_SOURCES) $(OTHER_SOURCES) $(OBJS_LLVM)
 	$(LLVMCC) $(LLVMFLAGS) data_process.c -o $(TARGET) $(OBJS_LLVM) $(LIBS)
 
 clean:
-	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo
+	rm -rfv ./$(TARGET) *.dSYM ./*.o ./*.oo ./*_result.txt

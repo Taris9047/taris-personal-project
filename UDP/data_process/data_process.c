@@ -25,6 +25,7 @@ typedef struct _data_proc_args {
   int iter_cnt;
   bool keepalive;
   bool quiet_mode;
+  size_t buf_sections;
 } data_proc_args;
 
 /*************************************************
@@ -39,6 +40,7 @@ typedef struct _recv_worker_data_set {
   int socket;
   struct sockaddr_in* sock_addr;
   int64_t recv_len;
+  size_t buf_sections;
   int thr_id;
 } rw_data_set;
 typedef rw_data_set* RecvDS;
@@ -47,6 +49,7 @@ typedef rw_data_set* RecvDS;
 static RecvDS NewRecvDS(
   int* sock, struct sockaddr_in* sock_addr_in,
   size_t start_index, size_t buffer_length,
+  size_t sections,
   unsigned char** main_data_container, int thr_id)
 {
   RecvDS new_rcvds = (RecvDS)tmalloc(sizeof(rw_data_set));
@@ -54,6 +57,7 @@ static RecvDS NewRecvDS(
 
   new_rcvds->start_idx = start_index;
   new_rcvds->span_length = buffer_length;
+  new_rcvds->buf_sections = sections;
 
   new_rcvds->p_container = main_data_container;
   new_rcvds->socket = *sock;
@@ -85,32 +89,36 @@ static void* recv_worker(void* args)
   socklen_t si_len = sizeof(*si);
   int64_t recv_len = 0L;
 
-  // mprintf("Running recvfrom at thread %d\n", rds->thr_id);
-  recv_len = \
-    recvfrom(
-      s, buf,
-      buf_len, 0, (struct sockaddr*)si, &si_len);
-  // mprintf("Received %d bytes at thread %d\n", recv_len, rds->thr_id);
+  size_t i, n_sections = rds->buf_sections;
 
-  if ( recv_len == -1 ) {
-    mprintf("pid: %d, thread: %d\n", getpid(), rds->thr_id);
-    mprintf(
-      "total_memory_length: %lu,"
-      " buffer_length: %lu,"
-      " section: %lu,"
-      " start index: %lu\n",
-      rds->total_memory_length,
-      rds->span_length,
-      rds->thr_id,
-      rds->start_idx);
-    ERROR("recvfrom()")
-  }
+  for (i=0; i<rds->buf_sections; ++i) {
+    recv_len = \
+      recvfrom(
+        s, buf+i*buf_len,
+        buf_len, 0, (struct sockaddr*)si, &si_len);
 
-# if defined(__GNUC__) || defined(__llvm__)
-  __atomic_fetch_add(&rds->recv_len, recv_len, 0);
-# else
-  rds->recv_len += recv_len;
-#  endif
+    if ( recv_len == -1 ) {
+      mprintf("pid: %d, thread: %d\n", getpid(), rds->thr_id);
+      mprintf(
+        "total_memory_length: %lu,"
+        " buffer_length: %lu,"
+        " section: %zu,"
+        " thread: %lu,"
+        " start index: %lu\n",
+        rds->total_memory_length,
+        rds->span_length,
+        i,
+        rds->thr_id,
+        rds->start_idx);
+      ERROR("recvfrom()")
+    }
+
+#   if defined(__GNUC__) || defined(__llvm__)
+    __atomic_fetch_add(&rds->recv_len, recv_len, 0);
+#   else
+    rds->recv_len += recv_len;
+#    endif
+  } /* for (i=0; i<rds->buf_sections; ++i) */
 
   pthread_exit(args);
 }
@@ -130,7 +138,7 @@ void process(data_proc_args* options)
   int total_n_threads = options->n_threads*ipt_sz;
   unsigned char* data_container = \
     (unsigned char*)tmalloc(
-      total_n_threads*options->data_section_sz);
+      total_n_threads*options->data_section_sz*options->buf_sections);
   assert(data_container);
 
   /* Preparing sockets */
@@ -180,18 +188,21 @@ void process(data_proc_args* options)
 
       if (ipt_sz==1) sock_ind = 0;
       else {
-        if (ipt_sz*sock_ind_mult == i)
+        if (i/options->n_threads == sock_ind_mult) {
           sock_ind++;
           sock_ind_mult++;
+        }
       }
 
       worker_args[i] = NewRecvDS(
         &s[sock_ind], &si_me[sock_ind],
-        i*options->data_section_sz,
+        i*options->data_section_sz*options->buf_sections,
         options->data_section_sz,
+        options->buf_sections,
         &data_container, i);
       worker_args[i]->total_memory_length = \
-        total_n_threads*options->data_section_sz;
+        total_n_threads*options->data_section_sz*options->buf_sections;
+
     } /* for (i=0; i<options->n_threads; ++i) */
 
     /* Start the job */
@@ -287,6 +298,7 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   dpa->iter_cnt = DEF_ITER_CNT;
   dpa->keepalive = false;
   dpa->quiet_mode = false;
+  dpa->buf_sections = SECTIONS;
 
   char c;
   while ((c=getopt(argc, argv, "a:p:t:b:i:qkh?"))!=-1) {
@@ -346,11 +358,12 @@ int main(int argc, char* argv[])
   int i, ipt_sz = IPTGetSz(opts->ipt);
   mprintf(">>> Listening to... \n");
   for (i=0; i<ipt_sz; ++i)
-    mprintf("%s:%d ", IPTAddrAt(opts->ipt, i), IPTPortAt(opts->ipt, i));
-  mprintf("\n");
+    mprintf("%s:%d\n", IPTAddrAt(opts->ipt, i), IPTPortAt(opts->ipt, i));
+  // mprintf("\n");
   mprintf(">>> Buffer Size per Threads: %lu bytes.\n", opts->buf_len);
   mprintf(">>> Total Memory Size: %lu bytes.\n",
     opts->data_section_sz*ipt_sz*opts->n_threads);
+  mprintf(">>> Threads per address: %d\n", opts->n_threads);
   if (!opts->keepalive)
     mprintf(">>> Iteration count: %d\n", opts->iter_cnt);
 
