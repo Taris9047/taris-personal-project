@@ -111,13 +111,13 @@ static void* recv_worker(void* args)
         rds->thr_id,
         rds->start_idx);
       ERROR("recvfrom()")
-    }
+    } /* if ( recv_len == -1 ) */
 
 #   if defined(__GNUC__) || defined(__llvm__)
     __atomic_fetch_add(&rds->recv_len, recv_len, 0);
 #   else
     rds->recv_len += recv_len;
-#    endif
+#   endif
   } /* for (i=0; i<rds->buf_sections; ++i) */
 
   pthread_exit(args);

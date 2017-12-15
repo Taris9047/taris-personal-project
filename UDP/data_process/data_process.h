@@ -46,7 +46,7 @@
 */
 #define BUF_LEN 1024*8
 #define N_THREADS 3
-#define SECTIONS 1024
+#define SECTIONS 128
 #define DEF_ITER_CNT 1024
 
 /* dummy declaration of proc args */
