@@ -24,3 +24,5 @@ MeshCPP11/DataStrTest.exe.stackdump
 *.dll
 DataStr/c/.gdb_history
 DataStr/c/DataStrTest.dSYM/Contents/Info.plist
+.DS_Store
+*.plist
