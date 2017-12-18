@@ -103,7 +103,7 @@ static void* recv_worker(void* args)
         "total_memory_length: %lu,"
         " buffer_length: %lu,"
         " section: %zu,"
-        " thread: %lu,"
+        " thread: %d,"
         " start index: %lu\n",
         rds->total_memory_length,
         rds->span_length,
@@ -265,11 +265,13 @@ void process(data_proc_args* options)
 
   } /* while (cnt--) */
 
+  uint64_t bit_rate_averaged = \
+    (uint64_t)(total_bit_rate/(double)options->iter_cnt);
   if (!options->keepalive) {
     mprintf(
       "\n"
-      "Average recv. rate is %lu bps\n",
-      (uint64_t)(total_bit_rate/(double)options->iter_cnt));
+      "Average recv. rate is %lu bps\n", bit_rate_averaged);
+    write_bit_rate(bit_rate_averaged, options);
   } /* if (!options->keepalive) */
 
   /* Close up the sockets */
@@ -350,9 +352,11 @@ static data_proc_args* ArgParser(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
   setlocale(LC_NUMERIC, "");
+  GET_COMPILER
 
   data_proc_args* opts = ArgParser(argc, argv);
   mprintf("Simple data receiver from UDP\n");
+  mprintf("Compiled with %s\n", COMPILER);
 
   int i, ipt_sz = IPTGetSz(opts->ipt);
   mprintf(">>> Listening to... \n");
@@ -362,7 +366,7 @@ int main(int argc, char* argv[])
   mprintf(">>> Buffer Size per Threads: %lu bytes.\n", opts->buf_len);
   mprintf(">>> Total Memory Size: %lu bytes.\n",
     opts->data_section_sz*ipt_sz*opts->n_threads);
-  mprintf(">>> Threads per address: %d\n", opts->n_threads);
+  mprintf(">>> Threads per address: %zu\n", opts->n_threads);
   if (!opts->keepalive)
     mprintf(">>> Iteration count: %d\n", opts->iter_cnt);
 
@@ -394,5 +398,51 @@ void usage()
     BUF_LEN,
     DEF_ITER_CNT
   );
+  return;
+}
+
+/*************************************************
+  Write bit rate
+**************************************************/
+void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
+{
+  char* fname = (char*)tmalloc(80);
+
+  time_t t = time(NULL);
+  struct tm tm = *localtime(&t);
+
+  char* time_str = (char*)tmalloc(20);
+  sprintf(
+    time_str, "%d%d%d%d%d%d",
+    tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday,
+    tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+  sprintf(
+    fname, "%s_pid_%d_thr_%zu.txt",
+    COMPILER, getpid(), opts->n_threads);
+
+  char* fdata = (char*)tmalloc(500);
+  sprintf(
+    fdata,
+    "Compiled with: %s\n"
+    "Time: %s\n"
+    "Threads per address: %zu\n"
+    "PID: %d\n"
+    "Bit rate: %lu bps\n"
+    "\n"
+    ,
+    COMPILER,
+    time_str,
+    opts->n_threads,
+    getpid(),
+    bit_rate
+  );
+
+  save_to_file(fname, fdata, true, _TXT_FILE_);
+
+  tfree(fname);
+  tfree(time_str);
+  tfree(fdata);
+
   return;
 }

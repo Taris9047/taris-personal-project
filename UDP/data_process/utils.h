@@ -13,7 +13,40 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
+/* Compiler detection */
+char comp_ver_str[30];
+static void chk_compiler_ver()
+{
+  char* tmp = (char*)malloc(30);
+
+#if defined(__GNUC__) && !defined(__clang__)
+
+  sprintf(
+    tmp, "gcc-%d.%d.%d",
+    __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+
+#elif defined(__PGIC__)
+
+  sprintf(
+    tmp, "PGI-%d.%d.%d",
+    __PGIC__, __PGIC_MINOR__, __PGIC_PATCHLEVEL__);
+
+#elif defined(__clang__)
+
+  sprintf(
+    tmp, "clang-%d.%d.%d",
+    __clang__, __clang_minor__, __clang_patchlevel__);
+
+#endif
+  memcpy(comp_ver_str, tmp, strlen(tmp)+1);
+  free(tmp);
+}
+#define GET_COMPILER chk_compiler_ver();
+#define COMPILER comp_ver_str
+
+/* error handlers */
 #define ERROR(str) \
   { \
   fprintf(stderr, "Complication at %s with ERR: %s\n", str, strerror(errno)); \

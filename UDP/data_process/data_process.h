@@ -36,6 +36,7 @@
 
 #include "utils.h"
 #include "ip_addr.h"
+#include "fileio.h"
 
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
 #define DEFAULT_SERVER_PORT 9930
@@ -57,6 +58,9 @@ void process(data_proc_args* options);
 
 /* Prints out usage */
 void usage();
+
+/* Writes operation speed data */
+void write_bit_rate(uint64_t bit_rate, data_proc_args* opts);
 
 
 #endif /* Include guard */

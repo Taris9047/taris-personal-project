@@ -20,17 +20,30 @@ PGCCFLAGS=-DNDEBUG -O4 -m64 -tp=x64
 
 TARGET=data_process
 
-OBJS=ip_addr.o
-OBJS_REL=ip_addr_rel.o
-OBJS_PGI=ip_addr_pgi.o
-OBJS_LLVM=ip_addr_llvm.o
+OBJS=ip_addr.o fileio.o
+OBJS_REL=ip_addr_rel.o fileio_rel.o
+OBJS_PGI=ip_addr_pgi.o fileio_pgi.o
+OBJS_LLVM=ip_addr_llvm.o fileio_llvm.o
 
 IP_ADDR_SOURCES=ip_addr.c ip_addr.h
+
+FILEIO_SOURCESS=fileio.c fileio.h
 
 OTHER_SOURCES=utils.h
 
 all: debug
 
+fileio.o: $(FILEIO_SOURCESS) $(OTHER_SOURCES)
+	$(CC) $(CFLAGS) -c fileio.c -o $@
+
+fileio_rel.o: $(FILEIO_SOURCESS) $(OTHER_SOURCES)
+	$(CC) $(RELFLAGS) -c fileio.c -o $@
+
+fileio_pgi.o: $(FILEIO_SOURCESS) $(OTHER_SOURCES)
+	$(PGCC) $(PGCCFLAGS) -c fileio.c -o $@
+
+fileio_llvm.o: $(FILEIO_SOURCESS) $(OTHER_SOURCES)
+	$(LLVMCC) $(RELCFLAGS) -c fileio.c -o $@
 
 ip_addr.o: $(IP_ADDR_SOURCES) $(OTHER_SOURCES)
 	$(CC) $(CFLAGS) -c ip_addr.c -o $@
