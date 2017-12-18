@@ -31,7 +31,7 @@ typedef struct _data_proc_args {
 /*************************************************
   pthread stuff
 **************************************************/
-/* worker data package */
+/* worker data package (Argument struct) */
 typedef struct _recv_worker_data_set {
   size_t start_idx;
   size_t span_length;
@@ -45,7 +45,7 @@ typedef struct _recv_worker_data_set {
 } rw_data_set;
 typedef rw_data_set* RecvDS;
 
-/* Constructor */
+/* Argument Constructor */
 static RecvDS NewRecvDS(
   int* sock, struct sockaddr_in* sock_addr_in,
   size_t start_index, size_t buffer_length,
@@ -69,7 +69,7 @@ static RecvDS NewRecvDS(
   return new_rcvds;
 }
 
-/* Destructor */
+/* Argument Destructor */
 static void DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
@@ -284,7 +284,6 @@ void process(data_proc_args* options)
 /*************************************************
   Argument management for main()
 **************************************************/
-
 static data_proc_args* ArgParser(int argc, char* argv[])
 {
   data_proc_args* dpa = \
