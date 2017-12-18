@@ -9,7 +9,6 @@
   Aug. 14th 2017
 
 **************************************************/
-
 #ifndef UDP_DATA_PROCESS_MAIN_HEADER
 #define UDP_DATA_PROCESS_MAIN_HEADER
 
@@ -29,27 +28,35 @@
 
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 
 #include <assert.h>
 #include <stdbool.h>
 
 #include "utils.h"
+#include "ip_addr.h"
 
 #define DEFAULT_SERVER_ADDR "127.0.0.1"
 #define DEFAULT_SERVER_PORT 9930
 
-#define BUF_LEN 512
-#define BUF_LEN_MUL 4
-
-/* the data container */
-unsigned char* data_container;
+/*
+  It seems BUF_LEN has some kind of sweet spot. It's a buffer length.. and
+  generally conceived a larger buffer length ensures better recv. speed...
+*/
+#define BUF_LEN 1024*8
+#define N_THREADS 3
+#define SECTIONS 128
+#define DEF_ITER_CNT 1024
 
 /* dummy declaration of proc args */
 typedef struct _data_proc_args data_proc_args;
 
 /* The processer itself */
 void process(data_proc_args* options);
+
+/* Prints out usage */
+void usage();
 
 
 #endif /* Include guard */

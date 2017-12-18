@@ -13,11 +13,17 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define ERROR(str) \
   { \
   fprintf(stderr, "Complication at %s with ERR: %s\n", str, strerror(errno)); \
-  exit(-1); \
+  exit(errno); \
+  }
+#define ERROR_NUM(str, err_num) \
+  { \
+    fprintf(stderr, "Complication at %s with ERRNO: %d\n", str, err_num); \
+    exit(err_num); \
   }
 
 #define tmalloc(sz) calloc(1, sz)
@@ -29,16 +35,18 @@
   #define mfprintf(s_,...) fprintf((s_), __VA_ARGS__)
 #else
   /* Some convenient printf for MPI stuff */
-  void mpi_printf(const char* format, ...) {
-    int rnk; MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
+  static void mpi_printf(const char* format, ...) {
+    int rnk;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
     va_list args;
     va_start(args, format);
     fprintf(stdout, "[%d] ", rnk);
     vfprintf(stdout, format, args);
     va_end(args);
   }
-  void mpi_fprintf(FILE* stream, const char* format, ...) {
-    int rnk; MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
+  static void mpi_fprintf(FILE* stream, const char* format, ...) {
+    int rnk;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rnk);
     va_list args;
     va_start(args, format);
     fprintf(stream, "[%d] ", rnk);

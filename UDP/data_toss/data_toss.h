@@ -23,27 +23,38 @@
 #include <sys/mman.h>
 #include <netdb.h>
 
+#include <assert.h>
 #include <time.h>
 #include <locale.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 #if defined(USE_MPI)
 #  include <mpi.h>
 #endif
 
 #include "utils.h"
+#include "ip_addr.h"
+#include "custom_header.h"
 
 /* Some macro defs */
 #define SRV_IP "127.0.0.1"
 #define DEF_PORT 9930
-#define BUFLEN 1500
+#define BUFLEN 1024*8
 #define CHUNK_LEN 10000L
-#define SENDTO_ITER 3
+#define SENDTO_ITER 1024
 #define DATA_LEN BUFLEN*SENDTO_ITER
 #define N_TOSSERS 5
-#define ITER 1
+#define ITER 10
 
-/* The server toutine */
-void keep_sending(int port_num, size_t n_threads, int daemon);
+/* Input data struct for function keep_sending */
+typedef struct _keep_sending_args keep_sending_args;
+typedef keep_sending_args* Ksa;
+
+/* The server routine */
+void keep_sending(Ksa args);
+
+/* show usage */
+void usage();
 
 #endif /* Include guard */
