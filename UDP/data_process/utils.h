@@ -81,6 +81,15 @@ static int file_exist(const char* fname)
 # define tfree(p) free_to_null(p)
 #endif /* #if defined(NDEBUG) */
 
+/* Free all given variables */
+static void tfree_all(void* pt, ...) {
+  va_list pt_list;
+  va_start(pt_list, pt);
+  tfree(pt_list);
+  va_end(pt_list);
+  return;
+}
+
 #if !defined(USE_MPI)
   #define mprintf(...) printf(__VA_ARGS__)
   #define mfprintf(s_,...) fprintf((s_), __VA_ARGS__)

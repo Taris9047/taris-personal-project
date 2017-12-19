@@ -75,7 +75,6 @@ static RecvDS NewRecvDS(
 static void DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
-  if (rds->log_mode_msg) tfree(rds->log_mode_msg);
   tfree(rds);
   return;
 }
@@ -385,6 +384,7 @@ int main(int argc, char* argv[])
   process(opts);
 
   DeleteIP_Table(opts->ipt);
+  tfree(opts->log_mode_msg);
   tfree(opts);
 
   return 0;
@@ -437,23 +437,25 @@ void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
   }
   else {
     if (!opts->log_mode_msg) sprintf(fname, "%s_results.txt", COMPILER);
-    else sprintf(fname, "%s_msg_%s_results.txt", COMPILER, opts->log_mode_);
+    else sprintf(fname, "%s_msg_%s_results.txt", COMPILER, opts->log_mode_msg);
   } /* if (!opts->log_mode) */
 
   char* compiler_info = (char*)tmalloc(100);
   sprintf(compiler_info, ">>>> Compiled with %s <<<<\n\n", COMPILER);
+
+  /* this line doesn't work... hmmmm */
   if ( !file_exist(fname) )
     save_to_file(fname, compiler_info, false, _TXT_FILE_);
-
 
   char* fdata = (char*)tmalloc(500);
   sprintf(
     fdata,
+    "<---------- Section Start --------->\n"
     "Threads per address: %zu\n"
     "Time: %s\n"
     "PID: %d\n"
     "Bit rate: %lu bps\n"
-    "\n"
+    "<----------- Section End ---------->\n"
     ,
     opts->n_threads,
     time_str,
@@ -462,10 +464,7 @@ void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
 
   save_to_file(fname, fdata, true, _TXT_FILE_);
 
-  tfree(fname);
-  tfree(time_str);
-  tfree(fdata);
-  tfree(compiler_info);
+  tfree_all(fname, time_str, fdata, compiler_info);
 
   return;
 }
