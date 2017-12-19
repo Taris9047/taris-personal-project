@@ -45,9 +45,9 @@
   It seems BUF_LEN has some kind of sweet spot. It's a buffer length.. and
   generally conceived a larger buffer length ensures better recv. speed...
 */
-#define BUF_LEN 1024
+#define BUF_LEN 1024*8
 #define N_THREADS 3
-#define SECTIONS 64
+#define SECTIONS 256
 #define DEF_ITER_CNT 1024
 
 /* dummy declaration of proc args */

@@ -26,6 +26,8 @@ typedef struct _data_proc_args {
   bool keepalive;
   bool quiet_mode;
   size_t buf_sections;
+  bool log_mode;
+  char* log_mode_msg;
 } data_proc_args;
 
 /*************************************************
@@ -73,7 +75,7 @@ static RecvDS NewRecvDS(
 static void DeleteRecvDS(RecvDS rds)
 {
   assert(rds);
-
+  if (rds->log_mode_msg) tfree(rds->log_mode_msg);
   tfree(rds);
   return;
 }
@@ -300,9 +302,11 @@ static data_proc_args* ArgParser(int argc, char* argv[])
   dpa->keepalive = false;
   dpa->quiet_mode = false;
   dpa->buf_sections = SECTIONS;
+  dpa->log_mode = false;
+  dpa->log_mode_msg = false;
 
   char c;
-  while ((c=getopt(argc, argv, "a:p:t:b:i:qkh?"))!=-1) {
+  while ((c=getopt(argc, argv, "a:p:t:b:i:m:lqkh?"))!=-1) {
     switch (c) {
       case 'a':
         /* Input as XXX.XXX.XXX.XXX:XXXX */
@@ -323,6 +327,13 @@ static data_proc_args* ArgParser(int argc, char* argv[])
         break;
       case 'i':
         dpa->iter_cnt = atoi(optarg);
+        break;
+      case 'l':
+        dpa->log_mode = true;
+        break;
+      case 'm':
+        dpa->log_mode_msg = (char*)tmalloc(strlen(optarg)+1);
+        strcpy(dpa->log_mode_msg, optarg);
         break;
       case 'q':
         dpa->quiet_mode = true;
@@ -392,6 +403,8 @@ void usage()
     "-b <buffer length>: Buffer size per thread in bytes. (Default: %d)\n"
     "-k : Keep alive. (Default: False)\n"
     "-i <number of recv. sessions>: Number of receiving operations. (Default: %d)\n"
+    "-l : Log mode (file report)\n"
+    "-m : Message for log mode.\n"
     "-q : Quiet Mode. (Defualt: False)\n"
     "-h or -?: Prints out this message\n"
     "\n",
@@ -417,32 +430,42 @@ void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
     tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday,
     tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-  sprintf(
-    fname, "%s_pid_%d_thr_%zu.txt",
-    COMPILER, getpid(), opts->n_threads);
+  if (!opts->log_mode) {
+    sprintf(
+      fname, "%s_pid_%d_thr_%zu_results.txt",
+      COMPILER, getpid(), opts->n_threads);
+  }
+  else {
+    if (!opts->log_mode_msg) sprintf(fname, "%s_results.txt", COMPILER);
+    else sprintf(fname, "%s_msg_%s_results.txt", COMPILER, opts->log_mode_);
+  } /* if (!opts->log_mode) */
+
+  char* compiler_info = (char*)tmalloc(100);
+  sprintf(compiler_info, ">>>> Compiled with %s <<<<\n\n", COMPILER);
+  if ( !file_exist(fname) )
+    save_to_file(fname, compiler_info, false, _TXT_FILE_);
+
 
   char* fdata = (char*)tmalloc(500);
   sprintf(
     fdata,
-    "Compiled with: %s\n"
-    "Time: %s\n"
     "Threads per address: %zu\n"
+    "Time: %s\n"
     "PID: %d\n"
     "Bit rate: %lu bps\n"
     "\n"
     ,
-    COMPILER,
-    time_str,
     opts->n_threads,
+    time_str,
     getpid(),
-    bit_rate
-  );
+    bit_rate);
 
   save_to_file(fname, fdata, true, _TXT_FILE_);
 
   tfree(fname);
   tfree(time_str);
   tfree(fdata);
+  tfree(compiler_info);
 
   return;
 }

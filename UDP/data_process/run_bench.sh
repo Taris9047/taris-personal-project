@@ -33,7 +33,7 @@ if [[ -z $DATA_PROCESS ]]; then
   else
     echo "Compiling with given run mode: $RUN_MODE"
     echo ""
-    make clean
+    # make clean
     make $RUN_MODE
   fi # if [[ -z $RUN_MODE ]]; then
   DATA_PROCESS="./data_process"
@@ -44,7 +44,7 @@ else
   else
     echo "Recompiling with given run mode: $RUN_MODE"
     echo ""
-    make clean
+    # make clean
     make $RUN_MODE
   fi # if [[ -z $RUN_MODE ]]; then
 fi # if [[ -z $DATA_TOSS ]]; then
@@ -55,7 +55,7 @@ fi # if [[ -z $DATA_TOSS ]]; then
 for th in "${THREAD_ARY[@]}"
 do
   echo ">>>>>>> Running $th!!"
-  eval "$DATA_PROCESS -q -p ${ADDR} -i ${ITER_CNT} -t ${th}"
+  eval "$DATA_PROCESS -q -l -p ${ADDR} -i ${ITER_CNT} -t ${th}"
   echo ">>>>>>> $th done!!"
   echo ""
 done
