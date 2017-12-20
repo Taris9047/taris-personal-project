@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdbool.h>
 
@@ -85,7 +87,7 @@ static int file_exist(const char* fname)
 static void tfree_all(void* pt, ...) {
   va_list pt_list;
   va_start(pt_list, pt);
-  tfree(pt_list);
+  tfree(pt);
   va_end(pt_list);
   return;
 }

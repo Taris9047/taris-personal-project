@@ -421,6 +421,7 @@ void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
 {
   char* fname = (char*)tmalloc(80);
 
+  int i;
   time_t t = time(NULL);
   struct tm tm = *localtime(&t);
 
@@ -447,16 +448,30 @@ void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
   if ( !file_exist(fname) )
     save_to_file(fname, compiler_info, false, _TXT_FILE_);
 
-  char* fdata = (char*)tmalloc(500);
+  char* addresses = (char*)tmalloc(100);
+  char* port;
+  for (i=0; i<IPTGetSz(opts->ipt); ++i) {
+    port = (char*)tmalloc(10);
+    sprintf(addresses, "%s", IPTAddrAt(opts->ipt, i));
+    strcat(addresses, ":");
+    sprintf(port, "%d", IPTPortAt(opts->ipt, i));
+    strcat(addresses, port);
+    strcat(addresses, "\n");
+    tfree(port);
+  }
+
+  char* fdata = (char*)tmalloc(5000);
   sprintf(
     fdata,
     "<---------- Section Start --------->\n"
+    "Addresses: \n%s"
     "Threads per address: %zu\n"
     "Time: %s\n"
     "PID: %d\n"
     "Bit rate: %lu bps\n"
     "<----------- Section End ---------->\n"
     ,
+    addresses,
     opts->n_threads,
     time_str,
     getpid(),
@@ -464,7 +479,7 @@ void write_bit_rate(uint64_t bit_rate, data_proc_args* opts)
 
   save_to_file(fname, fdata, true, _TXT_FILE_);
 
-  tfree_all(fname, time_str, fdata, compiler_info);
+  tfree_all(fname, time_str, fdata, compiler_info, addresses);
 
   return;
 }
