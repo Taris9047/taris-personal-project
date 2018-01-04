@@ -1,0 +1,130 @@
+>>>> Compiled with gcc-8.0.0 <<<<
+
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 1
+Time: 20171220203029
+PID: 40146
+Bit rate: 13013474105 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 2
+Time: 20171220203115
+PID: 16222
+Bit rate: 12251013556 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 3
+Time: 20171220203222
+PID: 18763
+Bit rate: 12300240792 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 4
+Time: 20171220203349
+PID: 45535
+Bit rate: 12730099804 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 5
+Time: 20171220203534
+PID: 43545
+Bit rate: 13139062847 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 6
+Time: 20171220203744
+PID: 11495
+Bit rate: 12748211222 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 7
+Time: 20171220204015
+PID: 10703
+Bit rate: 13010001891 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 8
+Time: 20171220204312
+PID: 23087
+Bit rate: 12464284514 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 16
+Time: 20171220204931
+PID: 24502
+Bit rate: 11675094891 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 24
+Time: 20171220205852
+PID: 11385
+Bit rate: 11790657889 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 32
+Time: 20171220211158
+PID: 18002
+Bit rate: 11319526051 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 48
+Time: 20171220213026
+PID: 24947
+Bit rate: 11932382625 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 72
+Time: 2017122021587
+PID: 6289
+Bit rate: 12015443820 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 96
+Time: 20171220223820
+PID: 28634
+Bit rate: 11052350430 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 128
+Time: 20171220232628
+PID: 4847
+Bit rate: 12204729275 bps
+<----------- Section End ---------->
+<---------- Section Start --------->
+Addresses: 
+127.0.0.1:9931
+Threads per address: 192
+Time: 201712210402
+PID: 38095
+Bit rate: 12056094849 bps
+<----------- Section End ---------->
