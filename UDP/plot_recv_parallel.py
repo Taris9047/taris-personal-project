@@ -185,9 +185,7 @@ class BenchData:
                 col_ind = 2
             elif 'gcc' in DFP.Compiler.lower():
                 col_ind = 3
-            elif 'llvm' in DFP.Compiler.lower():
-                col_ind = 4
-            elif 'clang' in DFP.Compiler.lower():
+            elif 'llvm' in DFP.Compiler.lower() or 'clang' in DFP.Compiler.lower():
                 col_ind = 4
 
             for d in DFP.DataList:

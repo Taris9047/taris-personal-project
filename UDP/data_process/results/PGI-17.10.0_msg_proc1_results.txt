@@ -4,127 +4,127 @@
 Addresses: 
 127.0.0.1:9930
 Threads per address: 1
-Time: 201814105344
-PID: 11763
-Bit rate: 14448993679 bps
+Time: 201815163030
+PID: 21124
+Bit rate: 14594080122 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 2
-Time: 201814105347
-PID: 46504
-Bit rate: 13133887285 bps
+Time: 201815163035
+PID: 7034
+Bit rate: 14097918307 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 3
-Time: 201814105351
-PID: 18495
-Bit rate: 13565180701 bps
+Time: 201815163044
+PID: 27603
+Bit rate: 12188904991 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 4
-Time: 201814105357
-PID: 24991
-Bit rate: 13505682462 bps
+Time: 201815163056
+PID: 34391
+Bit rate: 12045245396 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 5
-Time: 20181410545
-PID: 17632
-Bit rate: 13586331966 bps
+Time: 20181516319
+PID: 26650
+Bit rate: 14047912336 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 6
-Time: 201814105414
-PID: 44788
-Bit rate: 12398798264 bps
+Time: 201815163125
+PID: 5139
+Bit rate: 14209935362 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 7
-Time: 201814105427
-PID: 9177
-Bit rate: 9443352010 bps
+Time: 201815163145
+PID: 18271
+Bit rate: 13508200262 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 8
-Time: 201814105440
-PID: 8302
-Bit rate: 10815286603 bps
+Time: 201815163213
+PID: 17169
+Bit rate: 10785956239 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 16
-Time: 201814105511
-PID: 42152
-Bit rate: 9162843915 bps
+Time: 201815163259
+PID: 2113
+Bit rate: 12211795914 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 24
-Time: 201814105557
-PID: 12188
-Bit rate: 9009884536 bps
+Time: 201815163411
+PID: 20806
+Bit rate: 11891989695 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 32
-Time: 201814105658
-PID: 16103
-Bit rate: 9162189393 bps
+Time: 201815163540
+PID: 24346
+Bit rate: 12746934816 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 48
-Time: 201814105834
-PID: 5184
-Bit rate: 8846552959 bps
+Time: 201815163810
+PID: 12846
+Bit rate: 11391941479 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 72
-Time: 20181411110
-PID: 12797
-Bit rate: 8442700937 bps
+Time: 201815164240
+PID: 20002
+Bit rate: 9478641036 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 96
-Time: 2018141150
-PID: 24559
-Bit rate: 7337961071 bps
+Time: 201815164829
+PID: 31003
+Bit rate: 9670057477 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 128
-Time: 20181411933
-PID: 40129
-Bit rate: 8265993571 bps
+Time: 201815165611
+PID: 45493
+Bit rate: 9936188200 bps
 <----------- Section End ---------->
 <---------- Section Start --------->
 Addresses: 
 127.0.0.1:9930
 Threads per address: 192
-Time: 201814111630
-PID: 42724
-Bit rate: 8081124746 bps
+Time: 20181517810
+PID: 48327
+Bit rate: 9608868351 bps
 <----------- Section End ---------->
