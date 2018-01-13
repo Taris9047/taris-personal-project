@@ -12,7 +12,15 @@
 
 int main (int argc, char* argv[])
 {
-	QTree<std::string> qtree();
+    std::cout << "Testing Quad Tree" << std::endl;
+
+	QTree<std::string> qtree;
+	
+	qtree.Insert(std::string("A"), 1);
+	qtree.Insert(std::string("AB"), 3);
+	
+	std::cout << "A: " << qtree.Get(1) << std::endl;
+	std::cout << "AB: " << qtree.Get(3) << std::endl;
 
 	return 0;
 }

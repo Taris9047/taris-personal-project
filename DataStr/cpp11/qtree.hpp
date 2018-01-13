@@ -41,6 +41,8 @@ protected:
 			index(0), parent(nullptr),
 			NE(nullptr), NW(nullptr), SE(nullptr), SW(nullptr)
 		{;}
+		QTreeNode(const T& input_data, const uint64_t& input_index) : QTreeNode()
+		{ data = input_data; index = input_index; }
 		virtual ~QTreeNode() {;}
 	};
 
@@ -49,7 +51,7 @@ private:
 	uint64_t n_nodes;
 	std::unique_ptr<QTreeNode> root_node;
 
-	std::unique_ptr<QTreeNode>& search(const uint64_t& index);
+	QTreeNode* search(const uint64_t& index);
 
 
 public:
