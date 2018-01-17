@@ -18,13 +18,15 @@ typename QTree<T>::QTreeNode* QTree<T>::search(const uint64_t& index)
 {
 	/* Some edgy cases */
 	if (!root_node) return nullptr;
-	if (!index) return root_node.get();
 
 	auto tmp_node = root_node.get();
 
 	std::list<QTreeNode*> other_nodes; /* FILO storage */
 
 	while (tmp_node) {
+
+		if (tmp_node->index == index) return tmp_node;
+
 		if (tmp_node->NE) {
 			if (tmp_node->NE->index == index) return tmp_node->NE.get();
 			other_nodes.push_front(tmp_node->NE.get());
@@ -70,9 +72,18 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 	/* Couldn't find the index node */
 	auto new_node = std::make_unique<QTreeNode>(data, index);
 
+	/* Edge case */
+	if (!root_node) {
+		root_node = std::move(new_node);
+		n_nodes++;
+		return;
+	}
+
 	/* Now travel down */
 	auto tmp_node = root_node.get();
+	if (!depth) depth++;
 	while (tmp_node) {
+
 		if (!tmp_node->NW) {
 			tmp_node->NW = std::move(new_node);
 			tmp_node->NW->parent = tmp_node;
