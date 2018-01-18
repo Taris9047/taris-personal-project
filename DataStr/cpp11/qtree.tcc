@@ -27,21 +27,16 @@ typename QTree<T>::QTreeNode* QTree<T>::search(const uint64_t& index)
 
 		if (tmp_node->index == index) return tmp_node;
 
-		if (tmp_node->NE) {
-			if (tmp_node->NE->index == index) return tmp_node->NE.get();
-			other_nodes.push_front(tmp_node->NE.get());
+		/* Find Left */
+		for (auto l=tmp_node->Left.begin(); l!=tmp_node->Left.end(); ++l) {
+			if ((*l)->index == index) return (*l).get();
+			other_nodes.push_front((*l).get());
 		}
-		if (tmp_node->NW) {
-			if (tmp_node->NW->index == index) return tmp_node->NW.get();
-			other_nodes.push_front(tmp_node->NW.get());
-		}
-		if (tmp_node->SE) {
-			if (tmp_node->SE->index == index) return tmp_node->SE.get();
-			other_nodes.push_front(tmp_node->SE.get());
-		}
-		if (tmp_node->SW) {
-			if (tmp_node->SW->index == index) return tmp_node->SW.get();
-			other_nodes.push_front(tmp_node->SW.get());
+
+		/* Fine Right */
+		for (auto l=tmp_node->Right.begin(); l!=tmp_node->Right.end(); ++l) {
+			if ((*l)->index == index) return (*l).get();
+			other_nodes.push_front((*l).get());
 		}
 
 		// If index can't be found in this node, let's try other node.
@@ -59,17 +54,10 @@ typename QTree<T>::QTreeNode* QTree<T>::search(const uint64_t& index)
 template <class T>
 void QTree<T>::Insert(const T& data, const uint64_t& index)
 {
-	auto found_node = search(index);
-
+	/* Temporary storage for adjacent nodes */
 	std::list<QTreeNode*> current_nodes;
 
-	/* We've found a node with the index!! */
-	if (found_node) {
-		found_node->data = data;
-		return;
-	}
-
-	/* Couldn't find the index node */
+	/* New node */
 	auto new_node = std::make_unique<QTreeNode>(data, index);
 
 	/* Edge case */
@@ -82,48 +70,94 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 	/* Now travel down */
 	auto tmp_node = root_node.get();
 	if (!depth) depth++;
+
 	while (tmp_node) {
 
-		if (!tmp_node->NW) {
-			tmp_node->NW = std::move(new_node);
-			tmp_node->NW->parent = tmp_node;
-			n_nodes++;
+		/* Found the node! */
+		if (tmp_node->index == index) {
+			tmp_node->data = data;
 			return;
 		}
-		else current_nodes.push_front(tmp_node->NW.get());
 
-		if (!tmp_node->NE) {
-			tmp_node->NE = std::move(new_node);
-			tmp_node->NE->parent = tmp_node;
-			n_nodes++;
-			return;
-		}
-		else current_nodes.push_front(tmp_node->NE.get());
+		/* Push into left */
+		if (index < tmp_node->index) {
 
-		if (!tmp_node->SW) {
-			tmp_node->SW = std::move(new_node);
-			tmp_node->SW->parent = tmp_node;
-			n_nodes++;
-			return;
-		}
-		else current_nodes.push_front(tmp_node->SW.get());
+			/* Full node. update tmp_node and insert other nodes to temporary storage: current_nodes */
+			if (tmp_node->LFull()) {
+				auto s_left = (*(tmp_node->Left.begin())).get();
+				auto s_right = (*(tmp_node->Left.end())).get();
 
-		if (!tmp_node->SE) {
-			tmp_node->SE = std::move(new_node);
-			tmp_node->SE->parent = tmp_node;
-			n_nodes++;
-			return;
-		}
-		else current_nodes.push_front(tmp_node->SE.get());
+				if (index < s_left->index) {
+					current_nodes.push_front(s_right);
+					tmp_node = s_left;
+				}
+				else if (s_left->index < index && index < s_right->index) {
+					if (s_left->RFull()) {
+						tmp_node = s_right;
+					}
+					else {
+						current_nodes.push_front(s_right);
+						tmp_node = s_left;
+					}
+				}
+				else if (s_right->index < index) {
+					tmp_node = s_right;
+				}
+				continue;
+
+			} /* if (tmp_node->LFull()) */
+			/* If left side is not full, just put this thing in... <set>
+			will re-arrange it itself */
+			else {
+				new_node->parent = tmp_node;
+				tmp_node->Left.insert(std::move(new_node));
+				break;
+			}
+
+		} /* if (index < tmp_node->index) { */
+
+		/* Push into right */
+		else {
+			/* Full node. update tmp_node and insert other nodes to temporary storage: current_nodes */
+			if (tmp_node->RFull()) {
+				auto s_left = (*(tmp_node->Right.begin())).get();
+				auto s_right = (*(tmp_node->Right.end())).get();
+
+				if (index < s_left->index) {
+					current_nodes.push_front(s_right);
+					tmp_node = s_left;
+				}
+				else if (s_left->index < index && index < s_right->index) {
+					if (s_left->RFull()) {
+						tmp_node = s_right;
+					}
+					else {
+						current_nodes.push_front(s_right);
+						tmp_node = s_left;
+					}
+				}
+				else if (s_right->index < index) {
+					tmp_node = s_right;
+				}
+				continue;
+
+			} /* if (tmp_node->RFull()) */
+			/* If left side is not full, just put this thing in... <set>
+			will re-arrange it itself */
+			else {
+				new_node->parent = tmp_node;
+				tmp_node->Right.insert(std::move(new_node));
+				break;
+			}
+		} /* if (index < tmp_node->index) else { */
 
 		/* If we couldn't find any vacancy here... */
 		if (!current_nodes.empty()) {
-		    tmp_node = current_nodes.back();
-		    current_nodes.pop_back();
-		    depth++;
+			tmp_node = current_nodes.back();
+			current_nodes.pop_back();
 		}
 		else tmp_node = nullptr;
-	}
+	} /* while (tmp_node) { */
 
 	return;
 }

@@ -10,19 +10,45 @@
 **********************************************/
 #include "test.hpp"
 
-void test_quad_tree()
+static std::string random_str(unsigned int len)
+{
+	static const char alphanum[] = \
+		"0123456789"
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz";
+
+	std::string str(len, ' ');
+	for (auto i=0; i<len; ++i) {
+		str[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+	}
+
+	return str;
+}
+
+static std::vector<std::string> StringSetGen(int n_strings)
+{
+    if (n_strings <= 0) return std::vector<std::string>();
+
+	std::vector<std::string> v_str(n_strings);
+	for (auto i=0; i<n_strings; ++i) {
+		v_str[i] = random_str(rand()%10);
+	}
+
+	return v_str;
+}
+
+
+void test_quad_tree(int data_len=5)
 {
     std::cout << "Testing Quad Tree with std::string" << std::endl;
 
     QTree<std::string> qtree;
 
-    int data_len = 5;
+	std::vector<std::string> data_cont = \
+		StringSetGen(data_len);
 
-    qtree.Insert(std::string("A"), 1);
-    qtree.Insert(std::string("AB"), 2);
-    qtree.Insert(std::string("ABC"), 3);
-    qtree.Insert(std::string("ABCDE"), 4);
-    qtree.Insert(std::string("ABCDEF"), 5);
+	for (auto i=0; i<data_len; ++i)
+		qtree.Insert(data_cont[i], i+1);
 
     for (auto i=0; i<data_len; ++i)
         std::cout << "Flag " << i+1 << ": " << qtree.Get(i+1) << std::endl;
@@ -40,7 +66,8 @@ void test_quad_tree()
 
 int main (int argc, char* argv[])
 {
-    test_quad_tree();
+	srand(time(0));
+	test_quad_tree(10);
 
 	return 0;
 }

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
+#include <cstdlib>
 
 #include "utils.hpp"
 #include "qtree.hpp"
