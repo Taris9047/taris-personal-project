@@ -21,8 +21,6 @@
 
 #include "utils.hpp"
 
-typedef enum { NorthEast, NorthWest, SouthEast, SouthWest } QTNodeSide;
-
 template<class T>
 class QTree {
 

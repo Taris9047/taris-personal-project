@@ -88,7 +88,7 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 
 			/* Full node. update tmp_node and insert other nodes to temporary storage: current_nodes */
 			if (tmp_node->LFull()) {
-				auto i_left = tmp_node->Right.begin();
+				auto i_left = tmp_node->Left.begin();
 				auto i_right = i_left;
 				std::advance(i_right, 1);
 

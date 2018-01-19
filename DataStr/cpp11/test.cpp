@@ -27,7 +27,7 @@ static std::string random_str(unsigned int len)
 
 static std::vector<std::string> StringSetGen(int n_strings)
 {
-    if (n_strings <= 0) return std::vector<std::string>();
+	if (n_strings <= 0) return std::vector<std::string>();
 
 	std::vector<std::string> v_str(n_strings);
 	for (auto i=0; i<n_strings; ++i) {
@@ -38,7 +38,7 @@ static std::vector<std::string> StringSetGen(int n_strings)
 }
 
 
-void test_quad_tree(int data_len=5, int replace_ind=2)
+void test_quad_tree(int data_len=8, int replace_ind=2)
 {
     std::cout << "Testing Quad Tree with std::string" << std::endl;
 
@@ -51,23 +51,48 @@ void test_quad_tree(int data_len=5, int replace_ind=2)
 		qtree.Insert(data_cont[i], i+1);
 
     for (auto i=0; i<data_len; ++i)
-        std::cout << "Flag " << i+1 << ": " << qtree.Get(i+1) << std::endl;
+        std::cout << "Index " << i+1 << ": " << qtree.Get(i+1) << std::endl;
 
-    std::cout << "Replacing Flag " << replace_ind << " with ABCDE" << std::endl;
+    std::cout << "Replacing Index " << replace_ind << " with ABCDE" << std::endl;
     qtree.Insert(std::string("ABCDE"), replace_ind);
 
     std::cout << "Printing the entire quad tree again" << std::endl;
 
     for (auto i=0; i<data_len; ++i)
-        std::cout << "Flag " << i+1 << ": " << qtree.Get(i+1) << std::endl;
+        std::cout << "Index " << i+1 << ": " << qtree.Get(i+1) << std::endl;
 
+}
+
+void test_octal_tree(int data_len=16, int replace_ind=2)
+{
+    std::cout << "Testing Octal Tree with std::string" << std::endl;
+
+    OCTree<std::string> octree;
+
+	std::vector<std::string> data_cont = \
+		StringSetGen(data_len);
+
+	for (auto i=0; i<data_len; ++i) octree.Insert(data_cont[i], i+1);
+
+    for (auto i=0; i<data_len; ++i)
+        std::cout << "Index " << i+1 << ": " << octree.Get(i+1) << std::endl;
+
+    std::cout << "Replacing Index " << replace_ind << " with ABCDE" << std::endl;
+    octree.Insert(std::string("ABCDE"), replace_ind);
+
+    std::cout << "Printing the entire quad tree again" << std::endl;
+
+    for (auto i=0; i<data_len; ++i)
+        std::cout << "Index " << i+1 << ": " << octree.Get(i+1) << std::endl;
 
 }
 
 int main (int argc, char* argv[])
 {
 	srand(time(0));
-	test_quad_tree(100);
+	test_quad_tree();
+	std::cout << std::endl;
+	test_octal_tree();
 
 	return 0;
 }
