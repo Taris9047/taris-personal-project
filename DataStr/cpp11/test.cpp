@@ -38,7 +38,7 @@ static std::vector<std::string> StringSetGen(int n_strings)
 }
 
 
-void test_quad_tree(int data_len=5)
+void test_quad_tree(int data_len=5, int replace_ind=2)
 {
     std::cout << "Testing Quad Tree with std::string" << std::endl;
 
@@ -53,8 +53,8 @@ void test_quad_tree(int data_len=5)
     for (auto i=0; i<data_len; ++i)
         std::cout << "Flag " << i+1 << ": " << qtree.Get(i+1) << std::endl;
 
-    std::cout << "Replacing Flag 2 with ABCDE" << std::endl;
-    qtree.Insert(std::string("ABCDE"), 2);
+    std::cout << "Replacing Flag " << replace_ind << " with ABCDE" << std::endl;
+    qtree.Insert(std::string("ABCDE"), replace_ind);
 
     std::cout << "Printing the entire quad tree again" << std::endl;
 
@@ -67,7 +67,7 @@ void test_quad_tree(int data_len=5)
 int main (int argc, char* argv[])
 {
 	srand(time(0));
-	test_quad_tree(10);
+	test_quad_tree(100);
 
 	return 0;
 }

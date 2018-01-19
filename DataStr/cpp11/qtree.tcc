@@ -28,21 +28,25 @@ typename QTree<T>::QTreeNode* QTree<T>::search(const uint64_t& index)
 		if (tmp_node->index == index) return tmp_node;
 
 		/* Find Left */
-		for (auto l=tmp_node->Left.begin(); l!=tmp_node->Left.end(); ++l) {
-			if ((*l)->index == index) return (*l).get();
-			other_nodes.push_front((*l).get());
+		if (!tmp_node->Left.empty()) {
+			for (auto l=tmp_node->Left.begin(); l!=tmp_node->Left.end(); ++l) {
+				if ((*l)->index == index) return (*l).get();
+				other_nodes.push_front((*l).get());
+			}
 		}
 
-		/* Fine Right */
-		for (auto l=tmp_node->Right.begin(); l!=tmp_node->Right.end(); ++l) {
-			if ((*l)->index == index) return (*l).get();
-			other_nodes.push_front((*l).get());
+		/* Find Right */
+		if (!tmp_node->Right.empty()) {
+			for (auto r=tmp_node->Right.begin(); r!=tmp_node->Right.end(); ++r) {
+				if ((*r)->index == index) return (*r).get();
+				other_nodes.push_front((*r).get());
+			}
 		}
 
-		// If index can't be found in this node, let's try other node.
+		/* If index can't be found in this node, let's try other node. */
 		if (!other_nodes.empty()) {
-		    tmp_node = other_nodes.back();
-		    other_nodes.pop_back();
+			tmp_node = other_nodes.back();
+			other_nodes.pop_back();
 		}
 		else tmp_node = nullptr;
 	}
@@ -84,8 +88,12 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 
 			/* Full node. update tmp_node and insert other nodes to temporary storage: current_nodes */
 			if (tmp_node->LFull()) {
-				auto s_left = (*(tmp_node->Left.begin())).get();
-				auto s_right = (*(tmp_node->Left.end())).get();
+				auto i_left = tmp_node->Right.begin();
+				auto i_right = i_left;
+				std::advance(i_right, 1);
+
+				auto s_left = (*i_left).get();
+				auto s_right = (*i_right).get();
 
 				if (index < s_left->index) {
 					current_nodes.push_front(s_right);
@@ -102,6 +110,14 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 				}
 				else if (s_right->index < index) {
 					tmp_node = s_right;
+				}
+				else if (index == s_left->index) {
+					s_left->data = data;
+					break;
+				}
+				else if (index == s_right->index) {
+					s_right->data = data;
+					break;
 				}
 				continue;
 
@@ -120,8 +136,12 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 		else {
 			/* Full node. update tmp_node and insert other nodes to temporary storage: current_nodes */
 			if (tmp_node->RFull()) {
-				auto s_left = (*(tmp_node->Right.begin())).get();
-				auto s_right = (*(tmp_node->Right.end())).get();
+				auto i_left = tmp_node->Right.begin();
+				auto i_right = i_left;
+				std::advance(i_right, 1);
+
+				auto s_left = (*i_left).get();
+				auto s_right = (*i_right).get();
 
 				if (index < s_left->index) {
 					current_nodes.push_front(s_right);
@@ -138,6 +158,14 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 				}
 				else if (s_right->index < index) {
 					tmp_node = s_right;
+				}
+				else if (index == s_left->index) {
+					s_left->data = data;
+					break;
+				}
+				else if (index == s_right->index) {
+					s_right->data = data;
+					break;
 				}
 				continue;
 

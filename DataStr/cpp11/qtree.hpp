@@ -46,12 +46,12 @@ protected:
 		struct QTreeNodeLT {
 			bool operator() (
 				const std::unique_ptr<QTreeNode>& A,
-				const std::unique_ptr<QTreeNode>& B) const
+				const std::unique_ptr<QTreeNode>& B)
 			{ return A->index < B->index; }
 		};
 
-		std::set<std::unique_ptr<QTreeNode>, struct QTreeNodeLT> Left;
-		std::set<std::unique_ptr<QTreeNode>, struct QTreeNodeLT> Right;
+		std::set<std::unique_ptr<QTreeNode>, QTreeNodeLT> Left;
+		std::set<std::unique_ptr<QTreeNode>, QTreeNodeLT> Right;
 
 		void Assign(T& input_data) { data = input_data; }
 		bool Full() {
