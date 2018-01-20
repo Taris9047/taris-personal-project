@@ -89,10 +89,15 @@ void test_octal_tree(int data_len=16, int replace_ind=2)
 
 int main (int argc, char* argv[])
 {
+	int data_len;
+	if (argc > 1)
+		data_len = atoi(argv[1]);
+
 	srand(time(0));
-	test_quad_tree();
+
+	test_quad_tree(data_len);
 	std::cout << std::endl;
-	test_octal_tree();
+	test_octal_tree(data_len);
 
 	return 0;
 }
