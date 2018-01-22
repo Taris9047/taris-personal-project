@@ -16,10 +16,14 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
+#include <utility>
 
 #include "utils.hpp"
 #include "qtree.hpp"
 #include "octree.hpp"
 #include "trie.hpp"
+
+#define STR_LEN_MAX 40
+#define INDEX_MAX 10000
 
 #endif /* Include guard */

@@ -31,73 +31,112 @@ static std::vector<std::string> StringSetGen(int n_strings)
 
 	std::vector<std::string> v_str(n_strings);
 	for (auto i=0; i<n_strings; ++i) {
-		v_str[i] = random_str(rand()%10);
+		v_str[i] = random_str(rand()%STR_LEN_MAX);
 	}
 
 	return v_str;
 }
 
+static std::vector<std::pair<uint64_t, std::string>> DataGen(int n_data)
+{
+	std::vector<std::pair<uint64_t, std::string>> data_set;
+	std::vector<uint64_t> generated_indices;
 
-void test_quad_tree(int data_len=8, int replace_ind=2)
+	auto find_ind = [=] (const uint64_t& num) {
+		if (generated_indices.empty()) return false;
+		auto it = std::find(generated_indices.begin(), generated_indices.end(), num);
+		if (it==generated_indices.end()) return false;
+		else return true;
+	};
+
+	uint64_t ind = 0;
+	std::string str;
+	for (auto i=0; i<n_data; ++i) {
+		str = random_str(rand()%STR_LEN_MAX);
+		while (true) {
+			ind = (uint64_t)rand()%INDEX_MAX;
+			if (!find_ind(ind)) {
+				generated_indices.push_back(ind);
+				break;
+			}
+		}
+		auto p = std::pair<uint64_t, std::string>(ind, str);
+		data_set.push_back(p);
+	}
+
+	return data_set;
+}
+
+void test_quad_tree(int data_len=16)
 {
     std::cout << "Testing Quad Tree with std::string" << std::endl;
 
     QTree<std::string> qtree;
 
-	std::vector<std::string> data_cont = \
-		StringSetGen(data_len);
+	// std::vector<std::string> data_cont = \
+	// 	StringSetGen(data_len);
+
+	auto data_cont = DataGen(data_len);
 
 	for (auto i=0; i<data_len; ++i)
-		qtree.Insert(data_cont[i], i+1);
+		qtree.Insert(data_cont[i].second, data_cont[i].first);
 
-    for (auto i=0; i<data_len; ++i)
-        std::cout << "Index " << i+1 << ": " << qtree.Get(i+1) << std::endl;
+    for (auto i=0; i<data_len; ++i) {
+        std::cout << "[" << i+1 << "]" << "Key " << data_cont[i].first << ": " << qtree.Get(data_cont[i].first) << std::endl;
+	}
 
-    std::cout << "Replacing Index " << replace_ind << " with ABCDE" << std::endl;
-    qtree.Insert(std::string("ABCDE"), replace_ind);
+	auto rand_ind = data_cont[rand()%data_cont.size()].first;
+
+    std::cout << "Replacing Key " << rand_ind << " with ABCDE" << std::endl;
+    qtree.Insert(std::string("ABCDE"), rand_ind);
 
     std::cout << "Printing the entire quad tree again" << std::endl;
 
-    for (auto i=0; i<data_len; ++i)
-        std::cout << "Index " << i+1 << ": " << qtree.Get(i+1) << std::endl;
-
+	for (auto i=0; i<data_len; ++i) {
+        std::cout << "[" << i+1 << "]" << "Key " << data_cont[i].first << ": " << qtree.Get(data_cont[i].first) << std::endl;
+	}
 }
 
-void test_octal_tree(int data_len=16, int replace_ind=2)
+void test_octal_tree(int data_len=16)
 {
     std::cout << "Testing Octal Tree with std::string" << std::endl;
 
     OCTree<std::string> octree;
 
-	std::vector<std::string> data_cont = \
-		StringSetGen(data_len);
+	auto data_cont = DataGen(data_len);
 
-	for (auto i=0; i<data_len; ++i) octree.Insert(data_cont[i], i+1);
+	for (auto i=0; i<data_len; ++i)
+		octree.Insert(data_cont[i].second, data_cont[i].first);
 
-    for (auto i=0; i<data_len; ++i)
-        std::cout << "Index " << i+1 << ": " << octree.Get(i+1) << std::endl;
+    for (auto i=0; i<data_len; ++i) {
+        std::cout << "[" << i+1 << "]" << "Key " << data_cont[i].first << ": " << octree.Get(data_cont[i].first) << std::endl;
+	}
 
-    std::cout << "Replacing Index " << replace_ind << " with ABCDE" << std::endl;
-    octree.Insert(std::string("ABCDE"), replace_ind);
+	auto rand_ind = data_cont[rand()%data_cont.size()].first;
+
+    std::cout << "Replacing Key " << rand_ind << " with ABCDE" << std::endl;
+    octree.Insert(std::string("ABCDE"), rand_ind);
 
     std::cout << "Printing the entire quad tree again" << std::endl;
 
-    for (auto i=0; i<data_len; ++i)
-        std::cout << "Index " << i+1 << ": " << octree.Get(i+1) << std::endl;
+	for (auto i=0; i<data_len; ++i) {
+        std::cout << "[" << i+1 << "]" << "Key " << data_cont[i].first << ": " << octree.Get(data_cont[i].first) << std::endl;
+	}
 
 }
 
 int main (int argc, char* argv[])
 {
-	int data_len;
-	if (argc > 1)
-		data_len = atoi(argv[1]);
+	int data_len = 0;
+	if (argc > 1) data_len = atoi(argv[1]);
 
 	srand(time(0));
 
-	test_quad_tree(data_len);
+	if (!data_len) test_quad_tree();
+	else test_quad_tree(data_len);
 	std::cout << std::endl;
-	test_octal_tree(data_len);
+	if (!data_len) test_octal_tree();
+	else test_octal_tree(data_len);
 
 	return 0;
 }
