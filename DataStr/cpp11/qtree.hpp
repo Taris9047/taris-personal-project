@@ -74,14 +74,16 @@ private:
 	uint64_t depth;
 	uint64_t n_nodes;
 	std::unique_ptr<QTreeNode> root_node;
+	std::set<uint64_t> indices;
 
 	QTreeNode* search(const uint64_t& index);
-
 
 public:
 	/* Methods */
 	void Insert(const T& data, const uint64_t& index);
 	T& Get(const uint64_t& index);
+
+	void Print();
 
 	/* Constructors and Destructors */
 	QTree();

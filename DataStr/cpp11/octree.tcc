@@ -63,6 +63,7 @@ void OCTree<T>::Insert(const T& data, const uint64_t& index)
 
 	/* New node */
 	auto new_node = std::make_unique<OCTreeNode>(data, index);
+	indices.insert(index);
 
 	/* Edge case */
 	if (!root_node) {
@@ -87,9 +88,7 @@ void OCTree<T>::Insert(const T& data, const uint64_t& index)
 		auto tmp_it = tmp_node->Left.begin();
 
 		if (index < tmp_node->index) {
-			if (tmp_node->LFull()) {
-				tmp_it = tmp_node->Left.begin();
-			}
+			if (tmp_node->LFull()) tmp_it = tmp_node->Left.begin();
 			else {
 				new_node->parent = tmp_node;
 				if (tmp_node->Left.empty()) depth++;
@@ -99,9 +98,7 @@ void OCTree<T>::Insert(const T& data, const uint64_t& index)
 			}
 		}
 		else {
-			if (tmp_node->RFull()) {
-				tmp_it = tmp_node->Right.begin();
-			}
+			if (tmp_node->RFull()) tmp_it = tmp_node->Right.begin();
 			else {
 				new_node->parent = tmp_node;
 				if (tmp_node->Right.empty()) depth++;
@@ -184,6 +181,17 @@ T& OCTree<T>::Get(const uint64_t& index)
 	auto tmp_node = search(index);
 	if (tmp_node) return tmp_node->data;
 	else throw std::invalid_argument("OCTree: index can't be found!!");
+}
+
+/* Print */
+template <class T>
+void OCTree<T>::Print()
+{
+	uint64_t n = 1;
+	for (auto it=indices.begin(); it!=indices.end(); ++it, ++n) {
+		std::cout << "[" << n << "] " \
+			<< "Key " << *it << ": " << Get(*it) << std::endl;
+	}
 }
 
 /**********************************************

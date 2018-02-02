@@ -98,9 +98,7 @@ void Trie<T>::Insert(const std::vector<T>& new_path)
 		if (i==new_path.size()-1) break;
 
 		for (auto c : tmp_ptr->GetChildren()) {
-			if (c->GetData() == new_path[i+1]) {
-				tmp_ptr = c;
-			}
+			if (c->GetData() == new_path[i+1]) tmp_ptr = c;
 			else {
 				auto new_node = new TrieNode(new_path[i+1], tmp_ptr);
 				tmp_ptr->PushChildren(new_node);
@@ -121,8 +119,10 @@ std::vector<std::vector<T>> Trie<T>::Paths(const std::vector<T>& path_bf)
 	auto next_nodes = trav_node->GetChildren();
 
 	std::vector<std::vector<T>> ret_vec(next_nodes.size());
+
 	// Gotta think about some way to collect all the possible branches.
-	
+
+
 }
 
 /* Getting heads of possible data */
@@ -137,9 +137,8 @@ std::vector<T> Trie<T>::NextNodes(const std::vector<T>& path_bf)
 	auto nodes = current_node->GetChildren();
 
 	std::vector<T> ret_data(current_node->nChildren());
-	for (auto i=0; i<nodes.size(); ++i) {
-		ret_data[i] = nodes[i].GetData();
-	}
+	for (auto i=0; i<nodes.size(); ++i) ret_data[i] = nodes[i].GetData();
+
 	return ret_data;
 }
 

@@ -39,8 +39,10 @@ protected:
 		TrieNode* GetChildrenBack();
 
 		TrieNode() : data(), parent(nullptr), children() {;}
-		TrieNode(const T& inp_data) : TrieNode() { data = inp_data; }
-		TrieNode(const T& inp_data, const TrieNode*& inp_parent) : TrieNode(inp_data) { parent = inp_parent; }
+		TrieNode(const T& inp_data) : \
+			data(), parent(nullptr), children(), data(inp_data) {;}
+		TrieNode(const T& inp_data, const TrieNode*& inp_parent) : \
+			data(), parent(inp_parent), children(), data(inp_data) {;}
 
 		virtual ~TrieNode() {;}
 	};

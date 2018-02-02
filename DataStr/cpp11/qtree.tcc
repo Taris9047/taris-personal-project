@@ -63,6 +63,7 @@ void QTree<T>::Insert(const T& data, const uint64_t& index)
 
 	/* New node */
 	auto new_node = std::make_unique<QTreeNode>(data, index);
+	indices.insert(index);
 
 	/* Edge case */
 	if (!root_node) {
@@ -199,11 +200,22 @@ T& QTree<T>::Get(const uint64_t& index)
 	else throw std::invalid_argument("QTree: index can't be found!!");
 }
 
+/* Print all the stuff we have */
+template <class T>
+void QTree<T>::Print()
+{
+	uint64_t n = 1;
+	for (auto it=indices.begin(); it!=indices.end(); ++it, ++n) {
+		std::cout << "[" << n << "] " \
+			<< "Key " << *it << ": " << Get(*it) << std::endl;
+	}
+}
+
 /**********************************************
   Constructors and Destructors for QTree
 ***********************************************/
 template <class T>
-QTree<T>::QTree() : depth(0), n_nodes(0), root_node(nullptr) {;}
+QTree<T>::QTree() : depth(0), n_nodes(0), root_node(nullptr), indices() {;}
 
 template <class T>
 QTree<T>::~QTree() {;}
