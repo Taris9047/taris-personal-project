@@ -14,17 +14,17 @@
   Reference:
   https://en.wikipedia.org/wiki/Linked_list
 
- ***************************************/
+****************************************/
 
- #include <assert.h>
- #include <stdio.h>
- #include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
- #include "list.h"
+#include "list.h"
 
- /***************************************
-   LNode methods
- ****************************************/
+/***************************************
+ LNode methods
+****************************************/
 
 /* Static method */
 static int node_trav(LNode* l)
