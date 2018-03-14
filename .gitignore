@@ -26,3 +26,4 @@ DataStr/c/.gdb_history
 DataStr/c/DataStrTest.dSYM/Contents/Info.plist
 .DS_Store
 *.plist
+python_test.py
