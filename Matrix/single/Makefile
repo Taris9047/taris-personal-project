@@ -2,9 +2,9 @@
 
 WARNS=-Wall
 RWARNS=-Wall
-#OPT=-O3
-OPT=-ggdb3
-CFLAGS=$(OPT) -std=gnu11 -pthreads $(WARNS)
+OPT=-O3 -march=native -fomit-frame-pointer
+#OPT=-ggdb3
+CFLAGS=$(OPT) -std=gnu11 -pthreads $(WARNS) -pipe
 
 SRCDIR=src
 
@@ -13,13 +13,13 @@ VERNUM_SHORT=0.0
 
 CURR_DIR := $(shell pwd)
 
-CC_DETECT := `command -v clang`
-ifeq ($(CC_DETECT), "")
-	CC=gcc
-else
-	CC=clang
-endif
-# CC=gcc
+# CC_DETECT := `command -v clang`
+# ifeq ($(CC_DETECT), "")
+# 	CC=gcc
+# else
+# 	CC=clang
+# endif
+CC=gcc
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)
