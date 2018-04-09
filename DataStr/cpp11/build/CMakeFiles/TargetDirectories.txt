@@ -1,0 +1,3 @@
+/Users/Taris/workshop/DataStr/cpp11/build/CMakeFiles/rebuild_cache.dir
+/Users/Taris/workshop/DataStr/cpp11/build/CMakeFiles/edit_cache.dir
+/Users/Taris/workshop/DataStr/cpp11/build/CMakeFiles/DataStrCpp11Test.dir
