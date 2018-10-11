@@ -22,8 +22,6 @@
 # requires GMPY2 package to run gmp routines
 #
 
-import random
-import time
 import utils
 import sys
 
@@ -34,80 +32,83 @@ from functools import reduce
 
 ver_number = "0.0.4.8.1"
 
-def main():
-	import multiprocessing as mp
-	mp.freeze_support()
 
-	print(("*** T-Bench ver. Abysmal "+ver_number+" ***"))
-	print (" ")
-	print ("    T-Bench Copyright (C) 2012  Taylor Shin.\n\
+def main():
+    import multiprocessing as mp
+    mp.freeze_support()
+
+    print(("*** T-Bench ver. Abysmal " + ver_number + " ***"))
+    print(" ")
+    print("    T-Bench Copyright (C) 2012  Taylor Shin.\n\
     This program comes with ABSOLUTELY NO WARRANTY.\n\
     This is free software, and you are welcome to redistribute it.\n")
 
-	run_options = utils.bench_options(sys.argv)
-	print(("Options set as: %s"%reduce(lambda x,y: x+' '+y, run_options[0])))
+    run_options = utils.bench_options(sys.argv)
+    print(("Options set as: %s" %
+           reduce(lambda x, y: x + ' ' + y, run_options[0])))
 
-	# Running routines
-	# setting up N
-	N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
+    # Running routines
+    # setting up N
+    N_default = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000]
 
-	if run_options[1] == []:
-		print("No numeric entry found!! Setting up default calculation range.")
-		N = N_default
-	else:
-		N = run_options[1]
+    if run_options[1] == []:
+        print("No numeric entry found!! Setting up default calculation range.")
+        N = N_default
+    else:
+        N = run_options[1]
 
-	utils.sysinfo(True)
-	utils.print_range(N)
+    utils.sysinfo(True)
+    utils.print_range(N)
 
-	#sys.setrecursionlimit(max(N)+10)
-	#print(("Setting recursion limit: %d"%(max(N)+10)))
+    # sys.setrecursionlimit(max(N)+10)
+    # print(("Setting recursion limit: %d"%(max(N)+10)))
 
-	for bopts in run_options[0]:
-		if bopts == 'seq':
-			factN.factN_seq(N, "nSequential.txt")
-			print (" ")
-		elif bopts == 'dnc':
-			factN.factN_dnc(N, "nDNC.txt", 500)
-			print (" ")
-		elif bopts == 'dnc_m':
-			# Taking Advantage of Multiprocessing module.
-			factN.factN_dnc_m(N, "nDNC_m.txt")
-			print(" ")
-		elif bopts == 'prime':
-			factN.factNp(N, "nPrimeFactorial.txt")	
-			print(" ")		
-		elif bopts == 'auto':
-			factN.factNa(N, "nAdaptive.txt")
-			print(" ")
-		elif bopts == 'gseq':
-			gfactN.factN_seq(N, "gmpSequential.txt")
-			print (" ")
-		elif bopts == 'gdnc':
-			gfactN.factN_dnc(N, "gmpDNC.txt", 500)
-			print (" ")
-		elif bopts == 'gdnc_m':
-			# Taking Advantage of Multiprocessing module.
-			gfactN.factN_dnc_m(N, "gmpDNC_m.txt")
-			print(" ")
-		elif bopts == 'gprime':
-			factN.factNp(N, "gmpPrimeFactorial.txt")	
-			print(" ")		
-		elif bopts == 'gauto':
-			gfactN.factNa(N, "gmpAdaptive.txt")
-			print(" ")
-		elif bopts == 'torture':
-			while 1:
-				print (" ")
-				print ("*** Torture Test Mode ***")
-				print ("  Ignoring defined N list.")
-				Torture.torture()
-				print (" ")
-		else:
-			print ("Wrong Option!! You just found the Program Bug!!")
-			exit(1)
+    for bopts in run_options[0]:
+        if bopts == 'seq':
+            factN.factN_seq(N, "nSequential.txt")
+            print(" ")
+        elif bopts == 'dnc':
+            factN.factN_dnc(N, "nDNC.txt", 500)
+            print(" ")
+        elif bopts == 'dnc_m':
+            # Taking Advantage of Multiprocessing module.
+            factN.factN_dnc_m(N, "nDNC_m.txt")
+            print(" ")
+        elif bopts == 'prime':
+            factN.factNp(N, "nPrimeFactorial.txt")
+            print(" ")
+        elif bopts == 'auto':
+            factN.factNa(N, "nAdaptive.txt")
+            print(" ")
+        elif bopts == 'gseq':
+            gfactN.factN_seq(N, "gmpSequential.txt")
+            print(" ")
+        elif bopts == 'gdnc':
+            gfactN.factN_dnc(N, "gmpDNC.txt", 500)
+            print(" ")
+        elif bopts == 'gdnc_m':
+            # Taking Advantage of Multiprocessing module.
+            gfactN.factN_dnc_m(N, "gmpDNC_m.txt")
+            print(" ")
+        elif bopts == 'gprime':
+            factN.factNp(N, "gmpPrimeFactorial.txt")
+            print(" ")
+        elif bopts == 'gauto':
+            gfactN.factNa(N, "gmpAdaptive.txt")
+            print(" ")
+        elif bopts == 'torture':
+            while 1:
+                print(" ")
+                print("*** Torture Test Mode ***")
+                print("  Ignoring defined N list.")
+                Torture.torture()
+                print(" ")
+        else:
+            print("Wrong Option!! You just found the Program Bug!!")
+            exit(1)
 
-	return 0
+    return 0
+
 
 if __name__ == '__main__':
-	main()
+    main()
