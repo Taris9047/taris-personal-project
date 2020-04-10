@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # cpu number?
-CPUNUM=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | tail -1)
+if [ -f "/proc/cpuinfo" ]; then
+	CPUNUM=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | tail -1)
+else
+	CPUNUM=2
+fi
 
 # Get argument
 ARG=$1

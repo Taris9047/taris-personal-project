@@ -121,7 +121,7 @@ int PathDestroy(GPath p)
     assert(p);
 
     if (p->g) DeleteGraph(p->g);
-    if (p->path_db) BTDelete(p->path_db);
+    if (p->path_db) DeleteBTree(p->path_db);
     free(p);
 
     return 0;
