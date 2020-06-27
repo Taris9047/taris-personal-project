@@ -1,7 +1,7 @@
 #CC=gcc-4.9
 #CC=tcc
-CC=clang
-CXX=clang++
+CC=gcc
+CXX=g++
 CFLAGS=-g -O3 -Wall -fPIC
 LDFLAGS=
 SRCDIR=./
