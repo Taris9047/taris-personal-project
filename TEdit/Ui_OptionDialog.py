@@ -70,8 +70,8 @@ class Ui_OptionsDialog(object):
 
         self.retranslateUi(OptionsDialog)
         # TODO: Gotta find 'newer' way to implement this crap.
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), OptionsDialog.accept)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), OptionsDialog.reject)
+        self.buttonBox.accepted.connect(OptionsDialog.accept)
+        self.buttonBox.rejected.connect(OptionsDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(OptionsDialog)
 
     def retranslateUi(self, OptionsDialog):
