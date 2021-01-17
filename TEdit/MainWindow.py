@@ -7,7 +7,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QAction, QMenuBar, QWidget, QGridLayout, QTextEdit, QStatusBar, QMenu, QFileDialog, QFontDialog
 from Find import Find, FindnReplace
 from OptionDialog import OptionDialog
 # from LineTextEdit import LineTextEdit
@@ -38,11 +39,12 @@ except AttributeError:
             translate(context, text, disambig)
 
 
+
 ## MainWindow
 #
 # Main window of TEdit program.
 #
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     file_types = {
         'python': ['.py', '.pyw'],
     }
@@ -131,7 +133,7 @@ class MainWindow(QtGui.QMainWindow):
         self.recent_files_actions = \
             [[] for x in range(len(list(self.recent_files)))]
         for i, rf in enumerate(self.recent_files):
-            self.recent_files_actions[i] = QtGui.QAction(rf, self)
+            self.recent_files_actions[i] = QAction(rf, self)
 
         # Read in fonts
         self.font = QtGui.QFont(
@@ -155,6 +157,7 @@ class MainWindow(QtGui.QMainWindow):
         # refresh main menu to add actions into File menu.
         self.refresh_main_menu()
 
+
     ## setupUi
     #
     # establish UI for the editor
@@ -164,10 +167,10 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setupActions()
 
-        self.menubar = QtGui.QMenuBar()
-        self.centralwidget = QtGui.QWidget(self)
-        self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.text = QtGui.QTextEdit(self.centralwidget)
+        self.menubar = QMenuBar()
+        self.centralwidget = QWidget(self)
+        self.gridLayout = QGridLayout(self.centralwidget)
+        self.text = QTextEdit(self.centralwidget)
         # self.editor = LineTextEdit(self.centralwidget)
         # self.text = self.editor.edit
         self.gridLayout.addWidget(self.text, 0, 0, 1, 1)
@@ -176,7 +179,7 @@ class MainWindow(QtGui.QMainWindow):
         self.textCursor = self.text.textCursor()
         self.text.cursorPositionChanged.connect(self.textCursorPosition)
 
-        self.statusbar = QtGui.QStatusBar(self)
+        self.statusbar = QStatusBar(self)
         self.setStatusBar(self.statusbar)
 
         self.setWindowTitle(self.winTitle)
@@ -189,78 +192,78 @@ class MainWindow(QtGui.QMainWindow):
     #
     def setupActions(self):
         # Actions
-        self.actionNew = QtGui.QAction(r'&New', self)
+        self.actionNew = QAction(r'&New', self)
         self.actionNew.setShortcut('Ctrl+N')
         self.actionNew.triggered.connect(self.NewFile)
 
-        self.actionOpen = QtGui.QAction(r'&Open', self)
+        self.actionOpen = QAction(r'&Open', self)
         self.actionOpen.setShortcut('Ctrl+O')
         self.actionOpen.triggered.connect(self.OpenFile)
 
-        self.actionSave = QtGui.QAction(r'&Save', self)
+        self.actionSave = QAction(r'&Save', self)
         self.actionSave.setShortcut('Ctrl+S')
         self.actionSave.triggered.connect(self.SaveFile)
 
-        self.actionSave_As = QtGui.QAction(r'Save &As...', self)
+        self.actionSave_As = QAction(r'Save &As...', self)
         self.actionSave_As.setShortcut('Ctrl+Shift+S')
         self.actionSave_As.triggered.connect(self.SaveAs)
 
-        self.actionQuit = QtGui.QAction(r'&Quit', self)
+        self.actionQuit = QAction(r'&Quit', self)
         self.actionQuit.setShortcut('Ctrl+Q')
         self.actionQuit.triggered.connect(self.close)
 
-        self.actionCopy = QtGui.QAction(r'&Copy', self)
+        self.actionCopy = QAction(r'&Copy', self)
         self.actionCopy.setShortcut('Ctrl+C')
         self.actionCopy.triggered.connect(self.copyText)
 
-        self.actionPaste = QtGui.QAction(r'&Paste', self)
+        self.actionPaste = QAction(r'&Paste', self)
         self.actionPaste.setShortcut('Ctrl+P')
         self.actionPaste.triggered.connect(self.pasteText)
 
-        self.actionFind = QtGui.QAction(r'&Find', self)
+        self.actionFind = QAction(r'&Find', self)
         self.actionFind.setShortcut('Ctrl+F')
         self.actionFind.triggered.connect(self.Find_)
 
-        self.actionFind_and_Replace = \
-            QtGui.QAction(r'Find and &Replace', self)
+        self.actionFind_and_Replace = QAction(r'Find and &Replace', self)
         self.actionFind_and_Replace.setShortcut('Ctrl+Shift+F')
         self.actionFind_and_Replace.triggered.connect(self.Find_and_Replace)
 
-        self.actionDisplayFonts = QtGui.QAction(r'Fon&ts', self)
+        self.actionDisplayFonts = QAction(r'Fon&ts', self)
         self.actionDisplayFonts.setShortcut('Ctrl+F5')
         self.actionDisplayFonts.triggered.connect(self.setFont)
 
-        self.actionWord_Wrap = QtGui.QAction(r'Toggle Word Wrap', self)
+        self.actionWord_Wrap = QAction(r'Toggle Word Wrap', self)
         self.actionWord_Wrap.setShortcut('Ctrl+Alt+W')
         self.actionWord_Wrap.triggered.connect(self.toggleTextWrap)
 
-        self.actionIndent_Selection = QtGui.QAction(r'&Indent', self)
-        self.actionUnindent_Selection = QtGui.QAction(r'&Unindent', self)
+        self.actionIndent_Selection = QAction(r'&Indent', self)
+        self.actionUnindent_Selection = QAction(r'&Unindent', self)
 
-        self.actionTabs_to_Space = QtGui.QAction(r'&Tabs to Space', self)
+        self.actionTabs_to_Space = QAction(r'&Tabs to Space', self)
         self.actionTabs_to_Space.setShortcut('Ctrl+Alt+T')
         self.actionTabs_to_Space.triggered.connect(self.TabsToSpace)
 
-        self.actionOptions = QtGui.QAction(r'&Options', self)
+        self.actionOptions = QAction(r'&Options', self)
         self.actionOptions.setShortcut('F4')
         self.actionOptions.triggered.connect(self.openOptionDialog)
 
-        self.actionAbout = QtGui.QAction(r'Abo&ut', self)
+        self.actionAbout = QAction(r'Abo&ut', self)
 
-        self.actionManual = QtGui.QAction(r'&Manual', self)
+        self.actionManual = QAction(r'&Manual', self)
         self.actionManual.setShortcut('F1')
 
-    ## refresh_main_menu
+
+    # refresh_main_menu
     #
     # refreshes main menubar to update recent file.
     #
     def refresh_main_menu(self):
         # Menubar definition
         self.menubar.clear()
-        self.menuFile = QtGui.QMenu(r'&File', self.menubar)
-        self.menuEdit = QtGui.QMenu(r'&Edit', self.menubar)
-        self.menuPreferneces = QtGui.QMenu(r'&Preferences', self.menubar)
-        self.menuHelp = QtGui.QMenu(r'&Help', self.menubar)
+        self.menuFile = QMenu(r'&File', self.menubar)
+        self.menuEdit = QMenu(r'&Edit', self.menubar)
+        self.menuPreferneces = QMenu(r'&Preferences', self.menubar)
+        self.menuHelp = QMenu(r'&Help', self.menubar)
 
         # File Menu
         self.menuFile.addAction(self.actionNew)
@@ -320,7 +323,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.recent_files.append(str(self.filename))
             self.recent_files_actions.\
-                append(QtGui.QAction(self.filename, self))
+                append(QAction(self.filename, self))
             return True
 
     ## __openfile
@@ -400,9 +403,9 @@ class MainWindow(QtGui.QMainWindow):
     #
     def OpenFile(self):
         if self.UnSaved() != True:
-            filename = QtGui.QFileDialog.\
+            filename = QFileDialog.\
                 getOpenFileName(self, 'Open File',
-                    self.homedir if not self.currdir else self.currdir)
+                    self.homedir if not self.currdir else self.currdir)[0]
             if filename:
                 self.__openfile(filename)
                 return filename
@@ -415,8 +418,8 @@ class MainWindow(QtGui.QMainWindow):
     #
     def SaveFile(self):
         if not self.filename:
-            filename = QtGui.QFileDialog.\
-                getSaveFileName(self, 'Save File', self.homedir)
+            filename = QFileDialog.\
+                getSaveFileName(self, 'Save File', self.homedir)[0]
             if filename:
                 self.__savefile(filename)
                 return True
@@ -431,9 +434,9 @@ class MainWindow(QtGui.QMainWindow):
     # Save As function
     #
     def SaveAs(self):
-        filename = QtGui.QFileDialog.\
+        filename = QFileDialog.\
             getSaveFileName(self, 'Save File',
-                self.homedir if not self.currdir else self.currdir)
+                self.homedir if not self.currdir else self.currdir)[0]
         if filename:
             self.__savefile(filename)
             return filename
@@ -477,7 +480,7 @@ class MainWindow(QtGui.QMainWindow):
     # Opens up font dialog
     #
     def setFont(self):
-        self.font, status = QtGui.QFontDialog.getFont()
+        self.font, status = QFontDialog.getFont()
         if status:
             self.text.setFont(self.font)
             if Debug_Mode:

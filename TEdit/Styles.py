@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
+from PyQt5.QtGui import QColor, QTextCharFormat, QFont, QSyntaxHighlighter
 
 class Styles:
     def __init__(self, styname='default'):

@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from PyQt4 import QtGui
+from PyQt5 import QtGui, QtWidgets
 
 import re
 
 
-class Find(QtGui.QDialog):
+class Find(QtWidgets.QDialog):
     # Constructor
     #
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self.parent = parent
         self.lastMatch = None
         self.Ui()
@@ -74,12 +74,12 @@ class Find(QtGui.QDialog):
         self.parent.text.setTextCursor(cursor)
 
 
-class FindnReplace(QtGui.QDialog):
+class FindnReplace(QtWidgets.QDialog):
     # Constructor
     #
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QWidget.QDialog.__init__(self, parent)
         self.parent = parent
         self.lastMatch = None
         self.Ui()
