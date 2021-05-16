@@ -122,9 +122,9 @@ public:
 	int Set(const ULLONG& ir, const ULLONG& ic,
 		std::shared_ptr<T> pd); /* Set data with pointer */
 
-	ULLONG& Rows() const { return rows; }
-	ULLONG& Cols() const { return cols; }
-	IndKey& Size() const { return IndKey(rows, cols); }
+	ULLONG Rows() const { return rows; }
+	ULLONG Cols() const { return cols; }
+	IndKey Size() const { return IndKey(rows, cols); }
 	std::unique_ptr<BTree<T, IndKey>> GetTree() const { return BTData; }
 	bool Chk(const ULLONG& ir, const ULLONG& ic) const;
 

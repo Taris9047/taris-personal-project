@@ -6,16 +6,16 @@ https://john.nachtimwald.com/2009/08/19/better-qplaintextedit-with-line-numbers/
 
 '''
  
-from PyQt4.Qt import QFrame
-from PyQt4.Qt import QHBoxLayout
-from PyQt4.Qt import QPainter
-from PyQt4.Qt import QPlainTextEdit
-from PyQt4.Qt import QRect
-from PyQt4.Qt import QTextEdit
-from PyQt4.Qt import QTextFormat
-from PyQt4.Qt import QVariant
-from PyQt4.Qt import QWidget
-from PyQt4.Qt import Qt
+from PyQt5.Qt import QFrame
+from PyQt5.Qt import QHBoxLayout
+from PyQt5.Qt import QPainter
+from PyQt5.Qt import QPlainTextEdit
+from PyQt5.Qt import QRect
+from PyQt5.Qt import QTextEdit
+from PyQt5.Qt import QTextFormat
+from PyQt5.Qt import QVariant
+from PyQt5.Qt import QWidget
+from PyQt5.Qt import Qt
  
 class LineTextEdit(QFrame):
  

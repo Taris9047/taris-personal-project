@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from MainWindow import MainWindow
-from PyQt4 import QtGui
+from PyQt5 import QtGui
 import os
 import sys
 import platform as plf

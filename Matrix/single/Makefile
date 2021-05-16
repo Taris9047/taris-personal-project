@@ -19,7 +19,7 @@ CURR_DIR := $(shell pwd)
 # else
 # 	CC=clang
 # endif
-CC=gcc
+CC=clang
 
 UNAME_SH := $(shell uname)
 UNAME := $(shell echo $(UNAME_SH) | tr A-Z a-z)

@@ -7,7 +7,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
 from Find import Find, FindnReplace
 from OptionDialog import OptionDialog
 # from LineTextEdit import LineTextEdit

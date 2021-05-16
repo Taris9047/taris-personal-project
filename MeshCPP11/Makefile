@@ -1,20 +1,17 @@
 # Detecting OS --> let's use clang!!
-#CC=clang
-#CXX=clang++
-
-CC=gcc
-CXX=g++
+CC=clang
+CXX=clang++
 
 UNAME := $(shell uname)
 ifeq ($(UNALE), darwin)
-CC=gcc
-CXX=g++
+	CC=gcc
+	CXX=g++
 endif
 
-CFLAGS=-ggdb3 -fPIC -Wall
-CXXFLAGS=-ggdb3 -fPIC -Wall -std=c++11
+CFLAGS=-ggdb3 -fPIC -Wall -fomit-frame-pointer
+CXXFLAGS=-ggdb3 -fPIC -Wall -fomit-frame-pointer -std=c++14
 RCFLAGS=-O3 -fPIC -Wall
-RCXXFLAGS=-O3 -fPIC -Wall -std=c++11
+RCXXFLAGS=-O3 -fPIC -Wall -std=c++14
 LIBS=-lm -L.
 AR=ar
 
@@ -57,7 +54,7 @@ endif
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(TESTF_NAME): $(CXXSOURCES) $(CPPHEADERS) test.cpp test.hpp
-	$(CXX) -ggdb3 -std=c++11 test.cpp  -o $(TESTF_NAME) $(LIBS)
+	$(CXX) $(CXXFLAGS) test.cpp  -o $(TESTF_NAME) $(LIBS)
 
 all: $(TESTF_NAME)
 

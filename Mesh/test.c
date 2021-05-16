@@ -235,9 +235,6 @@ void test_graph(unsigned long nh, unsigned long nv)
 {
     printf("[GTest] *** Testing graph generation ***\n");
 
-
-
-
     // GNode tgr = InitGraph();
     // GNode tgr_r_b = tgr;
     // GNode tmpgr_h;
