@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"Op",
+				"OptionsDialog\tparam"
+			],
+			[
+				"QFont",
+				"QFontDialog\tclass"
+			],
+			[
 				"e",
 				"edited"
 			],
@@ -141,6 +149,44 @@
 			]
 		]
 	},
+	"buffers":
+	[
+		{
+			"file": "Find.py",
+			"settings":
+			{
+				"buffer_size": 7507,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "TEdit.py",
+			"settings":
+			{
+				"buffer_size": 685,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "MainWindow.py",
+			"settings":
+			{
+				"buffer_size": 17607,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Ui_OptionDialog.py",
+			"settings":
+			{
+				"buffer_size": 4564,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
 	"build_system": "Anaconda Python Builder",
 	"build_system_choices":
 	[
@@ -232,8 +278,13 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/home/taris/Documents/taris-personal-project/TEdit"
+	],
 	"file_history":
 	[
+		"/home/taris/Documents/taris-personal-project/TEdit/.gitignore",
 		"/C/Users/Taris/AppData/Roaming/Sublime Text 3/Packages/SublimeLinter/SublimeLinter.sublime-settings",
 		"/C/Users/Taris/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/Taris/AppData/Roaming/Sublime Text 3/Packages/User/Python.sublime-settings",
@@ -329,7 +380,7 @@
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 45.0
 	},
 	"find_in_files":
 	{
@@ -343,6 +394,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"QFileDialog",
+			"QStatusBAr",
+			"QGridLayout",
+			"QWidget",
 			"currdir",
 			"statusbar",
 			"python",
@@ -377,9 +432,139 @@
 		"whole_word": false,
 		"wrap": true
 	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "Find.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7507,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "TEdit.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 685,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								426,
+								426
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "MainWindow.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 17607,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								174,
+								174
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "Ui_OptionDialog.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4564,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3543,
+								3543
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1453.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 31.0
 	},
 	"input":
 	{
@@ -408,6 +593,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.SublimeLinter":
+	{
+		"height": 0.0
+	},
 	"output.exec":
 	{
 		"height": 184.0
@@ -417,9 +606,10 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "Anaconda Python Builder",
+	"project": "TEdit.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 58.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -453,6 +643,7 @@
 		],
 		"width": 392.0
 	},
+	"selected_group": 0,
 	"settings":
 	{
 	},

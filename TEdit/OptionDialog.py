@@ -7,7 +7,11 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+<<<<<<< HEAD
 from PyQt5 import QtCore, QtGui
+=======
+from PyQt5 import QtCore, QtGui, QtWidgets
+>>>>>>> fd58d09b77a991ad5499339c54f41fda66689d80
 from Ui_OptionDialog import Ui_OptionsDialog as optUi
 
 try:
@@ -25,7 +29,7 @@ except AttributeError:
         return QtGui.QApplication.translate(context, text, disambig)
 
 
-class OptionDialog(QtGui.QDialog):
+class OptionDialog(QtWidgets.QDialog):
     def __init__(self, parent):
         super(OptionDialog, self).__init__()
         self.parent = parent
