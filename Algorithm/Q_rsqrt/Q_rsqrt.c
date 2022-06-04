@@ -32,5 +32,4 @@ float Q_rsqrt2(float number)
   conv.f *= 1.5F - (number * 0.5F * conv.f * conv.f);
 
   return conv.f;
-
 }

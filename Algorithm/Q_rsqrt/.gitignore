@@ -2,3 +2,5 @@ test
 *.o
 *.Po
 .vscode
+.vs
+Q_rsqrt/Q_rsqrt/x64
