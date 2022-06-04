@@ -1,5 +1,5 @@
-CC=clang
-CFLAGS=-g3 -ggdb -std=c99 -W -Wall
+CC=gcc
+CFLAGS=-g3 -ggdb -W -Wall
 LIBS=-lm
 
 %.o: %.c
@@ -7,3 +7,6 @@ LIBS=-lm
 
 test: test.c Q_rsqrt.o
 	$(CC) $^ $(CFLAGS) $(LIBS) -o $@
+
+clean:
+	rm -rf ./*.o ./*.Po ./test
