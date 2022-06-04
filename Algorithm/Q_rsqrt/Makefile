@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-g3 -ggdb -W -Wall
+#CFLAGS=-g3 -ggdb -W -Wall
+CFLAGS=-march=native -O2 -fomit-frame-pointer -W -Wall
 LIBS=-lm
 
 %.o: %.c
